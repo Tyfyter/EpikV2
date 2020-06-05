@@ -1,0 +1,9 @@
+author = Tyfyter (Tyfyter2002 on steam)
+
+version = 0.1
+
+homepage = https://sites.google.com/view/tyfyterpoorlymoddingterraria/home
+displayName = EpikV2
+buildIgnore = tempgone\*
+includesource = true
+languageVersion = 6

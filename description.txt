@@ -1,0 +1,5 @@
+the continuation of my first mod, this is temporary and will only last until I can get the original source code back; At which point I will merge the two mods.
+
+
+Credits:
+Mostly just the people in the TModLoader discord, but especially DarkLight and JopoJelly.
