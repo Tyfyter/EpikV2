@@ -157,6 +157,26 @@ namespace EpikV2.NPCs {
 						npc.velocity.X = 0f;
 					}
 				}
+                if(npc.ai[2]!=0||npc.collideY) {
+                    switch(Main.rand.Next(3)) {
+                        case 0:
+                        npc.ai[2]-=0.05f*Math.Sign(npc.ai[2]);
+                        break;
+                        case 1:
+                        npc.ai[2]+=0.05f*Math.Sign(npc.ai[2]);
+                        break;
+                        case 2:
+                        npc.ai[2]+=0.05f*Math.Sign(npc.ai[2]);
+                        break;
+                    }
+                    if(npc.collideY) {
+                        npc.velocity.Y-=3f;
+                    }
+                    if(npc.ai[2]!=0) {
+                        if(Math.Abs(npc.ai[2])>0.5f)npc.ai[2] = Math.Sign(npc.ai[2])/2f;
+                        npc.rotation+=npc.ai[2];
+                    }
+                }
 				npc.velocity.Y = npc.velocity.Y + 0.3f;
 				if (npc.velocity.Y > 10f){
 					npc.velocity.Y = 10f;
