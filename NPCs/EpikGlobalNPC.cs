@@ -51,11 +51,14 @@ namespace EpikV2.NPCs
 		}
 
 		public override void NPCLoot(NPC npc){
-			/*for (int i = 0; i < npc.buffType.Length; i++){
+            /*for (int i = 0; i < npc.buffType.Length; i++){
 				if(npc.buffType[i] == mod.BuffType("ShroomInfestedDebuff")){
 					Projectile.NewProjectile(new Vector2(Main.rand.NextFloat(npc.position.X, npc.position.X + npc.width), Main.rand.NextFloat(npc.position.Y, npc.position.Y + npc.height)), new Vector2(80, 0).RotatedByRandom(100), ModContent.ProjectileType("ShroomShot"), 50, 0);
 				}
 			}*/
+            if(npc.type==NPCID.Golem) {
+                EpikWorld.GolemTime = 5;
+            }
 			if(npc.HasBuff(mod.BuffType("ShroomInfestedDebuff"))){
 				int a;
 				for(int i = 0; i < npc.buffTime[npc.FindBuffIndex(mod.BuffType("ShroomInfestedDebuff"))]; i++){

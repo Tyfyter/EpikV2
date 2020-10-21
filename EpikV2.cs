@@ -87,4 +87,10 @@ namespace EpikV2
             else return 0;
         }
 	}
+    public class EpikWorld : ModWorld {
+        public static int GolemTime = 0;
+        public override void PostUpdate() {
+            if(GolemTime>0)GolemTime--;
+        }
+    }
 }

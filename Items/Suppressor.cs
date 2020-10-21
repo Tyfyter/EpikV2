@@ -6,7 +6,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
- 
+
 namespace EpikV2.Items
 {
 	//I've never used a color palette while spriting a weapon before
@@ -16,8 +16,8 @@ namespace EpikV2.Items
 
         public override void SetDefaults()
         {
-            //item.name = "lightning";          
-            item.damage = 60;                        
+            //item.name = "lightning";
+            item.damage = 60;
             item.magic = true;                     //this make the item do magic damage
 			item.ranged = true;
             item.width = 24;
@@ -27,7 +27,7 @@ namespace EpikV2.Items
             item.useAnimation = 5;
             item.useStyle = 5;        //this is how the item is held
             item.noMelee = true;
-            item.knockBack = 7.5f;        
+            item.knockBack = 7.5f;
             item.value = 1000;
             item.rare = 6;
             item.UseSound = null;
@@ -37,8 +37,8 @@ namespace EpikV2.Items
 			item.scale = 0.85f;
             //item.glowMask = customGlowMask;
 			item.useAmmo = AmmoID.Bullet;
-        }      
-		
+        }
+
 		public override void SetStaticDefaults()
 		{
 		  DisplayName.SetDefault("Suppressor");
@@ -51,6 +51,7 @@ namespace EpikV2.Items
 			recipe = new ModRecipe(mod);
 			recipe.AddIngredient(ItemID.HeatRay, 1);
 			recipe.AddIngredient(ItemID.MartianConduitPlating, 10);
+			recipe.AddIngredient(ItemID.FragmentVortex, 5);
 			recipe.AddTile(TileID.LihzahrdAltar);
 			recipe.AddTile(TileID.Autohammer);
 			recipe.SetResult(this, 1);
@@ -85,11 +86,11 @@ namespace EpikV2.Items
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
 			EpikGlobalNPC egnpc = target.GetGlobalNPC<EpikGlobalNPC>();
 			egnpc.SuppressorHits+=8;
-			damage+=(int)(egnpc.SuppressorHits/3);
+			damage+=(int)(egnpc.SuppressorHits/6);
 			//Main.player[projectile.owner].chatOverhead.NewMessage(egnpc.SuppressorHits+"", 15);
 			if(egnpc.SuppressorHits>35){
 				Projectile.NewProjectile(target.Center, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, (int)egnpc.SuppressorHits, 0, projectile.owner);
-				egnpc.SuppressorHits-=5;
+				egnpc.SuppressorHits-=6;
 			}
 		}
 	}

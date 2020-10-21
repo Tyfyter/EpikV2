@@ -11,11 +11,10 @@ namespace EpikV2.Items
 {
     public class Aquamarine : ModItem
     {
-		public override void SetStaticDefaults()
-		{
-		  DisplayName.SetDefault("Aquamarine");
-		  Tooltip.SetDefault("\"Make waves\"");//Theta waves to be specific
-          //customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
+		public override void SetStaticDefaults(){
+		    DisplayName.SetDefault("Aquamarine");
+		    Tooltip.SetDefault("\"Make waves\"");//Theta waves to be specific
+            //customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
 		}
         public override void SetDefaults()
         {
@@ -37,8 +36,15 @@ namespace EpikV2.Items
 			item.scale = 0.85f;
 			item.useAmmo = AmmoID.Arrow;
         }
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(AquamarineMaterial.id);
+            recipe.AddTile(TileID.DemonAltar);
+            recipe.SetResult(this);
+            recipe.AddRecipe();
+        }
 
-		public override Vector2? HoldoutOffset(){
+        public override Vector2? HoldoutOffset(){
 			return new Vector2(-4, 0);
 		}
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)

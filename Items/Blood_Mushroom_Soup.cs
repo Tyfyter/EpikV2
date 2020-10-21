@@ -22,6 +22,7 @@ namespace EpikV2.Items
 			item.height = 26;
 			item.value = 25000;
 			item.rare = 2;
+            item.healLife = 50;
 		}
 	}
 }
