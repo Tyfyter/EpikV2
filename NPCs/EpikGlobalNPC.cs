@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using EpikV2.Items;
 using EpikV2.Projectiles;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -14,7 +16,16 @@ namespace EpikV2.NPCs
 		public override bool InstancePerEntity => true;
 		public override bool CloneNewInstances => true;
 		internal float SuppressorHits = 0;
-		public override void AI(NPC npc){
+        public bool jaded = false;
+        public override bool PreAI(NPC npc) {
+            if(jaded) {
+                npc.noGravity = false;
+                npc.noTileCollide = false;
+                return false;
+            }
+            return true;
+        }
+        public override void AI(NPC npc){
 			if(SuppressorHits>0){
 				SuppressorHits-=(float)Math.Ceiling(SuppressorHits/5f)/(npc.wet?3f:5f);
 				//npc.StrikeNPC(SuppressorHits/(npc.coldDamage?10:5), 0, 0);
@@ -79,6 +90,29 @@ namespace EpikV2.NPCs
 				Main.npc[npc].SpawnedFromStatue = false;
 			}
 		}
+        public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Color drawColor) {
+            //new Color(0,255,100);
+            if(jaded) {
+                /*GraphicsDevice graphicsDevice = spriteBatch.GraphicsDevice;
+                RenderTarget2D renderTarget = new RenderTarget2D(graphicsDevice, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
+			    spriteBatch.End();
+			    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.Default, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
+                graphicsDevice.SetRenderTarget(renderTarget);
+                if(npc.modNPC.PreDraw(spriteBatch,drawColor)) {
+
+                }
+                npc.modNPC.PostDraw(spriteBatch, drawColor);
+                spriteBatch.End();
+			    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
+                graphicsDevice.SetRenderTarget(null);*/
+                Texture2D texture = Main.npcTexture[npc.type];
+                DrawData data = new DrawData(texture, npc.Center - Main.screenPosition, npc.frame, new Color(255,255,255,255), npc.rotation, new Vector2(npc.frame.Width/2f,npc.frame.Height/2f), Vector2.One, npc.direction==-1?SpriteEffects.FlipHorizontally:SpriteEffects.None, 0);
+                EpikV2.jadeShader.Apply(data);
+                data.Draw(spriteBatch);
+                return false;
+            }
+            return true;
+        }
 
         /*public override void SetupShop(int type, Chest shop, ref int nextSlot)
 		{
@@ -98,5 +132,5 @@ namespace EpikV2.NPCs
 				nextSlot++;
 			}
 		}*/
-	}
+    }
 }

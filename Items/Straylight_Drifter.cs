@@ -14,7 +14,7 @@ namespace EpikV2.Items {
         internal static int id = -1;
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Straylight Drifter");
-		    Tooltip.SetDefault("");
+		    Tooltip.SetDefault("\"Skill honed sharp\"");
             id = item.type;
             //customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
 		}
@@ -33,6 +33,7 @@ namespace EpikV2.Items {
             item.value = 100000;
             item.rare = 6;
             item.autoReuse = false;
+            item.UseSound = SoundID.Item41;
             item.shoot = ProjectileID.HeatRay;
             item.shootSpeed = 12.5f;
 			item.scale = 0.85f;
@@ -51,24 +52,31 @@ namespace EpikV2.Items {
         public override bool CanUseItem(Player player) {
             if(player.altFunctionUse==2) {
                 item.noUseGraphic = true;
+                item.UseSound = null;
                 return true;
             }
             item.noUseGraphic = false;
+            item.UseSound = SoundID.Item41;
             return base.CanUseItem(player);
         }
         public override Vector2? HoldoutOffset(){
-			return new Vector2(-4, 0);
+			return new Vector2(4, -4);
 		}
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
             if(player.altFunctionUse==2)return false;
+            Vector2 offset = new Vector2(speedX, speedY).SafeNormalize(Vector2.Zero);
+            position+=(offset*32)+(offset.RotatedBy(PiOver2*player.direction)*-10);
             if(player.controlUseTile&&player.CheckMana(item, 16, true)) {
-                Projectile.NewProjectileDirect(position, new Vector2(speedX, speedY), ProjectileType<Straylight_Drifter_P>(), damage*4, knockBack*8, player.whoAmI, 0, 2).extraUpdates+=2;
+                Projectile p = Projectile.NewProjectileDirect(position, new Vector2(speedX, speedY), ProjectileType<Straylight_Drifter_P>(), damage, knockBack*8, player.whoAmI, 0, 2);
+                p.extraUpdates+=2;
+                p.penetrate = 5;
+                Main.PlaySound(SoundID.Item, position, 38);
                 return false;
             }
             int target = player.MinionAttackTargetNPC;
             player.MinionNPCTargetAim();
             if(player.MinionAttackTargetNPC == -1)player.MinionAttackTargetNPC = target;
-            Projectile.NewProjectileDirect(position, new Vector2(speedX, speedY), ProjectileType<Straylight_Drifter_P>(), damage, knockBack, player.whoAmI, (float)Math.Sqrt(speedX*speedX+speedY*speedY));
+            Projectile.NewProjectile(position, new Vector2(speedX, speedY), ProjectileType<Straylight_Drifter_P>(), damage, knockBack, player.whoAmI, (float)Math.Sqrt(speedX*speedX+speedY*speedY));
 			return false;
 		}
     }
@@ -97,10 +105,12 @@ namespace EpikV2.Items {
             Lighting.AddLight(projectile.Center, 0, 0.75f, 0.5625f);
             Dust.NewDustPerfect(projectile.Center, 226, projectile.velocity*-0.25f, 100, new Color(0, 255, 191), 0.5f).noGravity = true;
             if(mult<5&&projectile.ai[1]<1)mult+=0.015f;
+            if(mult<7.5&&projectile.ai[1]>1)mult+=0.05f;
             if(player.HasMinionAttackTargetNPC&&projectile.ai[1]<2) {
                 player.GetModPlayer<EpikPlayer>().light_shots++;
                 if(player.HeldItem.type==Straylight_Drifter.id&&player.altFunctionUse==2) {
                     projectile.ai[1] = 1;
+                    mult = Math.Min(mult+1,5);
                 }
                 float velMult = (crit ? 2 : 1)*(projectile.ai[1]>0 ? 5 : 1) * (float)((mult-1)/7.5+0.25);
                 float targetAngle = (Main.npc[player.MinionAttackTargetNPC].Center - projectile.Center).ToRotation();
@@ -110,7 +120,7 @@ namespace EpikV2.Items {
             }
 		}
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-            crit = this.crit;
+            if(projectile.ai[1]<1)crit = this.crit;
             if(crit) {
                 mult*=1+(Main.player[projectile.owner].rangedCrit);
             }

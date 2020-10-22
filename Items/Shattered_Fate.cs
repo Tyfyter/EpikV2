@@ -1,0 +1,155 @@
+﻿using System;
+using System.Reflection;
+using System.Collections.Generic;
+using Microsoft.Xna.Framework;
+using Terraria;
+using Terraria.ID;
+using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
+using Microsoft.Xna.Framework.Graphics;
+using WeaponOut;
+using static Microsoft.Xna.Framework.MathHelper;
+using Terraria.World.Generation;
+using EpikV2.NPCs;
+
+namespace EpikV2.Items {
+    //[AutoloadEquip(EquipType.HandsOff, EquipType.HandsOff)]
+    public class Shattered_Fate : ModItem {
+        static bool Fists_Enabled => ModConf.EnableFists;
+        static MethodInfo ManagePlayerComboMovement = null;
+        public override bool Autoload(ref string name){
+            Mod weaponOut = ModLoader.GetMod("WeaponOut");
+            if(weaponOut == null) return false;
+            ManagePlayerComboMovement = typeof(ModPlayerFists).GetMethod("ManagePlayerComboMovement", BindingFlags.Instance|BindingFlags.NonPublic);
+            return Fists_Enabled;
+        }
+        static int comboEffect = 0;
+		public override bool CloneNewInstances{
+			get { return true; }
+		}
+        public override void SetStaticDefaults() {
+            DisplayName.SetDefault("Shattered Fate");
+            Tooltip.SetDefault(
+                "<right> consumes combo to unleash a shattering blow\n" +
+                "Combo grants 15% increased melee attack speed and a crit chance boost based on your combo counter.");
+            comboEffect = ModPlayerFists.RegisterComboEffectID(ComboEffects);
+        }
+        public override void SetDefaults() {
+            item.melee = true;
+            item.damage = 1;//95;
+            item.useAnimation = 16; // Combos can increase speed by 30-50% since it halves remaining attack time
+            item.knockBack = 3f;
+            item.tileBoost = 1; // For fists, we read this as the combo power
+            item.rare = 2;
+			item.crit = 10;
+            item.UseSound = SoundID.Item19;
+            item.useStyle = 102115116;
+            item.autoReuse = true;
+            item.noUseGraphic = true;
+            item.width = 20;
+            item.height = 20;
+        }
+        public override void ModifyTooltips(List<TooltipLine> tooltips) {
+            ModPlayerFists.ModifyTooltips(tooltips, item);
+        }
+        public override bool CanUseItem(Player player) {
+            player.GetModPlayer<ModPlayerFists>().SetDashOnMovement(10, 24f, 0.992f, 0.96f, true, 0);
+            return true;
+        }
+        public override bool AltFunctionUse(Player player) {
+            player.GetModPlayer<ModPlayerFists>().ModifyComboCounter(4);
+            return player.GetModPlayer<ModPlayerFists>().AltFunctionCombo(player, comboEffect);
+        }
+        public override void GetWeaponKnockback(Player player, ref float knockback){
+            if(player.controlUp&&!(player.controlLeft||player.controlRight)){
+                knockback*=0.1f;
+            }
+        }
+        /// <summary> The method called during a combo. Use for ongoing dust and gore effects. </summary>
+        public static void ComboEffects(Player player, Item item, bool initial) {
+            if(player.attackCD>0)return;
+            ModPlayerFists mpf = player.GetModPlayer<ModPlayerFists>();
+            if (initial) {
+                player.itemAnimation = player.itemAnimationMax + 10;
+                player.velocity.X = 0;
+                player.velocity.Y = player.velocity.Y == 0f ? 0f : -5.5f;
+            }
+            if(player.itemAnimation<player.itemAnimationMax&&mpf.specialMove==0)mpf.SetDashOnMovement(18, 24f, 0.992f, 0.96f, true, 0);
+            // Charging
+            Rectangle r = ModPlayerFists.UseItemGraphicbox(player, 16, 20);
+            if (player.itemAnimation > player.itemAnimationMax) {
+				Color color = new Color(255, 0, 0);
+                // Charge effect
+                for (int i = 0; i < 3; i++) {
+                    Dust d = Main.dust[Dust.NewDust(r.TopLeft(), 16, 16, 267, 0, 0, 0, new Color(0, 255, 100), 0.7f)];
+                    d.fadeIn = 1.2f;
+                    d.position -= d.velocity * 20f;
+                    d.velocity *= 1.5f;
+                    d.noGravity = true;
+                }
+            }
+        }
+
+        public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox) {
+            ModPlayerFists.UseItemHitbox(player, ref hitbox, 22, 11.7f, 3f*0.25f, 12f, false);
+        }
+        public override void ModifyWeaponDamage(Player player, ref float add, ref float mult, ref float flat) {
+            ModPlayerFists mpf = player.GetModPlayer<ModPlayerFists>();
+            flat += mpf.ComboCounter;
+        }
+        public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit){
+            ModPlayerFists mpf = player.GetModPlayer<ModPlayerFists>();
+            if(player.controlUp&&(player.oldVelocity.Y==0||mpf.jumpAgainUppercut))target.velocity.Y = -11.4f;
+            mpf.jumpAgainUppercut = true;
+            EpikGlobalNPC EGN = target.GetGlobalNPC<EpikGlobalNPC>();
+            if(EGN.jaded) {
+                target.life = 0;
+                target.checkDead();
+                Main.PlaySound(SoundID.Shatter, (int)target.Center.X, (int)target.Center.Y, pitchOffset:-0.15f);
+            }
+            EGN.jaded = true;
+            if(mpf.ComboEffectAbs==comboEffect) {
+                bool flag = target.noGravity;
+                ModPlayerFists.provideImmunity(player, player.itemAnimation);
+		        Point origin = target.Center.ToTileCoordinates();
+		        if (!flag && !WorldUtils.Find(origin, Searches.Chain(new Searches.Down(4), new Conditions.IsSolid()), out Point _)){
+			        flag = true;
+		        }
+		        if (flag){
+			        player.velocity = target.velocity;
+			        player.velocity.X -= player.direction * 8f + player.direction * player.HeldItem.knockBack * 0.1f;
+			        player.velocity.Y -= player.gravDir * 0.125f * player.itemAnimationMax;
+			        player.fallStart = (int)(player.position.Y / 16f);
+		        } else {
+			        player.velocity = new Vector2(-player.direction * (2f + player.HeldItem.knockBack * 0.5f) + target.velocity.X * 0.5f, target.velocity.Y * 1.5f * target.knockBackResist);
+			        player.fallStart = (int)(player.position.Y / 16f);
+		        }
+                //ManagePlayerComboMovement.Invoke(mpf,new object[]{target});
+                mpf.dashSpeed = 0f;
+	            mpf.dashMaxSpeedThreshold = 0f;
+	            mpf.dashMaxFriction = 0f;
+	            mpf.dashMinFriction = 0f;
+	            mpf.dashEffect = 0;
+                player.dash = 0;
+                player.attackCD = player.itemAnimationMax;
+                player.itemAnimation = 1;
+                if(target.life<(mpf.ComboCounter+item.tileBoost)*10&&target.type!=NPCID.TargetDummy) {
+                    EGN.jaded = true;
+                }
+            }
+        }
+        public override void MeleeEffects(Player player, Rectangle hitbox) {
+            Rectangle r = ModPlayerFists.UseItemGraphicbox(player, 1, 8);
+            Vector2 velocity = ModPlayerFists.GetFistVelocity(player);
+            Vector2 pVelo = (player.position - player.oldPosition);
+            for (int y = -1; y < 2; y++) {
+                Dust d = Dust.NewDustPerfect(r.TopLeft() + velocity.RotatedBy(1.25*y)  * 3, 267, null, 0, new Color(0, 255, 100), 1f);
+                d.velocity = new Vector2(velocity.X * -2, velocity.Y * -2);
+                d.position -= d.velocity * 8;
+                d.velocity += pVelo;
+                d.fadeIn = 0.7f;
+                d.noGravity = true;
+            }
+        }
+    }
+}

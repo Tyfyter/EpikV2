@@ -7,3 +7,4 @@ displayName = EpikV2
 buildIgnore = tempgone\*
 includesource = true
 languageVersion = 6
+weakReferences = WeaponOut

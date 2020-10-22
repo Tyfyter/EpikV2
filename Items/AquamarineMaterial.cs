@@ -13,7 +13,7 @@ namespace EpikV2.Items {
         public override string Texture => "Terraria/Item_"+ItemID.LargeEmerald;
         public override bool CloneNewInstances => true;
         public static int id = 0;
-        public int time = 1800;
+        public int time = 3600;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Charged Emerald");
             Tooltip.SetDefault("This won't retain a charge for long in this state\ndisplaytime");

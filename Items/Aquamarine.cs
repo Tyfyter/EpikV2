@@ -19,7 +19,7 @@ namespace EpikV2.Items
         public override void SetDefaults()
         {
             item.CloneDefaults(ItemID.WoodenBow);
-            item.damage = 60;
+            item.damage = 135;
 			item.ranged = true;
             item.width = 32;
             item.height = 64;
@@ -44,9 +44,6 @@ namespace EpikV2.Items
             recipe.AddRecipe();
         }
 
-        public override Vector2? HoldoutOffset(){
-			return new Vector2(-4, 0);
-		}
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
         {
 			Vector2 perturbedSpeed = new Vector2(speedX, speedY).RotatedBy(-player.direction/18d);
@@ -89,7 +86,7 @@ namespace EpikV2.Items
             Dust.NewDustPerfect(projectile.Center, 226, projectile.velocity*-0.25f, 100, new Color(0, 255, 191), 0.5f).noGravity = true;
 		}
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-            damage+=target.defense/6;
+            damage+=target.defense/3;
         }
         internal void init(int dir, int dmg) {
 			speed = projectile.velocity.RotatedBy(dir/8d)*0.9f;

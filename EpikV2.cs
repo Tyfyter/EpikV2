@@ -20,6 +20,7 @@ namespace EpikV2
         private HotKey ReadTooltipsVar = new HotKey("Read Tooltips (list mod name)", Keys.L);
 		List<int> RegItems = new List<int>{};
 		List<int> ModItems = new List<int>{};
+        public static MiscShaderData jadeShader;
 		public EpikV2()
 		{
 			Properties = new ModProperties()
@@ -40,6 +41,13 @@ namespace EpikV2
             };
 
             RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
+            jadeShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Jade")), "Jade");
+        }
+
+        public override void Unload()
+        {
+            mod = null;
+            jadeShader = null;
         }
 
         public override void HotKeyPressed(string name) {

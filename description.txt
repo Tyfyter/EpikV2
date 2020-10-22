@@ -1,5 +1,8 @@
-the continuation of my first mod, this is temporary and will only last until I can get the original source code back; At which point I will merge the two mods.
+A continuation of my first mod, "Epikmod".
 
 
 Credits:
+Tyfyter2002 (you know, the dev of the mod)
 Mostly just the people in the TModLoader discord, but especially DarkLight and JopoJelly.
+
+Special Thanks to the 7387 people who've downloaded the original mod.
