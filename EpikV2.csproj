@@ -18,7 +18,4 @@
       <HintPath>..\..\references\mods\WeaponOut_v1.6.4.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Effects\" />
-  </ItemGroup>
 </Project>

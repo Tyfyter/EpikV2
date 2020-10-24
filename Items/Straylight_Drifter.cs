@@ -26,8 +26,8 @@ namespace EpikV2.Items {
             item.width = 56;
             item.height = 24;
             item.useStyle = 5;
-            item.useTime = 25;
-            item.useAnimation = 25;
+            item.useTime = 19;
+            item.useAnimation = 19;
             item.noMelee = true;
             item.knockBack = 7.5f;
             item.value = 100000;
@@ -122,7 +122,7 @@ namespace EpikV2.Items {
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
             if(projectile.ai[1]<1)crit = this.crit;
             if(crit) {
-                mult*=1+(Main.player[projectile.owner].rangedCrit);
+                mult*=1+(Main.player[projectile.owner].rangedCrit/100f);
             }
             damage = (int)(damage*mult);
         }

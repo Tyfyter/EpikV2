@@ -11,16 +11,19 @@ using Terraria.GameInput;
 using Terraria.UI;
 using Terraria.DataStructures;
 using Terraria.GameContent.UI;
+using EpikV2.Items;
 
 namespace EpikV2
 {
 	class EpikV2 : Mod
 	{
-        internal static Mod mod;
+        internal static EpikV2 mod;
         private HotKey ReadTooltipsVar = new HotKey("Read Tooltips (list mod name)", Keys.L);
 		List<int> RegItems = new List<int>{};
 		List<int> ModItems = new List<int>{};
-        public static MiscShaderData jadeShader;
+        //public static MiscShaderData jadeShader;
+        public static Effect jadeShader;
+        public static ArmorShaderData jadeDyeShader;
 		public EpikV2()
 		{
 			Properties = new ModProperties()
@@ -41,19 +44,24 @@ namespace EpikV2
             };
 
             RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
-            jadeShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Jade")), "Jade");
+            //jadeShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Jade")), "Jade");
+            jadeShader = GetEffect("Effects/Jade");
+            jadeDyeShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "JadeConst");
+            GameShaders.Armor.BindShader(ModContent.ItemType<Jade_Dye>(), jadeDyeShader);
         }
 
         public override void Unload()
         {
             mod = null;
             jadeShader = null;
+            jadeDyeShader = null;
         }
 
         public override void HotKeyPressed(string name) {
             if(PlayerInput.Triggers.JustPressed.KeyStatus[GetTriggerName(name)]) {
                 if(name.Equals(ReadTooltipsVar.Name)) {
-                    ReadTooltips();
+                    //jadeDyeShader.Shader.Parameters["uCenter"].SetValue(new Vector2(0.5f,0.5f));
+                    //ReadTooltips();
                 }
             }
         }

@@ -10,7 +10,7 @@ namespace EpikV2.Items
 {
 	public class GeoBullet : ModItem
 	{
-        public override String Texture{
+        public override string Texture {
             get {return "EpikV2/Projectiles/MagShot";}
         }
 		public override void SetStaticDefaults()

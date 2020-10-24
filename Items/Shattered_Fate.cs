@@ -11,6 +11,7 @@ using WeaponOut;
 using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.World.Generation;
 using EpikV2.NPCs;
+using EpikV2.Projectiles;
 
 namespace EpikV2.Items {
     //[AutoloadEquip(EquipType.HandsOff, EquipType.HandsOff)]
@@ -36,10 +37,10 @@ namespace EpikV2.Items {
         }
         public override void SetDefaults() {
             item.melee = true;
-            item.damage = 1;//95;
+            item.damage = 95;
             item.useAnimation = 16; // Combos can increase speed by 30-50% since it halves remaining attack time
             item.knockBack = 3f;
-            item.tileBoost = 1; // For fists, we read this as the combo power
+            item.tileBoost = 6; // For fists, we read this as the combo power
             item.rare = 2;
 			item.crit = 10;
             item.UseSound = SoundID.Item19;
@@ -49,6 +50,13 @@ namespace EpikV2.Items {
             item.width = 20;
             item.height = 20;
         }
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(AquamarineMaterial.id);
+            recipe.AddTile(TileID.DemonAltar);
+            recipe.SetResult(this);
+            recipe.AddRecipe();
+        }
         public override void ModifyTooltips(List<TooltipLine> tooltips) {
             ModPlayerFists.ModifyTooltips(tooltips, item);
         }
@@ -57,7 +65,6 @@ namespace EpikV2.Items {
             return true;
         }
         public override bool AltFunctionUse(Player player) {
-            player.GetModPlayer<ModPlayerFists>().ModifyComboCounter(4);
             return player.GetModPlayer<ModPlayerFists>().AltFunctionCombo(player, comboEffect);
         }
         public override void GetWeaponKnockback(Player player, ref float knockback){
@@ -99,15 +106,32 @@ namespace EpikV2.Items {
         }
         public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit){
             ModPlayerFists mpf = player.GetModPlayer<ModPlayerFists>();
-            if(player.controlUp&&(player.oldVelocity.Y==0||mpf.jumpAgainUppercut))target.velocity.Y = -11.4f;
+            if(player.controlUp&&(player.oldVelocity.Y==0||mpf.jumpAgainUppercut))target.velocity.Y-=(target.noGravity?6.5f:11.4f)*Max(target.knockBackResist,0.1f);
             mpf.jumpAgainUppercut = true;
             EpikGlobalNPC EGN = target.GetGlobalNPC<EpikGlobalNPC>();
             if(EGN.jaded) {
                 target.life = 0;
                 target.checkDead();
                 Main.PlaySound(SoundID.Shatter, (int)target.Center.X, (int)target.Center.Y, pitchOffset:-0.15f);
+                Rectangle r = ModPlayerFists.UseItemGraphicbox(player, 1, 8);
+                for(int i = 9; i-->0;) {
+                    Vector2 pos = target.TopLeft+new Vector2(Main.rand.Next(target.width),Main.rand.Next(target.height));
+                    Vector2 vel = pos-r.Center();
+                    vel.Normalize();
+                    vel*=8;
+                    int p = Projectile.NewProjectile(
+                            r.Center(), vel.RotatedByRandom(0.5f),
+                            ProjectileID.CrystalStorm,
+                            damage/6,
+                            knockBack/9,
+                            player.whoAmI)
+                        ;
+                    Main.projectile[p].penetrate+=2;
+                    Main.projectile[p].extraUpdates++;
+                    Main.projectile[p].timeLeft/=2;
+                    Main.projectile[p].GetGlobalProjectile<EpikGlobalProjectile>().jade = true;
+                }
             }
-            EGN.jaded = true;
             if(mpf.ComboEffectAbs==comboEffect) {
                 bool flag = target.noGravity;
                 ModPlayerFists.provideImmunity(player, player.itemAnimation);
@@ -133,8 +157,26 @@ namespace EpikV2.Items {
                 player.dash = 0;
                 player.attackCD = player.itemAnimationMax;
                 player.itemAnimation = 1;
-                if(target.life<(mpf.ComboCounter+item.tileBoost)*10&&target.type!=NPCID.TargetDummy) {
+                switch(target.type) {
+                    case 139:
+                    case 315:
+                    case 325:
+                    case 329:
+                    case 439:
+                    case 533:
+                    case 423:
+                    case 478:
+                    case 471:
+                    target.buffImmune[BuffID.MoonLeech] = false;
+                    break;
+                    default:
+                    break;
+                }
+                if(target.life<(mpf.ComboCounter+item.tileBoost)*15&&!target.immortal&&!target.buffImmune[BuffID.MoonLeech]) {
                     EGN.jaded = true;
+                    EGN.freezeFrame = target.frame;
+                    mpf.ModifyComboCounter(-mpf.ComboCounter);
+                    target.velocity.X+=knockBack*player.direction;
                 }
             }
         }
@@ -150,6 +192,9 @@ namespace EpikV2.Items {
                 d.fadeIn = 0.7f;
                 d.noGravity = true;
             }
+        }
+        public override bool? CanHitNPC(Player player, NPC target) {
+            return true;
         }
     }
 }

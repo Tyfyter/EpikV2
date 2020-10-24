@@ -8,6 +8,8 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using static EpikV2.EpikExtensions;
+using static Microsoft.Xna.Framework.MathHelper;
 
 namespace EpikV2.NPCs
 {
@@ -16,11 +18,31 @@ namespace EpikV2.NPCs
 		public override bool InstancePerEntity => true;
 		public override bool CloneNewInstances => true;
 		internal float SuppressorHits = 0;
-        public bool jaded = false;
+        //const int JadeFramesTotal = 300;
+        int jadeFrames = 0;
+        public Rectangle freezeFrame;
+        public bool jaded {
+            get {
+                return jadeFrames>0;
+            }
+            set {
+                if(jadeFrames<1==value)jadeFrames = value ? 1 : 0;
+            }
+        }
+        Vector2 jadePos = new Vector2(16,16);
         public override bool PreAI(NPC npc) {
             if(jaded) {
+                int size = (int)Math.Ceiling(Math.Sqrt((npc.frame.Width*npc.frame.Width)+(npc.frame.Height*npc.frame.Height)));
+                if(jadeFrames>0&&jadeFrames<size)jadeFrames++;
+                npc.frameCounter = 0;
                 npc.noGravity = false;
                 npc.noTileCollide = false;
+                if(npc.velocity.X>=1)
+                    npc.velocity.X--;
+                else if(npc.velocity.X<=-1)
+                    npc.velocity.X++;
+                else
+                    npc.velocity.X = 0;
                 return false;
             }
             return true;
@@ -33,14 +55,15 @@ namespace EpikV2.NPCs
 		}
         public override bool? CanHitNPC(NPC npc, NPC target)
         {
-            if (target.type == NPCID.Bunny || target.type == NPCID.BunnySlimed || target.type == NPCID.BunnyXmas || target.type == NPCID.GoldBunny || target.type == NPCID.PartyBunny || target.type == NPCID.CorruptBunny || target.type == NPCID.CrimsonBunny)
+            if(jaded)return false;
+            /*if (target.type == NPCID.Bunny || target.type == NPCID.BunnySlimed || target.type == NPCID.BunnyXmas || target.type == NPCID.GoldBunny || target.type == NPCID.PartyBunny || target.type == NPCID.CorruptBunny || target.type == NPCID.CrimsonBunny)
             {
                 return false;
             }
 			if (npc.type == NPCID.Bunny || npc.type == NPCID.BunnySlimed || npc.type == NPCID.BunnyXmas || npc.type == NPCID.GoldBunny || npc.type == NPCID.PartyBunny || npc.type == NPCID.CorruptBunny || npc.type == NPCID.CrimsonBunny)
             {
                 return false;
-            }
+            }*/
             return base.CanHitNPC(npc, target);
         }
 
@@ -54,10 +77,11 @@ namespace EpikV2.NPCs
         }
 
 		public override bool CanHitPlayer(NPC npc, Player target, ref int cooldownSlot){
-			if (npc.type == NPCID.Bunny || npc.type == NPCID.BunnySlimed || npc.type == NPCID.BunnyXmas || npc.type == NPCID.GoldBunny || npc.type == NPCID.PartyBunny || npc.type == NPCID.CorruptBunny || npc.type == NPCID.CrimsonBunny)
+            if(jaded)return false;
+			/*if (npc.type == NPCID.Bunny || npc.type == NPCID.BunnySlimed || npc.type == NPCID.BunnyXmas || npc.type == NPCID.GoldBunny || npc.type == NPCID.PartyBunny || npc.type == NPCID.CorruptBunny || npc.type == NPCID.CrimsonBunny)
             {
                 return false;
-            }
+            }*/
 			return base.CanHitPlayer(npc, target, ref cooldownSlot);
 		}
 
@@ -92,26 +116,33 @@ namespace EpikV2.NPCs
 		}
         public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Color drawColor) {
             //new Color(0,255,100);
+            //if(jadeDraw) return true;
             if(jaded) {
-                /*GraphicsDevice graphicsDevice = spriteBatch.GraphicsDevice;
-                RenderTarget2D renderTarget = new RenderTarget2D(graphicsDevice, graphicsDevice.PresentationParameters.BackBufferWidth, graphicsDevice.PresentationParameters.BackBufferHeight, false, SurfaceFormat.Color, DepthFormat.None);
+                npc.frame = freezeFrame;
 			    spriteBatch.End();
-			    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.Default, RasterizerState.CullNone, null, Main.GameViewMatrix.ZoomMatrix);
-                graphicsDevice.SetRenderTarget(renderTarget);
-                if(npc.modNPC.PreDraw(spriteBatch,drawColor)) {
+                //EpikV2.jadeShader.Parameters["uCenter"].SetValue(jadePos);
+                //EpikV2.jadeShader.Parameters["uProgress"].SetValue(jadeFrames/(float)JadeFramesTotal);
+			    //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.jadeShader, Main.GameViewMatrix.ZoomMatrix);
+                //EpikV2.jadeDyeShader.Shader.Parameters["uCenter"].SetValue(jadePos+new Vector2(npc.frame.X,npc.frame.Y));
+                //EpikV2.jadeDyeShader.Shader.Parameters["uFrameCount"].SetValue(Main.npcFrameCount[npc.type]);
+                //EpikV2.jadeDyeShader.Shader.Parameters["uFrame"].SetValue(npc.frame.Y/(float)(Main.npcFrameCount[npc.type]*npc.frame.Height));
 
-                }
-                npc.modNPC.PostDraw(spriteBatch, drawColor);
-                spriteBatch.End();
-			    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
-                graphicsDevice.SetRenderTarget(null);*/
-                Texture2D texture = Main.npcTexture[npc.type];
-                DrawData data = new DrawData(texture, npc.Center - Main.screenPosition, npc.frame, new Color(255,255,255,255), npc.rotation, new Vector2(npc.frame.Width/2f,npc.frame.Height/2f), Vector2.One, npc.direction==-1?SpriteEffects.FlipHorizontally:SpriteEffects.None, 0);
-                EpikV2.jadeShader.Apply(data);
-                data.Draw(spriteBatch);
-                return false;
+                //Vector2 imageSize = new Vector2(npc.frame.Width, Main.npcFrameCount[npc.type]*npc.frame.Height);
+                //EpikV2.jadeDyeShader.Shader.Parameters["uSourceRect"].SetValue(new Vector4(npc.frame.X,npc.frame.Y,npc.frame.Width,npc.frame.Height)/Vec4FromVec2x2(imageSize,imageSize));
+                //EpikV2.jadeDyeShader.Shader.Parameters["uImageSize0"].SetValue(imageSize);
+                EpikV2.jadeShader.Parameters["uProgress"].SetValue(jadeFrames/(float)Math.Ceiling(Math.Sqrt((npc.frame.Width*npc.frame.Width)+(npc.frame.Height*npc.frame.Height))));
+			    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.jadeShader, Main.GameViewMatrix.ZoomMatrix);
+
             }
             return true;
+        }
+        public override void PostDraw(NPC npc, SpriteBatch spriteBatch, Color drawColor) {
+            //new Color(0,255,100);
+            //if(jadeDraw) return true;
+            if(jaded) {
+			    spriteBatch.End();
+			    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
+            }
         }
 
         /*public override void SetupShop(int type, Chest shop, ref int nextSlot)
