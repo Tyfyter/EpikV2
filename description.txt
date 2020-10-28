@@ -1,6 +1,9 @@
 A continuation of my first mod, "Epikmod".
 
 Changelog:
+0.2.1:
+Removed debugging code that was accidentally left in 0.2
+
 0.2:
 Added Shattered Fate
 Added Jade Dye

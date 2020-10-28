@@ -1,0 +1,5 @@
+Bow: Aquamarine (Main:Wall of Arrows, Sec:N/A)
+Hand Cannon: Straylight Drifter (Main:Drifting Shot, Sec: Home In, Sec+Main:Piercing Shot)
+Fists: Shattered Fate (Main:Punch, Sec:Petrifying Blow)
+Scythe:  (Main:Spinning Slashes, Sec:?, Main+Sec:Boomerang)
+Whip:  (Main:Whip, Sec: Heavy Whip)

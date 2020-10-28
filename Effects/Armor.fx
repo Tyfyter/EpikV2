@@ -21,7 +21,7 @@ float4 JadeConst(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR
 	float4 color = tex2D(uImage0, coords);
 	float brightness = (color.r+color.g+color.b)/3;
 	brightness = pow(brightness,1.5);
-	return float4(0,brightness,brightness/2,color.a);
+	return float4(0,brightness,brightness/2,color.a*sampleColor.a);
 }
 
 technique Technique1{

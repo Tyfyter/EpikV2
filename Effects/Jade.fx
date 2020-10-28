@@ -44,9 +44,10 @@ float4 Jade(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0{
 	float4 color = tex2D(uImage0, coords);
 	float brightness = (color.r+color.g+color.b)/3;
 	brightness = pow(brightness,1.5);
-	float4 jadeColor = float4(0,brightness,brightness/2,color.a);
+	float4 jadeColor = float4(0,brightness,brightness/2,color.a*sampleColor.a);
 	//if(brightness>uProgress)return color;
 	//return jadeColor;
+	color.a = color.a*sampleColor.a;
 	return lerp(color,jadeColor,clamp(uProgress/brightness, 0, 1));
 }
 

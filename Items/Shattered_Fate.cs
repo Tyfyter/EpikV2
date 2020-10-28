@@ -14,7 +14,7 @@ using EpikV2.NPCs;
 using EpikV2.Projectiles;
 
 namespace EpikV2.Items {
-    //[AutoloadEquip(EquipType.HandsOff, EquipType.HandsOff)]
+    [AutoloadEquip(EquipType.HandsOff, EquipType.HandsOff)]
     public class Shattered_Fate : ModItem {
         static bool Fists_Enabled => ModConf.EnableFists;
         static MethodInfo ManagePlayerComboMovement = null;
@@ -124,8 +124,7 @@ namespace EpikV2.Items {
                             ProjectileID.CrystalStorm,
                             damage/6,
                             knockBack/9,
-                            player.whoAmI)
-                        ;
+                            player.whoAmI);
                     Main.projectile[p].penetrate+=2;
                     Main.projectile[p].extraUpdates++;
                     Main.projectile[p].timeLeft/=2;
@@ -172,7 +171,7 @@ namespace EpikV2.Items {
                     default:
                     break;
                 }
-                if(target.life<(mpf.ComboCounter+item.tileBoost)*15&&!target.immortal&&!target.buffImmune[BuffID.MoonLeech]) {
+                if(target.life>0&&target.life<(mpf.ComboCounter+item.tileBoost)*20&&!target.immortal&&!target.buffImmune[BuffID.MoonLeech]) {
                     EGN.jaded = true;
                     EGN.freezeFrame = target.frame;
                     mpf.ModifyComboCounter(-mpf.ComboCounter);
@@ -192,9 +191,6 @@ namespace EpikV2.Items {
                 d.fadeIn = 0.7f;
                 d.noGravity = true;
             }
-        }
-        public override bool? CanHitNPC(Player player, NPC target) {
-            return true;
         }
     }
 }

@@ -122,7 +122,7 @@ namespace EpikV2.Items {
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
             if(projectile.ai[1]<1)crit = this.crit;
             if(crit) {
-                mult*=1+(Main.player[projectile.owner].rangedCrit/100f);
+                mult*=1+(Main.player[projectile.owner].rangedCrit/200f);
             }
             damage = (int)(damage*mult);
         }
