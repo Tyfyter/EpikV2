@@ -29,7 +29,7 @@ namespace EpikV2.Items
             item.noMelee = true;
             item.knockBack = 7.5f;
             item.value = 100000;
-            item.rare = 6;
+            item.rare = ItemRarityID.Purple;
             item.autoReuse = true;
             item.shoot = ProjectileID.HeatRay;
             item.shootSpeed = 12.5f;

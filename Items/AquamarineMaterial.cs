@@ -22,6 +22,7 @@ namespace EpikV2.Items {
         public override void SetDefaults() {
             item.CloneDefaults(ItemID.LargeEmerald);
             item.color = new Color(0, 255, 255);
+            item.rare = ItemRarityID.Purple;
         }
         public override void AddRecipes() {
             ModRecipe recipe = new ModRecipe(mod);

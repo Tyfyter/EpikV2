@@ -31,7 +31,7 @@ namespace EpikV2.Items {
             item.noMelee = true;
             item.knockBack = 7.5f;
             item.value = 100000;
-            item.rare = 6;
+            item.rare = ItemRarityID.Purple;
             item.autoReuse = false;
             item.UseSound = SoundID.Item41;
             item.shoot = ProjectileID.HeatRay;
@@ -62,6 +62,17 @@ namespace EpikV2.Items {
         public override Vector2? HoldoutOffset(){
 			return new Vector2(4, -4);
 		}
+        public override void ModifyWeaponDamage(Player player, ref float add, ref float mult, ref float flat) {
+            mult*=player.bulletDamage;
+        }
+        public override void HoldItem(Player player) {
+            for (int i = 3; i < 8 + player.extraAccessorySlots; i++){
+                if(player.armor[i].type==ItemID.RifleScope||player.armor[i].type==ItemID.SniperScope) {
+                    player.scope = true;
+                    return;
+                }
+	        }
+        }
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack){
             if(player.altFunctionUse==2)return false;
             Vector2 offset = new Vector2(speedX, speedY).SafeNormalize(Vector2.Zero);

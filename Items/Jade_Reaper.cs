@@ -20,17 +20,18 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults(){
 			item.CloneDefaults(ItemID.MonkStaffT3);
-			item.damage = 95;
+			item.damage = 115;
 			item.melee = true;
 			item.width = 64;
 			item.height = 64;
 			item.useAnimation = item.useTime = 30;
-			//item.useTime = 15;
-			//item.useAnimation = 15;
-			//item.useStyle = 1;
+            //item.useTime = 15;
+            //item.useAnimation = 15;
+            //item.useStyle = 1;
+            item.noUseGraphic = true;
 			item.knockBack = 6;
 			item.value*=10;
-			item.rare+=5;
+            item.rare = ItemRarityID.Purple;
 			item.scale = 1f;
 			item.shoot = ModContent.ProjectileType<Jade_Reaper_Spin>();
 			item.shootSpeed = 0;
@@ -60,7 +61,6 @@ namespace EpikV2.Items {
 	}
 	public class Jade_Reaper_Spin : ModProjectile {
         public override string Texture => "EpikV2/Items/Jade_Reaper";
-        internal static bool jadeTest = true;
         public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Jade Reaper");
             Jade_Reaper.spinProj = projectile.type;
@@ -75,6 +75,7 @@ namespace EpikV2.Items {
 			projectile.localNPCHitCooldown = 1;
             projectile.timeLeft = 35;
             projectile.alpha = 100;
+            projectile.width = projectile.height = 128;
             projectile.hide = false;
 		}
         /*public override bool PreAI() {
@@ -95,39 +96,45 @@ namespace EpikV2.Items {
                     velocity.Normalize();
                     velocity*=18.5f;
                     projectile.velocity+=velocity;
-                    projectile.timeLeft = 35;
+                    projectile.extraUpdates = 1;
+                    projectile.soundDelay = 50;
                     Main.PlaySound(SoundID.Item71, projectile.Center);
                 }
             } else {
-                bool flag = projectile.extraUpdates!=4;
-                if(projectile.timeLeft<=5) {
-                    projectile.timeLeft = 35;
+                bool flag = projectile.extraUpdates!=4&&projectile.localAI[1]!=1;
+                projectile.timeLeft = 60;
+                if(--projectile.soundDelay<=0) {
+                    projectile.soundDelay = 50;
                     if(flag)Main.PlaySound(SoundID.Item71, projectile.Center);
                 }
-                if(flag)projectile.rotation += 0.23f * projectile.direction;
+                if(flag) {
+                    projectile.rotation += 0.23f * projectile.direction;
+                    /*if(projectile.ai[0]==1f&&projectile.velocity.Length()<12) {
+                        projectile.extraUpdates = 1;
+                    }*/
+                }
                 if(player.altFunctionUse==2&&projectile.ai[0]==1f) {
                     projectile.rotation = -MathHelper.PiOver4;
                     projectile.extraUpdates = 4;
+                    projectile.localAI[1] = 1;
                 }
             }
         }
 		public void SpinAI(){
             Player player = Main.player[projectile.owner];
 			projectile.Center = player.MountedCenter;
-			bool kil = false;
-			if (Main.myPlayer == projectile.owner)
-            {
-                if (player.noItems || player.CCed || !player.channel)
-                {
-					kil = true;
+			if (Main.myPlayer == projectile.owner){
+                if (player.noItems || player.CCed || !player.controlUseItem || projectile.noEnchantments){
+					projectile.noEnchantments = true;
                 }
             }
             player.itemTime = 2;
             player.itemAnimation = 2;
-            if(projectile.timeLeft<=5) {
-                projectile.timeLeft = 35;
+            if(projectile.soundDelay<=0) {
+                projectile.soundDelay = 30;
                 Main.PlaySound(SoundID.Item71, projectile.Center);
             }
+            if(!projectile.noEnchantments)projectile.timeLeft = 30;
             projectile.direction = player.direction;
             projectile.localAI[1] = projectile.direction;
             projectile.rotation += 0.23f * projectile.direction;
@@ -139,13 +146,12 @@ namespace EpikV2.Items {
 					if(proj.tileCollide){
 						proj.velocity = proj.velocity.RotatedBy(projectile.direction*0.25f);
 					}else{
-						proj.velocity = Vector2.Lerp(proj.velocity, new Vector2(kil?dist:640/dist,0).RotatedBy((proj.Center-projectile.Center).ToRotation()+player.direction*1.9f), 1f);
+						proj.velocity = Vector2.Lerp(proj.velocity, new Vector2(projectile.timeLeft<2?dist:640/dist,0).RotatedBy((proj.Center-projectile.Center).ToRotation()+player.direction*1.9f), 1f);
 					}
 					proj.friendly = true;
 					proj.hostile = false;
                 }
             }
-			if(kil)projectile.Kill();
 		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
 			Vector2 intersect = new Vector2(MathHelper.Clamp(projectile.Center.X, target.Hitbox.Left, target.Hitbox.Right),MathHelper.Clamp(projectile.Center.Y, target.Hitbox.Top, target.Hitbox.Bottom));

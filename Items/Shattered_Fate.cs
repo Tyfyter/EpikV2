@@ -14,7 +14,7 @@ using EpikV2.NPCs;
 using EpikV2.Projectiles;
 
 namespace EpikV2.Items {
-    [AutoloadEquip(EquipType.HandsOff, EquipType.HandsOff)]
+    [AutoloadEquip(EquipType.HandsOn, EquipType.HandsOff)]
     public class Shattered_Fate : ModItem {
         static bool Fists_Enabled => ModConf.EnableFists;
         static MethodInfo ManagePlayerComboMovement = null;
@@ -41,12 +41,12 @@ namespace EpikV2.Items {
             item.useAnimation = 16; // Combos can increase speed by 30-50% since it halves remaining attack time
             item.knockBack = 3f;
             item.tileBoost = 6; // For fists, we read this as the combo power
-            item.rare = 2;
+            item.rare = ItemRarityID.Purple;
 			item.crit = 10;
             item.UseSound = SoundID.Item19;
             item.useStyle = 102115116;
             item.autoReuse = true;
-            item.noUseGraphic = true;
+            item.noUseGraphic = false;
             item.width = 20;
             item.height = 20;
         }
@@ -171,7 +171,9 @@ namespace EpikV2.Items {
                     default:
                     break;
                 }
-                if(target.life>0&&target.life<(mpf.ComboCounter+item.tileBoost)*20&&!target.immortal&&!target.buffImmune[BuffID.MoonLeech]) {
+                float combomult = 20f-player.GetModPlayer<ModPlayerFists>().comboCounterMaxBonus;
+                combomult/=Math.Max(0.5f, 2 - item.scale);
+                if(target.life>0&&target.life<(mpf.ComboCounter+item.tileBoost)*combomult&&!target.immortal&&!target.buffImmune[BuffID.MoonLeech]) {
                     EGN.jaded = true;
                     EGN.freezeFrame = target.frame;
                     mpf.ModifyComboCounter(-mpf.ComboCounter);
