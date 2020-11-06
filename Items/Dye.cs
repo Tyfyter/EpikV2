@@ -25,4 +25,22 @@ namespace EpikV2.Items {
             recipe.AddRecipe();
         }
     }
+
+    public class Heatwave_Dye : ModItem{
+        public override void SetStaticDefaults(){
+            DisplayName.SetDefault("Heatwave Dye");
+        }
+		public override void SetDefaults(){
+			byte dye = item.dye;
+			item.CloneDefaults(ItemID.RedandBlackDye);
+			item.dye = dye;
+		}
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(SunstoneMaterial.id);
+            recipe.AddTile(TileID.DyeVat);
+            recipe.SetResult(this, 9);
+            recipe.AddRecipe();
+        }
+    }
 }

@@ -12,6 +12,9 @@ using Terraria.UI;
 using Terraria.DataStructures;
 using Terraria.GameContent.UI;
 using EpikV2.Items;
+using Terraria.ModLoader.IO;
+using System;
+using System.Collections;
 
 namespace EpikV2
 {
@@ -24,6 +27,8 @@ namespace EpikV2
         //public static MiscShaderData jadeShader;
         public static Effect jadeShader;
         public static ArmorShaderData jadeDyeShader;
+        public static ArmorShaderData fireDyeShader;
+        public static MiscShaderData fireMiscShader;
 		public EpikV2()
 		{
 			Properties = new ModProperties()
@@ -48,6 +53,9 @@ namespace EpikV2
             jadeShader = GetEffect("Effects/Jade");
             jadeDyeShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "JadeConst");
             GameShaders.Armor.BindShader(ModContent.ItemType<Jade_Dye>(), jadeDyeShader);
+            fireDyeShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Firewave")), "Firewave");
+            GameShaders.Armor.BindShader(ModContent.ItemType<Heatwave_Dye>(), fireDyeShader);
+            fireMiscShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Firewave")), "Firewave");
         }
 
         public override void Unload()
@@ -55,6 +63,9 @@ namespace EpikV2
             mod = null;
             jadeShader = null;
             jadeDyeShader = null;
+            fireDyeShader = null;
+            fireMiscShader = null;
+            EpikWorld.sacrifices = null;
         }
 
         public override void HotKeyPressed(string name) {
@@ -102,11 +113,33 @@ namespace EpikV2
             }
             else return 0;
         }
-	}
+        public override void MidUpdateTimeWorld() {
+            for(int i = 0; i < EpikWorld.sacrifices.Count; i++) {
+                Main.townNPCCanSpawn[EpikWorld.sacrifices[i]] = false;
+            }
+        }
+    }
     public class EpikWorld : ModWorld {
         public static int GolemTime = 0;
+        public static List<int> sacrifices;
         public override void PostUpdate() {
             if(GolemTime>0)GolemTime--;
+        }
+        public override TagCompound Save() {
+            TagCompound output = new TagCompound();
+            output.Add("sacrifices", sacrifices);
+            return output;
+        }
+        public override void Load(TagCompound tag) {
+            if(!tag.HasTag("sacrifices")) {
+                sacrifices = new List<int>(NPCLoader.NPCCount);
+                return;
+            }
+            try {
+                sacrifices = tag.Get<List<int>>("sacrifices");
+            } catch(Exception) {
+                sacrifices = new List<int>(NPCLoader.NPCCount);
+            }
         }
     }
 }

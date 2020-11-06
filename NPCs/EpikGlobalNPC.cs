@@ -30,6 +30,8 @@ namespace EpikV2.NPCs
             }
         }
         Vector2 jadePos = new Vector2(16,16);
+        public bool freeze = false;
+        public int crushTime = 0;
         public override bool PreAI(NPC npc) {
             if(jaded) {
                 int size = (int)Math.Ceiling(Math.Sqrt((npc.frame.Width*npc.frame.Width)+(npc.frame.Height*npc.frame.Height)));
@@ -37,6 +39,26 @@ namespace EpikV2.NPCs
                 npc.frameCounter = 0;
                 npc.noGravity = false;
                 npc.noTileCollide = false;
+                if(npc.velocity.X>=1)
+                    npc.velocity.X--;
+                else if(npc.velocity.X<=-1)
+                    npc.velocity.X++;
+                else
+                    npc.velocity.X = 0;
+                return false;
+            }
+            if(crushTime>0) {
+                crushTime--;
+            } else if(crushTime<0){
+                float acc = (npc.velocity-npc.oldVelocity).Length();
+                if(acc>5f) {
+                    npc.StrikeNPC((int)(acc*10+npc.defense*0.3f), 0, 0);
+                    crushTime = -crushTime;
+                }
+            }
+            if(freeze) {
+                npc.frameCounter = 0;
+                freeze = false;
                 if(npc.velocity.X>=1)
                     npc.velocity.X--;
                 else if(npc.velocity.X<=-1)

@@ -1,6 +1,11 @@
 A continuation of my first mod, "Epikmod".
 
 Changelog:
+0.2.1.0:
+Added 2 weapons
+Added a crafting material
+Changed version formatting
+
 0.2.1:
 Removed debugging code that was accidentally left in 0.2
 
