@@ -115,6 +115,8 @@ namespace EpikV2.NPCs
 			}*/
             if(npc.type==NPCID.Golem) {
                 EpikWorld.GolemTime = 5;
+            }else if(npc.type==NPCID.CultistArcherWhite && Main.rand.Next(0, 19) == 0) {
+				Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<Sacrificial_Dagger>(), 1);
             }
 			if(npc.HasBuff(mod.BuffType("ShroomInfestedDebuff"))){
 				int a;
@@ -126,16 +128,26 @@ namespace EpikV2.NPCs
 					}
 				}
 			}
-			if((Main.rand.Next(0, 74) == 0 && Main.xMas) || (Main.rand.Next(0, 39) == 0 && Main.snowMoon) || (npc.type == NPCID.PresentMimic && Main.rand.Next(0, 19) == 0) || (npc.type == NPCID.SlimeRibbonGreen && Main.rand.Next(0, 19) == 0) || (npc.type == NPCID.SlimeRibbonRed && Main.rand.Next(0, 29) == 0) || (npc.type == NPCID.SlimeRibbonWhite && Main.rand.Next(0, 39) == 0) || (npc.type == NPCID.SlimeRibbonYellow && Main.rand.Next(0, 49) == 0)){
+			if(EpikConfig.Instance.AncientPresents&&((Main.rand.Next(0, 74) == 0 && Main.xMas) || (Main.rand.Next(0, 39) == 0 && Main.snowMoon) || (npc.type == NPCID.PresentMimic && Main.rand.Next(0, 19) == 0) || (npc.type == NPCID.SlimeRibbonGreen && Main.rand.Next(0, 19) == 0) || (npc.type == NPCID.SlimeRibbonRed && Main.rand.Next(0, 29) == 0) || (npc.type == NPCID.SlimeRibbonWhite && Main.rand.Next(0, 39) == 0) || (npc.type == NPCID.SlimeRibbonYellow && Main.rand.Next(0, 49) == 0))){
 				Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<MobileGlitchPresent>(), 1);
 			}
 		}
 
 		public override void SpawnNPC(int npc, int tileX, int tileY){
-			if(Main.rand.Next(0,29) == 0){
+			if(Main.npc[npc].SpawnedFromStatue && Main.rand.Next(0,29) == 0){
 				Main.npc[npc].SpawnedFromStatue = false;
 			}
 		}
+        public override void EditSpawnPool(IDictionary<int, float> pool, NPCSpawnInfo spawnInfo) {
+            if(NPC.downedGolemBoss&&!spawnInfo.sky&&!spawnInfo.safeRangeX&&!spawnInfo.playerSafe&&!pool.ContainsKey(NPCID.CultistArcherWhite)) {
+                pool.Add(NPCID.CultistArcherWhite,0.02f);
+            }
+        }
+        public override void SetDefaults(NPC npc) {
+            if(npc.type==NPCID.CultistArcherWhite) {
+                npc.rarity++;
+            }
+        }
         public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Color drawColor) {
             //new Color(0,255,100);
             //if(jadeDraw) return true;

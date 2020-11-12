@@ -134,7 +134,12 @@ namespace EpikV2.Items {
                     player.channel = true;
                 }
                 if(player.channel) {
-                    projectile.timeLeft = 3;
+                    player.direction = (projectile.Center.X>player.MountedCenter.X) ? 1 : -1;
+                    player.itemRotation = (player.MountedCenter-projectile.Center).ToRotation()+(player.direction>0?MathHelper.Pi:0);
+                    if(projectile.timeLeft<2) {
+                        projectile.timeLeft = 8;
+                        if(!player.CheckMana(player.HeldItem.mana))projectile.Kill();
+                    }
                 }
             }
             Dust dust;
@@ -150,13 +155,15 @@ namespace EpikV2.Items {
                 EGN.freeze = true;
                 if(EGN.crushTime==0)EGN.crushTime = -8;
                 Vector2 velocity = projectile.Center-npc.Center;
-                velocity = velocity.SafeNormalize(default)*Math.Min(velocity.Length(), 64f);
-                npc.velocity = Vector2.Lerp(velocity,npc.velocity,0.4f);
+                velocity = velocity.SafeNormalize(default)*Math.Min(velocity.Length(), 80f);
+                npc.velocity = Vector2.Lerp(velocity,npc.velocity,0.7f);
                 /*float acc = (npc.velocity-npc.oldVelocity).Length();
                 if(projectile.localNPCImmunity[npc.whoAmI]<=0&&acc>5f) {
                     npc.StrikeNPC((int)(acc+npc.defense*0.3f), 0, 0);
                     projectile.localNPCImmunity[npc.whoAmI] = 8;
                 }*/
+            } else {
+                targetNPC = -1;
             }
         }
         public override bool? CanHitNPC(NPC target) {

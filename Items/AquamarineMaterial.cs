@@ -153,8 +153,8 @@ namespace EpikV2.Items {
         public override void SetDefaults() {
             item.CloneDefaults(ItemID.PsychoKnife);
             item.melee = false;
-            item.useTime = 20;
-            item.useAnimation = 20;
+            item.useTime = 15;
+            item.useAnimation = 15;
             item.damage = 150;
             item.knockBack = 0;
             item.scale = 0.8f;
@@ -163,7 +163,7 @@ namespace EpikV2.Items {
             return true;
         }
         public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit) {
-            if(target.life<1&&(target.townNPC||target.type==NPCID.CultistDevote||target.type==NPCID.CultistArcherBlue)) {
+            if(target.life<1&&(target.townNPC||target.type==NPCID.CultistDevote||target.type==NPCID.CultistArcherBlue||target.type==NPCID.CultistArcherWhite)) {
                 player.GetModPlayer<EpikPlayer>().sacrifice = 3;
                 if(!target.townNPC)return;
                 EpikWorld.sacrifices.Add(target.type);
@@ -177,15 +177,16 @@ namespace EpikV2.Items {
             }
         }
         public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox) {
-            noHitbox = player.itemAnimation!=11;
-            hitbox.Y+=8;
+            noHitbox = player.itemAnimation!=8;
+            hitbox.Y+=16;
             hitbox.X+=4*player.direction;
+            hitbox.Height+=hitbox.Height/2;
             player.itemRotation+=2*player.direction;
             player.itemLocation+=new Vector2(-3*player.direction,3).RotatedBy(player.itemRotation);
-            if(player.itemAnimation==11) {
+            if(player.itemAnimation==8) {
                 player.reuseDelay = 30;
-            }else if(player.itemAnimation<11) {
-                player.itemAnimation = --player.reuseDelay<1?0:11;
+            }else if(player.itemAnimation<8) {
+                player.itemAnimation = --player.reuseDelay<1?0:8;
             }
         }
     }

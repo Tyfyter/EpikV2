@@ -2,8 +2,9 @@ A continuation of my first mod, "Epikmod".
 
 Changelog:
 0.2.2.0:
-Added 2 weapons
+Added 3 weapons
 Added 2 crafting materials
+Implemented 1 NPC
 
 0.2.1.0:
 Added 2 weapons

@@ -15,6 +15,8 @@ using EpikV2.Items;
 using Terraria.ModLoader.IO;
 using System;
 using System.Collections;
+using Terraria.ModLoader.Config;
+using System.ComponentModel;
 
 namespace EpikV2
 {
@@ -118,6 +120,16 @@ namespace EpikV2
                 Main.townNPCCanSpawn[EpikWorld.sacrifices[i]] = false;
             }
         }
+    }
+    [Label("Settings")]
+    public class EpikConfig : ModConfig {
+        public static EpikConfig Instance;
+        public override ConfigScope Mode => ConfigScope.ServerSide;
+        [Header("Vanilla Buffs")]
+
+        [Label("Ancient Presents")]
+        [DefaultValue(true)]
+        public bool AncientPresents = true;
     }
     public class EpikWorld : ModWorld {
         public static int GolemTime = 0;
