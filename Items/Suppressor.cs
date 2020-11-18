@@ -85,12 +85,12 @@ namespace EpikV2.Items
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
 			EpikGlobalNPC egnpc = target.GetGlobalNPC<EpikGlobalNPC>();
-			egnpc.SuppressorHits+=8;
-			damage+=(int)(egnpc.SuppressorHits/6);
+			egnpc.suppressorHits+=8;
+			damage+=(int)(egnpc.suppressorHits/6);
 			//Main.player[projectile.owner].chatOverhead.NewMessage(egnpc.SuppressorHits+"", 15);
-			if(egnpc.SuppressorHits>35){
-				Projectile.NewProjectile(target.Center, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, (int)egnpc.SuppressorHits, 0, projectile.owner);
-				egnpc.SuppressorHits-=6;
+			if(egnpc.suppressorHits>35){
+				Projectile.NewProjectile(target.Center, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, (int)egnpc.suppressorHits, 0, projectile.owner);
+				egnpc.suppressorHits-=6;
 			}
 		}
 	}

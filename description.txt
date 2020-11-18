@@ -4,7 +4,9 @@ Changelog:
 0.2.2.0:
 Added 3 weapons
 Added 2 crafting materials
+Added 1 tool
 Implemented 1 NPC
+Added minor Recipe Browser integration
 
 0.2.1.0:
 Added 2 weapons
@@ -24,3 +26,4 @@ Mostly just the people in the TModLoader discord, but especially DarkLight and J
 
 Special Thanks to the 7387 people who've downloaded the original mod.
 Wait, why is it 7395 now...
+___? Are people still using tML v_._._._?

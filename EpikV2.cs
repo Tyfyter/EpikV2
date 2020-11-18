@@ -17,10 +17,11 @@ using System;
 using System.Collections;
 using Terraria.ModLoader.Config;
 using System.ComponentModel;
+using System.Reflection;
 
 namespace EpikV2
 {
-	class EpikV2 : Mod
+	public class EpikV2 : Mod
 	{
         internal static EpikV2 mod;
         private HotKey ReadTooltipsVar = new HotKey("Read Tooltips (list mod name)", Keys.L);
@@ -119,6 +120,9 @@ namespace EpikV2
             for(int i = 0; i < EpikWorld.sacrifices.Count; i++) {
                 Main.townNPCCanSpawn[EpikWorld.sacrifices[i]] = false;
             }
+        }
+        public override void PostAddRecipes() {
+            if(ModLoader.GetMod("RecipeBrowser")!=null)EpikIntegration.AddRecipeBrowserIntegration();
         }
     }
     [Label("Settings")]

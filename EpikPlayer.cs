@@ -6,9 +6,11 @@ using Terraria.DataStructures;
 using Terraria.ModLoader;
 using EpikV2.Items;
 using System.Runtime.CompilerServices;
+using static EpikV2.EpikExtensions;
+using static Microsoft.Xna.Framework.MathHelper;
 
 namespace EpikV2 {
-    internal class EpikPlayer : ModPlayer {
+    public class EpikPlayer : ModPlayer {
 		public bool readtooltips = false;
         public int tempint = 0;
         public int light_shots = 0;
@@ -19,6 +21,8 @@ namespace EpikV2 {
         public byte sacrifice = 0;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ChargedGem() => chargedAmber||chargedEmerald;
+        public Vector2 ropeVel = default;
+        public int ropeTarg = -1;
 
         public override void ResetEffects() {
             Majestic_Wings = false;
@@ -50,6 +54,53 @@ namespace EpikV2 {
 				    }
 			    }
             }
+        }
+        //public static const rope_deb_412 = 0.1f;
+        public override void PreUpdateMovement() {
+            if(ropeTarg>=0) {//ropeVel.HasValue&&
+                Projectile projectile = Main.projectile[ropeTarg];
+                Rope_Hook_Projectile rope = (Rope_Hook_Projectile)projectile.modProjectile;
+                //int dir = -1;
+                //if(projectile.Center.Y>player.Center.Y)dir = 1;
+                //player.velocity = ropeVel.Value;
+                float speed = (player.velocity-ropeVel).Length();
+                ropeVel = default;
+                Vector2 displacement = projectile.Center-player.MountedCenter;
+                float slide = 0;
+                if(player.controlUp^player.controlDown) {
+                    if(player.controlUp)slide-=2;
+                    else slide+=5;
+                }
+                float range = Math.Min(rope.distance+slide, Rope_Hook_Projectile.rope_range);
+                rope.distance = range;
+                int angleDir;
+                float angleDiff = AngleDif((-displacement).ToRotation(), player.velocity.ToRotation(), out angleDir);
+                //Dust.NewDustPerfect(player.Center+player.velocity*32, 6, Vector2.Zero).noGravity = true;
+                //Dust.NewDustPerfect(player.Center+Vector2.Normalize(displacement)*32, 29, Vector2.Zero).noGravity = true;
+                //player.chatOverhead.NewMessage($"{Math.Round(displacement.ToRotation(),2)}, {Math.Round(player.velocity.ToRotation(),2)}", 5);
+                if(displacement.Length()>=range) {
+                    if(player.Center.Y<projectile.Center.Y) {
+                        projectile.ai[0]=1f;
+                        return;
+                    }
+                    //Vector2 unit = displacement.RotatedBy(PiOver2*angleDir*dir);
+                    //unit.Normalize();
+                    //Dust.NewDustPerfect(player.Center+unit*32, 29, Vector2.Zero, Scale:3).noGravity = true;
+                    ropeVel = Vector2.Normalize(displacement)*(displacement.Length()-range);
+                    //player.velocity = (player.velocity*Min((PiOver2-Math.Abs(PiOver2-angleDiff))*1.2f,1)).RotatedBy(angleDir*(angleDiff-PiOver2))+ropeVel;//unit*speed+ropeVel;
+                    player.velocity = new Vector2(speed*Min((PiOver2-Math.Abs(PiOver2-angleDiff))*Pi+0.1f,1f),0).RotatedBy(displacement.ToRotation()-(Math.Sign(player.velocity.X)*-PiOver2))+ropeVel;//unit*speed+ropeVel;
+
+                    if(player.velocity.Y == 0)player.velocity.Y+=player.gravity*player.gravDir;
+                    //Dust.NewDustPerfect(player.Center+player.velocity*32, angleDir>0?6:74, Vector2.Zero).noGravity = true;
+                    //Dust.NewDustPerfect(new Vector2(Main.screenPosition.X+64, Main.screenPosition.Y+(Main.screenHeight*(angleDiff/Pi))), angleDir>0?6:74, default).noGravity=true;
+                    //player.position = player.position+player.velocity;
+                }
+                if(player.Hitbox.Intersects(projectile.Hitbox)) {
+                    projectile.Kill();
+                }
+            }
+            //ropeVel = null;
+            ropeTarg = -1;
         }
         public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource) {
             if(damage<player.statLife||!ChargedGem()) return true;

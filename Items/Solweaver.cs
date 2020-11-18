@@ -176,8 +176,8 @@ namespace EpikV2.Items {
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), p.Center - 45f * unit, _targetPos, 24, ref point);
         }
 
-        const int SamplePoints = 3;
-        const float CollisionSize = 0.5f;
+        const int sample_points = 3;
+        const float collision_size = 0.5f;
         /// <summary>
         /// The AI of the projectile
         /// </summary>
@@ -244,13 +244,13 @@ namespace EpikV2.Items {
 			if (!Collision.CanHitLine(player.Center, 0, 0, projectile.Center, 0, 0)) {
 				samplingPoint = player.Center;
 			}
-            float[] laserScanResults = new float[SamplePoints];
-			Collision.LaserScan(samplingPoint, unit, CollisionSize * projectile.scale, 1200f, laserScanResults);
+            float[] laserScanResults = new float[sample_points];
+			Collision.LaserScan(samplingPoint, unit, collision_size * projectile.scale, 1200f, laserScanResults);
 			float averageLengthSample = 0f;
 			for (int i = 0; i < laserScanResults.Length; ++i) {
 				averageLengthSample += laserScanResults[i];
 			}
-			averageLengthSample /= SamplePoints;
+			averageLengthSample /= sample_points;
             _targetPos = projectile.Center + (unit*averageLengthSample);
 
             //dust

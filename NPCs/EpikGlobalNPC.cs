@@ -17,8 +17,8 @@ namespace EpikV2.NPCs
 	{
 		public override bool InstancePerEntity => true;
 		public override bool CloneNewInstances => true;
-		internal float SuppressorHits = 0;
-        //const int JadeFramesTotal = 300;
+		internal float suppressorHits = 0;
+        //const int jade_frames_total = 300;
         int jadeFrames = 0;
         public Rectangle freezeFrame;
         public bool jaded {
@@ -70,8 +70,8 @@ namespace EpikV2.NPCs
             return true;
         }
         public override void AI(NPC npc){
-			if(SuppressorHits>0){
-				SuppressorHits-=(float)Math.Ceiling(SuppressorHits/5f)/(npc.wet?3f:5f);
+			if(suppressorHits>0){
+				suppressorHits-=(float)Math.Ceiling(suppressorHits/5f)/(npc.wet?3f:5f);
 				//npc.StrikeNPC(SuppressorHits/(npc.coldDamage?10:5), 0, 0);
 			}
 		}

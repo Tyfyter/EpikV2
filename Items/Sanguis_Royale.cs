@@ -72,7 +72,7 @@ namespace EpikV2.Items {
             projectile.tileCollide = true;   //make that the projectile will be destroed if it hits the terrain
             projectile.penetrate = -1;      //how many npc will penetrate
             projectile.timeLeft = 150;
-            projectile.light = 0.75f;
+            //projectile.light = 0.75f;
             projectile.ignoreWater = true;
             projectile.extraUpdates = 150;
             projectile.usesLocalNPCImmunity = true;
@@ -118,7 +118,7 @@ namespace EpikV2.Items {
             projectile.tileCollide = false;   //make that the projectile will be destroed if it hits the terrain
             projectile.penetrate = -1;      //how many npc will penetrate
             projectile.timeLeft = 15;
-            projectile.light = 0.75f;
+            //projectile.light = 0.75f;
             projectile.ignoreWater = true;
             projectile.extraUpdates = 0;
             projectile.usesLocalNPCImmunity = true;
