@@ -8,6 +8,7 @@ using EpikV2.Items;
 using System.Runtime.CompilerServices;
 using static EpikV2.EpikExtensions;
 using static Microsoft.Xna.Framework.MathHelper;
+using Terraria.Graphics.Shaders;
 
 namespace EpikV2 {
     public class EpikPlayer : ModPlayer {
@@ -23,11 +24,14 @@ namespace EpikV2 {
         public bool ChargedGem() => chargedAmber||chargedEmerald;
         public Vector2 ropeVel = default;
         public int ropeTarg = -1;
+        public bool Oily = false;
+        public byte wetTime = 0;
 
         public override void ResetEffects() {
             Majestic_Wings = false;
             chargedEmerald = false;
             chargedAmber = false;
+            Oily = false;
             if(sacrifice>0) {
                 sacrifice--;
                 if(sacrifice==0&&Main.rand.Next(5)==0&&EpikWorld.sacrifices.Count>0) {
@@ -36,6 +40,7 @@ namespace EpikV2 {
                     for(i = 0; i < 4; i++)Dust.NewDust(player.position,player.width, player.height, 16, Alpha:100, newColor:new Color(255,150,150));
                 }
             }
+            if(wetTime>0)wetTime--;
         }
         public override void PostUpdate() {
             light_shots = 0;
@@ -116,6 +121,35 @@ namespace EpikV2 {
                 }
             }
             return true;
+        }
+        public override void PostUpdateRunSpeeds() {
+            if(Oily) {
+                //Dust dust;
+                //dust = Main.dust[];
+                Dust.NewDust(player.position, player.width, player.height, 102, 0f, 0f, 0, default, 1f);
+	            //dust.shader = GameShaders.Armor.GetSecondaryShader(3, Main.LocalPlayer);
+                bool wet = player.wet;
+                Vector2 dist;
+                Rain rain;
+                if(EpikWorld.raining)for(int i = 0; i < Main.maxRain; i++) {
+                    rain = Main.rain[i];
+                    if(rain.active) {
+                        dist = new Vector2(2, 40).RotatedBy(rain.rotation);
+                        Vector2 rainPos = new Vector2(rain.position.X,rain.position.Y)+new Vector2(Math.Min(dist.X,0),Math.Min(dist.Y,0));
+                        if(player.Hitbox.Intersects(new Rectangle((int)rainPos.X, (int)rainPos.Y, (int)Math.Abs(dist.X),(int)Math.Abs(dist.Y)))) {
+                            wet = true;
+                            break;
+                        }
+                    }
+                }
+			    player.wingTimeMax = wet?60:0;
+                if(wet)wetTime = 60;
+                if(wetTime>0) {
+                    player.wingTime = 60;
+                } else {
+                    player.wingsLogic = 0;
+                }
+            }
         }
         /*public override void PostHurt(bool pvp, bool quiet, double damage, int hitDirection, bool crit) {
             damage_taken = (int)damage;

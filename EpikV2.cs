@@ -122,7 +122,8 @@ namespace EpikV2
             }
         }
         public override void PostAddRecipes() {
-            if(ModLoader.GetMod("RecipeBrowser")!=null)EpikIntegration.AddRecipeBrowserIntegration();
+            Mod recipeBrowser = ModLoader.GetMod("RecipeBrowser");
+            if(recipeBrowser!=null&&recipeBrowser.Version>=new Version(0,5))EpikIntegration.AddRecipeBrowserIntegration();
         }
     }
     [Label("Settings")]
@@ -138,8 +139,18 @@ namespace EpikV2
     public class EpikWorld : ModWorld {
         public static int GolemTime = 0;
         public static List<int> sacrifices;
+        internal static bool raining;
         public override void PostUpdate() {
             if(GolemTime>0)GolemTime--;
+            if(raining||Main.raining) {
+                raining = false;
+                for(int i = 0; i < Main.maxRain; i++) {
+                    if(Main.rain[i].active) {
+                        raining = true;
+                        break;
+                    }
+                }
+            }
         }
         public override TagCompound Save() {
             TagCompound output = new TagCompound();

@@ -178,24 +178,14 @@ namespace EpikV2.NPCs
 			    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
             }
         }
-
-        /*public override void SetupShop(int type, Chest shop, ref int nextSlot)
-		{
-			if (type == NPCID.Dryad)
-			{
-				shop.item[nextSlot].SetDefaults(mod.ItemType<Items.CarKey>());
-				nextSlot++;
-
-				shop.item[nextSlot].SetDefaults(mod.ItemType<Items.CarKey>());
-				shop.item[nextSlot].shopCustomPrice = new int?(2);
-				shop.item[nextSlot].shopSpecialCurrency = CustomCurrencyID.DefenderMedals;
-				nextSlot++;
-
-				shop.item[nextSlot].SetDefaults(mod.ItemType<Items.CarKey>());
-				shop.item[nextSlot].shopCustomPrice = new int?(3);
-				shop.item[nextSlot].shopSpecialCurrency = ExampleMod.FaceCustomCurrencyID;
-				nextSlot++;
-			}
-		}*/
+        public override void SetupShop(int type, Chest shop, ref int nextSlot){
+            switch(type) {
+            case NPCID.TravellingMerchant:
+                if(NPC.npcsFoundForCheckActive[NPCID.QueenBee]) {
+                    shop.item[nextSlot++].SetDefaults(ModContent.ItemType<Step2>());
+                }
+            break;
+            }
+        }
     }
 }
