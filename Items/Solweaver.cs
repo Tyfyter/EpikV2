@@ -96,7 +96,7 @@ namespace EpikV2.Items {
             Vector2 origin = start;
             float maxl = (_targetPos-start).Length();
             float r = unit.ToRotation();// + rotation??(float)(Math.PI/2);
-            float l = unit.Length()*2.5f;
+            float l = unit.Length();//*2.5f;
             int t = projectile.timeLeft>10?25-projectile.timeLeft:projectile.timeLeft;
             float s = Math.Min(t/15f,1f);
             Vector2 perpUnit = unit.RotatedBy(MathHelper.PiOver2);
@@ -104,12 +104,14 @@ namespace EpikV2.Items {
             DrawData data;
             int dustTimer = 48;
             for (float i = 0; i <= maxDist; i += step){
-                if((i*unit).Length()>maxl)break;
+                if((i*l)>maxl)break;
                 origin = start + i * unit;
-                if(!(Collision.CanHitLine(origin-unit, lcs, lcs, origin, lcs, lcs)
+                //*
+                if(maxl-(i*l)<16&&!(Collision.CanHitLine(origin-unit, lcs, lcs, origin, lcs, lcs)
                     ||Collision.CanHitLine(origin+perpUnit, lcs, lcs, origin-unit, lcs, lcs)
                     ||Collision.CanHitLine(origin-perpUnit, lcs, lcs, origin-unit, lcs, lcs)
                     ))break;
+                //*/
                 /*spriteBatch.Draw(texture, origin - Main.screenPosition,
                     new Rectangle((int)i%44, 0, 1, 32), Color.OrangeRed, r,
                     new Vector2(0, 16+(float)Math.Sin(i/4f)*2), scale*new Vector2(1,s), 0, 0);*/
