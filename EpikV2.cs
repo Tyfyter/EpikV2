@@ -50,6 +50,7 @@ namespace EpikV2
                 AutoloadGores = true,
                 AutoloadSounds = true
             };
+			EpikWorld.sacrifices = new List<int>(){};
 
             if(Main.netMode!=NetmodeID.Server) {
                 RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
@@ -161,13 +162,13 @@ namespace EpikV2
         }
         public override void Load(TagCompound tag) {
             if(!tag.HasTag("sacrifices")) {
-                sacrifices = new List<int>(NPCLoader.NPCCount);
+                sacrifices = new List<int>(){};
                 return;
             }
             try {
                 sacrifices = tag.Get<List<int>>("sacrifices");
             } catch(Exception) {
-                sacrifices = new List<int>(NPCLoader.NPCCount);
+                sacrifices = new List<int>(){};
             }
         }
     }
