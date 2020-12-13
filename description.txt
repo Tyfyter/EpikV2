@@ -1,6 +1,15 @@
 A continuation of my first mod, "Epikmod".
 
 Changelog:
+
+0.2.2.2:
+Fixed accessory from 0.2.2.1 not working properly in multiplayer
+
+0.2.2.1:
+Added 1 accessory
+Fixed error when used alongside versions of Recipe Browser before 0.5
+Fixed incompatibility with multiplayer
+
 0.2.2.0:
 Added 3 weapons
 Added 2 crafting materials
@@ -27,3 +36,4 @@ Mostly just the people in the TModLoader discord, but especially DarkLight and J
 Special Thanks to the 7387 people who've downloaded the original mod.
 Wait, why is it 7395 now...
 7477? Are people still using tML v0.8.2.1?
+7574. How is it still available?

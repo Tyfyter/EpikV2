@@ -18,6 +18,7 @@ using System.Collections;
 using Terraria.ModLoader.Config;
 using System.ComponentModel;
 using System.Reflection;
+using System.IO;
 
 namespace EpikV2
 {
@@ -53,7 +54,7 @@ namespace EpikV2
 			EpikWorld.sacrifices = new List<int>(){};
 
             if(Main.netMode!=NetmodeID.Server) {
-                RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
+                //RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
                 //jadeShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Jade")), "Jade");
                 jadeShader = GetEffect("Effects/Jade");
                 jadeDyeShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "JadeConst");
@@ -74,6 +75,36 @@ namespace EpikV2
             EpikWorld.sacrifices = null;
         }
 
+        public override void HandlePacket(BinaryReader reader, int whoAmI) {
+            byte type = reader.ReadByte();
+            if(Main.netMode == NetmodeID.Server) {
+                switch(type) {
+                    case 0:
+                    ModPacket packet = GetPacket(3);
+                    packet.Write((byte)0);
+                    packet.Write(reader.ReadByte());
+                    packet.Write(reader.ReadBoolean());
+                    packet.Send(ignoreClient:whoAmI);
+                    break;
+                    default:
+			        Logger.WarnFormat("EpikV2: Unknown Message type: {0}", type);
+			        break;
+                }
+            } else {
+                switch(type) {
+                    case 0:
+                    Player player = Main.player[reader.ReadByte()];
+                    bool wet = reader.ReadBoolean();
+                    player.wingTimeMax = wet ? 60 : 0;
+                    if(wet)player.wingTime = 60;
+                    break;
+                    default:
+			        Logger.WarnFormat("EpikV2: Unknown Message type: {0}", type);
+			        break;
+                }
+            }
+        }
+
         public override void HotKeyPressed(string name) {
             if(PlayerInput.Triggers.JustPressed.KeyStatus[GetTriggerName(name)]) {
                 if(name.Equals(ReadTooltipsVar.Name)) {
@@ -91,13 +122,6 @@ namespace EpikV2
             {
                 ModItems.Add(i);
             }
-        }
-
-        public void ReadTooltips()
-        {
-            Player player = Main.player[Main.myPlayer];
-            EpikPlayer modPlayer = player.GetModPlayer<EpikPlayer>();
-            modPlayer.readtooltips = !modPlayer.readtooltips;
         }
 
         public string GetTriggerName(string name)
@@ -142,7 +166,7 @@ namespace EpikV2
     public class EpikWorld : ModWorld {
         public static int GolemTime = 0;
         public static List<int> sacrifices;
-        internal static bool raining;
+        public static bool raining;
         public override void PostUpdate() {
             if(GolemTime>0)GolemTime--;
             if(raining||Main.raining) {

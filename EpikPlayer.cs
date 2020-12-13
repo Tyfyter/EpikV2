@@ -9,6 +9,9 @@ using System.Runtime.CompilerServices;
 using static EpikV2.EpikExtensions;
 using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.Graphics.Shaders;
+using Terraria.GameContent.NetModules;
+using Terraria.Localization;
+using Terraria.GameInput;
 
 namespace EpikV2 {
     public class EpikPlayer : ModPlayer {
@@ -124,6 +127,7 @@ namespace EpikV2 {
         }
         public override void PostUpdateRunSpeeds() {
             if(Oily) {
+                //if(PlayerInput.Triggers.JustPressed.Jump)SayNetMode();
                 //Dust dust;
                 //dust = Main.dust[];
                 Dust.NewDust(player.position, player.width, player.height, 102, 0f, 0f, 0, default, 1f);
@@ -131,7 +135,7 @@ namespace EpikV2 {
                 bool wet = player.wet;
                 Vector2 dist;
                 Rain rain;
-                if(EpikWorld.raining)for(int i = 0; i < Main.maxRain; i++) {
+                if(EpikWorld.raining)for(int i = 0; i < Main.maxRain&&!wet; i++) {
                     rain = Main.rain[i];
                     if(rain.active) {
                         dist = new Vector2(2, 40).RotatedBy(rain.rotation);
@@ -141,6 +145,14 @@ namespace EpikV2 {
                             break;
                         }
                     }
+                }
+                //if(PlayerInput.Triggers.JustPressed.Jump)SendMessage(wet+" "+wetTime+" "+EpikWorld.raining);
+                if(Main.netMode!=NetmodeID.SinglePlayer&&player.wingTimeMax != (wet?60:0)) {
+                    ModPacket packet = mod.GetPacket(3);
+                    packet.Write((byte)0);
+                    packet.Write((byte)player.whoAmI);
+                    packet.Write(wet);
+                    packet.Send();
                 }
 			    player.wingTimeMax = wet?60:0;
                 if(wet)wetTime = 60;

@@ -5,6 +5,10 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using Terraria;
+using Terraria.GameContent.NetModules;
+using Terraria.ID;
+using Terraria.Localization;
 
 namespace EpikV2 {
     public static class EpikExtensions {
@@ -27,6 +31,35 @@ namespace EpikV2 {
             dir = (phi > MathHelper.Pi)?-1:1;
             float distance = phi > MathHelper.Pi ? MathHelper.TwoPi - phi : phi;
             return distance;
+        }
+        public static void SayNetMode() {
+            switch(Main.netMode) {
+                case NetmodeID.Server:
+                NetTextModule.SerializeServerMessage(NetworkText.FromLiteral("Server"), Color.White);
+                break;
+                case NetmodeID.MultiplayerClient:
+                Main.NewText("MultiplayerClient");
+                break;
+                case NetmodeID.SinglePlayer:
+                Main.NewText("SinglePlayer");
+                break;
+            }
+        }
+        public static void SendMessage(string text) {
+            switch(Main.netMode) {
+                case NetmodeID.Server:
+                NetTextModule.SerializeServerMessage(NetworkText.FromLiteral(text), Color.White);
+                break;
+                case NetmodeID.MultiplayerClient:
+                Main.NewText(text);
+                break;
+                case NetmodeID.SinglePlayer:
+                Main.NewText(text);
+                break;
+            }
+        }
+        public static void SendMessage(object text) {
+            SendMessage(text.ToString());
         }
     }
 }
