@@ -125,6 +125,7 @@ namespace EpikV2 {
             }
             return true;
         }
+        static bool debug = false;
         public override void PostUpdateRunSpeeds() {
             if(Oily) {
                 //if(PlayerInput.Triggers.JustPressed.Jump)SayNetMode();
@@ -135,7 +136,7 @@ namespace EpikV2 {
                 bool wet = player.wet;
                 Vector2 dist;
                 Rain rain;
-                if(EpikWorld.raining)for(int i = 0; i < Main.maxRain&&!wet; i++) {
+                if(Main.netMode!=NetmodeID.SinglePlayer||EpikWorld.raining)for(int i = 0; i < Main.maxRain&&!wet; i++) {
                     rain = Main.rain[i];
                     if(rain.active) {
                         dist = new Vector2(2, 40).RotatedBy(rain.rotation);
@@ -154,6 +155,10 @@ namespace EpikV2 {
                     packet.Write(wet);
                     packet.Send();
                 }
+                //int wtm = player.wingTimeMax;
+                //byte wett = wetTime;
+                //float wt = player.wingTime;
+                //int wl = player.wingsLogic;
 			    player.wingTimeMax = wet?60:0;
                 if(wet)wetTime = 60;
                 if(wetTime>0) {
@@ -161,6 +166,16 @@ namespace EpikV2 {
                 } else {
                     player.wingsLogic = 0;
                 }
+                /*if(wtm!=player.wingTimeMax||wett!=wetTime||wt!=player.wingTime||wl!=player.wingsLogic) {
+                    ModPacket packet = mod.GetPacket();
+                    packet.Write((byte)0);
+                    packet.Write((byte)player.whoAmI);
+                    packet.Write(player.wingTimeMax);
+                    packet.Write(wetTime);
+                    packet.Write((double)player.wingTime);
+                    packet.Write(player.wingsLogic);
+                    packet.Send();
+                }*/
             }
         }
         /*public override void PostHurt(bool pvp, bool quiet, double damage, int hitDirection, bool crit) {

@@ -53,7 +53,7 @@ namespace EpikV2
             };
 			EpikWorld.sacrifices = new List<int>(){};
 
-            if(Main.netMode!=NetmodeID.Server) {
+            if(!Main.dedServ) {
                 //RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
                 //jadeShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Jade")), "Jade");
                 jadeShader = GetEffect("Effects/Jade");
@@ -80,11 +80,30 @@ namespace EpikV2
             if(Main.netMode == NetmodeID.Server) {
                 switch(type) {
                     case 0:
+                    /*
+                    ModPacket packet = GetPacket();
+                    packet.Write((byte)0);
+                    byte pl = reader.ReadByte();
+                    int wtm = reader.ReadInt32();
+                    byte wett = reader.ReadByte();
+                    double wt = reader.ReadDouble();
+                    int wl = reader.ReadInt32();
+                    packet.Write(pl);
+                    packet.Write(wtm);
+                    packet.Write(wett);
+                    packet.Write(wt);
+                    packet.Write(wl);
+                    Player player = Main.player[pl];
+                    player.wingTimeMax = wtm;
+                    player.GetModPlayer<EpikPlayer>().wetTime = wett;
+                    player.wingTime = (float)wt;
+                    player.wingsLogic = wl;//*/
+                    //*
                     ModPacket packet = GetPacket(3);
                     packet.Write((byte)0);
                     packet.Write(reader.ReadByte());
                     packet.Write(reader.ReadBoolean());
-                    packet.Send(ignoreClient:whoAmI);
+                    packet.Send();//*/ignoreClient:whoAmI
                     break;
                     default:
 			        Logger.WarnFormat("EpikV2: Unknown Message type: {0}", type);
@@ -93,10 +112,22 @@ namespace EpikV2
             } else {
                 switch(type) {
                     case 0:
+                    /*
+                    byte pl = reader.ReadByte();
+                    int wtm = reader.ReadInt32();
+                    byte wett = reader.ReadByte();
+                    double wt = reader.ReadDouble();
+                    int wl = reader.ReadInt32();
+                    Player player = Main.player[pl];
+                    player.wingTimeMax = wtm;
+                    player.GetModPlayer<EpikPlayer>().wetTime = wett;
+                    player.wingTime = (float)wt;
+                    player.wingsLogic = wl;//*/
+                    //*
                     Player player = Main.player[reader.ReadByte()];
                     bool wet = reader.ReadBoolean();
                     player.wingTimeMax = wet ? 60 : 0;
-                    if(wet)player.wingTime = 60;
+                    if(wet)player.wingTime = 60;//*/
                     break;
                     default:
 			        Logger.WarnFormat("EpikV2: Unknown Message type: {0}", type);
@@ -163,13 +194,23 @@ namespace EpikV2
         [DefaultValue(true)]
         public bool AncientPresents = true;
     }
+    /*[Label("ClientSettings")]
+    public class EpikClientConfig : ModConfig {
+        public static EpikClientConfig Instance;
+        public override ConfigScope Mode => ConfigScope.ClientSide;
+        [Header("Debuffing")]
+
+        [Label("Step 2")]
+        [DefaultValue(true)]
+        public bool step2deb = true;
+    }*/
     public class EpikWorld : ModWorld {
         public static int GolemTime = 0;
         public static List<int> sacrifices;
         public static bool raining;
         public override void PostUpdate() {
             if(GolemTime>0)GolemTime--;
-            if(raining||Main.raining) {
+            if(Main.netMode==NetmodeID.SinglePlayer)if(raining||Main.raining) {
                 raining = false;
                 for(int i = 0; i < Main.maxRain; i++) {
                     if(Main.rain[i].active) {
