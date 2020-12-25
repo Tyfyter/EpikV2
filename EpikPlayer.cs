@@ -20,6 +20,7 @@ namespace EpikV2 {
         public int light_shots = 0;
         public int oldStatLife = 0;
         public bool Majestic_Wings;
+        public int GolemTime = 0;
         public bool chargedEmerald = false;
         public bool chargedAmber = false;
         public byte sacrifice = 0;
@@ -44,6 +45,7 @@ namespace EpikV2 {
                 }
             }
             if(wetTime>0)wetTime--;
+            if(GolemTime>0)GolemTime--;
         }
         public override void PostUpdate() {
             light_shots = 0;

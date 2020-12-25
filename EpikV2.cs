@@ -129,6 +129,10 @@ namespace EpikV2
                     player.wingTimeMax = wet ? 60 : 0;
                     if(wet)player.wingTime = 60;//*/
                     break;
+                    case 1:
+			        Logger.InfoFormat("recieved golem death packet");
+                    Main.LocalPlayer.GetModPlayer<EpikPlayer>().GolemTime = 5;
+                    break;
                     default:
 			        Logger.WarnFormat("EpikV2: Unknown Message type: {0}", type);
 			        break;
@@ -205,11 +209,11 @@ namespace EpikV2
         public bool step2deb = true;
     }*/
     public class EpikWorld : ModWorld {
-        public static int GolemTime = 0;
+        //public static int GolemTime = 0;
         public static List<int> sacrifices;
         public static bool raining;
         public override void PostUpdate() {
-            if(GolemTime>0)GolemTime--;
+            //if(GolemTime>0)GolemTime--;
             if(Main.netMode==NetmodeID.SinglePlayer)if(raining||Main.raining) {
                 raining = false;
                 for(int i = 0; i < Main.maxRain; i++) {

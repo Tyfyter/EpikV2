@@ -2,6 +2,9 @@ A continuation of my first mod, "Epikmod".
 
 Changelog:
 
+0.2.2.3:
+More multiplayer fixes
+
 0.2.2.2:
 Fixed accessory from 0.2.2.1 not working properly in multiplayer
 

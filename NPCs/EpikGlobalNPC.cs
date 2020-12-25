@@ -1,12 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using EpikV2.Buffs;
 using EpikV2.Items;
 using EpikV2.Projectiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent.NetModules;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using static EpikV2.EpikExtensions;
 using static Microsoft.Xna.Framework.MathHelper;
@@ -114,17 +118,31 @@ namespace EpikV2.NPCs
 				}
 			}*/
             if(npc.type==NPCID.Golem) {
-                EpikWorld.GolemTime = 5;
+                //EpikWorld.GolemTime = 5;
+                if(Main.netMode == NetmodeID.Server) {
+                    ModPacket modPacket;
+                    for(int i = 0; i < 255; i++) {
+                        if(npc.playerInteraction[i] && Main.player[i].active) {
+                            modPacket = mod.GetPacket(1);
+                            modPacket.Write((byte)1);
+                            modPacket.Send();
+                        }
+                    }
+                } else {
+                    if(Main.netMode == NetmodeID.SinglePlayer) {
+                        Main.LocalPlayer.GetModPlayer<EpikPlayer>().GolemTime = 5;
+                    }
+                }
             }else if(npc.type==NPCID.CultistArcherWhite && Main.rand.Next(0, 19) == 0) {
 				Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<Sacrificial_Dagger>(), 1);
             }
-			if(npc.HasBuff(mod.BuffType("ShroomInfestedDebuff"))){
+			if(npc.HasBuff(ModContent.BuffType<ShroomInfestedDebuff>())){
 				int a;
-				for(int i = 0; i < npc.buffTime[npc.FindBuffIndex(mod.BuffType("ShroomInfestedDebuff"))]; i++){
+				for(int i = 0; i < npc.buffTime[npc.FindBuffIndex(ModContent.BuffType<ShroomInfestedDebuff>())]; i++){
 					a = Projectile.NewProjectile(new Vector2(Main.rand.NextFloat(npc.position.X, npc.position.X + npc.width), Main.rand.NextFloat(npc.position.Y, npc.position.Y + npc.height)), new Vector2(4, 0).RotatedByRandom(100), ModContent.ProjectileType<ShroomShot>(), 50, 0, Main.myPlayer, 10, 64);
 					Main.projectile[a].timeLeft = 75;
 					if(npc.noTileCollide){
-					Main.projectile[a].tileCollide = false;
+					    Main.projectile[a].tileCollide = false;
 					}
 				}
 			}
