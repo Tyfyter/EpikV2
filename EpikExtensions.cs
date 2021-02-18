@@ -11,6 +11,26 @@ using Terraria.ID;
 using Terraria.Localization;
 
 namespace EpikV2 {
+    public static class OtherDeathReasonID {
+        public const int Fall = 0;
+        public const int Drown = 1;
+        public const int Lava = 2;
+        public const int Default = 3;
+        public const int Slain = 4;
+        public const int Petrified = 5;
+        public const int Stabbed = 6;
+        public const int Suffocated = 7;
+        public const int Burned = 8;
+        public const int Poisoned = 9;
+        public const int Electrocuted = 10;
+        public const int TriedToEscape = 11;
+        public const int Licked = 12;
+        public const int Teleport_1 = 13;
+        public const int Teleport_2_Male = 14;
+        public const int Teleport_2_Female = 15;
+        public const int Empty = 254;
+        public const int Slain_2 = 255;
+    }
     public static class EpikExtensions {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Vec4FromVec2x2(Vector2 xy, Vector2 wh) {

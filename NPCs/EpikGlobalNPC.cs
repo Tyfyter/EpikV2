@@ -198,11 +198,21 @@ namespace EpikV2.NPCs
         }
         public override void SetupShop(int type, Chest shop, ref int nextSlot){
             switch(type) {
-            case NPCID.TravellingMerchant:
+                case NPCID.TravellingMerchant:
                 if(NPC.npcsFoundForCheckActive[NPCID.QueenBee]) {
                     shop.item[nextSlot++].SetDefaults(ModContent.ItemType<Step2>());
                 }
-            break;
+                break;
+
+                case NPCID.GoblinTinkerer:
+                shop.item[nextSlot++].SetDefaults(Spring_Boots.ID);
+                break;
+
+                case NPCID.Cyborg:
+                if(Main.LocalPlayer.HasItem(Orion_Boots.ID)||Main.LocalPlayer.miscEquips[4].type == Orion_Boots.ID) {
+                    shop.item[nextSlot++].SetDefaults(Orion_Boot_Charge.ID);
+                }
+                break;
             }
         }
     }

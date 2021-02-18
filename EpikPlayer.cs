@@ -34,6 +34,7 @@ namespace EpikV2 {
         public (sbyte x, sbyte y) collide;
         const sbyte yoteTime = 3;
         public (sbyte x, sbyte y) yoteTimeCollide;
+        public int forceSolarDash = 0;
 
         public override void ResetEffects() {
             Majestic_Wings = false;
@@ -77,6 +78,14 @@ namespace EpikV2 {
 					    player.wingFrame = 0;
 				    }
 			    }
+            }
+            if(forceSolarDash>0) {
+                forceSolarDash--;
+                if(forceSolarDash==0) {
+                    forceSolarDash = -60;
+                }
+            }else if(forceSolarDash<0) {
+                forceSolarDash++;
             }
         }
         //public static const rope_deb_412 = 0.1f;
@@ -132,17 +141,44 @@ namespace EpikV2 {
             orig(self, fallThrough);
             sbyte x = 0, y = 0;
             EpikPlayer epikPlayer = self.GetModPlayer<EpikPlayer>();
-            if(Math.Abs(self.velocity.X)<0.1f&&Math.Abs(epikPlayer.preUpdateVel.X)>=0.1f) {
+            if(Math.Abs(self.velocity.X)<0.01f&&Math.Abs(epikPlayer.preUpdateVel.X)>=0.01f) {
                 x = (sbyte)Math.Sign(epikPlayer.preUpdateVel.X);
+                if(epikPlayer.yoteTimeCollide.x == 0 && epikPlayer.forceSolarDash > 0) {
+                    epikPlayer.OrionExplosion();
+                    epikPlayer.forceSolarDash = 0;
+                }
                 epikPlayer.yoteTimeCollide.x = (sbyte)(x * 10);
             }
-            if(Math.Abs(self.velocity.Y)<0.1f&&Math.Abs(epikPlayer.preUpdateVel.Y)>=0.1f) {
+            if(Math.Abs(self.velocity.Y)<0.01f&&Math.Abs(epikPlayer.preUpdateVel.Y)>=0.01f) {
                 y = (sbyte)Math.Sign(epikPlayer.preUpdateVel.Y);
+                if(epikPlayer.yoteTimeCollide.y == 0 && epikPlayer.forceSolarDash > 0) {
+                    epikPlayer.OrionExplosion();
+                    epikPlayer.forceSolarDash = 0;
+                }
                 epikPlayer.yoteTimeCollide.y = (sbyte)(y * 10);
             }
             epikPlayer.collide = (x,y);
         }
+        void OrionExplosion() {
+            Projectile explosion = Projectile.NewProjectileDirect(player.Bottom, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 80, 12.5f, player.whoAmI, 1, 1);
+            Vector2 exPos = explosion.Center;
+            explosion.height*=8;
+            explosion.width*=8;
+            explosion.Center = exPos;
+            explosion.melee = false;
+            Main.PlaySound(SoundID.Item14, exPos);
+        }
         public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource) {
+            if(forceSolarDash>0) {
+                player.immuneTime = 15;
+                Projectile explosion = Projectile.NewProjectileDirect(player.Center, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 40, 12.5f, player.whoAmI);
+                explosion.height*=7;
+                explosion.width*=7;
+                explosion.Center = player.Center;
+                explosion.melee = false;
+                return false;
+            }
+            if(damageSource.SourceOtherIndex == OtherDeathReasonID.Fall && player.miscEquips[4].type == Spring_Boots.ID) damage /= 2;
             if(damage<player.statLife||!ChargedGem()) return true;
             for(int i = 0; i < player.inventory.Length; i++) {
                 ModItem mI = player.inventory[i]?.modItem;
