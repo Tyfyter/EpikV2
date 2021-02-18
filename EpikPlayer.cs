@@ -30,6 +30,10 @@ namespace EpikV2 {
         public int ropeTarg = -1;
         public bool Oily = false;
         public byte wetTime = 0;
+        Vector2 preUpdateVel;
+        public (sbyte x, sbyte y) collide;
+        const sbyte yoteTime = 3;
+        public (sbyte x, sbyte y) yoteTimeCollide;
 
         public override void ResetEffects() {
             Majestic_Wings = false;
@@ -46,6 +50,16 @@ namespace EpikV2 {
             }
             if(wetTime>0)wetTime--;
             if(GolemTime>0)GolemTime--;
+            if(yoteTimeCollide.x>0) {
+                yoteTimeCollide.x--;
+            }else if(yoteTimeCollide.x<0) {
+                yoteTimeCollide.x++;
+            }
+            if(yoteTimeCollide.y>0) {
+                yoteTimeCollide.y--;
+            }else if(yoteTimeCollide.y<0) {
+                yoteTimeCollide.y++;
+            }
         }
         public override void PostUpdate() {
             light_shots = 0;
@@ -108,9 +122,25 @@ namespace EpikV2 {
                 if(player.Hitbox.Intersects(projectile.Hitbox)) {
                     projectile.Kill();
                 }
+                player.fallStart = (int)(player.position.Y / 16f);
             }
             //ropeVel = null;
             ropeTarg = -1;
+            preUpdateVel = player.velocity;
+        }
+        public static void PostUpdateMovement(On.Terraria.Player.orig_SlopingCollision orig, Player self, bool fallThrough) {
+            orig(self, fallThrough);
+            sbyte x = 0, y = 0;
+            EpikPlayer epikPlayer = self.GetModPlayer<EpikPlayer>();
+            if(Math.Abs(self.velocity.X)<0.1f&&Math.Abs(epikPlayer.preUpdateVel.X)>=0.1f) {
+                x = (sbyte)Math.Sign(epikPlayer.preUpdateVel.X);
+                epikPlayer.yoteTimeCollide.x = (sbyte)(x * 10);
+            }
+            if(Math.Abs(self.velocity.Y)<0.1f&&Math.Abs(epikPlayer.preUpdateVel.Y)>=0.1f) {
+                y = (sbyte)Math.Sign(epikPlayer.preUpdateVel.Y);
+                epikPlayer.yoteTimeCollide.y = (sbyte)(y * 10);
+            }
+            epikPlayer.collide = (x,y);
         }
         public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource) {
             if(damage<player.statLife||!ChargedGem()) return true;

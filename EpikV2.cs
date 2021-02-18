@@ -63,6 +63,7 @@ namespace EpikV2
                 GameShaders.Armor.BindShader(ModContent.ItemType<Heatwave_Dye>(), fireDyeShader);
                 fireMiscShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Firewave")), "Firewave");
             }
+            On.Terraria.Player.SlopingCollision += EpikPlayer.PostUpdateMovement;
         }
 
         public override void Unload()
