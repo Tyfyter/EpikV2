@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using Terraria;
 using Terraria.GameContent.NetModules;
 using Terraria.ID;
 using Terraria.Localization;
+using Terraria.ModLoader;
 
 namespace EpikV2 {
     public static class OtherDeathReasonID {
@@ -31,7 +33,21 @@ namespace EpikV2 {
         public const int Empty = 254;
         public const int Slain_2 = 255;
     }
+    public interface ICustomDrawItem {
+        void DrawInHand(Texture2D itemTexture, PlayerDrawInfo drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin);
+    }
+    public struct BitsBytes {
+        readonly BitsByte[] _bytes;
+        public BitsBytes(ushort bytes) {
+            _bytes = new BitsByte[bytes];
+        }
+        public bool this[int index] {
+            get => _bytes[index / 8][index % 8];
+            set => _bytes[index / 8][index % 8] = value;
+        }
+    }
     public static class EpikExtensions {
+        public static Func<float, int, Vector2> DrawPlayerItemPos { get; internal set; }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Vec4FromVec2x2(Vector2 xy, Vector2 wh) {
             return new Vector4(xy.X,xy.Y,wh.X,wh.Y);

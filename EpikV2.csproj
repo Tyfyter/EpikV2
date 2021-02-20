@@ -25,4 +25,7 @@
       <HintPath>..\..\references\mods\WeaponOut_v1.6.4.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="cd $(ProjectDir)\effects&#xD;&#xA;CheckFXCompile.exe" />
+  </Target>
 </Project>

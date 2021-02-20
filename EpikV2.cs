@@ -33,6 +33,8 @@ namespace EpikV2
         public static ArmorShaderData jadeDyeShader;
         public static ArmorShaderData fireDyeShader;
         public static MiscShaderData fireMiscShader;
+        public static MiscShaderData starlightShader;
+
 		public EpikV2()
 		{
 			Properties = new ModProperties()
@@ -52,16 +54,25 @@ namespace EpikV2
                 AutoloadSounds = true
             };
 			EpikWorld.sacrifices = new List<int>(){};
+            EpikPlayer.ItemChecking = new BitsBytes(32);
 
             if(!Main.dedServ) {
                 //RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
                 //jadeShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Jade")), "Jade");
+                EpikExtensions.DrawPlayerItemPos = (Func<float, int, Vector2>)typeof(Main).GetMethod("DrawPlayerItemPos", BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate(typeof(Func<float, int, Vector2>), Main.instance);
+                EpikPlayer.ShootWrenchLayer = EpikPlayer.shootWrenchLayer;
                 jadeShader = GetEffect("Effects/Jade");
+
                 jadeDyeShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "JadeConst");
                 GameShaders.Armor.BindShader(ModContent.ItemType<Jade_Dye>(), jadeDyeShader);
+
                 fireDyeShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Firewave")), "Firewave");
                 GameShaders.Armor.BindShader(ModContent.ItemType<Heatwave_Dye>(), fireDyeShader);
+
                 fireMiscShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Firewave")), "Firewave");
+
+                //GameShaders.Armor.BindShader(ModContent.ItemType<Heatwave_Dye>(), fireDyeShader);
+                GameShaders.Misc["Epik:Starlight"] = starlightShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Starlight")), "Starlight");
             }
             On.Terraria.Player.SlopingCollision += EpikPlayer.PostUpdateMovement;
         }
@@ -69,10 +80,13 @@ namespace EpikV2
         public override void Unload()
         {
             mod = null;
+            EpikPlayer.ShootWrenchLayer = null;
+            EpikExtensions.DrawPlayerItemPos = null;
             jadeShader = null;
             jadeDyeShader = null;
             fireDyeShader = null;
             fireMiscShader = null;
+            starlightShader = null;
             EpikWorld.sacrifices = null;
         }
 

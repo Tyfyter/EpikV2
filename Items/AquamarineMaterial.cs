@@ -204,7 +204,7 @@ namespace EpikV2.Items {
             tooltips.RemoveRange(1,tooltips.Count-1);
         }
     }
-    public class GemMaterialGlobalItem : GlobalItem {
+    public partial class EpikGlobalItem : GlobalItem {
         public override void UpdateInventory(Item item, Player player) {
             if(player.GetModPlayer<EpikPlayer>().GolemTime>0) {
                 bool consumed = false;

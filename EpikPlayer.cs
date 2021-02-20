@@ -12,6 +12,8 @@ using Terraria.Graphics.Shaders;
 using Terraria.GameContent.NetModules;
 using Terraria.Localization;
 using Terraria.GameInput;
+using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
 
 namespace EpikV2 {
     public class EpikPlayer : ModPlayer {
@@ -35,6 +37,9 @@ namespace EpikV2 {
         const sbyte yoteTime = 3;
         public (sbyte x, sbyte y) yoteTimeCollide;
         public int forceSolarDash = 0;
+        public int nextHeldProj = 0;
+
+        public static BitsBytes ItemChecking;
 
         public override void ResetEffects() {
             Majestic_Wings = false;
@@ -141,6 +146,8 @@ namespace EpikV2 {
             orig(self, fallThrough);
             sbyte x = 0, y = 0;
             EpikPlayer epikPlayer = self.GetModPlayer<EpikPlayer>();
+            self.heldProj = epikPlayer.nextHeldProj;
+            epikPlayer.nextHeldProj = -1;
             if(Math.Abs(self.velocity.X)<0.01f&&Math.Abs(epikPlayer.preUpdateVel.X)>=0.01f) {
                 x = (sbyte)Math.Sign(epikPlayer.preUpdateVel.X);
                 if(epikPlayer.yoteTimeCollide.x == 0 && epikPlayer.forceSolarDash > 0) {
@@ -193,7 +200,6 @@ namespace EpikV2 {
             }
             return true;
         }
-        static bool debug = false;
         public override void PostUpdateRunSpeeds() {
             if(Oily) {
                 //if(PlayerInput.Triggers.JustPressed.Jump)SayNetMode();
@@ -246,6 +252,47 @@ namespace EpikV2 {
                 }*/
             }
         }
+        public override bool PreItemCheck() {
+            ItemChecking[player.whoAmI] = true;
+            return true;
+        }
+        public override void PostItemCheck() {
+            ItemChecking[player.whoAmI] = false;
+        }
+        public override void ModifyDrawLayers(List<PlayerLayer> layers) {
+            if(player.itemAnimation != 0 && player.HeldItem.modItem is ICustomDrawItem) {
+                switch(player.HeldItem.useStyle) {
+                    case 5:
+                    foreach(PlayerLayer layer in layers)layer.visible = false;
+                    layers[layers.IndexOf(PlayerLayer.HeldItem)] = ShootWrenchLayer;
+                    ShootWrenchLayer.visible = true;
+                    break;
+                    /*default:
+                    layers[layers.IndexOf(PlayerLayer.HeldItem)] = SlashWrenchLayer;
+                    SlashWrenchLayer.visible = true;
+                    break;*/
+                }
+            }
+        }
+        public static PlayerLayer ShootWrenchLayer = null;
+        internal static PlayerLayer shootWrenchLayer => new PlayerLayer("Origins", "FiberglassBowLayer", null, delegate (PlayerDrawInfo drawInfo) {
+            Player drawPlayer = drawInfo.drawPlayer;
+            Item item = drawPlayer.HeldItem;
+            Texture2D itemTexture = Main.itemTexture[item.type];
+            ICustomDrawItem aItem = (ICustomDrawItem)item.modItem;
+            int drawXPos = 0;
+            Vector2 itemCenter = new Vector2(itemTexture.Width / 2, itemTexture.Height / 2);
+            Vector2 drawItemPos = DrawPlayerItemPos(drawPlayer.gravDir, item.type);
+            drawXPos = (int)drawItemPos.X;
+            itemCenter.Y = drawItemPos.Y;
+            Vector2 drawOrigin = new Vector2(drawXPos, itemTexture.Height / 2);
+            if(drawPlayer.direction == -1) {
+                drawOrigin = new Vector2(itemTexture.Width + drawXPos, itemTexture.Height / 2);
+            }
+            drawOrigin.X-=drawPlayer.width/2;
+            Vector4 lightColor = drawInfo.faceColor.ToVector4()/drawPlayer.skinColor.ToVector4();
+            aItem.DrawInHand(itemTexture, drawInfo, itemCenter, lightColor, drawOrigin);
+        });
         /*public override void PostHurt(bool pvp, bool quiet, double damage, int hitDirection, bool crit) {
             damage_taken = (int)damage;
         }*/
