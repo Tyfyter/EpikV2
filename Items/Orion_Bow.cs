@@ -70,7 +70,7 @@ namespace EpikV2.Items {
                     return;
                 }
                 if(charge < maxCharge) {
-                    charge+=33 - item.useTime;
+                    charge += 33 - item.useTime;
                     if(charge >= maxCharge) {
                         charge = maxCharge;
                         Main.PlaySound(SoundID.Item37, projectile.Center).Pitch = 1;//MaxMana
@@ -125,26 +125,26 @@ namespace EpikV2.Items {
             Player drawPlayer = drawInfo.drawPlayer;
             //DrawData value = new DrawData(itemTexture, new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y)), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), drawPlayer.itemRotation, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
             //Main.playerDrawData.Add(value);
-            float drawSpread = drawPlayer.direction*(ChargePercent/6);
+            float drawSpread = drawPlayer.direction * (ChargePercent / 6);
             DrawData value;
 
             Vector2 pos = new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
 
             //string
-            int stringLength = (int)(25*(1+ChargePercent/8));
-            Vector2 limbOffset = new Vector2(10,-26);
-            Vector2 stringOrigin = new Vector2(1,1);
+            int stringLength = (int)(25 * (1 + ChargePercent / 8));
+            Vector2 limbOffset = new Vector2(10, -26);
+            Vector2 stringOrigin = new Vector2(1, 1);
             bool playerRight = drawPlayer.direction > 0;
-            float stringRotation = drawPlayer.itemRotation + (playerRight?0:Pi);
+            float stringRotation = drawPlayer.itemRotation + (playerRight ? 0 : Pi);
             float stringSpread = drawSpread * 2 * drawPlayer.direction;
-            float num1 = 8.5f - 2 * ChargePercent;
+            float num1 = 8;//.5f - 2 * ChargePercent;
             float num2 = 16f;
 
-            Vector2 limbOffset2 = limbOffset.RotatedBy(stringRotation-drawSpread);
-            limbOffset2 -= new Vector2(playerRight?num1:num2, 0).RotatedBy(stringRotation);
+            Vector2 limbOffset2 = limbOffset.RotatedBy(stringRotation - (drawPlayer.direction/6f));//drawSpread
+            limbOffset2 -= new Vector2(playerRight ? num1 : num2, 0).RotatedBy(stringRotation);
             Rectangle drawRect = new Rectangle(
-                (int)(pos.X-limbOffset2.X),
-                (int)(pos.Y-limbOffset2.Y),
+                (int)(pos.X - limbOffset2.X),
+                (int)(pos.Y - limbOffset2.Y),
                 2,
                 stringLength);
 
@@ -153,13 +153,14 @@ namespace EpikV2.Items {
             Main.playerDrawData.Add(value);
 
             limbOffset.Y = -limbOffset.Y;
-            limbOffset2 = limbOffset.RotatedBy(stringRotation-drawSpread);
+            limbOffset2 = limbOffset.RotatedBy(stringRotation - (drawPlayer.direction/6f));//drawSpread
             limbOffset2 -= new Vector2(playerRight?num2:num1, 0).RotatedBy(stringRotation);
             drawRect = new Rectangle(
                 (int)(pos.X-limbOffset2.X),
                 (int)(pos.Y-limbOffset2.Y),
                 2,
                 stringLength);
+
             value = new DrawData(stringTexture, drawRect, null, item.GetAlpha(Color.White), stringRotation+stringSpread, stringOrigin, drawInfo.spriteEffects, 0);
             value.shader = fireArrow?112:115;
             Main.playerDrawData.Add(value);
@@ -242,8 +243,9 @@ namespace EpikV2.Items {
                 ProjectileLoader.GetProjectile(type)?.ModifyHitNPC(target, ref damage, ref knockback, ref crit, ref hitDirection);
             }
             if(projectile.aiStyle == 0) {
-                if(crit)damage *= 2;
                 crit = true;
+                float crt = Main.player[projectile.owner].rangedCrit/100f;
+                damage+=(int)(damage * crt);
             }
         }
         public override bool PreKill(int timeLeft) {

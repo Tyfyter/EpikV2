@@ -263,7 +263,7 @@ namespace EpikV2 {
             if(player.itemAnimation != 0 && player.HeldItem.modItem is ICustomDrawItem) {
                 switch(player.HeldItem.useStyle) {
                     case 5:
-                    foreach(PlayerLayer layer in layers)layer.visible = false;
+                    //foreach(PlayerLayer layer in layers)layer.visible = false;
                     layers[layers.IndexOf(PlayerLayer.HeldItem)] = ShootWrenchLayer;
                     ShootWrenchLayer.visible = true;
                     break;
