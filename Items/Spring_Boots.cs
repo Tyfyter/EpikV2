@@ -11,6 +11,7 @@ using static Microsoft.Xna.Framework.MathHelper;
 namespace EpikV2.Items {
 	public class Spring_Boots : ModItem {
         public static int ID = -1;
+        public const float collisionMult = 0.5f;
 		public override void SetStaticDefaults() {
 		  DisplayName.SetDefault("Spring Boots");
 		  Tooltip.SetDefault("A bit ropey");
@@ -58,23 +59,23 @@ namespace EpikV2.Items {
             float fact = 1;
             if(epikPlayer.yoteTimeCollide.y>0&&projectile.velocity.Y>0) {
                 projectile.velocity.Y = 0;
-                fact *= 0.75f;
+                fact *= Spring_Boots.collisionMult;
             }else if(epikPlayer.yoteTimeCollide.y<0&&projectile.velocity.Y<0) {
                 projectile.velocity.Y = 0;
-                fact *= 0.75f;
+                fact *= Spring_Boots.collisionMult;
             }
             if(epikPlayer.yoteTimeCollide.x>0&&projectile.velocity.X>0) {
                 projectile.velocity.X = 0;
-                fact *= 0.75f;
+                fact *= Spring_Boots.collisionMult;
             }else if(epikPlayer.yoteTimeCollide.x<0&&projectile.velocity.X<0) {
                 projectile.velocity.X = 0;
-                fact *= 0.75f;
+                fact *= Spring_Boots.collisionMult;
             }
             Vector2 normProjVel = projectile.velocity.SafeNormalize(Vector2.Zero);
             Vector2 d = player.velocity.SafeNormalize(Vector2.Zero)*normProjVel;
             float v = projectile.velocity.Length();
             float pv = player.velocity.Length();
-            v -= (float)Math.Max(Math.Min((v-pv)*Math.Pow(d.X+d.Y,2f), v), 0);
+            v -= (float)Math.Max(Math.Min((v-pv)*Math.Pow(d.X+d.Y,3f), v), 0);
             if((d.X+d.Y)>0&&pv>16) {
                 v = Math.Max(v-pv/1.25f,0);
             }

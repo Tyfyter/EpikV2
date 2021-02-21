@@ -146,8 +146,10 @@ namespace EpikV2 {
             orig(self, fallThrough);
             sbyte x = 0, y = 0;
             EpikPlayer epikPlayer = self.GetModPlayer<EpikPlayer>();
-            self.heldProj = epikPlayer.nextHeldProj;
-            epikPlayer.nextHeldProj = -1;
+            if(epikPlayer.nextHeldProj != -1) {
+                self.heldProj = epikPlayer.nextHeldProj;
+                epikPlayer.nextHeldProj = -1;
+            }
             if(Math.Abs(self.velocity.X)<0.01f&&Math.Abs(epikPlayer.preUpdateVel.X)>=0.01f) {
                 x = (sbyte)Math.Sign(epikPlayer.preUpdateVel.X);
                 if(epikPlayer.yoteTimeCollide.x == 0 && epikPlayer.forceSolarDash > 0) {

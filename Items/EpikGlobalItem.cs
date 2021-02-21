@@ -14,7 +14,7 @@ namespace EpikV2.Items {
                 if(!Main.projectileLoaded[type]) {
                     Projectile.NewProjectile(Vector2.Zero, Vector2.Zero, type, 0, 0);
                 }
-                damage += (damage-Main.player[weapon.owner].GetWeaponDamage(weapon))*10;
+                damage += (damage-Main.player[weapon.owner].GetWeaponDamage(weapon))*5;
             }
         }
     }

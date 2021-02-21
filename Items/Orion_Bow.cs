@@ -24,7 +24,7 @@ namespace EpikV2.Items {
         public bool fireArrow = false;
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Orion's Bow");
-		    Tooltip.SetDefault("");
+		    Tooltip.SetDefault("Shoot for the stars");
             ID = item.type;
             goldTexture = mod.GetTexture("Items/Orion_Bow_Limb_Gold");
             skyTexture = mod.GetTexture("Items/Orion_Bow_Limb_Sky");
@@ -33,7 +33,7 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults() {
             item.CloneDefaults(ItemID.Phantasm);
-            item.damage = 150;
+            item.damage = 75;
             item.useTime = 30;
             item.useAnimation = 30;
 			item.shootSpeed = 20f;
@@ -94,7 +94,8 @@ namespace EpikV2.Items {
                     }
                     return;
                 }
-                float totalCharge = ChargePercent + BaseMult;
+                bool orionDash = player.GetModPlayer<EpikPlayer>().forceSolarDash != 0;
+                float totalCharge = ChargePercent + BaseMult + (orionDash?0.5f:0);
                 projectile.damage = (int)(projectile.damage * totalCharge);
                 projectile.velocity = unit * item.shootSpeed * totalCharge;
                 projectile.tileCollide = true;
@@ -112,7 +113,7 @@ namespace EpikV2.Items {
         }
 #pragma warning disable 619
         public override void GetWeaponDamage(Player player, ref int damage) {
-            damage += (damage - 150) * 5;
+            damage += (int)((damage - 75) * 2.5f);
         }
 #pragma warning restore 619
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
@@ -221,6 +222,7 @@ namespace EpikV2.Items {
                 }
             } else {
                 Main.player[projectile.owner].GetModPlayer<EpikPlayer>().nextHeldProj = projectile.whoAmI;
+                Main.player[projectile.owner].heldProj = projectile.whoAmI;
             }
         }
         public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
