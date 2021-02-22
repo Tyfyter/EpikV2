@@ -35,7 +35,11 @@ namespace EpikV2
         public static ArmorShaderData fireDyeShader;
         public static MiscShaderData fireMiscShader;
         public static ArmorShaderData starlightShader;
-        public static ArmorShaderData starlightShaderDim;
+        public static ArmorShaderData dimStarlightShader;
+        public static ArmorShaderData brightStarlightShader;
+        public static int starlightShaderID;
+        public static int dimStarlightShaderID;
+        public static int brightStarlightShaderID;
 
 		public EpikV2()
 		{
@@ -73,9 +77,18 @@ namespace EpikV2
 
                 fireMiscShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Firewave")), "Firewave");
 
-                //GameShaders.Armor.BindShader(ModContent.ItemType<Heatwave_Dye>(), fireDyeShader);
                 starlightShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Starlight")), "Starlight");
                 GameShaders.Armor.BindShader(ModContent.ItemType<Starlight_Dye>(), starlightShader);
+
+                dimStarlightShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "Starlight");
+                GameShaders.Armor.BindShader(ModContent.ItemType<Dim_Starlight_Dye>(), dimStarlightShader);
+
+                brightStarlightShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "BrightStarlight");
+                GameShaders.Armor.BindShader(ModContent.ItemType<Bright_Starlight_Dye>(), brightStarlightShader);
+
+                starlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Starlight_Dye>());
+                dimStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Dim_Starlight_Dye>());
+                brightStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Bright_Starlight_Dye>());
             }
             On.Terraria.Player.SlopingCollision += EpikPlayer.PostUpdateMovement;
         }
@@ -90,6 +103,7 @@ namespace EpikV2
             fireDyeShader = null;
             fireMiscShader = null;
             starlightShader = null;
+            dimStarlightShader = null;
             EpikWorld.sacrifices = null;
         }
 

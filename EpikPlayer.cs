@@ -263,6 +263,16 @@ namespace EpikV2 {
         public override void PostItemCheck() {
             ItemChecking[player.whoAmI] = false;
         }
+        public override void ModifyDrawInfo(ref PlayerDrawInfo drawInfo) {
+            if(drawInfo.hairShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
+                drawInfo.hairShader = EpikV2.dimStarlightShaderID;
+            if(drawInfo.headArmorShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
+                drawInfo.headArmorShader = EpikV2.dimStarlightShaderID;
+            if(drawInfo.bodyArmorShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
+                drawInfo.bodyArmorShader = EpikV2.dimStarlightShaderID;
+            if(drawInfo.legArmorShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
+                drawInfo.legArmorShader = EpikV2.dimStarlightShaderID;
+        }
         public override void ModifyDrawLayers(List<PlayerLayer> layers) {
             if(player.itemAnimation != 0 && player.HeldItem.modItem is ICustomDrawItem) {
                 switch(player.HeldItem.useStyle) {
