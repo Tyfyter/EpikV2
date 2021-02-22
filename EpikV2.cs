@@ -20,6 +20,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.IO;
 
+#pragma warning disable 672
 namespace EpikV2
 {
 	public class EpikV2 : Mod
@@ -33,7 +34,8 @@ namespace EpikV2
         public static ArmorShaderData jadeDyeShader;
         public static ArmorShaderData fireDyeShader;
         public static MiscShaderData fireMiscShader;
-        public static MiscShaderData starlightShader;
+        public static ArmorShaderData starlightShader;
+        public static ArmorShaderData starlightShaderDim;
 
 		public EpikV2()
 		{
@@ -72,7 +74,8 @@ namespace EpikV2
                 fireMiscShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Firewave")), "Firewave");
 
                 //GameShaders.Armor.BindShader(ModContent.ItemType<Heatwave_Dye>(), fireDyeShader);
-                GameShaders.Misc["Epik:Starlight"] = starlightShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Starlight")), "Starlight");
+                starlightShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Starlight")), "Starlight");
+                GameShaders.Armor.BindShader(ModContent.ItemType<Starlight_Dye>(), starlightShader);
             }
             On.Terraria.Player.SlopingCollision += EpikPlayer.PostUpdateMovement;
         }
@@ -95,31 +98,13 @@ namespace EpikV2
             if(Main.netMode == NetmodeID.Server) {
                 switch(type) {
                     case 0:
-                    /*
-                    ModPacket packet = GetPacket();
-                    packet.Write((byte)0);
-                    byte pl = reader.ReadByte();
-                    int wtm = reader.ReadInt32();
-                    byte wett = reader.ReadByte();
-                    double wt = reader.ReadDouble();
-                    int wl = reader.ReadInt32();
-                    packet.Write(pl);
-                    packet.Write(wtm);
-                    packet.Write(wett);
-                    packet.Write(wt);
-                    packet.Write(wl);
-                    Player player = Main.player[pl];
-                    player.wingTimeMax = wtm;
-                    player.GetModPlayer<EpikPlayer>().wetTime = wett;
-                    player.wingTime = (float)wt;
-                    player.wingsLogic = wl;//*/
-                    //*
                     ModPacket packet = GetPacket(3);
                     packet.Write((byte)0);
                     packet.Write(reader.ReadByte());
                     packet.Write(reader.ReadBoolean());
                     packet.Send();//*/ignoreClient:whoAmI
                     break;
+
                     default:
 			        Logger.WarnFormat("EpikV2: Unknown Message type: {0}", type);
 			        break;
@@ -127,27 +112,17 @@ namespace EpikV2
             } else {
                 switch(type) {
                     case 0:
-                    /*
-                    byte pl = reader.ReadByte();
-                    int wtm = reader.ReadInt32();
-                    byte wett = reader.ReadByte();
-                    double wt = reader.ReadDouble();
-                    int wl = reader.ReadInt32();
-                    Player player = Main.player[pl];
-                    player.wingTimeMax = wtm;
-                    player.GetModPlayer<EpikPlayer>().wetTime = wett;
-                    player.wingTime = (float)wt;
-                    player.wingsLogic = wl;//*/
-                    //*
                     Player player = Main.player[reader.ReadByte()];
                     bool wet = reader.ReadBoolean();
                     player.wingTimeMax = wet ? 60 : 0;
                     if(wet)player.wingTime = 60;//*/
                     break;
+
                     case 1:
 			        Logger.InfoFormat("recieved golem death packet");
                     Main.LocalPlayer.GetModPlayer<EpikPlayer>().GolemTime = 5;
                     break;
+
                     default:
 			        Logger.WarnFormat("EpikV2: Unknown Message type: {0}", type);
 			        break;
@@ -200,18 +175,23 @@ namespace EpikV2
         }
         public override void PostAddRecipes() {
             Mod recipeBrowser = ModLoader.GetMod("RecipeBrowser");
-            if(recipeBrowser!=null&&recipeBrowser.Version>=new Version(0,5))EpikIntegration.AddRecipeBrowserIntegration();
+            if(!(recipeBrowser is null)&&recipeBrowser.Version>=new Version(0,5))EpikIntegration.AddRecipeBrowserIntegration();
+            EpikIntegration.EnabledMods.origins = !(ModLoader.GetMod("Origins") is null);
         }
     }
     [Label("Settings")]
     public class EpikConfig : ModConfig {
         public static EpikConfig Instance;
         public override ConfigScope Mode => ConfigScope.ServerSide;
-        [Header("Vanilla Buffs")]
+        [Header("Misc")]
 
         [Label("Ancient Presents")]
         [DefaultValue(true)]
         public bool AncientPresents = true;
+
+        [Label("Become a Constellation")]
+        [DefaultValue(false)]
+        public bool ConstellationDraco = false;
     }
     /*[Label("ClientSettings")]
     public class EpikClientConfig : ModConfig {
@@ -240,12 +220,10 @@ namespace EpikV2
             }
         }
         public override TagCompound Save() {
-            TagCompound output = new TagCompound();
-            output.Add("sacrifices", sacrifices);
-            return output;
+            return new TagCompound() { {"sacrifices", sacrifices} };
         }
         public override void Load(TagCompound tag) {
-            if(!tag.HasTag("sacrifices")) {
+            if(!tag.ContainsKey("sacrifices")) {
                 sacrifices = new List<int>(){};
                 return;
             }

@@ -60,7 +60,7 @@ namespace EpikV2.Items {
 		public override bool? CanUseGrapple(Player player) {
             EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			if(epikPlayer.yoteTimeCollide.y>0||epikPlayer.yoteTimeCollide.x!=0)return true;
-            return epikPlayer.forceSolarDash==0 && player.ConsumeItem(Orion_Boot_Charge.ID);
+            return epikPlayer.orionDash==0 && player.ConsumeItem(Orion_Boot_Charge.ID);
 		}
 
 		public override float GrappleRange() {
@@ -83,7 +83,7 @@ namespace EpikV2.Items {
             EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
             float fact = 1;
             if(epikPlayer.yoteTimeCollide==(0,0)) {
-                epikPlayer.forceSolarDash = 20;
+                epikPlayer.orionDash = 20;
                 Projectile explosion = Projectile.NewProjectileDirect(player.Bottom, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 80, 12.5f, player.whoAmI, 1, 1);
                 Vector2 exPos = explosion.Center;
                 explosion.height*=8;

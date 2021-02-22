@@ -16,11 +16,12 @@ float2 uOffset;
 float uScale;
 /*float2 uMin;
 float2 uMax;*/
-float4 Starlight(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0{
+float4 Starlight(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
+{
 	float4 color = tex2D(uImage0, coords);
-	float b = (color.r+color.g+color.b)/2;
+	float b = ((color.r+color.g+color.b)/2);
 	b = pow(b, 1.5);
-	color.rgb = (b*0.64,b*0.7,b);
+	color.rgb = float3(b*0.64, b*0.7, b);
 	color.a *= b;
 	return color;
 }

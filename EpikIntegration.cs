@@ -10,24 +10,17 @@ using Terraria.ModLoader;
 
 namespace EpikV2 {
     public class EpikIntegration {
-        /*public static bool RecipeBrowserLootCaching {
-            get {
-                if(recipeBrowserLootCaching&&recipeBrowserLootCachingInfo!=null) {
-                    if(!(bool)recipeBrowserLootCachingInfo.GetValue(null)) {
-                        recipeBrowserLootCachingInfo = null;
-                        recipeBrowserLootCaching = false;
-                    }
-                }
-                return recipeBrowserLootCaching;
+        public static class EnabledMods {
+            public static bool recipeBrowser = false;
+            public static bool origins = false;
+            internal static void ResetEnabled(){
+                recipeBrowser = false;
+                origins = false;
             }
         }
-        private static bool recipeBrowserLootCaching = false;
-        internal static FieldInfo recipeBrowserLootCachingInfo;*/
-        /*internal static void AddLateHookIntegration() {
-            if(ModLoader.GetMod("RecipeBrowser")!=null)ÿ_LateHookCallback.ÿ_LateHookCallback.AddCall(AddRecipeBrowserIntegration);
-        }*/
         internal static void AddRecipeBrowserIntegration() {
             try {
+                EnabledMods.recipeBrowser = true;
                 RecipeBrowser.LootCache.instance.lootInfos.Add(new RecipeBrowser.JSONItem(EpikV2.mod.Name, "GolemDeath", ModContent.ItemType<GolemDeath>()), new List<RecipeBrowser.JSONNPC>() { new RecipeBrowser.JSONNPC("Terraria", "Golem", NPCID.Golem) });
                 EpikV2.mod.Logger.Info("Added Recipe Browser integration");
             } catch(Exception){}

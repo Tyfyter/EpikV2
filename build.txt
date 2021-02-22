@@ -7,5 +7,5 @@ displayName = EpikV2
 buildIgnore = tempgone\*
 includesource = true
 languageVersion = 6
-weakReferences = WeaponOut, RecipeBrowser
+weakReferences = Origins, WeaponOut, RecipeBrowser
 sortAfter = RecipeBrowser

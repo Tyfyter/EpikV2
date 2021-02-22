@@ -8,7 +8,9 @@ using static EpikV2.EpikExtensions;
 using static Terraria.ModLoader.ModContent;
 using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
+using Origins.Projectiles;
 
+#pragma warning disable 672
 namespace EpikV2.Items {
     public class Orion_Bow : ModItem, ICustomDrawItem {
         public static int ID = -1;
@@ -55,7 +57,7 @@ namespace EpikV2.Items {
             if(player.itemAnimation != 0 && player.heldProj != -1) {
                 Projectile projectile = Main.projectile[player.heldProj];
                 Orion_Arrow orionArrow = projectile.modProjectile as Orion_Arrow;
-                if(orionArrow is null) {
+                if(!projectile.active || orionArrow is null) {
                     player.itemAnimation = 0;
                     player.itemTime = 0;
                     return;
@@ -66,7 +68,7 @@ namespace EpikV2.Items {
                     player.itemAnimation = 0;
                     player.reuseDelay = 30;
                     charge = 0;
-                    projectile.Kill();
+                    projectile.active = false;
                     return;
                 }
                 if(charge < maxCharge) {
@@ -94,7 +96,7 @@ namespace EpikV2.Items {
                     }
                     return;
                 }
-                bool orionDash = player.GetModPlayer<EpikPlayer>().forceSolarDash != 0;
+                bool orionDash = player.GetModPlayer<EpikPlayer>().orionDash != 0;
                 float totalCharge = ChargePercent + BaseMult + (orionDash?0.5f:0);
                 projectile.damage = (int)(projectile.damage * totalCharge);
                 projectile.velocity = unit * item.shootSpeed * totalCharge;
@@ -204,7 +206,9 @@ namespace EpikV2.Items {
             projectile.timeLeft = 3600;
             projectile.light = 0;
             drawHeldProjInFrontOfHeldItemAndArms = true;
+            if(EpikIntegration.EnabledMods.origins) OriginsIntegration();
 		}
+
         public override void AI() {
             if(Fired) {
                 projectile.rotation = projectile.velocity.ToRotation()+MathHelper.PiOver2;
@@ -215,10 +219,10 @@ namespace EpikV2.Items {
                 } else {
                     ProjectileLoader.GetProjectile(type)?.AI();
                 }
-                if(projectile.Center.Y+projectile.velocity.Y<Main.maxTilesY * 0.025f * 16) {
+                if(projectile.Center.Y+projectile.velocity.Y<Main.offLimitBorderTiles * 16) {
                     projectile.Kill();
                     Orion_Star.t = type;
-			        for(int i = 0; i < 3; i++)Projectile.NewProjectile(projectile.Center.X+Main.rand.NextFloat(-8,8)*16, Main.maxTilesY * 0.025f * 16, Main.rand.NextFloat(-5,5), 25, Orion_Star.ID, 250, 10f, projectile.owner);
+			        for(int i = 0; i < 3; i++)Projectile.NewProjectile(projectile.Center.X+Main.rand.NextFloat(-8,8)*16, Main.offLimitBorderTiles * 16, Main.rand.NextFloat(-5,5), 25, Orion_Star.ID, 250, 10f, projectile.owner);
                 }
             } else {
                 Main.player[projectile.owner].GetModPlayer<EpikPlayer>().nextHeldProj = projectile.whoAmI;
@@ -271,7 +275,7 @@ namespace EpikV2.Items {
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
             projectile.type = type;
             spriteBatch.End();
-			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.starlightShader.Shader, Main.GameViewMatrix.ZoomMatrix);
+			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.starlightShader.Shader, Main.Transform);
             if(type > ProjectileID.Count) {
                 return ProjectileLoader.GetProjectile(type)?.PreDraw(spriteBatch, lightColor)??true;
             }
@@ -284,6 +288,11 @@ namespace EpikV2.Items {
             projectile.type = ID;
 			spriteBatch.End();
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
+        }
+        private void OriginsIntegration() {
+            if(type>-1 && Origins.Origins.ExplosiveProjectiles[type]) {
+                OriginGlobalProj.explosiveOverrideNext = true;
+            }
         }
     }
     public class Orion_Star : ModProjectile {
@@ -299,6 +308,7 @@ namespace EpikV2.Items {
             projectile.CloneDefaults(ProjectileID.FallingStar);
             aiType = ProjectileID.FallingStar;
             if(t>-1)type = t;
+            if(EpikIntegration.EnabledMods.origins) OriginsIntegration();
         }
         public override void AI() {
             projectile.rotation = projectile.velocity.ToRotation()+MathHelper.PiOver2;
@@ -344,12 +354,17 @@ namespace EpikV2.Items {
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
             spriteBatch.End();
-			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.starlightShader.Shader, Main.GameViewMatrix.ZoomMatrix);
+			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.starlightShader.Shader, Main.Transform);
             return true;
         }
         public override void PostDraw(SpriteBatch spriteBatch, Color lightColor) {
 			spriteBatch.End();
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
+        }
+        private void OriginsIntegration() {
+            if(type>-1 && Origins.Origins.ExplosiveProjectiles[type]) {
+                OriginGlobalProj.explosiveOverrideNext = true;
+            }
         }
     }
 }

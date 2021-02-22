@@ -43,4 +43,23 @@ namespace EpikV2.Items {
             recipe.AddRecipe();
         }
     }
+
+    public class Starlight_Dye : ModItem{
+        public override void SetStaticDefaults(){
+            DisplayName.SetDefault("Starlight Dye");
+        }
+		public override void SetDefaults(){
+			byte dye = item.dye;
+			item.CloneDefaults(ItemID.RedandBlackDye);
+			item.dye = dye;
+		}
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.FragmentStardust, 5);
+            recipe.AddIngredient(ItemID.FragmentSolar, 5);
+            recipe.AddTile(TileID.DyeVat);
+            recipe.SetResult(this, 9);
+            recipe.AddRecipe();
+        }
+    }
 }

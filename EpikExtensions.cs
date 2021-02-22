@@ -68,6 +68,11 @@ namespace EpikV2 {
             float distance = phi > MathHelper.Pi ? MathHelper.TwoPi - phi : phi;
             return distance;
         }
+        public static Vector2 Within(this Vector2 vector, Rectangle rect) {
+            return new Vector2(
+                MathHelper.Clamp(vector.X, rect.X, rect.X+rect.Width),
+                MathHelper.Clamp(vector.Y, rect.Y, rect.Y+rect.Height));
+        }
         public static void SayNetMode() {
             switch(Main.netMode) {
                 case NetmodeID.Server:

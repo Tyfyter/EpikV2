@@ -36,8 +36,9 @@ namespace EpikV2 {
         public (sbyte x, sbyte y) collide;
         const sbyte yoteTime = 3;
         public (sbyte x, sbyte y) yoteTimeCollide;
-        public int forceSolarDash = 0;
+        public int orionDash = 0;
         public int nextHeldProj = 0;
+        public bool dracoDash = false;
 
         public static BitsBytes ItemChecking;
 
@@ -46,6 +47,7 @@ namespace EpikV2 {
             chargedEmerald = false;
             chargedAmber = false;
             Oily = false;
+            dracoDash = false;
             if(sacrifice>0) {
                 sacrifice--;
                 if(sacrifice==0&&Main.rand.Next(5)==0&&EpikWorld.sacrifices.Count>0) {
@@ -84,13 +86,13 @@ namespace EpikV2 {
 				    }
 			    }
             }
-            if(forceSolarDash>0) {
-                forceSolarDash--;
-                if(forceSolarDash==0) {
-                    forceSolarDash = -60;
+            if(orionDash>0) {
+                orionDash--;
+                if(orionDash==0) {
+                    orionDash = -60;
                 }
-            }else if(forceSolarDash<0) {
-                forceSolarDash++;
+            }else if(orionDash<0) {
+                orionDash++;
             }
         }
         //public static const rope_deb_412 = 0.1f;
@@ -111,8 +113,7 @@ namespace EpikV2 {
                 }
                 float range = Math.Min(rope.distance+slide, Rope_Hook_Projectile.rope_range);
                 rope.distance = range;
-                int angleDir;
-                float angleDiff = AngleDif((-displacement).ToRotation(), player.velocity.ToRotation(), out angleDir);
+                float angleDiff = AngleDif((-displacement).ToRotation(), player.velocity.ToRotation(), out int angleDir);
                 //Dust.NewDustPerfect(player.Center+player.velocity*32, 6, Vector2.Zero).noGravity = true;
                 //Dust.NewDustPerfect(player.Center+Vector2.Normalize(displacement)*32, 29, Vector2.Zero).noGravity = true;
                 //player.chatOverhead.NewMessage($"{Math.Round(displacement.ToRotation(),2)}, {Math.Round(player.velocity.ToRotation(),2)}", 5);
@@ -152,17 +153,17 @@ namespace EpikV2 {
             }
             if(Math.Abs(self.velocity.X)<0.01f&&Math.Abs(epikPlayer.preUpdateVel.X)>=0.01f) {
                 x = (sbyte)Math.Sign(epikPlayer.preUpdateVel.X);
-                if(epikPlayer.yoteTimeCollide.x == 0 && epikPlayer.forceSolarDash > 0) {
+                if(epikPlayer.yoteTimeCollide.x == 0 && epikPlayer.orionDash > 0) {
                     epikPlayer.OrionExplosion();
-                    epikPlayer.forceSolarDash = 0;
+                    epikPlayer.orionDash = 0;
                 }
                 epikPlayer.yoteTimeCollide.x = (sbyte)(x * 10);
             }
             if(Math.Abs(self.velocity.Y)<0.01f&&Math.Abs(epikPlayer.preUpdateVel.Y)>=0.01f) {
                 y = (sbyte)Math.Sign(epikPlayer.preUpdateVel.Y);
-                if(epikPlayer.yoteTimeCollide.y == 0 && epikPlayer.forceSolarDash > 0) {
+                if(epikPlayer.yoteTimeCollide.y == 0 && epikPlayer.orionDash > 0) {
                     epikPlayer.OrionExplosion();
-                    epikPlayer.forceSolarDash = 0;
+                    epikPlayer.orionDash = 0;
                 }
                 epikPlayer.yoteTimeCollide.y = (sbyte)(y * 10);
             }
@@ -178,7 +179,8 @@ namespace EpikV2 {
             Main.PlaySound(SoundID.Item14, exPos);
         }
         public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource) {
-            if(forceSolarDash>0) {
+            if(dracoDash) return false;
+            if(orionDash>0) {
                 player.immuneTime = 15;
                 Projectile explosion = Projectile.NewProjectileDirect(player.Center, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 40, 12.5f, player.whoAmI);
                 explosion.height*=7;
@@ -274,6 +276,9 @@ namespace EpikV2 {
                     SlashWrenchLayer.visible = true;
                     break;*/
                 }
+            }
+            if(dracoDash) {
+                foreach(PlayerLayer layer in layers)layer.visible = false;
             }
         }
         public static PlayerLayer ShootWrenchLayer = null;
