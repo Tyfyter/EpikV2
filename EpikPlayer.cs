@@ -39,6 +39,8 @@ namespace EpikV2 {
         public int orionDash = 0;
         public int nextHeldProj = 0;
         public bool dracoDash = false;
+        public bool reallyWolf = false;
+        public int hydraHeads = 0;
 
         public static BitsBytes ItemChecking;
 
@@ -48,6 +50,7 @@ namespace EpikV2 {
             chargedAmber = false;
             Oily = false;
             dracoDash = false;
+            hydraHeads = 0;
             if(sacrifice>0) {
                 sacrifice--;
                 if(sacrifice==0&&Main.rand.Next(5)==0&&EpikWorld.sacrifices.Count>0) {
@@ -56,6 +59,7 @@ namespace EpikV2 {
                     for(i = 0; i < 4; i++)Dust.NewDust(player.position,player.width, player.height, 16, Alpha:100, newColor:new Color(255,150,150));
                 }
             }
+            if(!player.HasBuff(True_Self_Debuff.ID))reallyWolf = false;
             if(wetTime>0)wetTime--;
             if(GolemTime>0)GolemTime--;
             if(yoteTimeCollide.x>0) {
@@ -68,6 +72,8 @@ namespace EpikV2 {
             }else if(yoteTimeCollide.y<0) {
                 yoteTimeCollide.y++;
             }
+        }
+        public override void PostUpdateBuffs() {
         }
         public override void PostUpdate() {
             light_shots = 0;
@@ -93,6 +99,19 @@ namespace EpikV2 {
                 }
             }else if(orionDash<0) {
                 orionDash++;
+            }
+            player.buffImmune[True_Self_Debuff.ID] = player.buffImmune[BuffID.Cursed];
+            if(player.HasBuff(True_Self_Debuff.ID) && reallyWolf) {
+				player.lifeRegen--;
+				player.meleeCrit -= 2;
+				player.meleeDamage -= 0.051f;
+				player.meleeSpeed -= 0.051f;
+				player.statDefense -= 3;
+				player.moveSpeed -= 0.05f;
+                player.forceWerewolf = true;
+                player.hideWolf = false;
+                player.wereWolf = true;
+                //player.AddBuff(BuffID.Werewolf, 2);
             }
         }
         //public static const rope_deb_412 = 0.1f;
@@ -277,7 +296,7 @@ namespace EpikV2 {
             if(player.itemAnimation != 0 && player.HeldItem.modItem is ICustomDrawItem) {
                 switch(player.HeldItem.useStyle) {
                     case 5:
-                    //foreach(PlayerLayer layer in layers)layer.visible = false;
+                    if(player.controlSmart)foreach(PlayerLayer layer in layers)layer.visible = false;
                     layers[layers.IndexOf(PlayerLayer.HeldItem)] = ShootWrenchLayer;
                     ShootWrenchLayer.visible = true;
                     break;

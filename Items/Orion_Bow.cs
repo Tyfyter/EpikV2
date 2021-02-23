@@ -129,6 +129,7 @@ namespace EpikV2.Items {
             //DrawData value = new DrawData(itemTexture, new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y)), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), drawPlayer.itemRotation, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
             //Main.playerDrawData.Add(value);
             float drawSpread = drawPlayer.direction * (ChargePercent / 6);
+            float itemRotation = drawPlayer.itemRotation - drawPlayer.fullRotation;
             DrawData value;
 
             Vector2 pos = new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
@@ -138,12 +139,12 @@ namespace EpikV2.Items {
             Vector2 limbOffset = new Vector2(10, -26);
             Vector2 stringOrigin = new Vector2(1, 1);
             bool playerRight = drawPlayer.direction > 0;
-            float stringRotation = drawPlayer.itemRotation + (playerRight ? 0 : Pi);
+            float stringRotation = itemRotation + (playerRight ? 0 : Pi);
             float stringSpread = drawSpread * 2 * drawPlayer.direction;
             float num1 = 8;//.5f - 2 * ChargePercent;
             float num2 = 16f;
 
-            Vector2 limbOffset2 = limbOffset.RotatedBy(stringRotation - (drawPlayer.direction/6f));//drawSpread
+            Vector2 limbOffset2 = limbOffset.RotatedBy(stringRotation - (drawPlayer.direction/6f) + drawPlayer.fullRotation);//drawSpread
             limbOffset2 -= new Vector2(playerRight ? num1 : num2, 0).RotatedBy(stringRotation);
             Rectangle drawRect = new Rectangle(
                 (int)(pos.X - limbOffset2.X),
@@ -156,7 +157,7 @@ namespace EpikV2.Items {
             Main.playerDrawData.Add(value);
 
             limbOffset.Y = -limbOffset.Y;
-            limbOffset2 = limbOffset.RotatedBy(stringRotation - (drawPlayer.direction/6f));//drawSpread
+            limbOffset2 = limbOffset.RotatedBy(stringRotation - (drawPlayer.direction/6f) + drawPlayer.fullRotation);//drawSpread
             limbOffset2 -= new Vector2(playerRight?num2:num1, 0).RotatedBy(stringRotation);
             drawRect = new Rectangle(
                 (int)(pos.X-limbOffset2.X),
@@ -169,18 +170,19 @@ namespace EpikV2.Items {
             Main.playerDrawData.Add(value);
 
             //sky
-            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(Color.White), drawPlayer.itemRotation-drawSpread, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
+            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(Color.White), itemRotation-drawSpread, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
             value.shader = fireArrow?112:115;
             Main.playerDrawData.Add(value);
-            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(Color.White), drawPlayer.itemRotation+drawSpread, drawOrigin, item.scale, drawInfo.spriteEffects^SpriteEffects.FlipVertically, 0);
+            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(Color.White), itemRotation+drawSpread, drawOrigin, item.scale, drawInfo.spriteEffects^SpriteEffects.FlipVertically, 0);
             value.shader = fireArrow?112:115;//115, 112, 106
             Main.playerDrawData.Add(value);
 
             //gold
-            value = new DrawData(goldTexture, new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y)), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), drawPlayer.itemRotation-drawSpread, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
+            //new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y))
+            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation-drawSpread, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
             value.shader = 80;
             Main.playerDrawData.Add(value);
-            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), drawPlayer.itemRotation+drawSpread, drawOrigin, item.scale, drawInfo.spriteEffects^SpriteEffects.FlipVertically, 0);
+            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation+drawSpread, drawOrigin, item.scale, drawInfo.spriteEffects^SpriteEffects.FlipVertically, 0);
             value.shader = 80;
             Main.playerDrawData.Add(value);
         }

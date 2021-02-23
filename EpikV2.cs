@@ -37,9 +37,11 @@ namespace EpikV2
         public static ArmorShaderData starlightShader;
         public static ArmorShaderData dimStarlightShader;
         public static ArmorShaderData brightStarlightShader;
+        public static ArmorShaderData nebulaShader;
         public static int starlightShaderID;
         public static int dimStarlightShaderID;
         public static int brightStarlightShaderID;
+        public static int nebulaShaderID;
 
 		public EpikV2()
 		{
@@ -86,9 +88,14 @@ namespace EpikV2
                 brightStarlightShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "BrightStarlight");
                 GameShaders.Armor.BindShader(ModContent.ItemType<Bright_Starlight_Dye>(), brightStarlightShader);
 
+                nebulaShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Nebula")), "Nebula");
+                nebulaShader.UseNonVanillaImage(mod.GetTexture("Textures/Starry_Noise"));
+                GameShaders.Armor.BindShader(ModContent.ItemType<Hydra_Staff>(), nebulaShader);
+
                 starlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Starlight_Dye>());
                 dimStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Dim_Starlight_Dye>());
                 brightStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Bright_Starlight_Dye>());
+                nebulaShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Hydra_Staff>());
             }
             On.Terraria.Player.SlopingCollision += EpikPlayer.PostUpdateMovement;
         }

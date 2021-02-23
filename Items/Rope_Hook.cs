@@ -7,6 +7,8 @@ using Terraria.ModLoader;
 using static EpikV2.EpikExtensions;
 using static Terraria.ModLoader.ModContent;
 using static Microsoft.Xna.Framework.MathHelper;
+using Terraria.Graphics.Shaders;
+using Terraria.DataStructures;
 
 namespace EpikV2.Items {
 	public class Rope_Hook : ModItem {
@@ -86,22 +88,27 @@ namespace EpikV2.Items {
 		}
 
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-			Vector2 playerCenter = Main.player[projectile.owner].MountedCenter;
+            Player owner = Main.player[projectile.owner];
+			Vector2 playerCenter = owner.MountedCenter;
 			Vector2 center = projectile.Center;
 			Vector2 distToProj = playerCenter - projectile.Center;
 			float projRotation = distToProj.ToRotation() - 1.57f;
 			float distance = distToProj.Length();
 			distToProj.Normalize();
 			distToProj *= 8f;
+            DrawData data;
+            Texture2D texture = mod.GetTexture("Items/Rope_Hook_Chain");
 			while (distance > 8f && !float.IsNaN(distance)) {
 				center += distToProj;
 				distance = (playerCenter - center).Length();
 				Color drawColor = lightColor;
 
-				spriteBatch.Draw(mod.GetTexture("Items/Rope_Hook_Chain"), center - Main.screenPosition,
+                data = new DrawData(texture, center - Main.screenPosition,
 					new Rectangle(0, 0, Main.chain30Texture.Width, Main.chain30Texture.Height), drawColor, projRotation,
-					new Vector2(Main.chain30Texture.Width * 0.5f, Main.chain30Texture.Height * 0.5f), new Vector2(0.75f,1), SpriteEffects.None, 0f);
-			}
+					new Vector2(Main.chain30Texture.Width * 0.5f, Main.chain30Texture.Height * 0.5f), new Vector2(0.75f,1), SpriteEffects.None, 0);
+                data.shader = owner.cGrapple;
+                data.Draw(spriteBatch);
+            }
 			return true;
 		}
 
