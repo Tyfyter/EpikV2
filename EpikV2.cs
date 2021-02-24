@@ -42,6 +42,7 @@ namespace EpikV2
         public static int dimStarlightShaderID;
         public static int brightStarlightShaderID;
         public static int nebulaShaderID;
+        public static Texture2D nebulaDistortionTexture;
 
 		public EpikV2()
 		{
@@ -89,7 +90,8 @@ namespace EpikV2
                 GameShaders.Armor.BindShader(ModContent.ItemType<Bright_Starlight_Dye>(), brightStarlightShader);
 
                 nebulaShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Nebula")), "Nebula");
-                nebulaShader.UseNonVanillaImage(mod.GetTexture("Textures/Starry_Noise"));
+                nebulaDistortionTexture = mod.GetTexture("Textures/Starry_Noise");
+                nebulaShader.UseNonVanillaImage(nebulaDistortionTexture);
                 GameShaders.Armor.BindShader(ModContent.ItemType<Hydra_Staff>(), nebulaShader);
 
                 starlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Starlight_Dye>());
@@ -111,6 +113,10 @@ namespace EpikV2
             fireMiscShader = null;
             starlightShader = null;
             dimStarlightShader = null;
+            nebulaShader = null;
+            nebulaDistortionTexture = null;
+            Orion_Bow.Unload();
+            Hydra_Nebula.Unload();
             EpikWorld.sacrifices = null;
         }
 

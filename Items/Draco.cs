@@ -175,7 +175,7 @@ namespace EpikV2.Items {
                         owner.velocity = projectile.velocity * 0.5f;
                     }
                 }
-                epikPlayer.dracoDash = true;
+                epikPlayer.dracoDash = 2;
                 owner.Center = projectile.Center;
                 if(!(owner.mount is null))owner.mount.Dismount(owner);
             }

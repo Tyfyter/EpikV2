@@ -18,6 +18,11 @@ namespace EpikV2.Items {
         public static Texture2D skyTexture { get; private set; }
         //public static Texture2D starTexture { get; private set; }
         public static Texture2D stringTexture { get; private set; }
+        internal static void Unload() {
+            goldTexture = null;
+            skyTexture = null;
+            stringTexture = null;
+        }
 
         public const int maxCharge = 90;
         public int charge = 0;

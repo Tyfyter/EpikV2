@@ -38,7 +38,7 @@ namespace EpikV2 {
         public (sbyte x, sbyte y) yoteTimeCollide;
         public int orionDash = 0;
         public int nextHeldProj = 0;
-        public bool dracoDash = false;
+        public byte dracoDash = 0;
         public bool reallyWolf = false;
         public int hydraHeads = 0;
 
@@ -49,7 +49,7 @@ namespace EpikV2 {
             chargedEmerald = false;
             chargedAmber = false;
             Oily = false;
-            dracoDash = false;
+            if(dracoDash>0)--dracoDash;
             hydraHeads = 0;
             if(sacrifice>0) {
                 sacrifice--;
@@ -198,7 +198,7 @@ namespace EpikV2 {
             Main.PlaySound(SoundID.Item14, exPos);
         }
         public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource) {
-            if(dracoDash) return false;
+            if(dracoDash!=0) return false;
             if(orionDash>0) {
                 player.immuneTime = 15;
                 Projectile explosion = Projectile.NewProjectileDirect(player.Center, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 40, 12.5f, player.whoAmI);
@@ -306,7 +306,7 @@ namespace EpikV2 {
                     break;*/
                 }
             }
-            if(dracoDash) {
+            if(dracoDash!=0) {
                 foreach(PlayerLayer layer in layers)layer.visible = false;
             }
         }
