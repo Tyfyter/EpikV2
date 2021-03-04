@@ -8,14 +8,14 @@ using Terraria.ModLoader;
 
 namespace EpikV2.Items
 {
-	public class MobileGlitchPresent : ModItem
+	public class Mobile_Glitch_Present : ModItem
 	{
         public override string Texture => "Terraria/Item_1869";
 
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Ancient Mobile Present");
-			Tooltip.SetDefault("Remember that one glitch...");
+			Tooltip.SetDefault("Might contain a dead cat");
 		}
 		public override void SetDefaults()
 		{
@@ -29,16 +29,12 @@ namespace EpikV2.Items
         }
         public override void RightClick(Player player){
             int random = Main.rand.Next(0, ItemLoader.ItemCount);
-			if(random >= ItemID.Count){
-				//Main.NewText(random+"; "+ItemID.Count+"; "+ItemLoader.ItemCount);
-				//Main.NewText(ItemLoader.GetItem(random));
-            	Item.NewItem(player.Center, new Vector2(), random, Main.rand.Next(1, Math.Max(Math.Min(ItemLoader.GetItem(random).item.maxStack/Main.rand.Next(1,10), 500), 1)), false, 0, true);
-			}else{
-				//Main.NewText(random+"; "+ItemID.Count+"; "+ItemLoader.ItemCount);
-				Item item = new Item();
-				item.CloneDefaults(random);
-				Item.NewItem(player.Center, new Vector2(), random, Main.rand.Next(1, Math.Max(Math.Min(item.maxStack/Main.rand.Next(1,10), 500), 1)), false, 0, true);
-			}
+			Item item = new Item();
+			item.SetDefaults(random);
+			Item.NewItem(player.Center, new Vector2(), random, Main.rand.Next(1, Math.Max(Math.Min(item.maxStack/Main.rand.Next(1,10), 500), 1)), false, 0, true);
+            if(random == ItemID.UnluckyYarn) {
+			    Item.NewItem(player.Center, new Vector2(), ItemID.VialofVenom, 1, false, 0, true);
+            }
         }
 	}
 }

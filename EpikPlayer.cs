@@ -41,6 +41,7 @@ namespace EpikV2 {
         public byte dracoDash = 0;
         public bool reallyWolf = false;
         public int hydraHeads = 0;
+        public int forceDrawItemFrames = 0;
 
         public static BitsBytes ItemChecking;
 
@@ -49,7 +50,8 @@ namespace EpikV2 {
             chargedEmerald = false;
             chargedAmber = false;
             Oily = false;
-            if(dracoDash>0)--dracoDash;
+            if(dracoDash>0)dracoDash--;
+            if(forceDrawItemFrames>0)forceDrawItemFrames--;
             hydraHeads = 0;
             if(sacrifice>0) {
                 sacrifice--;
@@ -296,7 +298,7 @@ namespace EpikV2 {
             if(player.itemAnimation != 0 && player.HeldItem.modItem is ICustomDrawItem) {
                 switch(player.HeldItem.useStyle) {
                     case 5:
-                    if(player.controlSmart)foreach(PlayerLayer layer in layers)layer.visible = false;
+                    if(player.controlSmart&&player.name.Equals("OriginTest"))foreach(PlayerLayer layer in layers)layer.visible = false;
                     layers[layers.IndexOf(PlayerLayer.HeldItem)] = ShootWrenchLayer;
                     ShootWrenchLayer.visible = true;
                     break;

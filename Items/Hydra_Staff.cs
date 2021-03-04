@@ -103,6 +103,7 @@ namespace EpikV2.Items {
 			ProjectileID.Sets.MinionSacrificable[projectile.type] = true;
 			ProjectileID.Sets.Homing[projectile.type] = true;
             ID = projectile.type;
+            if(Main.netMode == NetmodeID.Server)return;
             topJawTexture = mod.GetTexture("Items/Hydra_Nebula_Top");
             bottomJawTexture = mod.GetTexture("Items/Hydra_Nebula_Bottom");
             neckTexture = mod.GetTexture("Items/Hydra_Nebula_Neck");

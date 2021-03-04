@@ -17,11 +17,11 @@ namespace EpikV2.Items {
     [AutoloadEquip(EquipType.HandsOn, EquipType.HandsOff)]
     public class Shattered_Fate : ModItem {
         static bool Fists_Enabled => ModConf.EnableFists;
-        static MethodInfo ManagePlayerComboMovement = null;
+        //static MethodInfo ManagePlayerComboMovement = null;
         public override bool Autoload(ref string name){
             Mod weaponOut = ModLoader.GetMod("WeaponOut");
             if(weaponOut == null) return false;
-            ManagePlayerComboMovement = typeof(ModPlayerFists).GetMethod("ManagePlayerComboMovement", BindingFlags.Instance|BindingFlags.NonPublic);
+            //ManagePlayerComboMovement = typeof(ModPlayerFists).GetMethod("ManagePlayerComboMovement", BindingFlags.Instance|BindingFlags.NonPublic);
             return Fists_Enabled;
         }
         static int comboEffect = 0;

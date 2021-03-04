@@ -38,6 +38,8 @@ namespace EpikV2
         public static ArmorShaderData dimStarlightShader;
         public static ArmorShaderData brightStarlightShader;
         public static ArmorShaderData nebulaShader;
+        public static ArmorShaderData retroShader;
+        public static ArmorShaderData retroShaderRed;
         public static int starlightShaderID;
         public static int dimStarlightShaderID;
         public static int brightStarlightShaderID;
@@ -94,6 +96,18 @@ namespace EpikV2
                 nebulaShader.UseNonVanillaImage(nebulaDistortionTexture);
                 GameShaders.Armor.BindShader(ModContent.ItemType<Hydra_Staff>(), nebulaShader);
 
+                retroShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "Retro");
+                retroShader.UseOpacity(0.75f);
+                retroShader.UseSaturation(0.65f);
+                GameShaders.Armor.BindShader(ModContent.ItemType<Retro_Dye>(), retroShader);
+
+                retroShaderRed = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "Retro");
+                retroShaderRed.UseOpacity(-0.25f);
+                retroShaderRed.UseSaturation(-0.5f);
+                GameShaders.Armor.BindShader(ModContent.ItemType<Red_Retro_Dye>(), retroShaderRed);
+
+                GameShaders.Armor.BindShader(ModContent.ItemType<GPS_Dye>(), new InformedArmorShaderData(new Ref<Effect>(GetEffect("Effects/GPS")), "GPS"));
+
                 starlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Starlight_Dye>());
                 dimStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Dim_Starlight_Dye>());
                 brightStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Bright_Starlight_Dye>());
@@ -115,8 +129,11 @@ namespace EpikV2
             dimStarlightShader = null;
             nebulaShader = null;
             nebulaDistortionTexture = null;
+            retroShader = null;
+            retroShaderRed = null;
             Orion_Bow.Unload();
             Hydra_Nebula.Unload();
+            Suppressor.Unload();
             EpikWorld.sacrifices = null;
         }
 

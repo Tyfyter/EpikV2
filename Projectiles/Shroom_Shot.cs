@@ -9,7 +9,7 @@ using Terraria.ModLoader;
 namespace EpikV2.Projectiles
 {
 
-    public class ShroomShot : ModProjectile
+    public class Shroom_Shot : ModProjectile
     {
         public override void SetDefaults()
         {
@@ -17,12 +17,12 @@ namespace EpikV2.Projectiles
             projectile.width = 12;       //projectile width
             projectile.height = 12;  //projectile height
             projectile.friendly = true;      //make the projectile will not damage players allied with its owner
-            projectile.ranged = true;         // 
+            projectile.ranged = true;         //
             projectile.tileCollide = true;   //make it so that the projectile will be destroyed if it hits terrain
             projectile.penetrate = 20;      //how many npcs will penetrate
             projectile.timeLeft = 200;   //how many time this projectile has before it expipires
             projectile.extraUpdates = 1;
-            projectile.ignoreWater = true;   
+            projectile.ignoreWater = true;
             projectile.localNPCHitCooldown = 20;
             projectile.usesLocalNPCImmunity = true;
         }
@@ -32,9 +32,9 @@ namespace EpikV2.Projectiles
 		}
         public override void AI()           //this make that the projectile will face the corect way
         {                                                           // |
-            projectile.rotation = (float)Math.Atan2((double)projectile.velocity.Y, (double)projectile.velocity.X) + 1.57f;  
+            projectile.rotation = (float)Math.Atan2((double)projectile.velocity.Y, (double)projectile.velocity.X) + 1.57f;
             if(projectile.ai[0] != 0){
-                
+
                 Vector2 move = Vector2.Zero;
                 float distance = 400f;
                 bool target = false;
@@ -75,9 +75,9 @@ namespace EpikV2.Projectiles
         public override void OnHitNPC(NPC target, int damage, float knockback, bool crit)
         {
             //target.GetGlobalNPC<ShroomInfestation>().Infestations.Add(new int[]{(int)(damage/(projectile.ai[0] == 0?3:1.5f)), 600, projectile.owner, projectile.tileCollide?0:1});
-            
+
             //target.GetGlobalNPC<ShroomInfestation>().Infest(new int[]{(int)(damage/(projectile.ai[0] == 0?3:1.5f)), 600, projectile.owner, projectile.tileCollide?0:1}, true, 0, 60, 600);
-            
+
             /*target.immune[projectile.owner] /= 2;
             if(Main.rand.Next(0, 7) < 7 || projectile.ai[0] == 0){
 			    target.AddBuff(mod.BuffType("ShroomInfestedDebuff"), 1);
@@ -154,7 +154,7 @@ namespace EpikV2.Projectiles
         public override void AI(NPC npc){
             for(int i = 0; i<Infestations.Count; i++)
             {
-                
+
                 int[] imm = npc.immune;
                 npc.immune = new int[]{};
                 if(Infestations[i][1]--%30==0)npc.StrikeNPC((int)Main.rand.NextFloat(Infestations[i][0]*0.9f,Infestations[i][0]*1.1f), 0, 0, fromNet:true);
@@ -167,7 +167,7 @@ namespace EpikV2.Projectiles
 		public override void NPCLoot(NPC npc){
 				int a;
 				foreach(int[] b in Infestations){
-					a = Projectile.NewProjectile(new Vector2(Main.rand.NextFloat(npc.position.X, npc.position.X + npc.width), Main.rand.NextFloat(npc.position.Y, npc.position.Y + npc.height)), new Vector2(4, 0).RotatedByRandom(100), ModContent.ProjectileType<ShroomShot>(), b[0]/1, 0, Main.myPlayer, 10, 64);
+					a = Projectile.NewProjectile(new Vector2(Main.rand.NextFloat(npc.position.X, npc.position.X + npc.width), Main.rand.NextFloat(npc.position.Y, npc.position.Y + npc.height)), new Vector2(4, 0).RotatedByRandom(100), ModContent.ProjectileType<Shroom_Shot>(), b[0]/1, 0, Main.myPlayer, 10, 64);
 					Main.projectile[a].timeLeft = 75;
 					//Main.projectile[a].penetrate = 20;
 					if(npc.noTileCollide || b[3]==1){

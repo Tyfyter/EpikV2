@@ -1,10 +1,13 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.DataStructures;
+using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
 
@@ -103,6 +106,53 @@ namespace EpikV2.Items {
             recipe.AddTile(TileID.DyeVat);
             recipe.SetResult(this, 9);
             recipe.AddRecipe();
+        }
+    }
+
+    public class Retro_Dye : ModItem{
+        public override void SetStaticDefaults(){
+            DisplayName.SetDefault("Retro Dye");
+        }
+		public override void SetDefaults(){
+			byte dye = item.dye;
+			item.CloneDefaults(ItemID.RedandBlackDye);
+			item.dye = dye;
+		}
+    }
+
+    public class Red_Retro_Dye : ModItem{
+        public override void SetStaticDefaults(){
+            DisplayName.SetDefault("Retro Dye (Red)");
+        }
+		public override void SetDefaults(){
+			byte dye = item.dye;
+			item.CloneDefaults(ItemID.RedandBlackDye);
+			item.dye = dye;
+		}
+    }
+
+    public class GPS_Dye : ModItem{
+        public override string Texture => "EpikV2/Items/Red_Retro_Dye";
+        public override void SetStaticDefaults(){
+            DisplayName.SetDefault("GPS Dye");
+        }
+		public override void SetDefaults(){
+			byte dye = item.dye;
+			item.CloneDefaults(ItemID.RedandBlackDye);
+			item.dye = dye;
+            item.color = Color.Blue;
+		}
+    }
+    public class InformedArmorShaderData : ArmorShaderData {
+        public InformedArmorShaderData(Ref<Effect> shader, string passName) : base(shader, passName) {}
+        public override void Apply(Entity entity, DrawData? drawData = null) {
+            Shader.Parameters["uWorldSize"].SetValue(new Vector2(Main.maxTilesX*16f, Main.maxTilesY*16f));
+            base.Apply(entity, drawData);
+        }
+
+        protected override void Apply() {
+            Shader.Parameters["uWorldSize"].SetValue(new Vector2(Main.maxTilesX*16f, Main.maxTilesY*16f));
+            base.Apply();
         }
     }
 }

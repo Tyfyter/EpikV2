@@ -8,46 +8,24 @@ float uRotation;
 float uTime;
 float4 uSourceRect;
 float2 uWorldPosition;
+float2 uWorldSize;
 float uDirection;
 float3 uLightSource;
 float2 uImageSize0;
 float2 uImageSize1;
 float2 uOffset;
 float uScale;
-/*float2 uMin;
-float2 uMax;*/
-
-float4 JadeConst(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
-	float4 color = tex2D(uImage0, coords);
-	float brightness = (color.r+color.g+color.b)/3;
-	brightness = pow(brightness,1.5);
-	return float4(0,brightness,brightness/2,color.a*sampleColor.a);
-}
-
-float4 Starlight(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
-	float4 color = tex2D(uImage0, coords);
-	float b = ((color.r+color.g+color.b)/2);
-	b = pow(b, 1.5);
-	color.rgb = float3(b*0.64, b*0.7, b);
-	return color;
-}
-
-float4 BrightStarlight(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
-	float4 color = tex2D(uImage0, coords);
-	float b = ((color.r+color.g+color.b)/2);
-	color.rgb = float3(0.64*color.a, 0.7*color.a, 1*color.a);
-	color.a*=pow(b, 1.5);
-	return color;
-}
 
 float Epsilon = 1e-10;
-float3 HUEtoRGB(in float H){
+float3 HUEtoRGB(in float H)
+{
 	float R = abs(H*6-3)-1;
 	float G = 2-abs(H*6-2);
 	float B = 2-abs(H*6-4);
 	return saturate(float3(R, G, B));
 }
-float3 RGBtoHCV(in float3 RGB){
+float3 RGBtoHCV(in float3 RGB)
+{
     // Based on work by Sam Hocevar and Emil Persson
 	float4 P = (RGB.g<RGB.b) ? float4(RGB.bg, -1.0, 2.0/3.0) : float4(RGB.gb, 0.0, -1.0/3.0);
 	float4 Q = (RGB.r<P.x) ? float4(P.xyw, RGB.r) : float4(RGB.r, P.yzx);
@@ -59,7 +37,8 @@ float3 RGBtoHCV(in float3 RGB){
 // Should sum to unity.
 float3 HCYwts = float3(0.299, 0.587, 0.114);
  
-float3 HCYtoRGB(in float3 HCY) {
+float3 HCYtoRGB(in float3 HCY)
+{
 	float3 RGB = HUEtoRGB(HCY.x);
 	float Z = dot(RGB, HCYwts);
 	if(HCY.z<Z)
@@ -72,7 +51,8 @@ float3 HCYtoRGB(in float3 HCY) {
 	}
 	return (RGB-Z)*HCY.y+HCY.z;
 }
-float3 RGBtoHCY(in float3 RGB) {
+float3 RGBtoHCY(in float3 RGB)
+{
     // Corrected by David Schaeffer
 	float3 HCV = RGBtoHCV(RGB);
 	float Y = dot(RGB, HCYwts);
@@ -87,24 +67,16 @@ float3 RGBtoHCY(in float3 RGB) {
 	}
 	return float3(HCV.x, HCV.y, Y);
 }
-float4 Retro(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0{
+float4 GPS(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
 	float4 color2 = tex2D(uImage0, coords)*sampleColor;
 	float3 hcy = RGBtoHCY(color2.rgb);
-	float3 color = HCYtoRGB(float3((uOpacity-(hcy.z*uSaturation))%1, 0.5, hcy.z));
+	float y = ((uWorldPosition.y*2)/uWorldSize.y)-1;
+	float3 color = HCYtoRGB(float3(((uWorldPosition.x/uWorldSize.x)-(hcy.z*(y)))%1, 0.5, hcy.z));
 	return float4(color, color2.a);
 }
 
 technique Technique1 {
-	pass JadeConst {
-		PixelShader = compile ps_2_0 JadeConst();
-	}
-	pass Starlight {
-		PixelShader = compile ps_2_0 Starlight();
-	}
-	pass BrightStarlight {
-		PixelShader = compile ps_2_0 BrightStarlight();
-	}
-	pass Retro {
-		PixelShader = compile ps_2_0 Retro();
+	pass GPS {
+		PixelShader = compile ps_2_0 GPS();
 	}
 }

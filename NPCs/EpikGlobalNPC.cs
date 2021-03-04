@@ -139,7 +139,7 @@ namespace EpikV2.NPCs
 			if(npc.HasBuff(ModContent.BuffType<ShroomInfestedDebuff>())){
 				int a;
 				for(int i = 0; i < npc.buffTime[npc.FindBuffIndex(ModContent.BuffType<ShroomInfestedDebuff>())]; i++){
-					a = Projectile.NewProjectile(new Vector2(Main.rand.NextFloat(npc.position.X, npc.position.X + npc.width), Main.rand.NextFloat(npc.position.Y, npc.position.Y + npc.height)), new Vector2(4, 0).RotatedByRandom(100), ModContent.ProjectileType<ShroomShot>(), 50, 0, Main.myPlayer, 10, 64);
+					a = Projectile.NewProjectile(new Vector2(Main.rand.NextFloat(npc.position.X, npc.position.X + npc.width), Main.rand.NextFloat(npc.position.Y, npc.position.Y + npc.height)), new Vector2(4, 0).RotatedByRandom(100), ModContent.ProjectileType<Shroom_Shot>(), 50, 0, Main.myPlayer, 10, 64);
 					Main.projectile[a].timeLeft = 75;
 					if(npc.noTileCollide){
 					    Main.projectile[a].tileCollide = false;
@@ -147,7 +147,7 @@ namespace EpikV2.NPCs
 				}
 			}
 			if(EpikConfig.Instance.AncientPresents&&((Main.rand.Next(0, 74) == 0 && Main.xMas) || (Main.rand.Next(0, 39) == 0 && Main.snowMoon) || (npc.type == NPCID.PresentMimic && Main.rand.Next(0, 19) == 0) || (npc.type == NPCID.SlimeRibbonGreen && Main.rand.Next(0, 19) == 0) || (npc.type == NPCID.SlimeRibbonRed && Main.rand.Next(0, 29) == 0) || (npc.type == NPCID.SlimeRibbonWhite && Main.rand.Next(0, 39) == 0) || (npc.type == NPCID.SlimeRibbonYellow && Main.rand.Next(0, 49) == 0))){
-				Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<MobileGlitchPresent>(), 1);
+				Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<Mobile_Glitch_Present>(), 1);
 			}
 		}
 

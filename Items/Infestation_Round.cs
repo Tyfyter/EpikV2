@@ -1,4 +1,5 @@
 using System;
+using EpikV2.Projectiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -7,17 +8,18 @@ using Terraria.ModLoader;
 
 namespace EpikV2.Items
 {
-	public class shroomitebullet : ModItem
+	public class Infestation_Round : ModItem
 	{
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Parapsychological Plague Pouch");
+			DisplayName.SetDefault("Infestation Round");
 			Tooltip.SetDefault("Spread the plague.\nCan't crit.");
 		}
 		public override void SetDefaults()
 		{
 			//item.name = "jfdjfrbh";
 			item.damage = 50;
+			item.crit = -4;
 			item.width = 40;
 			item.height = 40;
 			item.useStyle = 0;
@@ -26,26 +28,22 @@ namespace EpikV2.Items
 			item.rare = 2;
 			item.maxStack = 999;
 			item.UseSound = SoundID.Item1;
+			item.consumable = true;
 			item.ammo = AmmoID.Bullet;
-			item.shoot = mod.GetProjectile("ShroomShot").projectile.type;
+			item.shoot = ModContent.ProjectileType<Shroom_Shot>();
 			item.shootSpeed = 12.5f;
 		}
 
 		public override void AddRecipes()
 		{
 			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(mod, "shroomitebullet1", 3996);
-			recipe.AddIngredient(ItemID.LunarBar, 5);
+			recipe = new ModRecipe(mod);
+			recipe.AddIngredient(ItemID.ShroomiteBar, 1);
+			recipe.AddIngredient(ItemID.MoonlordBullet, 70);
 			recipe.AddTile(TileID.Autohammer);
-			recipe.AddTile(TileID.LunarCraftingStation);
-			recipe.SetResult(this, 1);
+			recipe.SetResult(this, 100);
 			recipe.AddRecipe();
-		}
-
-		/*public override void AddRecipes()
-		{
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(ItemID.GlowingMushroom, 10);
+			/*recipe.AddIngredient(ItemID.GlowingMushroom, 10);
 			recipe.AddIngredient(ItemID.ChlorophyteBullet, 70);
 			recipe.AddTile(TileID.Autohammer);
 			recipe.SetResult(this, 70);
@@ -55,9 +53,7 @@ namespace EpikV2.Items
 			recipe.AddIngredient(ItemID.MusketBall, 70);
 			recipe.AddTile(TileID.Autohammer);
 			recipe.SetResult(this, 70);
-			recipe.AddRecipe();
-		}*/
-
-
+			recipe.AddRecipe();*/
+		}
 	}
 }

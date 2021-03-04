@@ -7,7 +7,7 @@ using Terraria.ModLoader.IO;
 
 namespace EpikV2.Items
 {
-	public class TapeRing : ModItem
+	public class Tape_Ring : ModItem
 	{
 		int count = 1;
 		bool perhapsthis = false;
@@ -62,7 +62,7 @@ You have ten fingers.
 			for(int i = 0; i < Main.player[item.owner].inventory.Length-1; i++){
 				Item i2 = Main.player[item.owner].inventory[i];
 				if(i2.type==item.type&&i2!=item){
-					if(((TapeRing)i2.modItem).count<=count&&count<10){
+					if(((Tape_Ring)i2.modItem).count<=count&&count<10){
 						this.RightClick(Main.player[item.owner]);
 						perhapsthis = true;
 						return false;
@@ -83,13 +83,13 @@ You have ten fingers.
 			for(int i = 0; i < Main.player[item.owner].inventory.Length-1; i++){
 				Item i2 = Main.player[item.owner].inventory[i];
 				if(i2.type==item.type&&i2!=item){
-					if(((TapeRing)i2.modItem).count<=count&&count<10){
-						((TapeRing)i2.modItem).count--;
-						if(((TapeRing)i2.modItem).count==0){
+					if(((Tape_Ring)i2.modItem).count<=count&&count<10){
+						((Tape_Ring)i2.modItem).count--;
+						if(((Tape_Ring)i2.modItem).count==0){
 							if(i2.stack--<=0){
 								i2.TurnToAir();
 							}else{
-								((TapeRing)i2.modItem).count = 1;
+								((Tape_Ring)i2.modItem).count = 1;
 							}
 						}
 						count++;
@@ -111,14 +111,14 @@ You have ten fingers.
 			recipe.AddIngredient(ItemID.FishingSeaweed, 1);
 			recipe.AddIngredient(ItemID.Gel, 1);
 			recipe.AddIngredient(ItemID.FallenStar, 5);
-			recipe.AddTile(TileID.TinkerersWorkbench);
+			recipe.AddTile(TileID.GoldBunnyCage);
 			recipe.SetResult(this);
 			recipe.AddRecipe();
 			recipe = new ModRecipe(mod);
 			recipe.AddIngredient(ItemID.Silk, 1);
 			recipe.AddIngredient(ItemID.Gel, 1);
 			recipe.AddIngredient(ItemID.FallenStar, 5);
-			recipe.AddTile(TileID.TinkerersWorkbench);
+			recipe.AddTile(TileID.GoldBunnyCage);
 			recipe.SetResult(this);
 			recipe.AddRecipe();
 		}
