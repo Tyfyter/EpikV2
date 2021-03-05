@@ -128,6 +128,22 @@ namespace EpikV2 {
         public static void UseNonVanillaImage(this MiscShaderData shaderData, Texture2D texture) {
             typeof(MiscShaderData).GetField("_uImage", BindingFlags.NonPublic|BindingFlags.Instance).SetValue(shaderData, new Ref<Texture2D>(texture));
         }
+        public static float GetAmmoConsumptionMult(this Player player) {
+            float o = 1;
+            if(player.ammoBox) {
+                o *= 0.8f;
+            }
+            if(player.ammoCost75) {
+                o *= 0.75f;
+            }
+            if(player.ammoCost80) {
+                o *= 0.8f;
+            }
+            if(player.ammoPotion) {
+                o *= 0.8f;
+            }
+            return o;
+        }
         public static void SayNetMode() {
             switch(Main.netMode) {
                 case NetmodeID.Server:
