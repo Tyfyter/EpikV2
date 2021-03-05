@@ -11,6 +11,9 @@ using static Terraria.ModLoader.ModContent;
 namespace EpikV2.Items {
     [AutoloadEquip(EquipType.HandsOn)]
     public class Band_Of_Frost : ModItem {
+        /*public override bool Autoload(ref string name) {
+            return false;
+        }*/
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Band Of Frost");
 		    Tooltip.SetDefault("");
@@ -46,6 +49,7 @@ namespace EpikV2.Items {
         }
         public override void AddRecipes() {
             ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ModContent.ItemType<Frost_Band_Vanity>());
             recipe.AddIngredient(ItemID.FrozenKey);
             recipe.SetResult(this);
             recipe.AddRecipe();

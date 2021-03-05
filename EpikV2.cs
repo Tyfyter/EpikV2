@@ -19,6 +19,10 @@ using Terraria.ModLoader.Config;
 using System.ComponentModel;
 using System.Reflection;
 using System.IO;
+using Tyfyter.Utils;
+using static Tyfyter.Utils.ChestLootCache.LootQueueAction;
+using static Tyfyter.Utils.ChestLootCache.LootQueueMode;
+using Tyfyter.Utils.ID;
 
 #pragma warning disable 672
 namespace EpikV2
@@ -262,6 +266,14 @@ namespace EpikV2
                     }
                 }
             }
+        }
+        public override void PostWorldGen() {
+            ChestLootCache[] lootCaches = ChestLootCache.BuildCaches();
+            ChestLootCache.ApplyLootQueue(lootCaches,
+                (SWITCH_MODE, MODE_ADD),
+                (CHANGE_QUEUE, ChestID.Ice),
+                (ENQUEUE, ModContent.ItemType<Frost_Band_Vanity>())
+            );
         }
         public override TagCompound Save() {
             return new TagCompound() { {"sacrifices", sacrifices} };
