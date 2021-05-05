@@ -206,7 +206,7 @@ namespace EpikV2.Items {
     }
     public partial class EpikGlobalItem : GlobalItem {
         public override void UpdateInventory(Item item, Player player) {
-            if(player.GetModPlayer<EpikPlayer>().GolemTime>0) {
+            if(player.GetModPlayer<EpikPlayer>().golemTime>0) {
                 bool consumed = false;
                 if(item.type==ItemID.LargeEmerald) {
                     item.type = AquamarineMaterial.id;
@@ -218,7 +218,7 @@ namespace EpikV2.Items {
                     consumed = true;
                 }
                 if(consumed) {
-                    player.GetModPlayer<EpikPlayer>().GolemTime = 0;
+                    player.GetModPlayer<EpikPlayer>().golemTime = 0;
                 }
             }/*else if(item.type==ItemID.LargeDiamond&&EpikWorld.EmpressTime>0) {
                 item.type = MoonlaceStaffMaterial.id;

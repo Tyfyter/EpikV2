@@ -23,6 +23,7 @@ using Tyfyter.Utils;
 using static Tyfyter.Utils.ChestLootCache.LootQueueAction;
 using static Tyfyter.Utils.ChestLootCache.LootQueueMode;
 using Tyfyter.Utils.ID;
+using EpikV2.NPCs;
 
 #pragma warning disable 672
 namespace EpikV2
@@ -75,7 +76,6 @@ namespace EpikV2
                 //RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
                 //jadeShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Jade")), "Jade");
                 EpikExtensions.DrawPlayerItemPos = (Func<float, int, Vector2>)typeof(Main).GetMethod("DrawPlayerItemPos", BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate(typeof(Func<float, int, Vector2>), Main.instance);
-                EpikPlayer.ShootWrenchLayer = EpikPlayer.shootWrenchLayer;
                 jadeShader = GetEffect("Effects/Jade");
 
                 jadeDyeShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "JadeConst");
@@ -123,7 +123,6 @@ namespace EpikV2
         public override void Unload()
         {
             mod = null;
-            EpikPlayer.ShootWrenchLayer = null;
             EpikExtensions.DrawPlayerItemPos = null;
             jadeShader = null;
             jadeDyeShader = null;
@@ -138,19 +137,38 @@ namespace EpikV2
             Orion_Bow.Unload();
             Hydra_Nebula.Unload();
             Suppressor.Unload();
+            Ashen_Glaive.Unload();
             EpikWorld.sacrifices = null;
         }
 
         public override void HandlePacket(BinaryReader reader, int whoAmI) {
             byte type = reader.ReadByte();
             if(Main.netMode == NetmodeID.Server) {
+                ModPacket packet;
                 switch(type) {
                     case 0:
-                    ModPacket packet = GetPacket(3);
+                    packet = GetPacket(3);
                     packet.Write((byte)0);
                     packet.Write(reader.ReadByte());
                     packet.Write(reader.ReadBoolean());
                     packet.Send();//*/ignoreClient:whoAmI
+                    break;
+
+                    case 2:
+                    packet = GetPacket(6);
+                    packet.Write((byte)2);
+                    packet.Write(reader.ReadByte());
+                    packet.Write(reader.ReadSingle());
+                    packet.Send();
+                    break;
+
+                    case 3:
+                    packet = GetPacket(8);
+                    packet.Write((byte)3);
+                    packet.Write(reader.ReadByte());
+                    packet.Write(reader.ReadInt32());
+                    packet.Write(reader.ReadSingle());
+                    packet.Send();
                     break;
 
                     default:
@@ -168,7 +186,20 @@ namespace EpikV2
 
                     case 1:
 			        Logger.InfoFormat("recieved golem death packet");
-                    Main.LocalPlayer.GetModPlayer<EpikPlayer>().GolemTime = 5;
+                    Main.LocalPlayer.GetModPlayer<EpikPlayer>().golemTime = 5;
+                    break;
+
+                    case 2:
+			        Logger.InfoFormat("recieved player hp update packet");
+                    Main.player[reader.ReadByte()].GetModPlayer<EpikPlayer>().rearrangeOrgans(reader.ReadSingle());
+                    break;
+
+                    case 3:
+			        Logger.InfoFormat("recieved npc hp update packet");
+                    NPC npc = Main.npc[reader.ReadByte()];
+                    npc.lifeMax = Math.Min(npc.lifeMax, reader.ReadInt32());
+                    if(npc.life > npc.lifeMax)npc.life = npc.lifeMax;
+                    npc.GetGlobalNPC<EpikGlobalNPC>().organRearrangement = Math.Max(npc.GetGlobalNPC<EpikGlobalNPC>().organRearrangement, reader.ReadSingle());
                     break;
 
                     default:

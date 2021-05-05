@@ -36,6 +36,7 @@ namespace EpikV2.NPCs
         Vector2 jadePos = new Vector2(16,16);
         public bool freeze = false;
         public int crushTime = 0;
+        public float organRearrangement = 0;
         public override bool PreAI(NPC npc) {
             if(jaded) {
                 int size = (int)Math.Ceiling(Math.Sqrt((npc.frame.Width*npc.frame.Width)+(npc.frame.Height*npc.frame.Height)));
@@ -78,6 +79,11 @@ namespace EpikV2.NPCs
 				suppressorHits-=(float)Math.Ceiling(suppressorHits/5f)/(npc.wet?3f:5f);
 				//npc.StrikeNPC(SuppressorHits/(npc.coldDamage?10:5), 0, 0);
 			}
+            if(organRearrangement>0.05f) {
+                organRearrangement-=0.05f;
+            }else if(organRearrangement>0) {
+                organRearrangement = 0;
+            }
 		}
         public override bool? CanHitNPC(NPC npc, NPC target)
         {
@@ -130,7 +136,7 @@ namespace EpikV2.NPCs
                     }
                 } else {
                     if(Main.netMode == NetmodeID.SinglePlayer) {
-                        Main.LocalPlayer.GetModPlayer<EpikPlayer>().GolemTime = 5;
+                        Main.LocalPlayer.GetModPlayer<EpikPlayer>().golemTime = 5;
                     }
                 }
             }else if(npc.type==NPCID.CultistArcherWhite && Main.rand.Next(0, 19) == 0) {

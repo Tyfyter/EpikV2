@@ -122,6 +122,66 @@ namespace EpikV2 {
                 }
             }
         }
+        public static Rectangle BoxOf(Vector2 a, Vector2 b, float buffer) {
+            return BoxOf(a,b,new Vector2(buffer));
+        }
+        public static Rectangle BoxOf(Vector2 a, Vector2 b, Vector2 buffer = default) {
+            Vector2 position = Vector2.Min(a,b)-buffer;
+            Vector2 dimensions = (Vector2.Max(a,b)+buffer)-position;
+            return new Rectangle((int)position.X,(int)position.Y,(int)dimensions.X,(int)dimensions.Y);
+        }
+        public static bool CanBeHitBy(this NPC npc, Player player, Item item, bool checkImmortal = true) {
+            if(!npc.active||(checkImmortal&&npc.immortal)||npc.dontTakeDamage) {
+                return false;
+            }
+            bool itemCanHitNPC = ItemLoader.CanHitNPC(item, player, npc)??true;
+            if (!itemCanHitNPC) {
+	            return false;
+            }
+            bool canBeHitByItem = NPCLoader.CanBeHitByItem(npc, player, item)??true;
+            if (!canBeHitByItem) {
+	            return false;
+            }
+            bool playerCanHitNPC = PlayerHooks.CanHitNPC(player, item, npc)??true;
+            if (!playerCanHitNPC) {
+	            return false;
+            }
+            if(npc.friendly) {
+                switch(npc.type) {
+                    case NPCID.Guide:
+                    return player.killGuide;
+                    case NPCID.Clothier:
+                    return player.killClothier;
+                    default:
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static bool CanBeHitByNoItem(this NPC npc, Player player, Item item) {
+            if(!npc.active||npc.immortal||npc.dontTakeDamage) {
+                return false;
+            }
+            bool canBeHitByItem = NPCLoader.CanBeHitByItem(npc, player, item)??true;
+            if (!canBeHitByItem) {
+	            return false;
+            }
+            bool playerCanHitNPC = PlayerHooks.CanHitNPC(player, item, npc)??true;
+            if (!playerCanHitNPC) {
+	            return false;
+            }
+            if(npc.friendly) {
+                switch(npc.type) {
+                    case NPCID.Guide:
+                    return player.killGuide;
+                    case NPCID.Clothier:
+                    return player.killClothier;
+                    default:
+                    return false;
+                }
+            }
+            return true;
+        }
         public static void UseNonVanillaImage(this ArmorShaderData shaderData, Texture2D texture) {
             typeof(ArmorShaderData).GetField("_uImage", BindingFlags.NonPublic|BindingFlags.Instance).SetValue(shaderData, new Ref<Texture2D>(texture));
         }

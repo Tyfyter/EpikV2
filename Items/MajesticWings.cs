@@ -23,7 +23,7 @@ namespace EpikV2.Items
 		//these wings use the same values as the solar wings
 		public override void UpdateAccessory(Player player, bool hideVisual) {
 			player.wingTimeMax = 1;
-            player.GetModPlayer<EpikPlayer>().Majestic_Wings = true;
+            player.GetModPlayer<EpikPlayer>().majesticWings = true;
 		}
 
         public override void VerticalWingSpeeds(Player player, ref float ascentWhenFalling, ref float ascentWhenRising, ref float maxCanAscendMultiplier, ref float maxAscentMultiplier, ref float constantAscend) {

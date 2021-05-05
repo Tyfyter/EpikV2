@@ -21,8 +21,8 @@ namespace EpikV2 {
         public int tempint = 0;
         public int light_shots = 0;
         public int oldStatLife = 0;
-        public bool Majestic_Wings;
-        public int GolemTime = 0;
+        public bool majesticWings;
+        public int golemTime = 0;
         public bool chargedEmerald = false;
         public bool chargedAmber = false;
         public byte sacrifice = 0;
@@ -30,7 +30,7 @@ namespace EpikV2 {
         public bool ChargedGem() => chargedAmber||chargedEmerald;
         public Vector2 ropeVel = default;
         public int ropeTarg = -1;
-        public bool Oily = false;
+        public bool oily = false;
         public byte wetTime = 0;
         Vector2 preUpdateVel;
         public (sbyte x, sbyte y) collide;
@@ -42,14 +42,18 @@ namespace EpikV2 {
         public bool reallyWolf = false;
         public int hydraHeads = 0;
         public int forceDrawItemFrames = 0;
+        public float organRearrangement = 0;
+        public bool glaiveRecall = false;
+        public bool noAttackCD = false;
 
         public static BitsBytes ItemChecking;
 
         public override void ResetEffects() {
-            Majestic_Wings = false;
+            majesticWings = false;
             chargedEmerald = false;
             chargedAmber = false;
-            Oily = false;
+            oily = false;
+            glaiveRecall = false;
             if(dracoDash>0)dracoDash--;
             if(forceDrawItemFrames>0)forceDrawItemFrames--;
             hydraHeads = 0;
@@ -63,7 +67,7 @@ namespace EpikV2 {
             }
             if(!player.HasBuff(True_Self_Debuff.ID))reallyWolf = false;
             if(wetTime>0)wetTime--;
-            if(GolemTime>0)GolemTime--;
+            if(golemTime>0)golemTime--;
             if(yoteTimeCollide.x>0) {
                 yoteTimeCollide.x--;
             }else if(yoteTimeCollide.x<0) {
@@ -74,16 +78,23 @@ namespace EpikV2 {
             }else if(yoteTimeCollide.y<0) {
                 yoteTimeCollide.y++;
             }
-        }
-        public override void PostUpdateBuffs() {
+            if(organRearrangement>0.1f) {
+                organRearrangement-=0.1f;
+            }else if(organRearrangement>0) {
+                organRearrangement = 0;
+            }
         }
         public override void PostUpdate() {
             light_shots = 0;
+            if(noAttackCD) {
+                player.attackCD = 0;
+                noAttackCD = false;
+            }
         }
         public override void PostUpdateEquips() {
             oldStatLife = player.statLife;
             if(ChargedGem()) player.aggro+=600;
-            if(Majestic_Wings&&(player.wingFrameCounter!=0||player.wingFrame!=0)) {
+            if(majesticWings&&(player.wingFrameCounter!=0||player.wingFrame!=0)) {
 			    player.wingFrameCounter++;
                 if(player.wingFrame==2)player.velocity.Y-=4;
 			    if (player.wingFrameCounter > 5){
@@ -115,6 +126,7 @@ namespace EpikV2 {
                 player.wereWolf = true;
                 //player.AddBuff(BuffID.Werewolf, 2);
             }
+            player.statLifeMax2 -= (int)organRearrangement;
         }
         //public static const rope_deb_412 = 0.1f;
         public override void PreUpdateMovement() {
@@ -226,7 +238,7 @@ namespace EpikV2 {
             return true;
         }
         public override void PostUpdateRunSpeeds() {
-            if(Oily) {
+            if(oily) {
                 //if(PlayerInput.Triggers.JustPressed.Jump)SayNetMode();
                 //Dust dust;
                 //dust = Main.dust[];
@@ -285,6 +297,7 @@ namespace EpikV2 {
             ItemChecking[player.whoAmI] = false;
         }
         public override void ModifyDrawInfo(ref PlayerDrawInfo drawInfo) {
+            if(player.whoAmI == Main.myPlayer)Ashen_Glaive_P.drawCount = 0;
             if(drawInfo.hairShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
                 drawInfo.hairShader = EpikV2.dimStarlightShaderID;
             if(drawInfo.headArmorShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
@@ -297,6 +310,13 @@ namespace EpikV2 {
         public override void ModifyDrawLayers(List<PlayerLayer> layers) {
             if(player.itemAnimation != 0 && player.HeldItem.modItem is ICustomDrawItem) {
                 switch(player.HeldItem.useStyle) {
+                    case 1:
+                    case 2:
+                    case 3:
+                    case 4:
+                    break;
+
+                    default:
                     case 5:
                     if(player.controlSmart&&player.name.Equals("OriginTest"))foreach(PlayerLayer layer in layers)layer.visible = false;
                     layers[layers.IndexOf(PlayerLayer.HeldItem)] = ShootWrenchLayer;
@@ -312,8 +332,10 @@ namespace EpikV2 {
                 foreach(PlayerLayer layer in layers)layer.visible = false;
             }
         }
-        public static PlayerLayer ShootWrenchLayer = null;
-        internal static PlayerLayer shootWrenchLayer => new PlayerLayer("Origins", "FiberglassBowLayer", null, delegate (PlayerDrawInfo drawInfo) {
+        internal void rearrangeOrgans(float rearrangement) {
+            organRearrangement = Math.Max(organRearrangement, rearrangement);
+        }
+        internal static PlayerLayer ShootWrenchLayer => new PlayerLayer("Origins", "FiberglassBowLayer", null, delegate (PlayerDrawInfo drawInfo) {
             Player drawPlayer = drawInfo.drawPlayer;
             Item item = drawPlayer.HeldItem;
             Texture2D itemTexture = Main.itemTexture[item.type];

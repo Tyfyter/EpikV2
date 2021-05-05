@@ -21,6 +21,7 @@ namespace EpikV2.Items {
             item.CloneDefaults(ItemID.AmethystHook);
 			item.shootSpeed = 20f;
             item.shoot = ProjectileType<Orion_Boots_Projectile>();
+            item.useAmmo = Orion_Boot_Charge.ID;
 		}
 
 
@@ -44,6 +45,7 @@ namespace EpikV2.Items {
             item.CloneDefaults(ItemID.Emerald);
             item.createTile = -1;
             item.consumable = true;
+            item.ammo = item.type;
 		}
 
     }
@@ -60,7 +62,15 @@ namespace EpikV2.Items {
 		public override bool? CanUseGrapple(Player player) {
             EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			if(epikPlayer.yoteTimeCollide.y>0||epikPlayer.yoteTimeCollide.x!=0)return true;
-            return epikPlayer.orionDash==0 && player.ConsumeItem(Orion_Boot_Charge.ID);
+            Item item = new Item();
+            item.SetDefaults(Orion_Boots.ID);
+            bool cs = false;
+            if(epikPlayer.orionDash == 0) {
+                float f = 0;
+                int i = 0;
+                player.PickAmmo(item, ref i, ref f, ref cs, ref i, ref f);
+            }
+            return cs;
 		}
 
 		public override float GrappleRange() {

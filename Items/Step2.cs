@@ -24,7 +24,7 @@ namespace EpikV2.Items
 		}
         public override void UpdateAccessory(Player player, bool hideVisual) {
             player.ignoreWater = true;
-            player.GetModPlayer<EpikPlayer>().Oily = true;
+            player.GetModPlayer<EpikPlayer>().oily = true;
 		}
 	}
 }
