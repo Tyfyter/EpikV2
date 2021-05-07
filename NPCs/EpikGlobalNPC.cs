@@ -37,6 +37,10 @@ namespace EpikV2.NPCs
         public bool freeze = false;
         public int crushTime = 0;
         public float organRearrangement = 0;
+        public int bounceTime = 0;
+        public int bounces = 0;
+        bool oldCollideX = false;
+        bool oldCollideY = false;
         public override bool PreAI(NPC npc) {
             if(jaded) {
                 int size = (int)Math.Ceiling(Math.Sqrt((npc.frame.Width*npc.frame.Width)+(npc.frame.Height*npc.frame.Height)));
@@ -61,6 +65,29 @@ namespace EpikV2.NPCs
                     crushTime = -crushTime;
                 }
             }
+            if(bounceTime > 0) {
+                bounceTime--;
+                Vector2 oldVel = npc.velocity;
+                bool bounced = false;
+                if(npc.collideX && !oldCollideX) {
+                    npc.velocity.X = -npc.oldVelocity.X * npc.knockBackResist;
+                    bounced = true;
+                }
+                if(npc.collideY && !oldCollideY) {
+                    npc.velocity.Y = -npc.oldVelocity.Y * npc.knockBackResist;
+                    bounced = true;
+                }
+                float acc = (npc.velocity - oldVel).Length();
+                acc = (acc * 7);
+                if(bounced) {
+                    if(acc>25)npc.StrikeNPC((int)acc, 0, 0);
+                    if(--bounces<1) {
+                        bounceTime = 0;
+                    }
+                }
+            }
+            oldCollideX = npc.collideX;
+            oldCollideY = npc.collideY;
             if(freeze) {
                 npc.frameCounter = 0;
                 freeze = false;
@@ -220,6 +247,10 @@ namespace EpikV2.NPCs
                 }
                 break;
             }
+        }
+        public void SetBounceTime(int time, int count = 1) {
+            bounceTime = time;
+            bounces = count;
         }
     }
 }

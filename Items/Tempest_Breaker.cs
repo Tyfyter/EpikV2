@@ -9,6 +9,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
 using static EpikV2.EpikExtensions;
+using Terraria.Utilities;
 
 namespace EpikV2.Items {
     [AutoloadEquip(EquipType.HandsOn)]
@@ -48,6 +49,17 @@ namespace EpikV2.Items {
             item.rare = ItemRarityID.Purple;
             item.autoReuse = true;
             item.UseSound = null;
+            item.scale = 1f;
+        }
+        public override int ChoosePrefix(UnifiedRandom rand) {
+            if(item.ranged) {
+                item.ranged = false;
+                item.melee = true;
+                item.Prefix(-2);
+                item.ranged = true;
+                item.melee = false;
+            }
+            return item.prefix;
         }
         public override void HoldItem(Player player) {
             player.handon = item.handOnSlot;
@@ -57,13 +69,14 @@ namespace EpikV2.Items {
             Vector2 diff = (Main.MouseWorld - player.MountedCenter);
             player.direction = diff.X < 0 ?-1:1;
             player.itemLocation = Vector2.Zero;
-            int startup = Startup(player);
+            int startupFrame = player.itemAnimationMax - Startup(player);
             int endlag = Endlag(player);
-            if(player.itemAnimation<endlag||player.itemAnimation>player.itemAnimationMax-startup) {
+            if(player.itemAnimation<endlag||player.itemAnimation>startupFrame) {
+                frame = 7;
 			    player.bodyFrame.Y = player.bodyFrame.Height * 7-2;
                 return true;
             }
-            if(player.itemAnimation == player.itemAnimationMax - startup) {
+            if(player.itemAnimation == startupFrame) {
                 float spd = 0;
                 bool canShoot = false;
                 dmg = item.damage;
@@ -120,7 +133,7 @@ namespace EpikV2.Items {
         public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox) {
             int startupFrame = player.itemAnimationMax-Startup(player);
             //int endlag = Endlag(player);
-            if(player.itemAnimation<startupFrame-6||player.itemAnimation>startupFrame) {
+            if(player.itemAnimation<startupFrame-7||player.itemAnimation>=startupFrame) {
                 noHitbox = true;
                 hitbox = Rectangle.Empty;
                 return;
@@ -142,10 +155,13 @@ namespace EpikV2.Items {
         public override bool? CanHitNPC(Player player, NPC target) {
             if(recursionnt)return null;
             if(!item.Hitbox.Intersects(target.Hitbox))return false;
+            //Main.NewText("check");
             recursionnt = true;
             bool cantBeHit = !target.CanBeHitBy(player, item, false);
             recursionnt = false;
             if(cantBeHit)return false;
+
+            //Main.NewText("reach (frame "+frame+")");
 
             int totalDamage = player.GetWeaponDamage(item);
 
@@ -170,7 +186,31 @@ namespace EpikV2.Items {
 			if (player.armorPenetration > 0){
 				damage += target.checkArmorPenetration(player.armorPenetration);
 			}
+
+            Vector2 oldVel = target.velocity;
 			int dmgDealt = (int)target.StrikeNPC(damage, knockBack, player.direction, crit);
+            Vector2 diff = target.velocity - oldVel;
+            float totalKnockBack = diff.Length();
+            diff = new Vector2(totalKnockBack * 0.6f * player.direction, totalKnockBack * -0.2f);
+            if(totalKnockBack > 0 && diff.X > 0 == player.direction > 0) {
+                float rot = 0f;
+                float mult = 1f;
+                target.GetGlobalNPC<EpikGlobalNPC>().SetBounceTime(60);
+                //Main.NewText(frame);
+                switch(frame) {
+                    case 4:
+                    rot = target.collideY?-0.75f:1;
+                    mult = 1.75f;
+                    //target.GetGlobalNPC<EpikGlobalNPC>().OldCollideY = false;
+                    break;
+                    case 2:
+                    rot = -0.7f;
+                    mult = 1.5f;
+                    break;
+                }
+                if(rot != 0) diff = diff.RotatedBy(rot * player.direction);
+                target.velocity = oldVel + (diff * mult);
+            }
 
 			if (bannerID >= 0)player.lastCreatureHit = bannerID;
 			if (player.beetleOffense && !target.immortal){
@@ -211,7 +251,7 @@ namespace EpikV2.Items {
         public void DrawInHand(Texture2D itemTexture, PlayerDrawInfo drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin) {
             Player drawPlayer = drawInfo.drawPlayer;
             DrawData value;
-            int startupFrame = drawPlayer.itemAnimationMax-Startup(drawPlayer);
+            int startupFrame = (drawPlayer.itemAnimationMax-Startup(drawPlayer))-1;
             if(drawPlayer.itemAnimation > startupFrame)return;
             int blastFrame = (startupFrame - drawPlayer.itemAnimation)/3;
             if(blastFrame > 2)return;
