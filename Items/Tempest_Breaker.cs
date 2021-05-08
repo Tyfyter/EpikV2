@@ -87,14 +87,18 @@ namespace EpikV2.Items {
                 if(canShoot)Main.PlaySound(SoundID.Item36, player.Center);
                 float rot = diff.SafeNormalize(Vector2.Zero).Y;
                 frame = 3;
+                sbyte dir = 0;
+                if(player.controlDown)dir -= 2;
+                if(player.controlUp)dir += 2;
+                if(rot < -0.45)dir++;
+                if(rot > 0.45)dir--;
                 bool reverseGrav = player.gravDir == -1f;
-                if(rot < -0.45) {
+                if(dir>0) {
                     frame = 2;
                     if(reverseGrav) {
                         frame = 4;
                     }
-                }
-                if(rot > 0.45) {
+                }else if(dir<0) {
                     frame = 4;
                     if(reverseGrav) {
                         frame = 2;
