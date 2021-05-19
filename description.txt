@@ -2,6 +2,9 @@ A continuation of my first mod, "Epikmod".
 
 Changelog:
 
+0.2.3:
+Added more weapons and horrible puns
+
 0.2.2.3:
 More multiplayer fixes
 

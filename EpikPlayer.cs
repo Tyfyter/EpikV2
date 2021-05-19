@@ -91,6 +91,9 @@ namespace EpikV2 {
                 noAttackCD = false;
             }
         }
+        public override void UpdateBiomeVisuals() {
+            //player.ManageSpecialBiomeVisuals("EpikV2:FilterMapped", true, player.Center);
+        }
         public override void PostUpdateEquips() {
             oldStatLife = player.statLife;
             if(ChargedGem()) player.aggro+=600;

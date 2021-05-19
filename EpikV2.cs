@@ -26,14 +26,12 @@ using Tyfyter.Utils.ID;
 using EpikV2.NPCs;
 
 #pragma warning disable 672
-namespace EpikV2
-{
-	public class EpikV2 : Mod
-	{
+namespace EpikV2 {
+	public class EpikV2 : Mod {
         internal static EpikV2 mod;
         private HotKey ReadTooltipsVar = new HotKey("Read Tooltips (list mod name)", Keys.L);
-		List<int> RegItems = new List<int>{};
-		List<int> ModItems = new List<int>{};
+		List<int> RegItems = new List<int> {};
+		List<int> ModItems = new List<int> {};
         //public static MiscShaderData jadeShader;
         public static Effect jadeShader;
         public static ArmorShaderData jadeDyeShader;
@@ -50,26 +48,29 @@ namespace EpikV2
         public static int brightStarlightShaderID;
         public static int nebulaShaderID;
         public static Texture2D nebulaDistortionTexture;
+        public static Filter mappedFilter {
+            get=>Filters.Scene["EpikV2:FilterMapped"];
+            set=>Filters.Scene["EpikV2:FilterMapped"] = value;
+        }
+        public static SpriteBatchQueue filterMapQueue;
+        public static ArmorShaderData alphaMapShader;
+        public static int alphaMapShaderID;
 
-		public EpikV2()
-		{
-			Properties = new ModProperties()
-			{
+		public EpikV2() {
+			Properties = new ModProperties() {
 				Autoload = true,
 				AutoloadGores = true,
 				AutoloadSounds = true
 			};
         }
-        public override void Load()
-        {
+        public override void Load() {
             mod = this;
-            Properties = new ModProperties()
-            {
+            Properties = new ModProperties() {
                 Autoload = true,
                 AutoloadGores = true,
                 AutoloadSounds = true
             };
-			EpikWorld.sacrifices = new List<int>(){};
+			EpikWorld.sacrifices = new List<int>() {};
             EpikPlayer.ItemChecking = new BitsBytes(32);
 
             if(!Main.dedServ) {
@@ -116,12 +117,59 @@ namespace EpikV2
                 dimStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Dim_Starlight_Dye>());
                 brightStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Bright_Starlight_Dye>());
                 nebulaShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Hydra_Staff>());
+
+                alphaMapShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "AlphaMap");
+                GameShaders.Armor.BindShader(ModContent.ItemType<Chroma_Dummy_Dye>(), alphaMapShader);
+                alphaMapShaderID = ModContent.ItemType<Chroma_Dummy_Dye>();
+
+				mappedFilter = new Filter(new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/MappedShade")), "MappedShade"), EffectPriority.High);
+                filterMapQueue = new SpriteBatchQueue();
             }
             On.Terraria.Player.SlopingCollision += EpikPlayer.PostUpdateMovement;
+            Main.OnPreDraw += Main_OnPostDraw;
         }
 
-        public override void Unload()
-        {
+
+        private void Main_OnPostDraw(GameTime obj) {
+            bool filter = filterMapQueue.Count > 0;
+            Main.LocalPlayer.ManageSpecialBiomeVisuals("EpikV2:FilterMapped", filter, Main.LocalPlayer.Center);
+            if(!filter) {
+                mappedFilter.Opacity = 0;
+                return;
+            }
+            RenderTarget2D filterMapTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight);
+
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
+			Main.instance.GraphicsDevice.SetRenderTarget(filterMapTarget);
+			Main.instance.GraphicsDevice.Clear(new Color(0,128,128,0));
+
+            //Main.LocalPlayer.chatOverhead.NewMessage(alphaMapShader);
+            filterMapQueue.DrawTo(Main.spriteBatch);
+            filterMapQueue.Clear();
+
+            Main.spriteBatch.End();
+            Main.instance.GraphicsDevice.SetRenderTarget(null);
+
+            mappedFilter.GetShader().UseImage(filterMapTarget, 2);
+        }
+        public static float ShimmerCalc(float val) {
+            return 0.5f+MathHelper.Clamp(val/16f, -0.5f, 0.5f);
+        }
+        /*private void Main_DrawPlayer_DrawAllLayers(On.Terraria.Main.orig_DrawPlayer_DrawAllLayers orig, Main self, Player drawPlayer, int projectileDrawPosition, int cHead) {
+            if(drawPlayer.controlSmart) {
+                Color color = new Color(0.3f, 0, 0, 0);
+                DrawData drawData;
+                for(int i = 0; i < Main.playerDrawData.Count; i++) {
+                    drawData = Main.playerDrawData[i];
+                    drawData.color = color;
+                    filterMapQueue.Add(drawData);
+                }
+            } else if(mappedFilter.Opacity == 0f){
+                orig(self, drawPlayer, projectileDrawPosition, cHead);
+            }
+        }*/
+
+        public override void Unload() {
             mod = null;
             EpikExtensions.DrawPlayerItemPos = null;
             jadeShader = null;
@@ -139,6 +187,9 @@ namespace EpikV2
             Suppressor.Unload();
             Ashen_Glaive.Unload();
             EpikWorld.sacrifices = null;
+            mappedFilter = null;
+            filterMapQueue.Clear();
+            filterMapQueue = null;
         }
 
         public override void HandlePacket(BinaryReader reader, int whoAmI) {
@@ -217,35 +268,28 @@ namespace EpikV2
                 }
             }
         }
-        public override void AddRecipes(){
-            for (int i = 1; i < ItemID.Count; i++)
-            {
+        public override void AddRecipes() {
+            for (int i = 1; i < ItemID.Count; i++) {
                 RegItems.Add(i);
             }
-            for (int i = ItemID.Count; i < ItemLoader.ItemCount; i++)
-            {
+            for (int i = ItemID.Count; i < ItemLoader.ItemCount; i++) {
                 ModItems.Add(i);
             }
         }
 
-        public string GetTriggerName(string name)
-        {
+        public string GetTriggerName(string name) {
             return Name + ": " + name;
         }
-        public static short SetStaticDefaultsGlowMask(ModItem modItem)
-        {
-            if (!Main.dedServ)
-            {
+        public static short SetStaticDefaultsGlowMask(ModItem modItem) {
+            if (!Main.dedServ) {
                 Texture2D[] glowMasks = new Texture2D[Main.glowMaskTexture.Length + 1];
-                for (int i = 0; i < Main.glowMaskTexture.Length; i++)
-                {
+                for (int i = 0; i < Main.glowMaskTexture.Length; i++) {
                     glowMasks[i] = Main.glowMaskTexture[i];
                 }
                 glowMasks[glowMasks.Length - 1] = mod.GetTexture("Items/" + modItem.GetType().Name + "_Glow");
                 Main.glowMaskTexture = glowMasks;
                 return (short)(glowMasks.Length - 1);
-            }
-            else return 0;
+            } else return 0;
         }
         public override void MidUpdateTimeWorld() {
             for(int i = 0; i < EpikWorld.sacrifices.Count; i++) {
@@ -311,13 +355,13 @@ namespace EpikV2
         }
         public override void Load(TagCompound tag) {
             if(!tag.ContainsKey("sacrifices")) {
-                sacrifices = new List<int>(){};
+                sacrifices = new List<int>() {};
                 return;
             }
             try {
                 sacrifices = tag.Get<List<int>>("sacrifices");
             } catch(Exception) {
-                sacrifices = new List<int>(){};
+                sacrifices = new List<int>() {};
             }
         }
     }

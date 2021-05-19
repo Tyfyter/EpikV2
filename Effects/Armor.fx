@@ -93,6 +93,10 @@ float4 Retro(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0{
 	float3 color = HCYtoRGB(float3((uOpacity-(hcy.z*uSaturation))%1, 0.5, hcy.z));
 	return float4(color, color2.a);
 }
+float4 AlphaMap(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0{
+	float4 sprite = tex2D(uImage0, coords);
+	return float4(uColor*sprite.a, sprite.a);
+}
 
 technique Technique1 {
 	pass JadeConst {
@@ -106,5 +110,8 @@ technique Technique1 {
 	}
 	pass Retro {
 		PixelShader = compile ps_2_0 Retro();
+	}
+	pass AlphaMap{
+		PixelShader = compile ps_2_0 AlphaMap();
 	}
 }

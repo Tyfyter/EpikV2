@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.GameContent.NetModules;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
@@ -48,6 +49,32 @@ namespace EpikV2 {
             set => _bytes[index / 8][index % 8] = value;
         }
     }
+    public class SpriteBatchQueue : List<DrawData> {
+        public SpriteBatchQueue() : base(){}
+        public SpriteBatchQueue(List<DrawData> drawDatas) : base(drawDatas){}
+
+        public int? shaderOverride = null;
+
+        public void DrawTo(SpriteBatch spriteBatch) {
+            DrawData data;
+            for(int i = 0; i < Count; i++) {
+                data = this[i];
+                data.Draw(spriteBatch);
+            }
+        }
+    }
+    /*public class SpriteBatchQueue : List<(Texture2D texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth)>{
+        public void Add(Texture2D texture, Vector2 position, Color color) {
+            Add((texture, position, null, color, 0, default, Vector2.One, SpriteEffects.None, 0f));
+        }
+        public void DrawTo(SpriteBatch spriteBatch) {
+            (Texture2D texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth) entry;
+            for(int i = 0; i < Count; i++) {
+                entry = this[i];
+                spriteBatch.Draw(entry.texture, entry.position, entry.sourceRectangle, entry.color, entry.rotation, entry.origin, entry.scale, entry.effects, entry.layerDepth);
+            }
+        }
+    }*/
     public static class EpikExtensions {
         public static Func<float, int, Vector2> DrawPlayerItemPos { get; internal set; }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -232,6 +259,9 @@ namespace EpikV2 {
         }
         public static void SendMessage(object text) {
             SendMessage(text.ToString());
+        }
+        public static GraphicsDevice Clone(this GraphicsDevice graphicsDevice) {
+            return new GraphicsDevice(graphicsDevice.Adapter, graphicsDevice.GraphicsProfile, graphicsDevice.PresentationParameters);
         }
     }
 }

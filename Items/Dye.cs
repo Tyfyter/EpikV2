@@ -155,4 +155,17 @@ namespace EpikV2.Items {
             base.Apply();
         }
     }
+
+    public class Chroma_Dummy_Dye : ModItem{
+        public override string Texture => "EpikV2/Items/Red_Retro_Dye";
+        public override void SetStaticDefaults(){
+            DisplayName.SetDefault("Chroma_Dummy_Dye");
+        }
+		public override void SetDefaults(){
+			byte dye = item.dye;
+			item.CloneDefaults(ItemID.RedandBlackDye);
+			item.dye = dye;
+            item.color = Color.Black;
+		}
+    }
 }

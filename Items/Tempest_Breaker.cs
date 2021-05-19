@@ -108,13 +108,6 @@ namespace EpikV2.Items {
             player.bodyFrame.Y = player.bodyFrame.Height * frame;
             return true;
         }
-        public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
-            recipe.AddIngredient(ModContent.ItemType<Frost_Band_Vanity>());
-            recipe.AddIngredient(ItemID.FrozenKey);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
-        }
         public override bool AltFunctionUse(Player player) {
             return true;
         }
