@@ -292,6 +292,16 @@ namespace EpikV2 {
                 }*/
             }
         }
+        public override void SetControls(){
+            if(!player.controlTorch)return;
+            if(player.HeldItem?.modItem is IScrollableItem item) {
+                player.controlTorch = false;
+                if(Math.Abs(PlayerInput.ScrollWheelDelta)>=60){
+                    item.Scroll(PlayerInput.ScrollWheelDelta / -120);
+                    PlayerInput.ScrollWheelDelta = 0;
+                }
+            }
+        }
         public override bool PreItemCheck() {
             ItemChecking[player.whoAmI] = true;
             return true;
@@ -338,7 +348,7 @@ namespace EpikV2 {
         internal void rearrangeOrgans(float rearrangement) {
             organRearrangement = Math.Max(organRearrangement, rearrangement);
         }
-        internal static PlayerLayer ShootWrenchLayer => new PlayerLayer("Origins", "FiberglassBowLayer", null, delegate (PlayerDrawInfo drawInfo) {
+        internal static PlayerLayer ShootWrenchLayer => new PlayerLayer("EpikV2", "FiberglassBowLayer", null, delegate (PlayerDrawInfo drawInfo) {
             Player drawPlayer = drawInfo.drawPlayer;
             Item item = drawPlayer.HeldItem;
             Texture2D itemTexture = Main.itemTexture[item.type];

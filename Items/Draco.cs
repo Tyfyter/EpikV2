@@ -165,9 +165,9 @@ namespace EpikV2.Items {
                         projectile.localAI[0] = 0;
                         owner.velocity = projectile.velocity * 0.5f;
                     }
-                    if(Terraria.GameInput.PlayerInput.Triggers.JustPressed.MouseLeft) {
+                    if(!owner.mouseInterface && Terraria.GameInput.PlayerInput.Triggers.JustPressed.MouseLeft) {
                         projectile.timeLeft = 0;
-                    } else if(owner.controlUseTile) {
+                    } else if(!owner.mouseInterface && owner.controlUseTile) {
                         projectile.velocity = Vector2.Normalize(Main.MouseWorld - owner.MountedCenter)*projectile.velocity.Length();
                         if((projectile.timeLeft%16)!=15)projectile.timeLeft--;
                     }else if(Terraria.GameInput.PlayerInput.Triggers.JustPressed.Jump) {

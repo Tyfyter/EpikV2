@@ -122,17 +122,20 @@ namespace EpikV2 {
                 GameShaders.Armor.BindShader(ModContent.ItemType<Chroma_Dummy_Dye>(), alphaMapShader);
                 alphaMapShaderID = ModContent.ItemType<Chroma_Dummy_Dye>();
 
-				mappedFilter = new Filter(new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/MappedShade")), "MappedShade"), EffectPriority.High);
-                filterMapQueue = new SpriteBatchQueue();
+				//mappedFilter = new Filter(new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/MappedShade")), "MappedShade"), EffectPriority.High);
+                //filterMapQueue = new SpriteBatchQueue();
             }
             On.Terraria.Player.SlopingCollision += EpikPlayer.PostUpdateMovement;
-            Main.OnPreDraw += Main_OnPostDraw;
+            //Main.OnPreDraw += Main_OnPostDraw;
         }
 
-
+        /*
         private void Main_OnPostDraw(GameTime obj) {
+            if(filterMapQueue is null) {
+                return;
+            }
             bool filter = filterMapQueue.Count > 0;
-            Main.LocalPlayer.ManageSpecialBiomeVisuals("EpikV2:FilterMapped", filter, Main.LocalPlayer.Center);
+            if(!(mappedFilter is null))Main.LocalPlayer.ManageSpecialBiomeVisuals("EpikV2:FilterMapped", filter, Main.LocalPlayer.Center);
             if(!filter) {
                 mappedFilter.Opacity = 0;
                 return;
@@ -154,20 +157,7 @@ namespace EpikV2 {
         }
         public static float ShimmerCalc(float val) {
             return 0.5f+MathHelper.Clamp(val/16f, -0.5f, 0.5f);
-        }
-        /*private void Main_DrawPlayer_DrawAllLayers(On.Terraria.Main.orig_DrawPlayer_DrawAllLayers orig, Main self, Player drawPlayer, int projectileDrawPosition, int cHead) {
-            if(drawPlayer.controlSmart) {
-                Color color = new Color(0.3f, 0, 0, 0);
-                DrawData drawData;
-                for(int i = 0; i < Main.playerDrawData.Count; i++) {
-                    drawData = Main.playerDrawData[i];
-                    drawData.color = color;
-                    filterMapQueue.Add(drawData);
-                }
-            } else if(mappedFilter.Opacity == 0f){
-                orig(self, drawPlayer, projectileDrawPosition, cHead);
-            }
-        }*/
+        }//*/
 
         public override void Unload() {
             mod = null;
@@ -178,6 +168,7 @@ namespace EpikV2 {
             fireMiscShader = null;
             starlightShader = null;
             dimStarlightShader = null;
+            brightStarlightShader = null;
             nebulaShader = null;
             nebulaDistortionTexture = null;
             retroShader = null;
@@ -186,8 +177,8 @@ namespace EpikV2 {
             Hydra_Nebula.Unload();
             Suppressor.Unload();
             Ashen_Glaive.Unload();
+            Lucre_Launcher.Unload();
             EpikWorld.sacrifices = null;
-            mappedFilter = null;
             filterMapQueue.Clear();
             filterMapQueue = null;
         }

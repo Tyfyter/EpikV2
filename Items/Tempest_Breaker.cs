@@ -215,6 +215,8 @@ namespace EpikV2.Items {
 				player.beetleCountdown = 0;
 			}
 
+			target.immune[player.whoAmI] = player.itemAnimation;
+
 			ItemLoader.OnHitNPC(item, player, target, dmgDealt, knockBack, crit);
 			NPCLoader.OnHitByItem(target, player, item, dmgDealt, knockBack, crit);
 			PlayerHooks.OnHitNPC(player, item, target, dmgDealt, knockBack, crit);
@@ -232,7 +234,7 @@ namespace EpikV2.Items {
 			if (player.accDreamCatcher){
 				player.addDPS(damage);
 			}
-			target.immune[player.whoAmI] = player.itemAnimation;
+			//target.immune[player.whoAmI] = player.itemAnimation;
             return false;
         }
         public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit) {
