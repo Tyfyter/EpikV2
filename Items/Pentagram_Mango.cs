@@ -86,12 +86,14 @@ namespace EpikV2.Items {
                     if(target >= 0) {
                         NPC targetNPC = (NPC)targetEntity;
                         EpikGlobalNPC globalNPC = targetNPC.GetGlobalNPC<EpikGlobalNPC>();
-                        player.addDPS(damage + (int)globalNPC.organRearrangement);
+                        int dmg = damage + (int)globalNPC.organRearrangement;
+                        player.addDPS(dmg);
                         targetNPC.lifeMax -= 15;
-                        targetNPC.StrikeNPC(damage + (int)globalNPC.organRearrangement + targetNPC.defense/2, knockBack, player.direction);
+                        dmg = (int)targetNPC.StrikeNPC(dmg + targetNPC.defense/2, knockBack, player.direction);
                         if(targetNPC.life > targetNPC.lifeMax)targetNPC.life = targetNPC.lifeMax;
                         globalNPC.organRearrangement += 5;
                         //sendOrganRearrangementPacket(target, globalNPC.organRearrangement);
+                        tryGhostHeal(target, player.whoAmI, dmg);
                         targetNPC.netUpdate = true;
                     } else {
                         //Player targetPlayer = Main.player[-1-target];
@@ -124,6 +126,31 @@ namespace EpikV2.Items {
 		}
         internal static Entity getTargetEntity(int id) {
             return id >= 0 ?(Entity)Main.npc[id]:(Entity)Main.player[-1-id];
+        }
+        internal static void tryGhostHeal(int i, int owner, int value) {
+            if (Main.npc[i].canGhostHeal){
+                Projectile proj = new Projectile();
+                proj.damage = value;
+                proj.magic = true;
+                proj.owner = owner;
+                proj.position = Main.npc[i].Center;
+				if (Main.player[owner].ghostHeal && !Main.player[owner].moonLeech){
+					proj.ghostHeal(value, Main.npc[i].Center);
+				}
+				if (Main.player[owner].ghostHurt){
+					proj.ghostHurt(value, Main.npc[i].Center);
+				}
+				if (Main.player[owner].setNebula && Main.player[owner].nebulaCD == 0 && Main.rand.Next(3) == 0){
+					Main.player[owner].nebulaCD = 30;
+					int num24 = Utils.SelectRandom(Main.rand, 3453, 3454, 3455);
+					int num25 = Item.NewItem((int)Main.npc[i].position.X, (int)Main.npc[i].position.Y, Main.npc[i].width, Main.npc[i].height, num24);
+					Main.item[num25].velocity.Y = Main.rand.Next(-20, 1) * 0.2f;
+					Main.item[num25].velocity.X = Main.rand.Next(10, 31) * 0.2f * Main.player[owner].direction;
+					if (Main.netMode == NetmodeID.MultiplayerClient){
+						NetMessage.SendData(MessageID.SyncItem, -1, -1, null, num25);
+					}
+				}
+			}
         }
         static void sendOrganRearrangementPacket(int target, float value) {
             if(Main.netMode==NetmodeID.SinglePlayer)return;

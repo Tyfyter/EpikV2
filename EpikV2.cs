@@ -179,8 +179,8 @@ namespace EpikV2 {
             Ashen_Glaive.Unload();
             Lucre_Launcher.Unload();
             EpikWorld.sacrifices = null;
-            filterMapQueue.Clear();
-            filterMapQueue = null;
+            //filterMapQueue.Clear();
+            //filterMapQueue = null;
         }
 
         public override void HandlePacket(BinaryReader reader, int whoAmI) {

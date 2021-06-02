@@ -14,6 +14,7 @@ using Terraria.Localization;
 using Terraria.GameInput;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
+using EpikV2.NPCs;
 
 namespace EpikV2 {
     public class EpikPlayer : ModPlayer {
@@ -45,6 +46,7 @@ namespace EpikV2 {
         public float organRearrangement = 0;
         public bool glaiveRecall = false;
         public bool noAttackCD = false;
+        public bool redStar = false;
 
         public static BitsBytes ItemChecking;
 
@@ -65,6 +67,7 @@ namespace EpikV2 {
                     for(i = 0; i < 4; i++)Dust.NewDust(player.position,player.width, player.height, 16, Alpha:100, newColor:new Color(255,150,150));
                 }
             }
+            redStar = false;
             if(!player.HasBuff(True_Self_Debuff.ID))reallyWolf = false;
             if(wetTime>0)wetTime--;
             if(golemTime>0)golemTime--;
@@ -91,9 +94,23 @@ namespace EpikV2 {
                 noAttackCD = false;
             }
         }
-        public override void UpdateBiomeVisuals() {
-            //player.ManageSpecialBiomeVisuals("EpikV2:FilterMapped", true, player.Center);
+        public override void OnMissingMana(Item item, int neededMana) {
+            if(redStar) {
+                int neededHealth = neededMana;
+                int cd = player.hurtCooldowns[0];
+                player.hurtCooldowns[0] = 0;
+                player.Hurt(Red_Star_Pendant.DeathReason(player), neededHealth, 0, cooldownCounter:0);
+                player.hurtCooldowns[0] = cd;
+                player.statMana = neededMana;
+            }
         }
+        public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) {
+            if(item.value!=0)vendor.GetGlobalNPC<EpikGlobalNPC>().itemPurchasedFrom = true;
+        }
+        /*
+        public override void UpdateBiomeVisuals() {
+            player.ManageSpecialBiomeVisuals("EpikV2:FilterMapped", true, player.Center);
+        }//*/
         public override void PostUpdateEquips() {
             oldStatLife = player.statLife;
             if(ChargedGem()) player.aggro+=600;
@@ -215,6 +232,11 @@ namespace EpikV2 {
             Main.PlaySound(SoundID.Item14, exPos);
         }
         public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource) {
+            if(damageSource.SourceCustomReason==Red_Star_Pendant.DeathReason(player).SourceCustomReason) {
+                playSound = false;
+                customDamage = true;
+                return true;
+            }
             if(dracoDash!=0) return false;
             if(orionDash>0) {
                 player.immuneTime = 15;

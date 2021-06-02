@@ -41,6 +41,7 @@ namespace EpikV2.NPCs
         public int bounces = 0;
         bool oldCollideX = false;
         bool oldCollideY = false;
+        public bool itemPurchasedFrom = false;
         public override bool PreAI(NPC npc) {
             if(jaded) {
                 int size = (int)Math.Ceiling(Math.Sqrt((npc.frame.Width*npc.frame.Width)+(npc.frame.Height*npc.frame.Height)));
@@ -150,7 +151,7 @@ namespace EpikV2.NPCs
 					Projectile.NewProjectile(new Vector2(Main.rand.NextFloat(npc.position.X, npc.position.X + npc.width), Main.rand.NextFloat(npc.position.Y, npc.position.Y + npc.height)), new Vector2(80, 0).RotatedByRandom(100), ModContent.ProjectileType("ShroomShot"), 50, 0);
 				}
 			}*/
-            if(npc.type==NPCID.Golem) {
+            if(npc.type == NPCID.Golem) {
                 //EpikWorld.GolemTime = 5;
                 if(Main.netMode == NetmodeID.Server) {
                     ModPacket modPacket;
@@ -166,8 +167,10 @@ namespace EpikV2.NPCs
                         Main.LocalPlayer.GetModPlayer<EpikPlayer>().golemTime = 5;
                     }
                 }
-            }else if(npc.type==NPCID.CultistArcherWhite && Main.rand.Next(0, 19) == 0) {
-				Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<Sacrificial_Dagger>(), 1);
+            } else if(npc.type == NPCID.CultistArcherWhite && Main.rand.Next(0, 19) == 0) {
+                Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<Sacrificial_Dagger>(), 1);
+            } else if(npc.type == NPCID.SantaClaus||npc.type == NPCID.Steampunker||(npc.type == NPCID.TravellingMerchant&&!itemPurchasedFrom)) {
+                if(npc.playerInteraction[Main.myPlayer])Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<Red_Star_Pendant>(), 1);
             }
 			if(npc.HasBuff(ModContent.BuffType<ShroomInfestedDebuff>())){
 				int a;
