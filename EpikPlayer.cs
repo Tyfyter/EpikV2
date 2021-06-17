@@ -94,6 +94,16 @@ namespace EpikV2 {
                 noAttackCD = false;
             }
         }
+        public override void ModifyHitNPC(Item item, NPC target, ref int damage, ref float knockback, ref bool crit) {
+            if(target.HasBuff(Sovereign_Debuff.ID)) {
+                damage += Math.Min(8, (target.defense-player.armorPenetration)/2);
+            }
+        }
+        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+            if(target.HasBuff(Sovereign_Debuff.ID)) {
+                damage += Math.Min(8, (target.defense-player.armorPenetration)/2);
+            }
+        }
         public override void OnMissingMana(Item item, int neededMana) {
             if(redStar) {
                 int neededHealth = neededMana;

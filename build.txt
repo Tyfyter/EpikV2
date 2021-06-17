@@ -4,7 +4,7 @@ version = 0.2.3
 
 homepage = https://tyfyter.github.io/
 displayName = EpikV2
-buildIgnore = tempgone\*
+buildIgnore = Unused\*
 includesource = true
 languageVersion = 6
 weakReferences = Origins, WeaponOut, RecipeBrowser

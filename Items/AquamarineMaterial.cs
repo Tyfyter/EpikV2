@@ -48,7 +48,6 @@ namespace EpikV2.Items {
             player.GetModPlayer<EpikPlayer>().chargedEmerald = true;
         }
     }
-
     public class SunstoneMaterial : ModItem {
         public override string Texture => "Terraria/Item_"+ItemID.LargeAmber;
         public override bool CloneNewInstances => true;

@@ -99,6 +99,7 @@ namespace EpikV2.Items {
                     projectile.extraUpdates = 1;
                     projectile.soundDelay = 50;
                     Main.PlaySound(SoundID.Item71, projectile.Center);
+                    player.direction = Math.Sign(velocity.X);
                 }
             } else {
                 bool flag = projectile.extraUpdates!=4&&projectile.localAI[1]!=1;
@@ -113,10 +114,14 @@ namespace EpikV2.Items {
                         projectile.extraUpdates = 1;
                     }*/
                 }
-                if(player.altFunctionUse==2&&projectile.ai[0]==1f) {
-                    projectile.rotation = -MathHelper.PiOver4;
-                    projectile.extraUpdates = 4;
-                    projectile.localAI[1] = 1;
+                if(player.altFunctionUse==2) {
+                    if(projectile.ai[0]==1f) {
+                        //projectile.rotation = -MathHelper.PiOver4;
+                        projectile.extraUpdates = 4;
+                        projectile.localAI[1] = 1;
+                    } else {
+                        player.altFunctionUse = 0;
+                    }
                 }
             }
         }
@@ -168,15 +173,19 @@ namespace EpikV2.Items {
             return false;
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
-			spriteBatch.End();
-			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.jadeDyeShader.Shader, Main.GameViewMatrix.ZoomMatrix);
+			//spriteBatch.End();
+			//spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.jadeDyeShader.Shader, Main.GameViewMatrix.ZoomMatrix);
             Texture2D texture = ModContent.GetTexture(projectile.localAI[1]==1?"EpikV2/Items/Jade_Reaper":"EpikV2/Items/Jade_Reaper_M");
-            spriteBatch.Draw(texture, projectile.Center - Main.screenPosition, new Rectangle(0,0,64,64), default, projectile.rotation, new Vector2(32,32), 2f, SpriteEffects.None, 0f);
+            Terraria.DataStructures.DrawData data = new Terraria.DataStructures.DrawData(texture, projectile.Center - Main.screenPosition, new Rectangle(0,0,64,64), new Color(255,255,255,200), projectile.rotation, new Vector2(32,32), 2f, SpriteEffects.None, 0);
+            EpikV2.jadeDyeShader.Apply(projectile, data);
+            data.Draw(spriteBatch);
+            //spriteBatch.Draw(texture, projectile.Center - Main.screenPosition, new Rectangle(0,0,64,64), default, projectile.rotation, new Vector2(32,32), 2f, SpriteEffects.None, 0f);
+
             return false;
         }
         public override void PostDraw(SpriteBatch spriteBatch, Color drawColor) {
-			spriteBatch.End();
-			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
+			//spriteBatch.End();
+			//spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
         }
 	}
 	/*public class Jade_Reaper_Throw : ModProjectile{

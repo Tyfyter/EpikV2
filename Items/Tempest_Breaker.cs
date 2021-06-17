@@ -152,13 +152,10 @@ namespace EpikV2.Items {
         public override bool? CanHitNPC(Player player, NPC target) {
             if(recursionnt)return null;
             if(!item.Hitbox.Intersects(target.Hitbox))return false;
-            //Main.NewText("check");
             recursionnt = true;
             bool cantBeHit = !target.CanBeHitBy(player, item, false);
             recursionnt = false;
             if(cantBeHit)return false;
-
-            //Main.NewText("reach (frame "+frame+")");
 
             int totalDamage = player.GetWeaponDamage(item);
 

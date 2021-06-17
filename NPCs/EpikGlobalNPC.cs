@@ -113,17 +113,14 @@ namespace EpikV2.NPCs
                 organRearrangement = 0;
             }
 		}
+        public override void ModifyHitPlayer(NPC npc, Player target, ref int damage, ref bool crit) {
+            if(npc.HasBuff(Sovereign_Debuff.ID)) {
+                damage -= (int)(damage*0.15f);
+            }
+        }
         public override bool? CanHitNPC(NPC npc, NPC target)
         {
             if(jaded)return false;
-            /*if (target.type == NPCID.Bunny || target.type == NPCID.BunnySlimed || target.type == NPCID.BunnyXmas || target.type == NPCID.GoldBunny || target.type == NPCID.PartyBunny || target.type == NPCID.CorruptBunny || target.type == NPCID.CrimsonBunny)
-            {
-                return false;
-            }
-			if (npc.type == NPCID.Bunny || npc.type == NPCID.BunnySlimed || npc.type == NPCID.BunnyXmas || npc.type == NPCID.GoldBunny || npc.type == NPCID.PartyBunny || npc.type == NPCID.CorruptBunny || npc.type == NPCID.CrimsonBunny)
-            {
-                return false;
-            }*/
             return base.CanHitNPC(npc, target);
         }
 
@@ -138,21 +135,11 @@ namespace EpikV2.NPCs
 
 		public override bool CanHitPlayer(NPC npc, Player target, ref int cooldownSlot){
             if(jaded)return false;
-			/*if (npc.type == NPCID.Bunny || npc.type == NPCID.BunnySlimed || npc.type == NPCID.BunnyXmas || npc.type == NPCID.GoldBunny || npc.type == NPCID.PartyBunny || npc.type == NPCID.CorruptBunny || npc.type == NPCID.CrimsonBunny)
-            {
-                return false;
-            }*/
 			return base.CanHitPlayer(npc, target, ref cooldownSlot);
 		}
 
 		public override void NPCLoot(NPC npc){
-            /*for (int i = 0; i < npc.buffType.Length; i++){
-				if(npc.buffType[i] == mod.BuffType("ShroomInfestedDebuff")){
-					Projectile.NewProjectile(new Vector2(Main.rand.NextFloat(npc.position.X, npc.position.X + npc.width), Main.rand.NextFloat(npc.position.Y, npc.position.Y + npc.height)), new Vector2(80, 0).RotatedByRandom(100), ModContent.ProjectileType("ShroomShot"), 50, 0);
-				}
-			}*/
             if(npc.type == NPCID.Golem) {
-                //EpikWorld.GolemTime = 5;
                 if(Main.netMode == NetmodeID.Server) {
                     ModPacket modPacket;
                     for(int i = 0; i < 255; i++) {
@@ -203,21 +190,9 @@ namespace EpikV2.NPCs
             }
         }
         public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Color drawColor) {
-            //new Color(0,255,100);
-            //if(jadeDraw) return true;
             if(jaded) {
                 npc.frame = freezeFrame;
 			    spriteBatch.End();
-                //EpikV2.jadeShader.Parameters["uCenter"].SetValue(jadePos);
-                //EpikV2.jadeShader.Parameters["uProgress"].SetValue(jadeFrames/(float)JadeFramesTotal);
-			    //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.jadeShader, Main.GameViewMatrix.ZoomMatrix);
-                //EpikV2.jadeDyeShader.Shader.Parameters["uCenter"].SetValue(jadePos+new Vector2(npc.frame.X,npc.frame.Y));
-                //EpikV2.jadeDyeShader.Shader.Parameters["uFrameCount"].SetValue(Main.npcFrameCount[npc.type]);
-                //EpikV2.jadeDyeShader.Shader.Parameters["uFrame"].SetValue(npc.frame.Y/(float)(Main.npcFrameCount[npc.type]*npc.frame.Height));
-
-                //Vector2 imageSize = new Vector2(npc.frame.Width, Main.npcFrameCount[npc.type]*npc.frame.Height);
-                //EpikV2.jadeDyeShader.Shader.Parameters["uSourceRect"].SetValue(new Vector4(npc.frame.X,npc.frame.Y,npc.frame.Width,npc.frame.Height)/Vec4FromVec2x2(imageSize,imageSize));
-                //EpikV2.jadeDyeShader.Shader.Parameters["uImageSize0"].SetValue(imageSize);
                 EpikV2.jadeShader.Parameters["uProgress"].SetValue(jadeFrames/(float)Math.Ceiling(Math.Sqrt((npc.frame.Width*npc.frame.Width)+(npc.frame.Height*npc.frame.Height))));
 			    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.jadeShader, Main.GameViewMatrix.ZoomMatrix);
 
@@ -225,8 +200,6 @@ namespace EpikV2.NPCs
             return true;
         }
         public override void PostDraw(NPC npc, SpriteBatch spriteBatch, Color drawColor) {
-            //new Color(0,255,100);
-            //if(jadeDraw) return true;
             if(jaded) {
 			    spriteBatch.End();
 			    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
