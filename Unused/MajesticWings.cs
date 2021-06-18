@@ -1,4 +1,4 @@
-using Terraria;
+/*using Terraria;
 using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
 using Terraria.ID;
@@ -53,8 +53,8 @@ namespace EpikV2.Items
 					player.wingFrame = 0;
 				}
 			}
-            //*/
+            //* /
             return true;
         }
 	}
-}
+}*/

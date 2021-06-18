@@ -51,7 +51,7 @@ namespace EpikV2.Items
 			return false;
 		}
     }
-	public class AquamarineShot : ModProjectile{
+	public class AquamarineShot : ModProjectile {
         public override bool CloneNewInstances => true;
         int arrows = 0;
         int damage = 0;

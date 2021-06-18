@@ -130,6 +130,18 @@ namespace EpikV2 {
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void LinearSmoothing(ref Vector2 smoothed, Vector2 target, float rate) {
+            if(target!=smoothed) {
+                Vector2 diff = target - smoothed;
+                if(diff.Length()<rate) {
+                    smoothed = target;
+                } else {
+                    diff.Normalize();
+                    smoothed += diff * rate;
+                }
+            }
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AngularSmoothing(ref float smoothed, float target, float rate) {
             if(target!=smoothed) {
                 float diff = AngleDif(smoothed, target, out int dir);

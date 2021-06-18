@@ -22,7 +22,7 @@ namespace EpikV2 {
         public int tempint = 0;
         public int light_shots = 0;
         public int oldStatLife = 0;
-        public bool majesticWings;
+        //public bool majesticWings;
         public int golemTime = 0;
         public bool chargedEmerald = false;
         public bool chargedAmber = false;
@@ -47,11 +47,12 @@ namespace EpikV2 {
         public bool glaiveRecall = false;
         public bool noAttackCD = false;
         public bool redStar = false;
+        public int moonlightThreads = 0;
 
         public static BitsBytes ItemChecking;
 
         public override void ResetEffects() {
-            majesticWings = false;
+            //majesticWings = false;
             chargedEmerald = false;
             chargedAmber = false;
             oily = false;
@@ -59,6 +60,7 @@ namespace EpikV2 {
             if(dracoDash>0)dracoDash--;
             if(forceDrawItemFrames>0)forceDrawItemFrames--;
             hydraHeads = 0;
+            moonlightThreads = 0;
             if(sacrifice>0) {
                 sacrifice--;
                 if(sacrifice==0&&Main.rand.Next(5)==0&&EpikWorld.sacrifices.Count>0) {
@@ -124,7 +126,7 @@ namespace EpikV2 {
         public override void PostUpdateEquips() {
             oldStatLife = player.statLife;
             if(ChargedGem()) player.aggro+=600;
-            if(majesticWings&&(player.wingFrameCounter!=0||player.wingFrame!=0)) {
+            /*if(majesticWings&&(player.wingFrameCounter!=0||player.wingFrame!=0)) {
 			    player.wingFrameCounter++;
                 if(player.wingFrame==2)player.velocity.Y-=4;
 			    if (player.wingFrameCounter > 5){
@@ -134,7 +136,7 @@ namespace EpikV2 {
 					    player.wingFrame = 0;
 				    }
 			    }
-            }
+            }*/
             if(orionDash>0) {
                 orionDash--;
                 if(orionDash==0) {
