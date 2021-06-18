@@ -33,14 +33,6 @@ namespace EpikV2.Items {
             item.shoot = Moonlace_Proj.ID;
             item.buffType = Moonlace_Buff.ID;
 		}
-        public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
-            recipe.AddIngredient(ItemID.StardustDragonStaff, 1);
-            recipe.AddIngredient(ItemID.FragmentNebula, 10);
-            recipe.AddTile(TileID.TinkerersWorkbench);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
-        }
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
             player.AddBuff(item.buffType, 2);
             position = Main.MouseWorld;
