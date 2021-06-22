@@ -15,10 +15,23 @@ namespace EpikV2.NPCs {
         }
         public override void SetDefaults() {
             npc.CloneDefaults(NPCID.Shark);
-            npc.width = 56;
-            npc.height = 20;
+            npc.lifeMax = 150;
+            npc.width = 32;
+            npc.height = 32;
             npc.aiStyle = 0;
-            npc.knockBackResist = 3;
+            npc.knockBackResist = 2f;
+        }
+        public override float SpawnChance(NPCSpawnInfo spawnInfo) {
+            if(spawnInfo.sky||spawnInfo.playerInTown||spawnInfo.lihzahrd){
+                return 0f;
+            }
+            if(spawnInfo.spawnTileX>Main.maxTilesX/4&&spawnInfo.spawnTileX<Main.maxTilesX*0.75&&!spawnInfo.player.ZoneJungle) {
+                return 0f;
+            }
+            if(spawnInfo.spawnTileY>Main.worldSurface+20) {
+                return 0f;
+            }
+            return spawnInfo.water?0.1f:0f;
         }
         public override void AI() {
 			if (npc.direction == 0){
@@ -53,69 +66,61 @@ namespace EpikV2.NPCs {
 					}
 				}
                 if(hasTarget) {
-                    bool staylow = false;
                     npc.TargetClosest(true);
-                    float targetRot = (npc.Center-Main.player[npc.target].Center).ToRotation();
-                    if(npc.rotation > targetRot) {
-                        if(npc.rotation > targetRot-0.45f)
-                            npc.rotation-=0.25f;
-                        else if(npc.rotation > targetRot-0.15f)
-                            npc.rotation-=0.1f;
-                        else
-                            npc.rotation = targetRot;
-                    } else if(npc.rotation < targetRot) {
-                        if(npc.rotation > targetRot+0.45f)
-                            npc.rotation+=0.25f;
-                        else if(npc.rotation < targetRot+0.15f)
-                            npc.rotation+=0.1f;
-                        else
-                            npc.rotation = targetRot;
-                    }
-                    if(!Main.player[npc.target].wet)staylow = true;
-                    float distance = Main.player[npc.target].Distance(npc.Center);
+                    Vector2 targetDiff = (npc.targetRect.Center.ToVector2()-npc.Center);
+                    Vector2 absDiff = new Vector2(Math.Abs(targetDiff.X),Math.Abs(targetDiff.Y));
+                    Vector2 diffDir = targetDiff / absDiff;
+                    Vector2 targetVelocity = new Vector2(0, 0);
+                    float targetRot = targetDiff.ToRotation();
+                    EpikExtensions.AngularSmoothing(ref npc.rotation, targetRot, 0.15f);
+                    float distance = (absDiff*new Vector2(0.8f,1)).Length();
                     float range = 400+Math.Max(Main.player[npc.target].aggro/2, -220);
                     if(distance<range) {
                         npc.ai[1]++;
-                        if(npc.ai[1]>40) {
+                        if(npc.ai[1]>42) {
                             Shoot();
                             npc.ai[1] = 20;
                         }
                     } else {
                         npc.ai[1] = 0;
                     }
-                    sbyte oct = (sbyte)(((npc.rotation+Math.PI)*8)/(Math.PI*2));
-                    if(oct<3&&oct>0)staylow = true;
-                    Main.player[npc.target].chatOverhead.NewMessage(oct+"", 15);
-                    npc.velocity = npc.velocity.RotatedBy(npc.rotation);
-                    npc.velocity.Y+=distance<range*0.95f ? 0.25f : distance<range*1.15f ? -0.5f : -0.25f;
-                    int rise = 0;
-                    if(staylow) {
-                        npc.direction*=-1;
-                    } else if(oct<7&&oct>4) {
-                        rise = 3;
-                        if(distance>range*0.95f)npc.velocity.Y+=distance<range*1.15f ? -1f : -0.5f;
+
+                    if(absDiff.X>absDiff.Y) {
+                        if(distance > range * 0.65f) {
+                            targetVelocity.X += diffDir.X;
+                        } else if(distance > range * 0.35f) {
+                            targetVelocity.X -= diffDir.X;
+                        }
+                        targetVelocity.Y += diffDir.Y;
+                    } else {
+                        if(absDiff.X/absDiff.Y>0.5f) {
+                            if(distance < range / 4) {
+                                targetVelocity.X -= diffDir.X;
+                            } else if(distance > range * 0.5f) {
+                                targetVelocity.X += diffDir.X;
+                            }
+                        } else {
+                            if(distance < range / 4) {
+                                targetVelocity.Y -= diffDir.Y;
+                            } else if(distance > range * 0.5f) {
+                                targetVelocity.Y += diffDir.Y;
+                            }
+                        }
                     }
-					if (npc.velocity.X*npc.direction > rise){
-						npc.velocity.X-=npc.direction;
+					int i = (int)(npc.Center.X / 16);
+					int j = (int)(npc.Center.Y / 16);
+                    targetVelocity *= 12;
+                    EpikExtensions.LinearSmoothing(ref npc.velocity.X, targetVelocity.X, 0.6f);
+                    EpikExtensions.LinearSmoothing(ref npc.velocity.Y, targetVelocity.Y, 0.6f);
+                    float minY = (Framing.GetTileSafely(i, j - 1).liquid < 16)?0:-5;
+					if (npc.velocity.Y > 5){
+                        EpikExtensions.LinearSmoothing(ref npc.velocity.Y, 5, 0.6f);
 					}
-					if (npc.velocity.X*npc.direction < -5){
-						npc.velocity.X = -npc.direction*5;
-					}
-                    if(staylow)npc.direction*=-1;
-					if (npc.velocity.Y > 5f){
-						npc.velocity.Y = 5f;
-					}
-					if (npc.velocity.Y < -10f){
-						npc.velocity.Y = -10f;
-					}
-                    npc.velocity = npc.velocity.RotatedBy(-npc.rotation);
-					if (npc.velocity.Y > 5f){
-						npc.velocity.Y = 5f;
-					}
-					if (npc.velocity.Y < -5f){
-						npc.velocity.Y = -5f;
+					if (npc.velocity.Y < minY){
+                        EpikExtensions.LinearSmoothing(ref npc.velocity.Y, minY, 0.6f);
 					}
                 }else{
+                    EpikExtensions.AngularSmoothing(ref npc.rotation, 0, 0.15f);
 					npc.velocity.X = npc.velocity.X + npc.direction * 0.1f;
 					if (npc.velocity.X < -1f || npc.velocity.X > 1f){
 						npc.velocity.X = npc.velocity.X * 0.95f;
@@ -131,21 +136,12 @@ namespace EpikV2.NPCs {
 							npc.ai[0] = -1f;
 						}
 					}
-					int num258 = (int)(npc.Center.X / 16);
-					int num259 = (int)(npc.Center.Y / 16);
-					if (Main.tile[num258, num259 - 1] == null){
-						Main.tile[num258, num259 - 1] = new Tile();
-					}
-					if (Main.tile[num258, num259 + 1] == null){
-						Main.tile[num258, num259 + 1] = new Tile();
-					}
-					if (Main.tile[num258, num259 + 2] == null){
-						Main.tile[num258, num259 + 2] = new Tile();
-					}
-					if (Main.tile[num258, num259 - 1].liquid > 128){
-						if (Main.tile[num258, num259 + 1].active()){
+					int i = (int)(npc.Center.X / 16);
+					int j = (int)(npc.Center.Y / 16);
+					if (Framing.GetTileSafely(i, j - 1).liquid > 128){
+						if (Framing.GetTileSafely(i, j + 1).active()){
 							npc.ai[0] = -1f;
-						}else if (Main.tile[num258, num259 + 2].active()){
+						}else if (Framing.GetTileSafely(i, j + 2).active()){
 							npc.ai[0] = -1f;
 						}
 					}
@@ -157,38 +153,32 @@ namespace EpikV2.NPCs {
 						npc.velocity.X = 0f;
 					}
 				}
-                if(npc.ai[2]!=0||npc.collideY) {
-                    switch(Main.rand.Next(3)) {
-                        case 0:
-                        npc.ai[2]-=0.05f*Math.Sign(npc.ai[2]);
-                        break;
-                        case 1:
-                        npc.ai[2]+=0.05f*Math.Sign(npc.ai[2]);
-                        break;
-                        case 2:
-                        npc.ai[2]+=0.05f*Math.Sign(npc.ai[2]);
-                        break;
+                if(npc.collideY) {
+                    npc.velocity.Y-=3f;
+                    if(npc.ai[1]>=40) {
+                        Shoot();
+                        npc.ai[1] = 0;
                     }
-                    if(npc.collideY) {
-                        npc.velocity.Y-=3f;
-                    }
-                    if(npc.ai[2]!=0) {
-                        if(Math.Abs(npc.ai[2])>0.5f)npc.ai[2] = Math.Sign(npc.ai[2])/2f;
-                        npc.rotation+=npc.ai[2];
-                    }
+                    npc.ai[2] = (Main.rand.NextBool()?-1:1)*Main.rand.NextFloat(0.1f,0.2f);
+                    /*if(npc.ai[2]<=0) {
+                        npc.ai[2] = Main.rand.NextFloat(-MathHelper.Pi,MathHelper.Pi);
+                    }*/
                 }
+                /*float flop = npc.ai[2] > 0 ? 0.15f : -0.15f;
+                if(Math.Abs(flop)>Math.Abs(npc.ai[2])) {
+                    flop = npc.ai[2];
+                }
+                npc.rotation += flop;
+                npc.ai[2]-= flop;*/
+                npc.rotation += npc.ai[2];
 				npc.velocity.Y = npc.velocity.Y + 0.3f;
 				if (npc.velocity.Y > 10f){
 					npc.velocity.Y = 10f;
 				}
 				npc.ai[0] = 1f;
-                npc.ai[1]+=Main.rand.Next(4);
-                if(npc.ai[1]>40) {
-                    Shoot();
-                    npc.ai[1] = 00;
-                }
+                if(npc.ai[1]<40)npc.ai[1]+=Main.rand.Next(4);
 			}
-			/*npc.rotation = npc.velocity.Y * npc.direction * 0.1f;
+            /*npc.rotation = npc.velocity.Y * npc.direction * 0.1f;
 			if (npc.rotation < -0.2){
 				npc.rotation = -0.2f;
 			}
@@ -196,9 +186,15 @@ namespace EpikV2.NPCs {
 				npc.rotation = 0.2f;
 				return;
 			}*/
+            npc.directionY = npc.direction;
+            npc.spriteDirection = 1;
+            if(Main.SmartCursorEnabled)npc.velocity = Vector2.Zero;
+        }
+        public override void NPCLoot() {
+            Item.NewItem(npc.Center, ItemID.Minishark, prefixGiven:-1);
         }
         void Shoot() {
-            Vector2 vel = npc.rotation.ToRotationVector2()*-12;
+            Vector2 vel = new Vector2(12,0).RotatedBy(Main.rand.NextFloat(npc.rotation-0.1f,npc.rotation+0.1f));
             Main.PlaySound(SoundID.Item11, npc.Center+vel*2);
             int p = Projectile.NewProjectile(npc.Center+vel.RotatedByRandom(0.2), vel, ProjectileID.Bullet, 20, 3);
             Main.projectile[p].ignoreWater = true;

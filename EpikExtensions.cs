@@ -86,17 +86,17 @@ namespace EpikV2 {
         }
         public static double AngleDif(double alpha, double beta) {
             double phi = Math.Abs(beta - alpha) % (Math.PI*2);       // This is either the distance or 360 - distance
-            double distance = phi > Math.PI ? (Math.PI*2) - phi : phi;
+            double distance = ((phi > Math.PI)^(alpha>beta)) ? (Math.PI*2) - phi : phi;
             return distance;
         }
         public static float AngleDif(float alpha, float beta) {
             float phi = Math.Abs(beta - alpha) % MathHelper.TwoPi;       // This is either the distance or 360 - distance
-            float distance = phi > MathHelper.Pi ? MathHelper.TwoPi - phi : phi;
+            float distance = ((phi > MathHelper.Pi)^(alpha>beta)) ? MathHelper.TwoPi - phi : phi;
             return distance;
         }
         public static float AngleDif(float alpha, float beta, out int dir) {
             float phi = Math.Abs(beta - alpha) % MathHelper.TwoPi;       // This is either the distance or 360 - distance
-            dir = (phi > MathHelper.Pi)?-1:1;
+            dir = ((phi > MathHelper.Pi)^(alpha>beta))?-1:1;
             float distance = phi > MathHelper.Pi ? MathHelper.TwoPi - phi : phi;
             return distance;
         }
@@ -148,7 +148,7 @@ namespace EpikV2 {
                 if(Math.Abs(diff)<rate) {
                     smoothed = target;
                 } else {
-                    smoothed-=rate*dir;
+                    smoothed+=rate*dir;
                 }
             }
         }
