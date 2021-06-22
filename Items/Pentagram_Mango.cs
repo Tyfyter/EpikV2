@@ -27,11 +27,24 @@ namespace EpikV2.Items {
             item.noMelee = true;
             item.knockBack = 0.5f;
             item.value = 100000;
-            item.rare = ItemRarityID.Purple;
+			item.rare = ItemRarityID.Lime;
             item.autoReuse = true;
             item.shoot = 1;
             item.shootSpeed = 6.5f;
-            item.mana = 30;
+            item.mana = 15;
+        }
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(Main.versionNumber=="v1.3.5.3"?ItemID.Pumpkin:4292, 1);
+            recipe.AddIngredient(ModContent.ItemType<Sacrificial_Dagger>(), 1);
+            recipe.AddIngredient(ItemID.SoulofSight, 5);
+            recipe.AddTile(TileID.DemonAltar);
+            recipe.needLava = true;
+            recipe.SetResult(this);
+            recipe.AddRecipe();
+        }
+        public override void OnCraft(Recipe recipe) {
+            Main.LocalPlayer.QuickSpawnItem(ModContent.ItemType<Sacrificial_Dagger>());
         }
         public override void ModifyManaCost(Player player, ref float reduce, ref float mult) {
             if(!item.newAndShiny&&EpikPlayer.ItemChecking[player.whoAmI]) {
@@ -87,11 +100,13 @@ namespace EpikV2.Items {
                         NPC targetNPC = (NPC)targetEntity;
                         EpikGlobalNPC globalNPC = targetNPC.GetGlobalNPC<EpikGlobalNPC>();
                         int dmg = damage + (int)globalNPC.organRearrangement;
-                        player.addDPS(dmg);
                         targetNPC.lifeMax -= 15;
                         dmg = (int)targetNPC.StrikeNPC(dmg + targetNPC.defense/2, knockBack, player.direction);
+			            if (player.accDreamCatcher){
+				            player.addDPS(dmg);
+			            }
                         if(targetNPC.life > targetNPC.lifeMax)targetNPC.life = targetNPC.lifeMax;
-                        globalNPC.organRearrangement += 5;
+                        globalNPC.organRearrangement += 10*(damage/40f);
                         //sendOrganRearrangementPacket(target, globalNPC.organRearrangement);
                         tryGhostHeal(target, player.whoAmI, dmg);
                         targetNPC.netUpdate = true;

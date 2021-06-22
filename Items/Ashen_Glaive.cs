@@ -1,3 +1,4 @@
+using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Runtime.CompilerServices;
@@ -27,15 +28,15 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults() {
             item.CloneDefaults(ItemID.ThornChakram);
-			item.damage = 99;
+			item.damage = 133;
             item.crit = 29;
 			item.width = 32;
 			item.height = 32;
-			item.useTime = 15;
-			item.useAnimation = 15;
+			item.useTime = 10;
+			item.useAnimation = 10;
 			//item.knockBack = 5;
             item.shoot = ModContent.ProjectileType<Ashen_Glaive_P>();
-            item.shootSpeed = 15f;
+            item.shootSpeed = 20f;
 			item.value = 5000;
 			item.rare = ItemRarityID.Lime;
 			item.UseSound = SoundID.Item1;
@@ -55,6 +56,16 @@ namespace EpikV2.Items {
             }
             return player.ownedProjectileCounts[item.shoot]<=2;
         }
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.MartianConduitPlating, 15);
+            recipe.AddIngredient(ItemID.SoulofFright, 5);
+            recipe.AddTile(TileID.MythrilAnvil);
+            recipe.AddTile(TileID.DemonAltar);
+            recipe.needLava = true;
+            recipe.SetResult(this);
+            recipe.AddRecipe();
+        }
     }
     public class Ashen_Glaive_P : ModProjectile {
         internal static int drawCount = 0;
@@ -65,6 +76,7 @@ namespace EpikV2.Items {
 		}
         public override void SetDefaults() {
             projectile.CloneDefaults(ProjectileID.ThornChakram);
+            projectile.melee = true;
             projectile.penetrate = -1;
 			projectile.width = 32;
 			projectile.height = 32;
@@ -82,8 +94,10 @@ namespace EpikV2.Items {
             }
         }
         public override bool CanDamage() {
+            Player player = Main.player[projectile.owner];
             NPC npc;
-            int crit = Main.player[projectile.owner].meleeCrit;
+            bool ret = false;
+            int crit = player.meleeCrit;
             for(int i = 0; i < 200; i++) {
                 npc = Main.npc[i];
                 if(!npc.active || npc.dontTakeDamage || projectile.localNPCImmunity[i] != 0 || !projectile.Hitbox.Intersects(npc.Hitbox) || !canHit(npc)) {
@@ -93,6 +107,9 @@ namespace EpikV2.Items {
                 if(marks[i] > 3) {
                     marks[i] = 3;
                     if(projectile.ai[0] == 0f) {
+                        /*int dmg = (projectile.damage*3)+(npc.defense/3);
+                        dmg = (int)npc.StrikeNPC(dmg, projectile.knockBack, player.direction, false);
+                        player.addDPS(dmg);*/
                         marks[i] = 0;
                         return true;
                     }
@@ -101,15 +118,18 @@ namespace EpikV2.Items {
                 }
                 if(Main.rand.Next(100)<crit&&marks[i]<3)marks[i]++;
 				projectile.localNPCImmunity[i] = 6;
+                return true;
             }
             return false;
         }
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-            crit = false;
             if(marks[target.whoAmI] == 0) {
-                damage*=2;
+                if(crit)marks[target.whoAmI]++;
+                damage*=3;
                 damage+=target.defense / 2;
                 crit = true;
+            } else {
+                crit = false;
             }
         }
         public override void Kill(int timeLeft) {
@@ -131,14 +151,23 @@ namespace EpikV2.Items {
                     default:
                     continue;
                 }
-                npc.StrikeNPC(dmg, projectile.knockBack, player.direction, false);
+                dmg = (int)npc.StrikeNPC(dmg, projectile.knockBack, player.direction, false);
                 player.addDPS(dmg);
                 marks[i] = 0;
             }
         }
+        public override bool OnTileCollide(Vector2 oldVelocity) {
+            if(projectile.velocity.X!=oldVelocity.X) {
+                projectile.velocity.X = -oldVelocity.X;
+            }
+            if(projectile.velocity.Y!=oldVelocity.Y) {
+                projectile.velocity.Y = -oldVelocity.Y;
+            }
+            return false;
+        }
         public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough) {
-            width = 24;
-            height = 24;
+            width = 18;
+            height = 18;
             return true;
         }
         bool canHit(NPC npc) {

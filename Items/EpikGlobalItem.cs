@@ -17,5 +17,10 @@ namespace EpikV2.Items {
                 damage += (damage-Main.player[weapon.owner].GetWeaponDamage(weapon))*5;
             }
         }
+		public override void OpenVanillaBag(string context, Player player, int arg) {
+            if(context=="goodieBag"&&Main.rand.Next(10)==0) {
+                player.QuickSpawnItem(ModContent.ItemType<Chocolate_Bar>());
+            }
+		}
     }
 }

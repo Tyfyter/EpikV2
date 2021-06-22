@@ -19,7 +19,7 @@ namespace EpikV2.Items
         public override void SetDefaults()
         {
             item.CloneDefaults(ItemID.WoodenBow);
-            item.damage = 135;
+            item.damage = 60;
 			item.ranged = true;
             item.width = 32;
             item.height = 64;
@@ -47,7 +47,7 @@ namespace EpikV2.Items
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
         {
 			Vector2 perturbedSpeed = new Vector2(speedX, speedY).RotatedBy(-player.direction/18d);
-			(Projectile.NewProjectileDirect(position, perturbedSpeed, ProjectileType<AquamarineShot>(), damage, knockBack, player.whoAmI, 0, 0).modProjectile as AquamarineShot)?.init(player.direction, damage/3);
+			(Projectile.NewProjectileDirect(position, perturbedSpeed, ProjectileType<AquamarineShot>(), damage, knockBack, player.whoAmI, 0, 0).modProjectile as AquamarineShot)?.init(player.direction, damage);
 			return false;
 		}
     }
@@ -67,9 +67,11 @@ namespace EpikV2.Items
 			projectile.penetrate = 2;
 			projectile.aiStyle = 0;
             projectile.alpha = 100;
+            projectile.ignoreWater = true;
 		}
 		public override void AI(){
-			//projectile.aiStyle = projectile.wet?0:1;
+            //projectile.aiStyle = projectile.wet?0:1;
+            //if(!projectile.wet)projectile.velocity += new Vector2(0, 0.04f);
             projectile.rotation = projectile.velocity.ToRotation()+MathHelper.Pi/2;
             if(projectile.timeLeft>7&&projectile.timeLeft%7==0 && arrows>0){
                 arrows--;

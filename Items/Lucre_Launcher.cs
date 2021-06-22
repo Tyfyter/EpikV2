@@ -159,15 +159,15 @@ namespace EpikV2.Items {
                 item.shootSpeed += 2f;
                 break;
                 case 2:
-                item.damage = 125;
+                item.damage = 105;
                 item.shoot = ProjectileType<Gold_Shot>();
                 item.shootSpeed += 4f;
                 break;
                 case 3:
-                item.damage = 250;
+                item.damage = 350;
                 item.shoot = ProjectileType<Platinum_Shot>();
-                item.useTime = 38;
-                item.useAnimation = 38;
+                item.useTime = 30;
+                item.useAnimation = 30;
                 break;
             }
             item.Prefix(prefix);

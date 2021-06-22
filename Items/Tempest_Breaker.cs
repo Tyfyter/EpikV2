@@ -34,19 +34,19 @@ namespace EpikV2.Items {
             sbyte h = item.handOnSlot;
             item.CloneDefaults(ItemID.PhoenixBlaster);
             item.handOnSlot = h;
-            item.damage = 135;
+            item.damage = 235;
 			item.ranged = true;
             item.noUseGraphic = false;
             item.noMelee = false;
             item.width = 32;
             item.height = 64;
             item.useStyle = 17;
-            item.useTime = 25;
-            item.useAnimation = 25;
+            item.useTime = 20;
+            item.useAnimation = 20;
             item.knockBack = 9.5f;
             item.value = 100000;
             item.shoot = ProjectileID.None;
-            item.rare = ItemRarityID.Purple;
+			item.rare = ItemRarityID.Lime;
             item.autoReuse = true;
             item.UseSound = null;
             item.scale = 1f;
@@ -63,6 +63,16 @@ namespace EpikV2.Items {
         }
         public override void HoldItem(Player player) {
             player.handon = item.handOnSlot;
+        }
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.MartianConduitPlating, 15);
+            recipe.AddIngredient(ItemID.SoulofMight, 5);
+            recipe.AddTile(TileID.MythrilAnvil);
+            recipe.AddTile(TileID.DemonAltar);
+            recipe.needLava = true;
+            recipe.SetResult(this);
+            recipe.AddRecipe();
         }
         public override bool UseItemFrame(Player player) {
             player.handon = item.handOnSlot;

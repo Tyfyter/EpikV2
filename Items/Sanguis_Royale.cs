@@ -122,7 +122,7 @@ namespace EpikV2.Items {
             projectile.ignoreWater = true;
             projectile.extraUpdates = 0;
             projectile.usesLocalNPCImmunity = true;
-            projectile.localNPCHitCooldown = 3;
+            projectile.localNPCHitCooldown = 5;
         }
         public override void AI() {
             if(Main.myPlayer == projectile.owner) {
@@ -137,8 +137,7 @@ namespace EpikV2.Items {
                     player.direction = (projectile.Center.X>player.MountedCenter.X) ? 1 : -1;
                     player.itemRotation = (player.MountedCenter-projectile.Center).ToRotation()+(player.direction>0?MathHelper.Pi:0);
                     if(projectile.timeLeft<2) {
-                        projectile.timeLeft = 8;
-                        if(!player.CheckMana(player.HeldItem.mana))projectile.Kill();
+                        if(player.CheckMana(player.HeldItem.mana, true))projectile.timeLeft = 8;
                     }
                 }
             }
@@ -150,7 +149,7 @@ namespace EpikV2.Items {
             }
             if(targetNPC==-1)return;
             NPC npc = Main.npc[targetNPC];
-            if(npc.CanBeChasedBy()) {
+            if(npc.CanBeChasedBy()) {//&&Main.player[projectile.owner].CheckMana(1, true)
                 EpikGlobalNPC EGN = npc.GetGlobalNPC<EpikGlobalNPC>();
                 EGN.freeze = true;
                 if(EGN.crushTime==0)EGN.crushTime = -8;

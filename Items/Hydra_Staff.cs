@@ -15,13 +15,10 @@ namespace EpikV2.Items {
     public class Hydra_Staff : ModItem {
         public static int ID { get; internal set; } = -1;
 
-        public const int maxCharge = 90;
-        public int charge = 0;
-        public float ChargePercent => charge / (float)maxCharge;
-        public float BaseMult => 0.25f;
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Hydra Staff");
 		    Tooltip.SetDefault("");
+            ItemID.Sets.StaffMinionSlotsRequired[item.type] = 1;
             ID = item.type;
 		}
 		public override void SetDefaults() {
@@ -110,6 +107,8 @@ namespace EpikV2.Items {
         }
         public override void SetDefaults() {
             projectile.CloneDefaults(ProjectileID.NebulaBlaze2);
+            projectile.magic = false;
+            projectile.minion = true;
             projectile.minionSlots = 1;
             projectile.penetrate = -1;
             projectile.extraUpdates = 0;

@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -105,22 +105,6 @@ You have ten fingers.
 			}
 			return true;
 		}
-		public override void AddRecipes()
-		{
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(ItemID.FishingSeaweed, 1);
-			recipe.AddIngredient(ItemID.Gel, 1);
-			recipe.AddIngredient(ItemID.FallenStar, 5);
-			recipe.AddTile(TileID.GoldBunnyCage);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
-			recipe = new ModRecipe(mod);
-			recipe.AddIngredient(ItemID.Silk, 1);
-			recipe.AddIngredient(ItemID.Gel, 1);
-			recipe.AddIngredient(ItemID.FallenStar, 5);
-			recipe.AddTile(TileID.GoldBunnyCage);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
-		}
 	}
 }
+*/

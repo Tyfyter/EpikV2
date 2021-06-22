@@ -42,7 +42,14 @@ namespace EpikV2.NPCs
         bool oldCollideX = false;
         bool oldCollideY = false;
         public bool itemPurchasedFrom = false;
+        internal int ashenGlaiveTime = 0;
         public override bool PreAI(NPC npc) {
+            if(Ashen_Glaive_P.marks[npc.whoAmI]>0) {
+                ashenGlaiveTime++;
+            } else if(ashenGlaiveTime>0){
+                Main.LocalPlayer.addDPS((int)npc.StrikeNPC(ashenGlaiveTime+npc.defense/2, 0, 0, false));
+                ashenGlaiveTime = 0;
+            }
             if(jaded) {
                 int size = (int)Math.Ceiling(Math.Sqrt((npc.frame.Width*npc.frame.Width)+(npc.frame.Height*npc.frame.Height)));
                 if(jadeFrames>0&&jadeFrames<size)jadeFrames++;

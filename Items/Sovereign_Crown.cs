@@ -107,11 +107,11 @@ namespace EpikV2.Items {
 			player.magicDamage -= 0.15f;
 			player.minionDamage -= 0.15f;
 			player.statDefense -= 12;
-            player.velocity *= 0.95f;
+            player.velocity *= 0.97f;
             player.lifeRegen -= 2;
         }
         public override void Update(NPC npc, ref int buffIndex) {
-            npc.velocity *= 0.95f;
+            if(!npc.boss)npc.velocity *= npc.noGravity?0.98f:0.95f;
             npc.lifeRegen -= 2;
         }
     }

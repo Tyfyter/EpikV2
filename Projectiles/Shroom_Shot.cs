@@ -1,179 +1,234 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace EpikV2.Projectiles
-{
+namespace EpikV2.Projectiles {
 
-    public class Shroom_Shot : ModProjectile
-    {
-        public override void SetDefaults()
-        {
+    public class Shroom_Shot : ModProjectile {
+        public override void SetDefaults() {
             //projectile.name = "Wind Shot";  //projectile name
             projectile.width = 12;       //projectile width
             projectile.height = 12;  //projectile height
             projectile.friendly = true;      //make the projectile will not damage players allied with its owner
             projectile.ranged = true;         //
             projectile.tileCollide = true;   //make it so that the projectile will be destroyed if it hits terrain
-            projectile.penetrate = 20;      //how many npcs will penetrate
+            projectile.penetrate = 1;      //how many npcs will penetrate
             projectile.timeLeft = 200;   //how many time this projectile has before it expipires
             projectile.extraUpdates = 1;
             projectile.ignoreWater = true;
             projectile.localNPCHitCooldown = 20;
             projectile.usesLocalNPCImmunity = true;
         }
-		public override void SetStaticDefaults()
-		{
-			DisplayName.SetDefault("Plague Shot");
+		public override void SetStaticDefaults() {
+			DisplayName.SetDefault("Infestation Round");
 		}
-        public override void AI()           //this make that the projectile will face the corect way
-        {                                                           // |
-            projectile.rotation = (float)Math.Atan2((double)projectile.velocity.Y, (double)projectile.velocity.X) + 1.57f;
-            if(projectile.ai[0] != 0){
+        public override void AI() {
+            projectile.rotation = (float)Math.Atan2(projectile.velocity.Y, projectile.velocity.X) + MathHelper.PiOver2;
+            if(projectile.ai[0] != 0) {
 
                 Vector2 move = Vector2.Zero;
-                float distance = 400f;
+                float distance = 600f;
                 bool target = false;
-                for (int k = 0; k < 200; k++)
-                {
-                    if (Main.npc[k].active && !Main.npc[k].dontTakeDamage && !Main.npc[k].friendly && Main.npc[k].lifeMax > 5)
-                    {
+                for (int k = 0; k < 200; k++) {
+                    if (Main.npc[k].active && !Main.npc[k].dontTakeDamage && !Main.npc[k].friendly && Main.npc[k].lifeMax > 5) {
                         Vector2 newMove = Main.npc[k].Center - projectile.Center;
                         NPC npc = Main.npc[k];
                         float distanceTo = (float)Math.Sqrt(newMove.X * newMove.X + newMove.Y * newMove.Y);
-                        if (distanceTo < distance && npc.type != NPCID.TargetDummy)
-                        {
+                        if (distanceTo < distance && npc.CanBeChasedBy()) {
                             move = newMove;
                             distance = distanceTo;
                             target = true;
                         }
                     }
                 }
-                if (target)
-                {
+                if (target) {
                     AdjustMagnitude(ref move);
-                    projectile.velocity = (10 * projectile.velocity + move) / 11f;
+                    if(projectile.timeLeft == 75) {
+                        projectile.velocity = move;
+                    } else {
+                        projectile.velocity = ((10 * projectile.velocity + move) / 11f).SafeNormalize(Vector2.UnitY)*projectile.velocity.Length();
+                    }
                     //AdjustMagnitude(ref projectile.velocity);
                 }
             }
-            if(projectile.ai[1] >= 1){
+            if(projectile.ai[1] > 0) {
                 Vector2 tempvect = projectile.velocity;
                 tempvect.Normalize();
                 projectile.velocity += tempvect / 2;
                 projectile.ai[1]--;
             }
         }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
+        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
             crit = false;
-            target.GetGlobalNPC<ShroomInfestation>().Infest(new int[]{(int)(damage/(projectile.ai[0] == 0?3:1.5f)), 600, projectile.owner, projectile.tileCollide?0:1}, true, 0, 60, 600);
-            base.ModifyHitNPC(target, ref damage, ref knockback, ref crit, ref hitDirection);
-        }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit)
-        {
-            //target.GetGlobalNPC<ShroomInfestation>().Infestations.Add(new int[]{(int)(damage/(projectile.ai[0] == 0?3:1.5f)), 600, projectile.owner, projectile.tileCollide?0:1});
-
-            //target.GetGlobalNPC<ShroomInfestation>().Infest(new int[]{(int)(damage/(projectile.ai[0] == 0?3:1.5f)), 600, projectile.owner, projectile.tileCollide?0:1}, true, 0, 60, 600);
-
-            /*target.immune[projectile.owner] /= 2;
-            if(Main.rand.Next(0, 7) < 7 || projectile.ai[0] == 0){
-			    target.AddBuff(mod.BuffType("ShroomInfestedDebuff"), 1);
+            ShroomInfestation GNPC = target.GetGlobalNPC<ShroomInfestation>();
+            Infestation n = new Infestation((int)(damage / (projectile.ai[0] == 0 ? 2f : 1f)), 629, projectile.owner, (int)projectile.localAI[0], !projectile.tileCollide);
+            if(GNPC.Infestations.Count < 6) {
+                GNPC.Infest(n, false, 0, 60, 600);
+            } else {
+                Infestation old = GNPC.Infestations.Min(i => i);
+                if(n > old) {
+                    GNPC.Infestations.Remove(old);
+                    GNPC.Infest(n, false, 0, 60, 600);
+                }
             }
-            target.buffImmune[mod.BuffType("ShroomInfestedDebuff")] = false;
-            */
-            //target.buffTime[target.FindBuffIndex(mod.BuffType("ShroomInfestedDebuff"))]++;
-            //Main.NewText("‽", 0, 0, 255);
         }
-        public override bool OnTileCollide(Vector2 oldVelocity){
-            if(projectile.ai[0] == 0){
-                projectile.velocity = new Vector2();
+        public override bool OnTileCollide(Vector2 oldVelocity) {
+            if(projectile.ai[0] == 0) {
+                projectile.position+=Collision.TileCollision(projectile.position+new Vector2(4,4), oldVelocity, projectile.width-8, projectile.height-8, true, true);
+                projectile.velocity = Vector2.Zero;
             }
             return false;
         }
 
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
-            Dust.NewDust(projectile.position, projectile.width, projectile.height, DustID.GoldFlame, 0, 0, 0, new Color(-255, -255, 255));
-            Dust.NewDust(projectile.position, projectile.width, projectile.height, 29, 0, 0, 0, new Color(0, 0, 255));
+        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+            //if(projectile.timeLeft%2==0) {
+                //Dust.NewDustPerfect(projectile.Center, DustID.GoldFlame, Vector2.Zero, 0, new Color(-255, -255, 255)).noGravity = true;
+            //} else {
+                //Dust.NewDust(projectile.Center, projectile.width, projectile.height, DustID.DungeonWater_Old, 0, 0, 0, new Color(0, 0, 255));
+            //}
+            Dust c;
+            for(float i = 2f; i>0; i-=0.2f) {
+                c = Dust.NewDustPerfect(projectile.Center-projectile.velocity * (2-i), 29, null, 0, new Color(0, 0, 255), i/2f);
+                c.velocity *= 0.3f;
+                c.position += c.velocity * i;
+                c.velocity *= projectile.velocity/2f;
+                c.noGravity = true;
+            }
             return false;
         }
 
-		private void AdjustMagnitude(ref Vector2 vector)
-		{
+		private void AdjustMagnitude(ref Vector2 vector) {
 			float magnitude = (float)Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y);
-			if (magnitude > 6f)
-			{
+			if (magnitude > 6f) {
 				vector *= 6f / magnitude;
 			}
 		}
     }
-    public class ShroomInfestation : GlobalNPC{
+    public class ShroomInfestation : GlobalNPC {
 		public override bool InstancePerEntity => true;
-        public List<int[]> Infestations = new List<int[]>{};
-        public int Infest(int[] info, bool restoreall = false, int restoremode = 0, float restore = 0, int restoremax = -1){
-            if(info.Length<2){
-                Main.NewText("Error 1: "+info+" \narray too short to infest enemy\n");
-            }else{
-                if(restoreall){
-                    switch (restoremax)
-                    {
-                        case 0:
-                        //add
-                        foreach (int[] i in Infestations){
-                            i[1]=restoremax>0?(int)Math.Min(i[1]+restore, restoremax):(int)(i[1]+restore);
-                        }
-                        break;
-                        case 1:
-                        //multiply
-                        foreach (int[] i in Infestations){
-                            i[1]=restoremax>0?(int)Math.Min(i[1]*restore, restoremax):(int)(i[1]*restore);
-                        }
-                        break;
-                        case 2:
-                        //set
-                        foreach (int[] i in Infestations){
-                            i[1]=(int)restore;
-                        }
-                        break;
-                        case 3:
-                        //damage
-                        foreach (int[] i in Infestations){
-                            i[1]=restoremax>0?(int)Math.Min(i[1]+(restore/i[0]), restoremax):(int)(i[1]+(restore/i[0]));
-                        }
-                        break;
-                        default:
-                        break;
+        public List<Infestation> Infestations = new List<Infestation> {};
+        public int Infest(Infestation info, bool restoreall = false, int restoremode = 0, float restore = 0, int restoremax = -1) {
+            if(restoreall) {
+                switch (restoremode) {
+                    case 0:
+                    //add
+                    foreach (Infestation i in Infestations) {
+                        i.SetDuration(restoremax>0?(int)Math.Min(i.duration+restore, restoremax):(int)(i.duration+restore));
                     }
+                    break;
+                    case 1:
+                    //multiply
+                    foreach (Infestation i in Infestations) {
+                        i.SetDuration(restoremax>0?(int)Math.Min(i.duration*restore, restoremax):(int)(i.duration*restore));
+                    }
+                    break;
+                    case 2:
+                    //set
+                    foreach (Infestation i in Infestations) {
+                        i.SetDuration((int)restore);
+                    }
+                    break;
+                    case 3:
+                    //damage
+                    foreach (Infestation i in Infestations) {
+                        i.SetDuration(restoremax>0?(int)Math.Min(i.duration+(restore/i.damage), restoremax):(int)(i.duration+(restore/i.damage)));
+                    }
+                    break;
+                    default:
+                    break;
                 }
+            } else {
                 Infestations.Add(info);
             }
-            return info[0]*(info[1]/3);
+            return info.damage*(info.duration/3);
         }
-        public override void AI(NPC npc){
-            for(int i = 0; i<Infestations.Count; i++)
-            {
-
-                int[] imm = npc.immune;
-                npc.immune = new int[]{};
-                if(Infestations[i][1]--%30==0)npc.StrikeNPC((int)Main.rand.NextFloat(Infestations[i][0]*0.9f,Infestations[i][0]*1.1f), 0, 0, fromNet:true);
-                npc.immune = imm;
-                if(Infestations[i][1]<=0){
-                    Infestations.RemoveAt(i);
+        public override void AI(NPC npc) {
+            Infestation inf;
+            LegacySoundStyle hitSound = npc.HitSound;
+            npc.HitSound = null;
+            try {
+                for(int i = 0; i < Infestations.Count; i++) {
+                    inf = Infestations[i];
+                    int[] imm = npc.immune;
+                    npc.immune = new int[npc.immune.Length];
+                    if(inf.duration-- % 30 == 0) {
+                        inf.damage+=1;
+                        int dmg = (int)npc.StrikeNPC((int)Main.rand.NextFloat(inf.damage * 0.9f, inf.damage * 1.1f), 0, 0, fromNet: true);
+                        int owner = inf.owner;
+                        if(owner > -1 && Main.player[owner].accDreamCatcher) {
+                            Main.player[owner].addDPS(dmg);
+                        }
+                    }
+                    Infestations[i] = inf;
+                    npc.immune = imm;
+                    if(inf.duration <= 0) {
+                        Infestations.RemoveAt(i);
+                    }
                 }
+            } finally {
+                npc.HitSound = hitSound;
             }
         }
-		public override void NPCLoot(NPC npc){
-				int a;
-				foreach(int[] b in Infestations){
-					a = Projectile.NewProjectile(new Vector2(Main.rand.NextFloat(npc.position.X, npc.position.X + npc.width), Main.rand.NextFloat(npc.position.Y, npc.position.Y + npc.height)), new Vector2(4, 0).RotatedByRandom(100), ModContent.ProjectileType<Shroom_Shot>(), b[0]/1, 0, Main.myPlayer, 10, 64);
-					Main.projectile[a].timeLeft = 75;
-					//Main.projectile[a].penetrate = 20;
-					if(npc.noTileCollide || b[3]==1){
-					    Main.projectile[a].tileCollide = false;
-					}
+		public override void NPCLoot(NPC npc) {
+			Projectile proj;
+            double dmg;
+			foreach(Infestation inf in Infestations) {
+                dmg = inf.damage;//(inf.damage * (1+Math.Pow(0.99, inf.generation)/9.9));
+				proj = Projectile.NewProjectileDirect(new Vector2(Main.rand.NextFloat(npc.position.X, npc.position.X + npc.width), Main.rand.NextFloat(npc.position.Y, npc.position.Y + npc.height)), new Vector2(0, 0.1f).RotatedByRandom(MathHelper.Pi), ModContent.ProjectileType<Shroom_Shot>(), (int)dmg, 0, inf.owner, 10, 64);
+				proj.timeLeft = 75;
+                proj.localAI[0] = inf.generation+1;
+				//Main.projectile[a].penetrate = 20;
+				if(npc.noTileCollide || inf.noTileCollide) {
+					proj.tileCollide = false;
 				}
+			}
 		}
+    }
+    public struct Infestation : IComparable<Infestation> {
+        public int damage;
+        public int duration;
+        public int owner;
+        public int generation;
+        public bool noTileCollide;
+        const int dpsImortance = 5;
+        public Infestation(int damage, int duration, int owner = -1, int generation = -1, bool noTileCollide = false) {
+            this.damage = damage;
+            this.duration = duration;
+            this.owner = owner;
+            this.generation = generation;
+            this.noTileCollide = noTileCollide;
+        }
+        internal int SetDuration(int duration) {
+            return this.duration = duration;
+        }
+        internal int AddDuration(int value) {
+            return duration+=value;
+        }
+        int getValue() {
+            return (int)((damage - dpsImortance) * duration * (noTileCollide ? 1 : 1.5f));
+        }
+        public int CompareTo(Infestation other) {
+            return getValue() - other.getValue();
+        }
+        public static bool operator >(Infestation self, Infestation other) {
+            return self.getValue() > other.getValue();
+        }
+        public static bool operator <(Infestation self, Infestation other) {
+            return self.getValue() < other.getValue();
+        }
+        /*cursed operators
+        public static byte operator >=(Infestation self, Infestation other) {
+            return (byte)(self.getValue() > other.getValue() ? 1 : 0);
+        }
+        public static byte operator <=(Infestation self, Infestation other) {
+            return (byte)(self.getValue() < other.getValue() ? 1 : 0);
+        }
+        */
     }
 }

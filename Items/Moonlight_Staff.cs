@@ -15,13 +15,12 @@ namespace EpikV2.Items {
     public class Moonlight_Staff : ModItem {
         public static int ID { get; internal set; } = -1;
 
-        public const int maxCharge = 90;
-        public int charge = 0;
-        public float ChargePercent => charge / (float)maxCharge;
-        public float BaseMult => 0.25f;
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Moonlight Staff");
 		    Tooltip.SetDefault("");
+            ItemID.Sets.StaffMinionSlotsRequired[item.type] = 1;
+			ItemID.Sets.GamepadWholeScreenUseRange[item.type] = true;
+			ItemID.Sets.LockOnIgnoresCollision[item.type] = true;
             ID = item.type;
 		}
 		public override void SetDefaults() {
@@ -43,7 +42,7 @@ namespace EpikV2.Items {
     public class Moonlace_Buff : ModBuff {
         public static int ID { get; internal set; } = -1;
         public override bool Autoload(ref string name, ref string texture) {
-            texture = "EpikV2/Buffs/Hydra_Buff";
+            texture = "EpikV2/Buffs/Moonlace_Buff";
             return true;
         }
         public override void SetDefaults() {
@@ -70,6 +69,7 @@ namespace EpikV2.Items {
         Vector2 idleOffset;
         Vector2 idleVelocity;
         Quirk quirk;
+        float boredom;
 
         public override string Texture => "Terraria/Projectile_" + ProjectileID.NebulaBlaze2;
         public override bool CloneNewInstances => true;
@@ -84,6 +84,8 @@ namespace EpikV2.Items {
         }
         public override void SetDefaults() {
             projectile.CloneDefaults(ProjectileID.NebulaBlaze2);
+            projectile.magic = false;
+            projectile.minion = true;
             projectile.minionSlots = 1;
             projectile.penetrate = -1;
             projectile.extraUpdates = 1;
@@ -93,13 +95,18 @@ namespace EpikV2.Items {
             projectile.light = 0;
             projectile.alpha = 100;
             projectile.friendly = true;
+            projectile.usesLocalNPCImmunity = true;
             projectile.localAI[0] = -1;
-            quirk = (Quirk)Main.rand.Next(2);
+            projectile.localAI[1] = 0;
+            quirk = (Quirk)Main.rand.Next(3);
+            boredom = Main.rand.NextFloat(0.9f,1.1f)*BoredomMult(quirk);
         }
 
         public override void AI() {
             Player player = Main.player[projectile.owner];
             EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+
+            if(projectile.ai[0]>0)projectile.ai[0]--;
 
 			#region Active check
 			// This is the "active check", makes sure the minion is alive while the player is alive, and despawns if not
@@ -187,12 +194,13 @@ namespace EpikV2.Items {
 
             #region Movement
             // Default movement parameters (here for attacking)
-            float speed = 8f;
+            float speed = 6f;
 			float inertia = 1.1f;
 			if (foundTarget) {
-                speed = 4f;
+                speed = 8f;
                 if((int)projectile.localAI[0] != target) {
                     speed = distanceFromTarget;
+                    projectile.ai[0] = 0;
                 }
                 projectile.localAI[0] = target;
 				// Minion has a target: attack (here, fly towards the enemy)
@@ -202,12 +210,20 @@ namespace EpikV2.Items {
 				dirToTarg *= speed;
 				projectile.velocity = (projectile.velocity * (inertia - 1) + dirToTarg) / inertia;
 			} else {
-                vectorToIdlePosition = MagnitudeMin(vectorToIdlePosition, speed);
                 if(distanceToIdlePosition<1) {
                     projectile.Center = idlePosition;
                     projectile.velocity = Vector2.Zero;
-                    IdleDance();
+                    if(projectile.localAI[1]>=60) {
+                        IdleDance();
+                    } else {
+                        projectile.localAI[1] += boredom;
+                    }
                 } else {
+                    projectile.localAI[1] = 0;
+                    if(distanceToIdlePosition > 400) {
+                        speed *= 2;
+                    }
+                    vectorToIdlePosition = MagnitudeMin(vectorToIdlePosition, speed);
                     projectile.velocity = vectorToIdlePosition;
                     idleVelocity = Vector2.Zero;
                     LinearSmoothing(ref idleOffset, Vector2.Zero, 0.5f);
@@ -215,8 +231,11 @@ namespace EpikV2.Items {
 			}
             #endregion
         }
+        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+            projectile.ai[0] = 15;
+        }
         public override bool MinionContactDamage() {
-            return projectile.friendly;
+            return projectile.friendly&&projectile.ai[0] == 0;
         }
         double f = 0;
         bool red = false;
@@ -263,20 +282,40 @@ namespace EpikV2.Items {
                     red = false;
                 }
                 break;
+                case Quirk.Diamond:
+                if(idleVelocity == Vector2.Zero) {
+                    idleVelocity = new Vector2(0.4f,-0.6f);
+                    idleOffset = new Vector2(8,0);
+                }
+                if(Math.Abs(idleOffset.X)>=8)idleVelocity.X = -idleVelocity.X;
+                if(Math.Abs(idleOffset.Y)>=12)idleVelocity.Y = -idleVelocity.Y;
+                break;
             }
             idleOffset += idleVelocity;
+        }
+        static float BoredomMult(Quirk quirk) {
+            switch(quirk) {
+                case Quirk.Circle:
+                return Main.rand.NextBool()?1f:5f;
+                case Quirk.Clover:
+                return Main.rand.NextBool()?1.5f:2f;
+                case Quirk.Diamond:
+                return Main.rand.NextBool()?0.8f:1.2f;
+            }
+            return 1f;
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
             /* Dust.NewDustPerfect(projectile.Center+new Vector2(10,10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.White).scale = 0.25f;
              Dust.NewDustPerfect(projectile.Center+new Vector2(10,-10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.Red).scale = 0.25f;
              Dust.NewDustPerfect(projectile.Center-new Vector2(10,10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.Green).scale = 0.25f;
              Dust.NewDustPerfect(projectile.Center-new Vector2(10,-10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.Blue).scale = 0.25f;*/
-            Dust.NewDustPerfect(projectile.Center+idleOffset, DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.White).scale = 0.25f;
+            Dust.NewDustPerfect(projectile.Center+idleOffset, DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.White).scale = 0.45f;
             return false;
         }
         enum Quirk {
             Circle,
-            Clover
+            Clover,
+            Diamond
         }
     }
 }
