@@ -28,7 +28,7 @@ namespace EpikV2.Items
             return true;
         }
         public override void RightClick(Player player){
-            int random = Main.rand.Next(0, ItemLoader.ItemCount);
+            int random = Main.rand.Next(1, ItemLoader.ItemCount);
 			Item item = new Item();
 			item.SetDefaults(random);
 			Item.NewItem(player.Center, new Vector2(), random, Main.rand.Next(1, Math.Max(Math.Min(item.maxStack/Main.rand.Next(1,10), 500), 1)), false, 0, true);
