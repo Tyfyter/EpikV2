@@ -55,6 +55,7 @@ namespace EpikV2 {
         public static SpriteBatchQueue filterMapQueue;
         public static ArmorShaderData alphaMapShader;
         public static int alphaMapShaderID;
+		public static List<(Texture2D texture, int shader)> ExtraHeadTextures { get; private set; }
 
 		public EpikV2() {
 			Properties = new ModProperties() {
@@ -73,7 +74,7 @@ namespace EpikV2 {
 			EpikWorld.sacrifices = new List<int>() {};
             EpikPlayer.ItemChecking = new BitsBytes(32);
 
-            if(!Main.dedServ) {
+            if(Main.netMode!=NetmodeID.Server) {
                 //RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
                 //jadeShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Jade")), "Jade");
                 EpikExtensions.DrawPlayerItemPos = (Func<float, int, Vector2>)typeof(Main).GetMethod("DrawPlayerItemPos", BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate(typeof(Func<float, int, Vector2>), Main.instance);
@@ -121,6 +122,11 @@ namespace EpikV2 {
                 alphaMapShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "AlphaMap");
                 GameShaders.Armor.BindShader(ModContent.ItemType<Chroma_Dummy_Dye>(), alphaMapShader);
                 alphaMapShaderID = ModContent.ItemType<Chroma_Dummy_Dye>();
+
+                ExtraHeadTextures = new List<(Texture2D, int)> {
+                    (GetTexture("Items/Machiavellian_Masquerade_Head_Overlay"), GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveGoldDye)),
+                    (GetTexture("Items/Machiavellian_Masquerade_Head"), 0)
+                };
 
 				//mappedFilter = new Filter(new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/MappedShade")), "MappedShade"), EffectPriority.High);
                 //filterMapQueue = new SpriteBatchQueue();
@@ -173,6 +179,7 @@ namespace EpikV2 {
             nebulaDistortionTexture = null;
             retroShader = null;
             retroShaderRed = null;
+            ExtraHeadTextures = null;
             Orion_Bow.Unload();
             Hydra_Nebula.Unload();
             Suppressor.Unload();
@@ -272,7 +279,7 @@ namespace EpikV2 {
             return Name + ": " + name;
         }
         public static short SetStaticDefaultsGlowMask(ModItem modItem) {
-            if (!Main.dedServ) {
+            if (Main.netMode!=NetmodeID.Server) {
                 Texture2D[] glowMasks = new Texture2D[Main.glowMaskTexture.Length + 1];
                 for (int i = 0; i < Main.glowMaskTexture.Length; i++) {
                     glowMasks[i] = Main.glowMaskTexture[i];

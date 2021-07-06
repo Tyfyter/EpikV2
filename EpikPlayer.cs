@@ -48,6 +48,10 @@ namespace EpikV2 {
         public bool noAttackCD = false;
         public bool redStar = false;
         public int moonlightThreads = 0;
+        public int extraHeadTexture = 0;
+        public bool machiavellianMasquerade = false;
+        public int marionetteDeathTime = 0;
+        public const int marionetteDeathTimeMax = 300;
 
         public static BitsBytes ItemChecking;
 
@@ -70,6 +74,13 @@ namespace EpikV2 {
                 }
             }
             redStar = false;
+            if(marionetteDeathTime>0) {
+                if(++marionetteDeathTime>600||!machiavellianMasquerade) {
+                    marionetteDeathTime = 0;
+                    player.Spawn();
+                }
+            }
+            machiavellianMasquerade = false;
             if(!player.HasBuff(True_Self_Debuff.ID))reallyWolf = false;
             if(wetTime>0)wetTime--;
             if(golemTime>0)golemTime--;
@@ -88,6 +99,7 @@ namespace EpikV2 {
             }else if(organRearrangement>0) {
                 organRearrangement = 0;
             }
+            extraHeadTexture = -1;
         }
         public override void PostUpdate() {
             light_shots = 0;
@@ -100,11 +112,13 @@ namespace EpikV2 {
             if(target.HasBuff(Sovereign_Debuff.ID)) {
                 damage += Math.Min(8, (target.defense-player.armorPenetration)/2);
             }
+            if(marionetteDeathTime>0)damage /= 2;
         }
         public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
             if(target.HasBuff(Sovereign_Debuff.ID)) {
                 damage += Math.Min(8, (target.defense-player.armorPenetration)/2);
             }
+            if(marionetteDeathTime>0)damage /= 2;
         }
         public override void OnMissingMana(Item item, int neededMana) {
             if(redStar) {
@@ -244,6 +258,14 @@ namespace EpikV2 {
             Main.PlaySound(SoundID.Item14, exPos);
         }
         public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource) {
+            if(marionetteDeathTime>0) {
+                return false;
+            }
+            if(machiavellianMasquerade&&damage>player.statLife) {
+                marionetteDeathTime = 1;
+                player.statLife = 0;
+                return false;
+            }
             if(damageSource.SourceCustomReason==Red_Star_Pendant.DeathReason(player).SourceCustomReason) {
                 playSound = false;
                 customDamage = true;
@@ -343,6 +365,20 @@ namespace EpikV2 {
         public override void PostItemCheck() {
             ItemChecking[player.whoAmI] = false;
         }
+        public override float UseTimeMultiplier(Item item) {
+            if(machiavellianMasquerade&&(item.ranged||item.magic)) {
+                return 1.15f;
+            }
+            return 1f;
+        }
+        public override bool Shoot(Item item, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
+            int marionettePullTime = marionetteDeathTime-(600-20);
+            if(marionettePullTime>0) {
+                    position.Y -= (float)Math.Pow(2, marionettePullTime-10);
+                    position.Y += marionettePullTime;
+            }
+            return true;
+        }
         public override void ModifyDrawInfo(ref PlayerDrawInfo drawInfo) {
             if(player.whoAmI == Main.myPlayer)Ashen_Glaive_P.drawCount = 0;
             if(drawInfo.hairShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
@@ -353,8 +389,36 @@ namespace EpikV2 {
                 drawInfo.bodyArmorShader = EpikV2.dimStarlightShaderID;
             if(drawInfo.legArmorShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
                 drawInfo.legArmorShader = EpikV2.dimStarlightShaderID;
+            if(marionetteDeathTime > 0) {
+                float fadeTime = (255-(marionetteDeathTime * 10f))/255f;
+                Color fadeColor = new Color(fadeTime,fadeTime,fadeTime,fadeTime);
+                drawInfo.hairColor = drawInfo.hairColor.MultiplyRGBA(fadeColor);
+                drawInfo.faceColor = drawInfo.faceColor.MultiplyRGBA(fadeColor);
+                drawInfo.eyeColor = drawInfo.eyeColor.MultiplyRGBA(fadeColor);
+                drawInfo.eyeWhiteColor = drawInfo.eyeWhiteColor.MultiplyRGBA(fadeColor);
+                drawInfo.bodyColor = drawInfo.bodyColor.MultiplyRGBA(fadeColor);
+                drawInfo.legColor = drawInfo.legColor.MultiplyRGBA(fadeColor);
+                int marionettePullTime = marionetteDeathTime-(600-20);
+                if(marionettePullTime>0) {
+                    drawInfo.position.Y -= (float)Math.Pow(2, marionettePullTime-10);
+                    drawInfo.position.Y += marionettePullTime;
+                }
+            }
         }
         public override void ModifyDrawLayers(List<PlayerLayer> layers) {
+            if(extraHeadTexture>-1) {
+                PlayerLayer layer = new PlayerLayer("EpikV2", "ExtraHeadLayer", null, DrawExtraHelmetLayer(extraHeadTexture));
+                layers.Insert(layers.IndexOf(PlayerLayer.Head)+1, layer);
+                //layers[layers.IndexOf(PlayerLayer.Head)] = layer;
+                layer.visible = true;
+            }else if(machiavellianMasquerade) {
+                PlayerLayer layer = new PlayerLayer("EpikV2", "ExtraHeadLayer1", null, DrawExtraHelmetLayer(1));
+                layers.Insert(layers.IndexOf(PlayerLayer.Head), layer);
+                layer.visible = true;
+                layer = new PlayerLayer("EpikV2", "ExtraHeadLayer2", null, DrawExtraHelmetLayer(0));
+                layers.Insert(layers.IndexOf(PlayerLayer.Head), layer);
+                layer.visible = true;
+            }
             if(player.itemAnimation != 0 && player.HeldItem.modItem is ICustomDrawItem) {
                 switch(player.HeldItem.useStyle) {
                     case 1:
@@ -365,7 +429,7 @@ namespace EpikV2 {
 
                     default:
                     case 5:
-                    if(player.controlSmart&&player.name.Equals("OriginTest"))foreach(PlayerLayer layer in layers)layer.visible = false;
+                    //if(player.controlSmart&&player.name.Equals("OriginTest"))foreach(PlayerLayer layer in layers)layer.visible = false;
                     layers[layers.IndexOf(PlayerLayer.HeldItem)] = ShootWrenchLayer;
                     ShootWrenchLayer.visible = true;
                     break;
@@ -400,6 +464,13 @@ namespace EpikV2 {
             Vector4 lightColor = drawInfo.faceColor.ToVector4()/drawPlayer.skinColor.ToVector4();
             aItem.DrawInHand(itemTexture, drawInfo, itemCenter, lightColor, drawOrigin);
         });
+        internal static Action<PlayerDrawInfo> DrawExtraHelmetLayer(int extraTextureIndex) => (PlayerDrawInfo drawInfo) => {
+            Player drawPlayer = drawInfo.drawPlayer;
+            var texture = EpikV2.ExtraHeadTextures[extraTextureIndex];
+            DrawData value = new DrawData(texture.texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.headPosition + drawInfo.headOrigin, drawPlayer.bodyFrame, drawInfo.upperArmorColor, drawPlayer.headRotation, drawInfo.headOrigin, 1f, drawInfo.spriteEffects, 0);
+            value.shader = drawInfo.headArmorShader==0?texture.shader:drawInfo.headArmorShader;
+            Main.playerDrawData.Add(value);
+        };
         /*public override void PostHurt(bool pvp, bool quiet, double damage, int hitDirection, bool crit) {
             damage_taken = (int)damage;
         }*/

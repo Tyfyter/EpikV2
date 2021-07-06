@@ -15,7 +15,7 @@ namespace EpikV2.Items
 		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Ancient Mobile Present");
-			Tooltip.SetDefault("Might contain a dead cat");
+			Tooltip.SetDefault("Both does and does not contain a dead cat");
 		}
 		public override void SetDefaults()
 		{

@@ -6,6 +6,10 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
 namespace EpikV2.Items {
+    //
+    //                     a crown for the true,
+    //The crown of the sovereign,
+    //It feels only fitting that there should be two.
     [AutoloadEquip(EquipType.Head)]
 	public class Sovereign_Crown : ModItem {
 		public override void SetStaticDefaults() {
