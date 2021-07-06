@@ -51,7 +51,7 @@ namespace EpikV2 {
         public int extraHeadTexture = 0;
         public bool machiavellianMasquerade = false;
         public int marionetteDeathTime = 0;
-        public const int marionetteDeathTimeMax = 300;
+        public const int marionetteDeathTimeMax = 600;
 
         public static BitsBytes ItemChecking;
 
@@ -75,7 +75,7 @@ namespace EpikV2 {
             }
             redStar = false;
             if(marionetteDeathTime>0) {
-                if(++marionetteDeathTime>600||!machiavellianMasquerade) {
+                if(++marionetteDeathTime>marionetteDeathTimeMax||!machiavellianMasquerade) {
                     marionetteDeathTime = 0;
                     player.Spawn();
                 }
@@ -372,7 +372,7 @@ namespace EpikV2 {
             return 1f;
         }
         public override bool Shoot(Item item, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
-            int marionettePullTime = marionetteDeathTime-(600-20);
+            int marionettePullTime = marionetteDeathTime-(marionetteDeathTimeMax-20);
             if(marionettePullTime>0) {
                     position.Y -= (float)Math.Pow(2, marionettePullTime-10);
                     position.Y += marionettePullTime;
@@ -398,7 +398,7 @@ namespace EpikV2 {
                 drawInfo.eyeWhiteColor = drawInfo.eyeWhiteColor.MultiplyRGBA(fadeColor);
                 drawInfo.bodyColor = drawInfo.bodyColor.MultiplyRGBA(fadeColor);
                 drawInfo.legColor = drawInfo.legColor.MultiplyRGBA(fadeColor);
-                int marionettePullTime = marionetteDeathTime-(600-20);
+                int marionettePullTime = marionetteDeathTime-(marionetteDeathTimeMax-20);
                 if(marionettePullTime>0) {
                     drawInfo.position.Y -= (float)Math.Pow(2, marionettePullTime-10);
                     drawInfo.position.Y += marionettePullTime;
