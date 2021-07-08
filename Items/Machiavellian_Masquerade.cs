@@ -16,7 +16,7 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Machiavellian Masquerade");
 			Tooltip.SetDefault("15% increased ranged and magic damage\n"+
                                "15% increased ranged and magic use speed\n"+
-                               "Should not the death of a liar be a lie as well?");
+                               "Should not the death of a liar be itself a lie?");
 		}
 		public override void SetDefaults() {
 			item.width = 20;

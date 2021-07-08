@@ -75,8 +75,13 @@ namespace EpikV2 {
             }
             redStar = false;
             if(marionetteDeathTime>0) {
+                player.statLife = 0;
+                player.breath = player.breathMax;
                 if(++marionetteDeathTime>marionetteDeathTimeMax||!machiavellianMasquerade) {
                     marionetteDeathTime = 0;
+                    Rectangle rect = player.Hitbox;
+                    rect.Offset(new Point(0, -1024));
+                    PoofOfSmoke(rect);
                     player.Spawn();
                 }
             }
@@ -419,6 +424,11 @@ namespace EpikV2 {
                 layers.Insert(layers.IndexOf(PlayerLayer.Head), layer);
                 layer.visible = true;
             }
+            if(marionetteDeathTime>0) {
+                PlayerLayer layer = MarionetteStringLayer(marionetteDeathTime);
+                layers.Add(layer);
+                layer.visible = true;
+            }
             if(player.itemAnimation != 0 && player.HeldItem.modItem is ICustomDrawItem) {
                 switch(player.HeldItem.useStyle) {
                     case 1:
@@ -467,10 +477,42 @@ namespace EpikV2 {
         internal static Action<PlayerDrawInfo> DrawExtraHelmetLayer(int extraTextureIndex) => (PlayerDrawInfo drawInfo) => {
             Player drawPlayer = drawInfo.drawPlayer;
             var texture = EpikV2.ExtraHeadTextures[extraTextureIndex];
-            DrawData value = new DrawData(texture.texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.headPosition + drawInfo.headOrigin, drawPlayer.bodyFrame, drawInfo.upperArmorColor, drawPlayer.headRotation, drawInfo.headOrigin, 1f, drawInfo.spriteEffects, 0);
-            value.shader = drawInfo.headArmorShader==0?texture.shader:drawInfo.headArmorShader;
-            Main.playerDrawData.Add(value);
+            DrawData data = new DrawData(texture.texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.headPosition + drawInfo.headOrigin, drawPlayer.bodyFrame, drawInfo.upperArmorColor, drawPlayer.headRotation, drawInfo.headOrigin, 1f, drawInfo.spriteEffects, 0);
+            data.shader = drawInfo.headArmorShader==0?texture.shader:drawInfo.headArmorShader;
+            Main.playerDrawData.Add(data);
         };
+        internal static PlayerLayer MarionetteStringLayer(int marionetteDeathTime) => new PlayerLayer("EpikV2", "MarionetteStringLayer", null, delegate (PlayerDrawInfo drawInfo) {
+            Vector2 size = drawInfo.drawPlayer.Size;
+            Vector2 position = drawInfo.position;
+            Vector2 handPos = GetOnHandPos(drawInfo.drawPlayer.bodyFrame);
+            float baseX = (position.X+size.X*0.5f) - Main.screenPosition.X;
+            float baseY = (position.Y+size.Y*0.5f) - Main.screenPosition.Y;
+
+            int marionettePullTime = marionetteDeathTime-(marionetteDeathTimeMax-20);
+            float fadeTime = Math.Min((marionetteDeathTime * 10f)/510, 0.5f);
+            Color fadeColor = new Color(fadeTime*0.75f,fadeTime*0.75f,fadeTime*0.75f,fadeTime*0.5f);
+            int shaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveSilverDye);
+            if((drawInfo.spriteEffects&SpriteEffects.FlipHorizontally)!=SpriteEffects.None) {
+                handPos.X = -handPos.X;
+            }
+
+            float stringLength = 1024;
+            if(marionettePullTime>0) {
+                stringLength -= (float)Math.Pow(2, marionettePullTime-10);
+                stringLength += marionettePullTime;
+            }
+            int X = (int)(baseX+handPos.X);
+            int Y = (int)(baseY+handPos.Y);
+
+            DrawData data = new DrawData(EpikV2.pixelTexture, new Rectangle(X, Y, 2, (int)stringLength), null, fadeColor, -drawInfo.drawPlayer.fullRotation, new Vector2(0.5f, 1f), SpriteEffects.None, 0);
+            data.shader = shaderID;
+            Main.playerDrawData.Add(data);
+
+            X = (int)(baseX-handPos.X);
+            data = new DrawData(EpikV2.pixelTexture, new Rectangle(X, Y, 2, (int)stringLength), null, fadeColor, -drawInfo.drawPlayer.fullRotation, new Vector2(0.5f, 1f), SpriteEffects.None, 0);
+            data.shader = shaderID;
+            Main.playerDrawData.Insert(0, data);
+        });
         /*public override void PostHurt(bool pvp, bool quiet, double damage, int hitDirection, bool crit) {
             damage_taken = (int)damage;
         }*/

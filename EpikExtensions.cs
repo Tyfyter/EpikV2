@@ -246,6 +246,102 @@ namespace EpikV2 {
             }
             return o;
         }
+        public static void PoofOfSmoke(Rectangle rectangle) {
+			for (int i = 0; i < 25; i++) {
+				int d = Dust.NewDust(new Vector2(rectangle.X, rectangle.Y), rectangle.Width, rectangle.Height, DustID.Smoke, 0f, 0f, 100, default(Color), 2f);
+				Dust dust = Main.dust[d];
+				Dust dust2 = dust;
+				dust2.velocity *= 1.4f;
+				Main.dust[d].noLight = true;
+				Main.dust[d].noGravity = true;
+			}
+			Gore gore;
+			gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
+			gore.scale = 1f;
+			gore.velocity.X += 1f;
+			gore.velocity.Y += 1f;
+			gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
+			gore.scale = 1f;
+			gore.velocity.X -= 1f;
+			gore.velocity.Y += 1f;
+			gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
+			gore.scale = 1f;
+			gore.velocity.X += 1f;
+			gore.velocity.Y -= 1f;
+			gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
+            gore.scale = 1f;
+			gore.velocity.X -= 1f;
+			gore.velocity.Y -= 1f;
+		}
+        public static Vector2 GetOnHandPos(Rectangle frame) {
+            return GetOnHandPos(frame.Y/56)-new Vector2(0,frame.Y%56);
+        }
+        public static Vector2 GetOnHandPos(int frame) {
+            Vector2 output = new Vector2(20, 33);
+            switch(frame) {
+                case 0:
+                output = new Vector2(13, 39);
+                break;
+                case 1:
+                output = new Vector2(11, 21);
+                break;
+                case 2:
+                output = new Vector2(25, 21);
+                break;
+                case 3:
+                output = new Vector2(27, 35);
+                break;
+                case 4:
+                output = new Vector2(25, 39);
+                break;
+                case 5:
+                output = new Vector2(11, 21);
+                break;
+                case 6:
+                output = new Vector2(15, 35);
+                break;
+                case 7:
+                output = new Vector2(13, 33);
+                break;
+                case 8:
+                output = new Vector2(13, 33);
+                break;
+                case 9:
+                output = new Vector2(13, 33);
+                break;
+                case 10:
+                output = new Vector2(13, 35);
+                break;
+                case 11:
+                output = new Vector2(15, 35);
+                break;
+                case 12:
+                output = new Vector2(15, 35);
+                break;
+                case 13:
+                output = new Vector2(15, 35);
+                break;
+                case 14:
+                output = new Vector2(17, 33);
+                break;
+                case 15:
+                output = new Vector2(19, 33);
+                break;
+                case 16:
+                output = new Vector2(19, 33);
+                break;
+                case 17:
+                output = new Vector2(17, 35);
+                break;
+                case 18:
+                output = new Vector2(15, 35);
+                break;
+                case 19:
+                output = new Vector2(15, 35);
+                break;
+            }
+            return output-new Vector2(20, 33);
+        }
         public static void SayNetMode() {
             switch(Main.netMode) {
                 case NetmodeID.Server:

@@ -56,6 +56,7 @@ namespace EpikV2 {
         public static ArmorShaderData alphaMapShader;
         public static int alphaMapShaderID;
 		public static List<(Texture2D texture, int shader)> ExtraHeadTextures { get; private set; }
+        public static Texture2D pixelTexture;
 
 		public EpikV2() {
 			Properties = new ModProperties() {
@@ -128,6 +129,7 @@ namespace EpikV2 {
                     (GetTexture("Items/Machiavellian_Masquerade_Head"), 0)
                 };
 
+                pixelTexture = GetTexture("Textures/Pixel");
 				//mappedFilter = new Filter(new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/MappedShade")), "MappedShade"), EffectPriority.High);
                 //filterMapQueue = new SpriteBatchQueue();
             }
@@ -180,6 +182,7 @@ namespace EpikV2 {
             retroShader = null;
             retroShaderRed = null;
             ExtraHeadTextures = null;
+            pixelTexture = null;
             Orion_Bow.Unload();
             Hydra_Nebula.Unload();
             Suppressor.Unload();
