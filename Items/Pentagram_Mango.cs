@@ -171,17 +171,18 @@ namespace EpikV2.Items {
             if(Main.netMode==NetmodeID.SinglePlayer)return;
             ModPacket packet;
             if(target>=0) {
-                packet = EpikV2.mod.GetPacket(8);
-                packet.Write((byte)3);
+                packet = EpikV2.mod.GetPacket(13);
+                packet.Write(EpikV2.PacketType.npcHP);
                 packet.Write(target);
                 packet.Write(Main.npc[target].lifeMax);
                 packet.Write(value);
             } else {
-                packet = EpikV2.mod.GetPacket(6);
-                packet.Write((byte)2);
+                packet = EpikV2.mod.GetPacket(9);
+                packet.Write(EpikV2.PacketType.playerHP);
                 packet.Write(-1-target);
                 packet.Write(value);
             }
+            packet.Send();
         }
     }
 }

@@ -36,6 +36,20 @@ namespace EpikV2 {
         public const int Empty = 254;
         public const int Slain_2 = 255;
     }
+    public struct PolarVec2 {
+        public float R;
+        public float Theta;
+        public PolarVec2(float r, float theta) {
+            R = r;
+            Theta = theta;
+        }
+        public static explicit operator Vector2(PolarVec2 pv) {
+            return new Vector2((float)(pv.R*Math.Cos(pv.Theta)),(float)(pv.R*Math.Sin(pv.Theta)));
+        }
+        public static explicit operator PolarVec2(Vector2 vec) {
+            return new PolarVec2(vec.Length(), vec.ToRotation());
+        }
+    }
     public interface ICustomDrawItem {
         void DrawInHand(Texture2D itemTexture, PlayerDrawInfo drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin);
     }
@@ -341,6 +355,29 @@ namespace EpikV2 {
                 break;
             }
             return output-new Vector2(20, 33);
+        }
+        public static void DropItemForNearbyTeammates(Vector2 Position, Vector2 HitboxSize, int ownerID, int itemType, int itemStack = 1, float maxDistance = 1280){
+	        if (itemType <= 0) {
+		        return;
+	        }
+	        switch (Main.netMode) {
+                case NetmodeID.Server:
+                Player owner = Main.player[ownerID];
+		        int num = Item.NewItem((int)Position.X, (int)Position.Y, (int)HitboxSize.X, (int)HitboxSize.Y, itemType, itemStack, noBroadcast: true);
+		        Main.itemLockoutTime[num] = 54000;
+                Player other;
+		        for (int i = 0; i <= Main.maxPlayers; i++){
+                    other = Main.player[i];
+			        if (other.active && other.team==owner.team && owner.Distance(other.MountedCenter)<=maxDistance){
+				        NetMessage.SendData(MessageID.InstancedItem, i, -1, null, num);
+			        }
+		        }
+		        Main.item[num].active = false;
+                break;
+                case NetmodeID.SinglePlayer:
+		        Item.NewItem((int)Position.X, (int)Position.Y, (int)HitboxSize.X, (int)HitboxSize.Y, itemType, itemStack);
+                break;
+	        }
         }
         public static void SayNetMode() {
             switch(Main.netMode) {

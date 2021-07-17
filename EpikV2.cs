@@ -133,7 +133,7 @@ namespace EpikV2 {
 				//mappedFilter = new Filter(new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/MappedShade")), "MappedShade"), EffectPriority.High);
                 //filterMapQueue = new SpriteBatchQueue();
             }
-            On.Terraria.Player.SlopingCollision += EpikPlayer.PostUpdateMovement;
+            On.Terraria.Player.SlopingCollision += EpikPlayer.SlopingCollision;
             //Main.OnPreDraw += Main_OnPostDraw;
         }
 
@@ -198,29 +198,34 @@ namespace EpikV2 {
             if(Main.netMode == NetmodeID.Server) {
                 ModPacket packet;
                 switch(type) {
-                    case 0:
+                    case PacketType.wetUpdate:
                     packet = GetPacket(3);
-                    packet.Write((byte)0);
+                    packet.Write(PacketType.wetUpdate);
                     packet.Write(reader.ReadByte());
                     packet.Write(reader.ReadBoolean());
                     packet.Send();//*/ignoreClient:whoAmI
                     break;
 
-                    case 2:
+                    case PacketType.playerHP:
                     packet = GetPacket(6);
-                    packet.Write((byte)2);
+                    packet.Write(PacketType.playerHP);
                     packet.Write(reader.ReadByte());
                     packet.Write(reader.ReadSingle());
                     packet.Send();
                     break;
 
-                    case 3:
+                    case PacketType.npcHP:
                     packet = GetPacket(8);
-                    packet.Write((byte)3);
+                    packet.Write(PacketType.npcHP);
                     packet.Write(reader.ReadByte());
                     packet.Write(reader.ReadInt32());
                     packet.Write(reader.ReadSingle());
                     packet.Send();
+                    break;
+
+                    case PacketType.topHatCard:
+                    NPC target = Main.npc[reader.ReadInt32()];
+                    EpikExtensions.DropItemForNearbyTeammates(target.position, target.Size, reader.ReadInt32(), ModContent.ItemType<Ace_Heart>()+Main.rand.Next(4));
                     break;
 
                     default:
@@ -229,24 +234,24 @@ namespace EpikV2 {
                 }
             } else {
                 switch(type) {
-                    case 0:
+                    case PacketType.wetUpdate:
                     Player player = Main.player[reader.ReadByte()];
                     bool wet = reader.ReadBoolean();
                     player.wingTimeMax = wet ? 60 : 0;
                     if(wet)player.wingTime = 60;//*/
                     break;
 
-                    case 1:
+                    case PacketType.golemDeath:
 			        Logger.InfoFormat("recieved golem death packet");
                     Main.LocalPlayer.GetModPlayer<EpikPlayer>().golemTime = 5;
                     break;
 
-                    case 2:
+                    case PacketType.playerHP:
 			        Logger.InfoFormat("recieved player hp update packet");
                     Main.player[reader.ReadByte()].GetModPlayer<EpikPlayer>().rearrangeOrgans(reader.ReadSingle());
                     break;
 
-                    case 3:
+                    case PacketType.npcHP:
 			        Logger.InfoFormat("recieved npc hp update packet");
                     NPC npc = Main.npc[reader.ReadByte()];
                     npc.lifeMax = Math.Min(npc.lifeMax, reader.ReadInt32());
@@ -259,6 +264,13 @@ namespace EpikV2 {
 			        break;
                 }
             }
+        }
+        public static class PacketType {
+            public const byte wetUpdate = 0;
+            public const byte golemDeath = 1;
+            public const byte playerHP = 2;
+            public const byte npcHP = 3;
+            public const byte topHatCard = 4;
         }
 
         public override void HotKeyPressed(string name) {

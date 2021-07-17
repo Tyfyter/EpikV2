@@ -49,9 +49,22 @@ namespace EpikV2 {
         public bool redStar = false;
         public int moonlightThreads = 0;
         public int extraHeadTexture = 0;
+        #region Machiavellian Masquerade
         public bool machiavellianMasquerade = false;
         public int marionetteDeathTime = 0;
         public const int marionetteDeathTimeMax = 600;
+        #endregion
+        #region Magicians Hat
+        public bool magiciansHat = false;
+        public int magiciansHatDamage = 0;
+        public const int magiciansHatDamageThreshhold = 200;
+        public int magiciansHatDecay = 0;
+        public const int magiciansHatDecayTicks = 6;
+        public bool spadeBuff = false;
+        public bool clubBuff = false;
+        #endregion
+        public Vector2 renderedOldVelocity;
+        public Vector2 hatOffset;
 
         public static BitsBytes ItemChecking;
 
@@ -86,6 +99,28 @@ namespace EpikV2 {
                 }
             }
             machiavellianMasquerade = false;
+            if(magiciansHat) {
+                if(magiciansHatDamage < magiciansHatDamageThreshhold) {
+                    if(magiciansHatDamage>0 && ++magiciansHatDecay>magiciansHatDecayTicks) {
+                        magiciansHatDamage--;
+                        magiciansHatDecay = 0;
+                    }
+                } else {
+                    magiciansHatDamage -= magiciansHatDamage / magiciansHatDamageThreshhold;
+                }
+            } else {
+                magiciansHatDamage = 0;
+                magiciansHatDecay = 0;
+            }
+            magiciansHat = false;
+            spadeBuff = false;
+            clubBuff = false;
+            hatOffset *= 0.9f;
+            hatOffset += (player.velocity - player.oldVelocity);
+            if(hatOffset.Length()>12) {
+                hatOffset.Normalize();
+                hatOffset *= 12;
+            }
             if(!player.HasBuff(True_Self_Debuff.ID))reallyWolf = false;
             if(wetTime>0)wetTime--;
             if(golemTime>0)golemTime--;
@@ -117,11 +152,25 @@ namespace EpikV2 {
             if(target.HasBuff(Sovereign_Debuff.ID)) {
                 damage += Math.Min(8, (target.defense-player.armorPenetration)/2);
             }
+            if(spadeBuff) {
+                if(magiciansHat&&(item.magic||item.summon)) {
+                    damage += damage/10;
+                } else {
+                    damage += damage/20;
+                }
+            }
             if(marionetteDeathTime>0)damage /= 2;
         }
         public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
             if(target.HasBuff(Sovereign_Debuff.ID)) {
                 damage += Math.Min(8, (target.defense-player.armorPenetration)/2);
+            }
+            if(spadeBuff) {
+                if(magiciansHat&&(proj.magic||proj.minion)) {
+                    damage += damage/10;
+                } else {
+                    damage += damage/20;
+                }
             }
             if(marionetteDeathTime>0)damage /= 2;
         }
@@ -227,7 +276,7 @@ namespace EpikV2 {
             ropeTarg = -1;
             preUpdateVel = player.velocity;
         }
-        public static void PostUpdateMovement(On.Terraria.Player.orig_SlopingCollision orig, Player self, bool fallThrough) {
+        public static void SlopingCollision(On.Terraria.Player.orig_SlopingCollision orig, Player self, bool fallThrough) {
             orig(self, fallThrough);
             sbyte x = 0, y = 0;
             EpikPlayer epikPlayer = self.GetModPlayer<EpikPlayer>();
@@ -270,6 +319,9 @@ namespace EpikV2 {
                 marionetteDeathTime = 1;
                 player.statLife = 0;
                 return false;
+            }
+            if(clubBuff) {
+                damage -= damage / (magiciansHat ? 10 : 20);
             }
             if(damageSource.SourceCustomReason==Red_Star_Pendant.DeathReason(player).SourceCustomReason) {
                 playSound = false;
@@ -325,7 +377,7 @@ namespace EpikV2 {
                 //if(PlayerInput.Triggers.JustPressed.Jump)SendMessage(wet+" "+wetTime+" "+EpikWorld.raining);
                 if(Main.netMode!=NetmodeID.SinglePlayer&&player.wingTimeMax != (wet?60:0)) {
                     ModPacket packet = mod.GetPacket(3);
-                    packet.Write((byte)0);
+                    packet.Write(EpikV2.PacketType.wetUpdate);
                     packet.Write((byte)player.whoAmI);
                     packet.Write(wet);
                     packet.Send();
@@ -384,6 +436,32 @@ namespace EpikV2 {
             }
             return true;
         }
+        public override void OnHitNPC(Item item, NPC target, int damage, float knockback, bool crit) {
+            if(magiciansHat&&(item.magic||item.summon)) {
+                AddMagiciansHatDamage(target, damage);
+            }
+        }
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, int damage, float knockback, bool crit) {
+            if(magiciansHat&&(proj.magic||proj.minion)) {
+                AddMagiciansHatDamage(target, damage);
+            }
+        }
+        public void AddMagiciansHatDamage(NPC target, int damage) {
+            magiciansHatDamage += damage;
+            if(target.life<0)magiciansHatDamage += damage;
+            if(magiciansHatDamage>magiciansHatDamageThreshhold) {
+                magiciansHatDamage -= magiciansHatDamageThreshhold;
+                if(Main.netMode == NetmodeID.MultiplayerClient) {
+                    ModPacket packet = EpikV2.mod.GetPacket(9);
+                    packet.Write(EpikV2.PacketType.topHatCard);
+                    packet.Write(target.whoAmI);
+                    packet.Write(player.whoAmI);
+                    packet.Send();
+                } else {
+                    DropItemForNearbyTeammates(target.position, target.Size, player.whoAmI, ModContent.ItemType<Ace_Heart>()+Main.rand.Next(4));
+                }
+            }
+        }
         public override void ModifyDrawInfo(ref PlayerDrawInfo drawInfo) {
             if(player.whoAmI == Main.myPlayer)Ashen_Glaive_P.drawCount = 0;
             if(drawInfo.hairShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
@@ -424,6 +502,11 @@ namespace EpikV2 {
                 layers.Insert(layers.IndexOf(PlayerLayer.Head), layer);
                 layer.visible = true;
             }
+            if(player.head == Magicians_Top_Hat.ArmorID) {
+                PlayerLayer layer = new PlayerLayer("EpikV2", "LightHatLayer", null, LightHatLayer(hatOffset));
+                layers[layers.IndexOf(PlayerLayer.Head)] = layer;
+                layer.visible = true;
+            }
             if(marionetteDeathTime>0) {
                 PlayerLayer layer = MarionetteStringLayer(marionetteDeathTime);
                 layers.Add(layer);
@@ -452,6 +535,7 @@ namespace EpikV2 {
             if(dracoDash!=0) {
                 foreach(PlayerLayer layer in layers)layer.visible = false;
             }
+            renderedOldVelocity = player.velocity;
         }
         internal void rearrangeOrgans(float rearrangement) {
             organRearrangement = Math.Max(organRearrangement, rearrangement);
@@ -513,6 +597,16 @@ namespace EpikV2 {
             data.shader = shaderID;
             Main.playerDrawData.Insert(0, data);
         });
+        internal static Action<PlayerDrawInfo> LightHatLayer(Vector2 oldVelocity) => (PlayerDrawInfo drawInfo) => {
+            Player drawPlayer = drawInfo.drawPlayer;
+            Texture2D texture = Main.armorHeadTexture[drawPlayer.head];
+            Vector2 velocity = oldVelocity;//drawPlayer.velocity-(oldVelocity/2f);
+            float rotationOffset = MathHelper.Clamp((float)Math.Pow(velocity.X / 4f, 5), -0.1f, 0.1f);
+            float heightOffset = MathHelper.Clamp((float)Math.Pow(Math.Abs(velocity.Y / 4f), 0.9f)*Math.Sign(velocity.Y), -1, 8);
+            DrawData data = new DrawData(texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f - heightOffset)) + drawPlayer.headPosition + drawInfo.headOrigin, drawPlayer.bodyFrame, drawInfo.upperArmorColor, drawPlayer.headRotation-rotationOffset, drawInfo.headOrigin, 1f, drawInfo.spriteEffects, 0);
+            data.shader = drawInfo.headArmorShader;
+            Main.playerDrawData.Add(data);
+        };
         /*public override void PostHurt(bool pvp, bool quiet, double damage, int hitDirection, bool crit) {
             damage_taken = (int)damage;
         }*/
