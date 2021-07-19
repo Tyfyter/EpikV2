@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
@@ -13,7 +14,9 @@ namespace EpikV2.Items {
         public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Magicians Top Hat");
 			Tooltip.SetDefault("25% increased magic and minion damage\n"+
-                               "Increases your max number of minions by 1\n");
+                               "Increases your max number of minions by 1\n"+
+                               "'A magician never reveals <pro> secrets'");
+            ArmorID = item.headSlot;
 		}
 		public override void SetDefaults() {
 			item.width = 20;
@@ -31,6 +34,14 @@ namespace EpikV2.Items {
 		}
         public override void DrawHair(ref bool drawHair, ref bool drawAltHair) {
             drawAltHair = true;
+        }
+        public override void ModifyTooltips(List<TooltipLine> tooltips) {
+            foreach(TooltipLine line in tooltips) {
+                if(line.text.Contains("<pro>")) {//line.Name.Equals("Tooltip2")
+                    line.text = line.text.Replace("<pro>", Main.LocalPlayer.Male?"his":"her");
+                    break;
+                }
+            }
         }
         public override void AddRecipes(){
 			ModRecipe recipe = new ModRecipe(mod);

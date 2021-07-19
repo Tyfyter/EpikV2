@@ -65,6 +65,7 @@ namespace EpikV2 {
         #endregion
         public Vector2 renderedOldVelocity;
         public Vector2 hatOffset;
+        public bool championsHelm = false;
 
         public static BitsBytes ItemChecking;
 
@@ -115,6 +116,7 @@ namespace EpikV2 {
             magiciansHat = false;
             spadeBuff = false;
             clubBuff = false;
+            championsHelm = false;
             hatOffset *= 0.9f;
             hatOffset += (player.velocity - player.oldVelocity);
             if(hatOffset.Length()>12) {
@@ -464,14 +466,22 @@ namespace EpikV2 {
         }
         public override void ModifyDrawInfo(ref PlayerDrawInfo drawInfo) {
             if(player.whoAmI == Main.myPlayer)Ashen_Glaive_P.drawCount = 0;
+            if(player.head == Champions_Helm.ArmorID) {
+                drawInfo.eyeColor = Color.Red;
+                if(drawInfo.headArmorShader == 0) {
+                    drawInfo.headArmorShader = 84;
+                }
+            }
+
             if(drawInfo.hairShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
                 drawInfo.hairShader = EpikV2.dimStarlightShaderID;
-            if(drawInfo.headArmorShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
+            if((drawInfo.headArmorShader == EpikV2.starlightShaderID || drawInfo.headArmorShader == EpikV2.brightStarlightShaderID) && !(drawInfo.drawHair||drawInfo.drawAltHair))
                 drawInfo.headArmorShader = EpikV2.dimStarlightShaderID;
-            if(drawInfo.bodyArmorShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
+            if(drawInfo.bodyArmorShader == EpikV2.starlightShaderID || drawInfo.bodyArmorShader == EpikV2.brightStarlightShaderID)
                 drawInfo.bodyArmorShader = EpikV2.dimStarlightShaderID;
-            if(drawInfo.legArmorShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
+            if(drawInfo.legArmorShader == EpikV2.starlightShaderID || drawInfo.legArmorShader == EpikV2.brightStarlightShaderID)
                 drawInfo.legArmorShader = EpikV2.dimStarlightShaderID;
+
             if(marionetteDeathTime > 0) {
                 float fadeTime = (255-(marionetteDeathTime * 10f))/255f;
                 Color fadeColor = new Color(fadeTime,fadeTime,fadeTime,fadeTime);
@@ -597,10 +607,10 @@ namespace EpikV2 {
             data.shader = shaderID;
             Main.playerDrawData.Insert(0, data);
         });
-        internal static Action<PlayerDrawInfo> LightHatLayer(Vector2 oldVelocity) => (PlayerDrawInfo drawInfo) => {
+        internal static Action<PlayerDrawInfo> LightHatLayer(Vector2 hatOffset) => (PlayerDrawInfo drawInfo) => {
             Player drawPlayer = drawInfo.drawPlayer;
             Texture2D texture = Main.armorHeadTexture[drawPlayer.head];
-            Vector2 velocity = oldVelocity;//drawPlayer.velocity-(oldVelocity/2f);
+            Vector2 velocity = hatOffset;//drawPlayer.velocity-(oldVelocity/2f);
             float rotationOffset = MathHelper.Clamp((float)Math.Pow(velocity.X / 4f, 5), -0.1f, 0.1f);
             float heightOffset = MathHelper.Clamp((float)Math.Pow(Math.Abs(velocity.Y / 4f), 0.9f)*Math.Sign(velocity.Y), -1, 8);
             DrawData data = new DrawData(texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f - heightOffset)) + drawPlayer.headPosition + drawInfo.headOrigin, drawPlayer.bodyFrame, drawInfo.upperArmorColor, drawPlayer.headRotation-rotationOffset, drawInfo.headOrigin, 1f, drawInfo.spriteEffects, 0);
