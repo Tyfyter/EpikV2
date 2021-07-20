@@ -23,7 +23,7 @@ namespace EpikV2.Items {
 			item.value = 5000000;
 			item.rare = ItemRarityID.Quest;
 			item.maxStack = 1;
-            item.defense = 12;
+            item.defense = 20;
 		}
 		public override void UpdateEquip(Player player){
 			player.meleeDamage += 0.25f;
@@ -40,41 +40,24 @@ namespace EpikV2.Items {
                 }
             }
         }
-        public override void DrawHair(ref bool drawHair, ref bool drawAltHair) {
-            drawAltHair = true;
+        public override void UpdateVanity(Player player, EquipType type) {
+            Lighting.AddLight(player.Center+new Vector2(3*player.direction,-6), new Vector3(0.1f, 0, 0));
         }
         public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe.AddIngredient(SanguineMaterial.id, 1);
-			recipe.AddIngredient(ItemID.HallowedMask, 1);
-			recipe.AddIngredient(ItemID.TitaniumBar, 5);
-			recipe.AddTile(TileID.MythrilAnvil);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
-
-            recipe = new ModRecipe(mod);
-			recipe.AddIngredient(SanguineMaterial.id, 1);
-			recipe.AddIngredient(ItemID.HallowedMask, 1);
-			recipe.AddIngredient(ItemID.AdamantiteBar, 5);
-			recipe.AddTile(TileID.MythrilAnvil);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
-
-            recipe = new ModRecipe(mod);
-			recipe.AddIngredient(SanguineMaterial.id, 1);
-			recipe.AddIngredient(ItemID.HallowedHelmet, 1);
-			recipe.AddIngredient(ItemID.TitaniumBar, 5);
-			recipe.AddTile(TileID.MythrilAnvil);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
-
-            recipe = new ModRecipe(mod);
-			recipe.AddIngredient(SanguineMaterial.id, 1);
-			recipe.AddIngredient(ItemID.HallowedHelmet, 1);
-			recipe.AddIngredient(ItemID.AdamantiteBar, 5);
-			recipe.AddTile(TileID.MythrilAnvil);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+            int[] helmets = { ItemID.HallowedMask, ItemID.HallowedHelmet };
+            int[] bars = { ItemID.TitaniumBar, ItemID.AdamantiteBar };
+            ModRecipe recipe;
+            for(int i0 = 0; i0 < helmets.Length; i0++) {
+                for(int i1 = 0; i1 < bars.Length; i1++) {
+                    recipe = new ModRecipe(mod);
+                    recipe.AddIngredient(SanguineMaterial.id, 1);
+                    recipe.AddIngredient(helmets[i0], 1);
+                    recipe.AddIngredient(bars[i1], 5);
+                    recipe.AddTile(TileID.MythrilAnvil);
+                    recipe.SetResult(this);
+                    recipe.AddRecipe();
+                }
+            }
 		}
 	}
 }

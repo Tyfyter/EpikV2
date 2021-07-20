@@ -53,6 +53,7 @@ namespace EpikV2 {
         public bool machiavellianMasquerade = false;
         public int marionetteDeathTime = 0;
         public const int marionetteDeathTimeMax = 600;
+        public PlayerDeathReason marionetteDeathReason;
         #endregion
         #region Magicians Hat
         public bool magiciansHat = false;
@@ -93,10 +94,14 @@ namespace EpikV2 {
                 player.breath = player.breathMax;
                 if(++marionetteDeathTime>marionetteDeathTimeMax||!machiavellianMasquerade) {
                     marionetteDeathTime = 0;
+                    player.position.Y -= 1024;
+                    if(player.position.Y<0) {
+                        player.position.Y = 0;
+                    }
                     Rectangle rect = player.Hitbox;
-                    rect.Offset(new Point(0, -1024));
                     PoofOfSmoke(rect);
-                    player.Spawn();
+                    player.KillMe(marionetteDeathReason, 0, 0, marionetteDeathReason.SourcePlayerIndex != -1);
+                    player.respawnTimer -= marionetteDeathTimeMax;
                 }
             }
             machiavellianMasquerade = false;
@@ -319,6 +324,7 @@ namespace EpikV2 {
             }
             if(machiavellianMasquerade&&damage>player.statLife) {
                 marionetteDeathTime = 1;
+                marionetteDeathReason = damageSource;
                 player.statLife = 0;
                 return false;
             }
@@ -439,13 +445,17 @@ namespace EpikV2 {
             return true;
         }
         public override void OnHitNPC(Item item, NPC target, int damage, float knockback, bool crit) {
-            if(magiciansHat&&(item.magic||item.summon)) {
-                AddMagiciansHatDamage(target, damage);
-            }
+            OnStrikeNPC(target, damage, knockback, crit, melee:item.melee, ranged:item.ranged, magic:item.magic, summon:item.summon);
         }
         public override void OnHitNPCWithProj(Projectile proj, NPC target, int damage, float knockback, bool crit) {
-            if(magiciansHat&&(proj.magic||proj.minion)) {
+            OnStrikeNPC(target, damage, knockback, crit, melee:proj.melee, ranged:proj.ranged, magic:proj.magic, summon:proj.minion);
+        }
+        public void OnStrikeNPC(NPC target, int damage, float knockback, bool crit, bool melee = false, bool ranged = false, bool magic = false, bool summon = false) {
+            if(magiciansHat && (magic||summon) && target.type!=NPCID.TargetDummy) {
                 AddMagiciansHatDamage(target, damage);
+            }
+            if(championsHelm && (melee||ranged) && target.type!=NPCID.TargetDummy) {
+                AddChampionsHelmDamage(target, (int)(melee?(damage * 1.5f):(damage + 20)));
             }
         }
         public void AddMagiciansHatDamage(NPC target, int damage) {
@@ -463,6 +473,11 @@ namespace EpikV2 {
                     DropItemForNearbyTeammates(target.position, target.Size, player.whoAmI, ModContent.ItemType<Ace_Heart>()+Main.rand.Next(4));
                 }
             }
+        }
+        public void AddChampionsHelmDamage(NPC target, int damage) {
+            if(target.life<0)damage *= 2;
+            player.lifeRegenTime += damage * 2;
+            player.lifeRegenCount += damage;
         }
         public override void ModifyDrawInfo(ref PlayerDrawInfo drawInfo) {
             if(player.whoAmI == Main.myPlayer)Ashen_Glaive_P.drawCount = 0;
