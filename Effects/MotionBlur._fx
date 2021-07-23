@@ -1,0 +1,51 @@
+sampler uImage0 : register(s0);
+sampler uImage1 : register(s1);
+float3 uColor;
+float3 uSecondaryColor;
+float uOpacity;
+float uSaturation;
+float uRotation;
+float uTime;
+float4 uSourceRect;
+float2 uWorldPosition;
+float uDirection;
+float3 uLightSource;
+float2 uImageSize0;
+float2 uImageSize1;
+float2 uOffset;
+float uScale;
+float2 uVelocity;
+
+bool isWithin(in float2 a, in float2 min, in float2 max){
+	return a.x>min.x&&a.y>min.y&&a.x<max.x&&a.y<max.y;
+}
+
+float4 MotionBlur(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0{
+	const float sixteenth = 0.25;
+	float2 velocity = uVelocity/uImageSize0;
+	float4 currentValue;
+	float4 value = tex2D(uImage0, coords);
+	if(abs(velocity.x)<1&&abs(velocity.y)<1){
+		return value;
+	}
+	float valueTotal = value.a;
+	for(float i = 0; i<1; i += sixteenth){
+		if(isWithin(coords+(velocity*i), 0, 1)){
+			currentValue = tex2D(uImage0, coords+(velocity*i));
+			value += currentValue;
+			valueTotal += currentValue.a;
+		}
+		if(isWithin(coords-(velocity*i), 0, 1)){
+			currentValue = tex2D(uImage0, coords-(velocity*i));
+			value += currentValue;
+			valueTotal += currentValue.a;
+		}
+	}
+	return float4(value.rgb/valueTotal, value.a/33);
+}
+
+technique Technique1{
+	pass MotionBlur{
+		PixelShader = compile ps_2_0 MotionBlur();
+	}
+}

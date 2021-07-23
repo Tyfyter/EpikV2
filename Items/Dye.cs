@@ -31,6 +31,7 @@ namespace EpikV2.Items {
     }
 
     public class Heatwave_Dye : ModItem{
+        public override string Texture => "EpikV2/Items/Non-Chromatic_Dye";
         public override void SetStaticDefaults(){
             DisplayName.SetDefault("Heatwave Dye");
         }
@@ -143,8 +144,8 @@ namespace EpikV2.Items {
             item.color = Color.Blue;
 		}
     }
-    public class InformedArmorShaderData : ArmorShaderData {
-        public InformedArmorShaderData(Ref<Effect> shader, string passName) : base(shader, passName) {}
+    public class GPSArmorShaderData : ArmorShaderData {
+        public GPSArmorShaderData(Ref<Effect> shader, string passName) : base(shader, passName) {}
         public override void Apply(Entity entity, DrawData? drawData = null) {
             Shader.Parameters["uWorldSize"].SetValue(new Vector2(Main.maxTilesX*16f, Main.maxTilesY*16f));
             base.Apply(entity, drawData);
@@ -167,5 +168,36 @@ namespace EpikV2.Items {
 			item.dye = dye;
             item.color = Color.Black;
 		}
+    }
+
+    public class Motion_Blur_Dye : ModItem{
+        public override string Texture => "EpikV2/Items/Non-Chromatic_Dye";
+        public override void SetStaticDefaults(){
+            DisplayName.SetDefault("Swift Dye");
+        }
+		public override void SetDefaults(){
+			byte dye = item.dye;
+			item.CloneDefaults(ItemID.RedandBlackDye);
+			item.dye = dye;
+		}
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.Diamond);
+            recipe.AddTile(TileID.DyeVat);
+            recipe.SetResult(this, 3);
+            recipe.AddRecipe();
+        }
+    }
+    public class MotionArmorShaderData : ArmorShaderData {
+        public MotionArmorShaderData(Ref<Effect> shader, string passName) : base(shader, passName) {}
+        public override void Apply(Entity entity, DrawData? drawData = null) {
+            //null check
+            if(entity is Entity)Shader.Parameters["uVelocity"].SetValue(entity.velocity);
+            base.Apply(entity, drawData);
+        }
+        public void Apply(Vector2 velocity, DrawData? drawData = null) {
+            Shader.Parameters["uVelocity"].SetValue(velocity);
+            base.Apply(null, drawData);
+        }
     }
 }

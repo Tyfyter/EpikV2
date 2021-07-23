@@ -57,6 +57,7 @@ namespace EpikV2 {
         public static int alphaMapShaderID;
 		public static List<(Texture2D texture, int shader)> ExtraHeadTextures { get; private set; }
         public static Texture2D pixelTexture;
+        //public static MotionArmorShaderData motionBlurShader;
 
 		public EpikV2() {
 			Properties = new ModProperties() {
@@ -113,7 +114,7 @@ namespace EpikV2 {
                 retroShaderRed.UseSaturation(-0.5f);
                 GameShaders.Armor.BindShader(ModContent.ItemType<Red_Retro_Dye>(), retroShaderRed);
 
-                GameShaders.Armor.BindShader(ModContent.ItemType<GPS_Dye>(), new InformedArmorShaderData(new Ref<Effect>(GetEffect("Effects/GPS")), "GPS"));
+                GameShaders.Armor.BindShader(ModContent.ItemType<GPS_Dye>(), new GPSArmorShaderData(new Ref<Effect>(GetEffect("Effects/GPS")), "GPS"));
 
                 starlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Starlight_Dye>());
                 dimStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Dim_Starlight_Dye>());
@@ -123,6 +124,9 @@ namespace EpikV2 {
                 alphaMapShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "AlphaMap");
                 GameShaders.Armor.BindShader(ModContent.ItemType<Chroma_Dummy_Dye>(), alphaMapShader);
                 alphaMapShaderID = ModContent.ItemType<Chroma_Dummy_Dye>();
+
+                //motionBlurShader = new MotionArmorShaderData(new Ref<Effect>(GetEffect("Effects/MotionBlur")), "MotionBlur");
+                //GameShaders.Armor.BindShader(ModContent.ItemType<Motion_Blur_Dye>(), motionBlurShader);
 
                 ExtraHeadTextures = new List<(Texture2D, int)> {
                     (GetTexture("Items/Machiavellian_Masquerade_Head_Overlay"), GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveGoldDye)),
@@ -188,6 +192,7 @@ namespace EpikV2 {
             Suppressor.Unload();
             Ashen_Glaive.Unload();
             Lucre_Launcher.Unload();
+            Scorpio.Unload();
             EpikWorld.sacrifices = null;
             //filterMapQueue.Clear();
             //filterMapQueue = null;

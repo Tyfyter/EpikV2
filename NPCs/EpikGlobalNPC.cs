@@ -43,6 +43,10 @@ namespace EpikV2.NPCs
         bool oldCollideY = false;
         public bool itemPurchasedFrom = false;
         internal int ashenGlaiveTime = 0;
+        public int scorpioTime = 0;
+        public int scorpioOwner = 0;
+        public bool celestialFlames;
+
         public override bool PreAI(NPC npc) {
             if(Ashen_Glaive_P.marks[npc.whoAmI]>0) {
                 ashenGlaiveTime++;
@@ -107,6 +111,11 @@ namespace EpikV2.NPCs
                     npc.velocity.X = 0;
                 return false;
             }
+            if(scorpioTime>0) {
+                npc.velocity = Vector2.Lerp(npc.velocity, Main.player[scorpioOwner].velocity, Math.Min(npc.knockBackResist*3f, 1));
+                scorpioTime--;
+                return false;
+            }
             return true;
         }
         public override void AI(NPC npc){
@@ -120,14 +129,45 @@ namespace EpikV2.NPCs
                 organRearrangement = 0;
             }
 		}
+		public override void ResetEffects(NPC npc) {
+			celestialFlames = false;
+		}
+        public override void UpdateLifeRegen(NPC npc, ref int damage) {
+
+			if (celestialFlames) {
+				if (npc.lifeRegen > 0) {
+					npc.lifeRegen = 0;
+				}
+				npc.lifeRegen -= 120;
+				if (damage < 20) {
+					damage = 20;
+				}
+			}
+        }
+		public override void DrawEffects(NPC npc, ref Color drawColor)
+		{
+			if (celestialFlames) {
+                drawColor = drawColor.MultiplyRGBA(new Color(230, 240, 255, 100));
+				if (Main.rand.Next(4) < 3) {
+					int dust = Dust.NewDust(npc.position - new Vector2(2f, 2f), npc.width + 4, npc.height + 4, 66, npc.velocity.X * 0.4f, npc.velocity.Y * 0.4f, 100, new Color(230, 240, 255, 0), 1f);
+					Main.dust[dust].noGravity = true;
+					Main.dust[dust].velocity *= 0.6f;
+					Main.dust[dust].velocity.Y -= 0.5f;
+                    Main.dust[dust].noLight = Main.rand.Next(4) != 0;
+					/*if (Main.rand.Next(4) == 0) {
+						//Main.dust[dust].noGravity = false;
+						Main.dust[dust].scale *= 0.5f;
+					}*/
+				}
+			}
+		}
         public override void ModifyHitPlayer(NPC npc, Player target, ref int damage, ref bool crit) {
             if(npc.HasBuff(Sovereign_Debuff.ID)) {
                 damage -= (int)(damage*0.15f);
             }
         }
-        public override bool? CanHitNPC(NPC npc, NPC target)
-        {
-            if(jaded)return false;
+        public override bool? CanHitNPC(NPC npc, NPC target){
+            if(jaded || scorpioTime>0)return false;
             return base.CanHitNPC(npc, target);
         }
 
@@ -141,7 +181,7 @@ namespace EpikV2.NPCs
         }
 
 		public override bool CanHitPlayer(NPC npc, Player target, ref int cooldownSlot){
-            if(jaded)return false;
+            if(jaded || scorpioTime>0)return false;
 			return base.CanHitPlayer(npc, target, ref cooldownSlot);
 		}
 
@@ -234,6 +274,10 @@ namespace EpikV2.NPCs
         public void SetBounceTime(int time, int count = 1) {
             bounceTime = time;
             bounces = count;
+        }
+        public void SetScorpioTime(int owner, int time = 15) {
+            scorpioOwner = owner;
+            scorpioTime = time;
         }
     }
 }
