@@ -67,6 +67,8 @@ namespace EpikV2 {
         public Vector2 renderedOldVelocity;
         public Vector2 hatOffset;
         public bool championsHelm = false;
+        public byte springDashCooldown = 0;
+        public byte springDashCooldown2 = 0;
 
         public static BitsBytes ItemChecking;
 
@@ -240,12 +242,6 @@ namespace EpikV2 {
             if(ropeTarg>=0) {//ropeVel.HasValue&&
                 Projectile projectile = Main.projectile[ropeTarg];
                 Rope_Hook_Projectile rope = (Rope_Hook_Projectile)projectile.modProjectile;
-                //int dir = -1;
-                //if(projectile.Center.Y>player.Center.Y)dir = 1;
-                //player.velocity = ropeVel.Value;
-                float speed = (player.velocity-ropeVel).Length();
-                ropeVel = default;
-                Vector2 displacement = projectile.Center-player.MountedCenter;
                 float slide = 0;
                 if(player.controlUp^player.controlDown) {
                     if(player.controlUp)slide-=2;
@@ -253,26 +249,31 @@ namespace EpikV2 {
                 }
                 float range = Math.Min(rope.distance+slide, Rope_Hook_Projectile.rope_range);
                 rope.distance = range;
-                float angleDiff = AngleDif((-displacement).ToRotation(), player.velocity.ToRotation(), out int angleDir);
-                //Dust.NewDustPerfect(player.Center+player.velocity*32, 6, Vector2.Zero).noGravity = true;
-                //Dust.NewDustPerfect(player.Center+Vector2.Normalize(displacement)*32, 29, Vector2.Zero).noGravity = true;
-                //player.chatOverhead.NewMessage($"{Math.Round(displacement.ToRotation(),2)}, {Math.Round(player.velocity.ToRotation(),2)}", 5);
-                if(displacement.Length()>=range) {
-                    if(player.Center.Y<projectile.Center.Y) {
-                        projectile.ai[0]=1f;
+                Vector2 displacement = projectile.Center-player.MountedCenter;
+                float distance = displacement.Length();
+                if(distance>=range) {
+                    if(player.Center.Y<(projectile.Center.Y - Math.Abs(displacement.X) * 0.5f)) {
+                        projectile.ai[0]=1f;//kills the projectile
                         return;
                     }
-                    //Vector2 unit = displacement.RotatedBy(PiOver2*angleDir*dir);
-                    //unit.Normalize();
-                    //Dust.NewDustPerfect(player.Center+unit*32, 29, Vector2.Zero, Scale:3).noGravity = true;
-                    ropeVel = Vector2.Normalize(displacement)*(displacement.Length()-range);
-                    //player.velocity = (player.velocity*Min((PiOver2-Math.Abs(PiOver2-angleDiff))*1.2f,1)).RotatedBy(angleDir*(angleDiff-PiOver2))+ropeVel;//unit*speed+ropeVel;
-                    player.velocity = new Vector2(speed*Min((PiOver2-Math.Abs(PiOver2-angleDiff))*Pi+0.1f,1f),0).RotatedBy(displacement.ToRotation()-(Math.Sign(player.velocity.X)*-PiOver2))+ropeVel;//unit*speed+ropeVel;
+                    const float perpAngle = PiOver2 + 0.01f;// - Math.Min((distance-range)*0.01f, 0.2f);
+                    //gets the magnitude and direction of the diference between the angles of player.velocity and displacement
+                    float angleDiff = AngleDif(player.velocity.ToRotation(), displacement.ToRotation(), out int angleDir);
+                    Vector2 targetVelocity = player.velocity.RotatedBy((angleDiff - perpAngle) * angleDir);
+                    targetVelocity += Vector2.Normalize(displacement) * Math.Min((distance-range)*0.1f, 1f);
+                    if(Math.Round(player.velocity.Y, 1) == 0.3 && Math.Abs(player.velocity.X) <= 0.5) {
+                        //player.velocity.X = 0;//*= 0.5f;
+                        //player.velocity.Y = 4;
+                        //player.chatOverhead.NewMessage(player.velocity.X+"", 2);
+                        targetVelocity *= Math.Min((Pi-angleDiff)*0.5f, 1f);
+                        //player.chatOverhead.NewMessage(Math.Min((Pi-angleDiff)*5, 1f)+"", 2);
+                    }
+                    //float dot = Vector2.Dot(Vector2.Normalize(player.velocity), Vector2.Normalize(displacement));
+                    //player.chatOverhead.NewMessage(+"", 2);
+                    //player.chatOverhead.NewMessage($"{{{Math.Round(player.velocity.X, 1)}, {Math.Round(player.velocity.Y, 1)}}}\n{{{Math.Round(targetVelocity.X, 1)}, {Math.Round(targetVelocity.Y, 1)}}}", 5);
+                    player.velocity = targetVelocity * 1.0085f;// * Math.Min(1.2f+dot, 1f);
 
                     if(player.velocity.Y == 0)player.velocity.Y+=player.gravity*player.gravDir;
-                    //Dust.NewDustPerfect(player.Center+player.velocity*32, angleDir>0?6:74, Vector2.Zero).noGravity = true;
-                    //Dust.NewDustPerfect(new Vector2(Main.screenPosition.X+64, Main.screenPosition.Y+(Main.screenHeight*(angleDiff/Pi))), angleDir>0?6:74, default).noGravity=true;
-                    //player.position = player.position+player.velocity;
                 }
                 if(player.Hitbox.Intersects(projectile.Hitbox)) {
                     projectile.Kill();
@@ -414,12 +415,29 @@ namespace EpikV2 {
             }
         }
         public override void SetControls(){
-            if(!player.controlTorch)return;
-            if(player.HeldItem?.modItem is IScrollableItem item) {
-                player.controlTorch = false;
-                if(Math.Abs(PlayerInput.ScrollWheelDelta)>=60){
-                    item.Scroll(PlayerInput.ScrollWheelDelta / -120);
-                    PlayerInput.ScrollWheelDelta = 0;
+            if(player.controlTorch) {
+                if(player.HeldItem?.modItem is IScrollableItem item) {
+                    player.controlTorch = false;
+                    if(Math.Abs(PlayerInput.ScrollWheelDelta) >= 60) {
+                        item.Scroll(PlayerInput.ScrollWheelDelta / -120);
+                        PlayerInput.ScrollWheelDelta = 0;
+                    }
+                }
+            }
+            if(springDashCooldown>0) {
+                if(--springDashCooldown2 == 0) {
+                    springDashCooldown2 = --springDashCooldown;
+                } else if(springDashCooldown2%2==0) {//*
+                    if(player.velocity.X>0) {
+                        player.controlLeft = false;
+                    }else if(player.velocity.X<0) {
+                        player.controlRight = false;
+                    }//*/
+                }
+                if(collide.x==-1) {
+                    player.controlLeft = true;
+                } else if(collide.x==1){
+                    player.controlRight = true;
                 }
             }
         }

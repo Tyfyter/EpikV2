@@ -72,30 +72,10 @@ namespace EpikV2.Items {
                 fact *= Spring_Boots.collisionMult;
             }
             Vector2 normProjVel = projectile.velocity.SafeNormalize(Vector2.Zero);
-            Vector2 d = player.velocity.SafeNormalize(Vector2.Zero)*normProjVel;
             float v = projectile.velocity.Length();
-            float pv = player.velocity.Length();
-            v -= (float)Math.Max(Math.Min((v-pv)*Math.Pow(d.X+d.Y,3f), v), 0);
-            if((d.X+d.Y)>0&&pv>16) {
-                v = Math.Max(v-pv/1.25f,0);
-            }
-            player.velocity += normProjVel*v*fact;
+            player.velocity = normProjVel * v * fact;
+            epikPlayer.springDashCooldown = epikPlayer.springDashCooldown2 = 9;
             projectile.Kill();
         }
     }
-
-	// Animated hook example
-	// Multiple,
-	// only 1 connected, spawn mult
-	// Light the path
-	// Gem Hooks: 1 spawn only
-	// Thorn: 4 spawns, 3 connected
-	// Dual: 2/1
-	// Lunar: 5/4 -- Cycle hooks, more than 1 at once
-	// AntiGravity -- Push player to position
-	// Static -- move player with keys, don't pull to wall
-	// Christmas -- light ends
-	// Web slinger -- 9/8, can shoot more than 1 at once
-	// Bat hook -- Fast reeling
-
 }

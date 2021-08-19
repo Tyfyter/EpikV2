@@ -22,6 +22,7 @@ namespace EpikV2.Items {
 			item.shootSpeed = 20f;
             item.shoot = ProjectileType<Orion_Boots_Projectile>();
             item.useAmmo = Orion_Boot_Charge.ID;
+            item.rare = ItemRarityID.Cyan;
 		}
 
 
@@ -46,6 +47,7 @@ namespace EpikV2.Items {
             item.createTile = -1;
             item.consumable = true;
             item.ammo = item.type;
+            item.rare = ItemRarityID.Cyan;
 		}
 
     }
