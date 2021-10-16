@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static EpikV2.EpikExtensions;
+using static EpikV2.Resources;
 using static Terraria.ModLoader.ModContent;
 using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
@@ -127,26 +128,26 @@ namespace EpikV2.Items {
 			if (Main.rand.Next(2) == 0) {
 				d.fadeIn = 1.4f;
 			}
-            d.shader = EpikV2.starlightShader;
+            d.shader = Shaders.starlightShader;
             d = Dust.NewDustPerfect(projectile.Center-offset, Utils.SelectRandom(Main.rand, 242, 59, 88), Vector2.Zero, 0, default, 1.2f);
 			d.noGravity = true;
 			if (Main.rand.Next(2) == 0) {
 				d.fadeIn = 1.4f;
 			}
-            d.shader = EpikV2.starlightShader;
+            d.shader = Shaders.starlightShader;
             offset = new Vector2(16,0).RotatedBy(-projectile.rotation);
 			d = Dust.NewDustPerfect(projectile.Center+offset, Utils.SelectRandom(Main.rand, 242, 59, 88), Vector2.Zero, 0, default, 1.2f);
 			d.noGravity = true;
 			if (Main.rand.Next(2) == 0) {
 				d.fadeIn = 1.4f;
 			}
-            d.shader = EpikV2.starlightShader;
+            d.shader = Shaders.starlightShader;
             d = Dust.NewDustPerfect(projectile.Center-offset, Utils.SelectRandom(Main.rand, 242, 59, 88), Vector2.Zero, 0, default, 1.2f);
 			d.noGravity = true;
 			if (Main.rand.Next(2) == 0) {
 				d.fadeIn = 1.4f;
 			}
-            d.shader = EpikV2.starlightShader;
+            d.shader = Shaders.starlightShader;
 
             Player owner = Main.player[projectile.owner];
             EpikPlayer epikPlayer = owner.GetModPlayer<EpikPlayer>();
@@ -199,7 +200,7 @@ namespace EpikV2.Items {
 			    if (Main.rand.Next(2) == 0) {
 				    d.fadeIn = 1.4f;
 			    }
-                d.shader = EpikV2.starlightShader;
+                d.shader = Shaders.starlightShader;
             }
 			projectile.position.X += projectile.width / 2;
 			projectile.position.Y += projectile.height / 2;
@@ -224,7 +225,7 @@ namespace EpikV2.Items {
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
             projectile.type = ProjectileID.NebulaBlaze2;
             spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.starlightShader.Shader, Main.GameViewMatrix.ZoomMatrix);
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, Shaders.starlightShader.Shader, Main.GameViewMatrix.ZoomMatrix);
             return true;
         }
         public override void PostDraw(SpriteBatch spriteBatch, Color lightColor) {

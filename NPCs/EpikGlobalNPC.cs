@@ -13,6 +13,7 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using static EpikV2.EpikExtensions;
+using static EpikV2.Resources;
 using static Microsoft.Xna.Framework.MathHelper;
 
 namespace EpikV2.NPCs
@@ -240,8 +241,8 @@ namespace EpikV2.NPCs
             if(jaded) {
                 npc.frame = freezeFrame;
 			    spriteBatch.End();
-                EpikV2.jadeShader.Parameters["uProgress"].SetValue(jadeFrames/(float)Math.Ceiling(Math.Sqrt((npc.frame.Width*npc.frame.Width)+(npc.frame.Height*npc.frame.Height))));
-			    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.jadeShader, Main.GameViewMatrix.ZoomMatrix);
+                Shaders.jadeShader.Parameters["uProgress"].SetValue(jadeFrames/(float)Math.Ceiling(Math.Sqrt((npc.frame.Width*npc.frame.Width)+(npc.frame.Height*npc.frame.Height))));
+			    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, Shaders.jadeShader, Main.GameViewMatrix.ZoomMatrix);
 
             }
             return true;

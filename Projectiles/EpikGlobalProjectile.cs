@@ -10,6 +10,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using static EpikV2.EpikExtensions;
 using static Microsoft.Xna.Framework.MathHelper;
+using static EpikV2.Resources;
 
 namespace EpikV2.Projectiles {
     public class EpikGlobalProjectile : GlobalProjectile{
@@ -20,7 +21,7 @@ namespace EpikV2.Projectiles {
             if(jade) {
                 Lighting.AddLight(projectile.Center,0,1,0.5f);
 			    spriteBatch.End();
-			    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.jadeDyeShader.Shader, Main.GameViewMatrix.ZoomMatrix);
+			    spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, Shaders.jadeDyeShader.Shader, Main.GameViewMatrix.ZoomMatrix);
             }
             return true;
         }

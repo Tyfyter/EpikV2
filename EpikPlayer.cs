@@ -15,6 +15,7 @@ using Terraria.GameInput;
 using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using EpikV2.NPCs;
+using static EpikV2.Resources;
 
 namespace EpikV2 {
     public class EpikPlayer : ModPlayer {
@@ -603,7 +604,7 @@ namespace EpikV2 {
         });
         internal static Action<PlayerDrawInfo> DrawExtraHelmetLayer(int extraTextureIndex) => (PlayerDrawInfo drawInfo) => {
             Player drawPlayer = drawInfo.drawPlayer;
-            var texture = EpikV2.ExtraHeadTextures[extraTextureIndex];
+            var texture = Textures.ExtraHeadTextures[extraTextureIndex];
             DrawData data = new DrawData(texture.texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.headPosition + drawInfo.headOrigin, drawPlayer.bodyFrame, drawInfo.upperArmorColor, drawPlayer.headRotation, drawInfo.headOrigin, 1f, drawInfo.spriteEffects, 0);
             data.shader = drawInfo.headArmorShader==0?texture.shader:drawInfo.headArmorShader;
             Main.playerDrawData.Add(data);
@@ -631,12 +632,12 @@ namespace EpikV2 {
             int X = (int)(baseX+handPos.X);
             int Y = (int)(baseY+handPos.Y);
 
-            DrawData data = new DrawData(EpikV2.pixelTexture, new Rectangle(X, Y, 2, (int)stringLength), null, fadeColor, -drawInfo.drawPlayer.fullRotation, new Vector2(0.5f, 1f), SpriteEffects.None, 0);
+            DrawData data = new DrawData(Textures.pixelTexture, new Rectangle(X, Y, 2, (int)stringLength), null, fadeColor, -drawInfo.drawPlayer.fullRotation, new Vector2(0.5f, 1f), SpriteEffects.None, 0);
             data.shader = shaderID;
             Main.playerDrawData.Add(data);
 
             X = (int)(baseX-handPos.X);
-            data = new DrawData(EpikV2.pixelTexture, new Rectangle(X, Y, 2, (int)stringLength), null, fadeColor, -drawInfo.drawPlayer.fullRotation, new Vector2(0.5f, 1f), SpriteEffects.None, 0);
+            data = new DrawData(Textures.pixelTexture, new Rectangle(X, Y, 2, (int)stringLength), null, fadeColor, -drawInfo.drawPlayer.fullRotation, new Vector2(0.5f, 1f), SpriteEffects.None, 0);
             data.shader = shaderID;
             Main.playerDrawData.Insert(0, data);
         });

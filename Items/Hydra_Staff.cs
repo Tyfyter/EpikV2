@@ -9,6 +9,7 @@ using static Terraria.ModLoader.ModContent;
 using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
 using Origins.Projectiles;
+using static EpikV2.Resources;
 
 #pragma warning disable 672
 namespace EpikV2.Items {
@@ -271,7 +272,7 @@ namespace EpikV2.Items {
 			    if (Main.rand.Next(2) == 0) {
 				    d.fadeIn = 1.4f;
 			    }
-                d.shader = EpikV2.starlightShader;
+                d.shader = Shaders.starlightShader;
             }
 			projectile.position.X += projectile.width / 2;
 			projectile.position.Y += projectile.height / 2;
@@ -301,9 +302,9 @@ namespace EpikV2.Items {
                 spriteEffects ^= SpriteEffects.FlipHorizontally;
             }
 			spriteBatch.End();
-			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.Default, RasterizerState.CullNone, EpikV2.nebulaShader.Shader, Main.GameViewMatrix.ZoomMatrix);
-			Main.graphics.GraphicsDevice.Textures[1] = EpikV2.nebulaDistortionTexture;
-            EffectParameterCollection parameters = EpikV2.nebulaShader.Shader.Parameters;
+			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.Default, RasterizerState.CullNone, Shaders.nebulaShader.Shader, Main.GameViewMatrix.ZoomMatrix);
+			Main.graphics.GraphicsDevice.Textures[1] = Shaders.nebulaDistortionTexture;
+            EffectParameterCollection parameters = Shaders.nebulaShader.Shader.Parameters;
             parameters["uImageSize1"].SetValue(new Vector2(300));
             parameters["uImageSize0"].SetValue(new Vector2(16,16));
             parameters["uSourceRect"].SetValue(new Vector4(0,0,16,16));

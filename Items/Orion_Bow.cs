@@ -9,6 +9,7 @@ using static Terraria.ModLoader.ModContent;
 using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
 using Origins.Projectiles;
+using static EpikV2.Resources;
 
 #pragma warning disable 672
 namespace EpikV2.Items {
@@ -283,7 +284,7 @@ namespace EpikV2.Items {
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
             projectile.type = type;
             spriteBatch.End();
-			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.starlightShader.Shader, Main.Transform);
+			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, Shaders.starlightShader.Shader, Main.Transform);
             if(type > ProjectileID.Count) {
                 return ProjectileLoader.GetProjectile(type)?.PreDraw(spriteBatch, lightColor)??true;
             }
@@ -362,7 +363,7 @@ namespace EpikV2.Items {
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
             spriteBatch.End();
-			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.starlightShader.Shader, Main.Transform);
+			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, Shaders.starlightShader.Shader, Main.Transform);
             return true;
         }
         public override void PostDraw(SpriteBatch spriteBatch, Color lightColor) {

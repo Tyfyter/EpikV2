@@ -8,6 +8,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
+using static EpikV2.Resources;
 
 namespace EpikV2.Items {
 	public class Jade_Reaper : ModItem {
@@ -177,7 +178,7 @@ namespace EpikV2.Items {
 			//spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.jadeDyeShader.Shader, Main.GameViewMatrix.ZoomMatrix);
             Texture2D texture = ModContent.GetTexture(projectile.localAI[1]==1?"EpikV2/Items/Jade_Reaper":"EpikV2/Items/Jade_Reaper_M");
             Terraria.DataStructures.DrawData data = new Terraria.DataStructures.DrawData(texture, projectile.Center - Main.screenPosition, new Rectangle(0,0,64,64), new Color(255,255,255,200), projectile.rotation, new Vector2(32,32), 2f, SpriteEffects.None, 0);
-            EpikV2.jadeDyeShader.Apply(projectile, data);
+            Shaders.jadeDyeShader.Apply(projectile, data);
             data.Draw(spriteBatch);
             //spriteBatch.Draw(texture, projectile.Center - Main.screenPosition, new Rectangle(0,0,64,64), default, projectile.rotation, new Vector2(32,32), 2f, SpriteEffects.None, 0f);
 

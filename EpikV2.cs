@@ -24,6 +24,8 @@ using static Tyfyter.Utils.ChestLootCache.LootQueueAction;
 using static Tyfyter.Utils.ChestLootCache.LootQueueMode;
 using Tyfyter.Utils.ID;
 using EpikV2.NPCs;
+using static EpikV2.Resources;
+using EpikV2.Items.Debugging;
 
 #pragma warning disable 672
 namespace EpikV2 {
@@ -33,21 +35,11 @@ namespace EpikV2 {
 		List<int> RegItems = new List<int> {};
 		List<int> ModItems = new List<int> {};
         //public static MiscShaderData jadeShader;
-        public static Effect jadeShader;
-        public static ArmorShaderData jadeDyeShader;
-        public static ArmorShaderData fireDyeShader;
-        public static MiscShaderData fireMiscShader;
-        public static ArmorShaderData starlightShader;
-        public static ArmorShaderData dimStarlightShader;
-        public static ArmorShaderData brightStarlightShader;
-        public static ArmorShaderData nebulaShader;
-        public static ArmorShaderData retroShader;
-        public static ArmorShaderData retroShaderRed;
         public static int starlightShaderID;
         public static int dimStarlightShaderID;
         public static int brightStarlightShaderID;
         public static int nebulaShaderID;
-        public static Texture2D nebulaDistortionTexture;
+        public static int distortShaderID;
         public static Filter mappedFilter {
             get=>Filters.Scene["EpikV2:FilterMapped"];
             set=>Filters.Scene["EpikV2:FilterMapped"] = value;
@@ -55,11 +47,9 @@ namespace EpikV2 {
         public static SpriteBatchQueue filterMapQueue;
         public static ArmorShaderData alphaMapShader;
         public static int alphaMapShaderID;
-		public static List<(Texture2D texture, int shader)> ExtraHeadTextures { get; private set; }
-        public static Texture2D pixelTexture;
         //public static MotionArmorShaderData motionBlurShader;
 
-		public EpikV2() {
+        public EpikV2() {
 			Properties = new ModProperties() {
 				Autoload = true,
 				AutoloadGores = true,
@@ -80,39 +70,16 @@ namespace EpikV2 {
                 //RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
                 //jadeShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Jade")), "Jade");
                 EpikExtensions.DrawPlayerItemPos = (Func<float, int, Vector2>)typeof(Main).GetMethod("DrawPlayerItemPos", BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate(typeof(Func<float, int, Vector2>), Main.instance);
-                jadeShader = GetEffect("Effects/Jade");
 
-                jadeDyeShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "JadeConst");
-                GameShaders.Armor.BindShader(ModContent.ItemType<Jade_Dye>(), jadeDyeShader);
-
-                fireDyeShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Firewave")), "Firewave");
-                GameShaders.Armor.BindShader(ModContent.ItemType<Heatwave_Dye>(), fireDyeShader);
-
-                fireMiscShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Firewave")), "Firewave");
-
-                starlightShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Starlight")), "Starlight");
-                GameShaders.Armor.BindShader(ModContent.ItemType<Starlight_Dye>(), starlightShader);
-
-                dimStarlightShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "Starlight");
-                GameShaders.Armor.BindShader(ModContent.ItemType<Dim_Starlight_Dye>(), dimStarlightShader);
-
-                brightStarlightShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "BrightStarlight");
-                GameShaders.Armor.BindShader(ModContent.ItemType<Bright_Starlight_Dye>(), brightStarlightShader);
-
-                nebulaShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Nebula")), "Nebula");
-                nebulaDistortionTexture = mod.GetTexture("Textures/Starry_Noise");
-                nebulaShader.UseNonVanillaImage(nebulaDistortionTexture);
-                GameShaders.Armor.BindShader(ModContent.ItemType<Hydra_Staff>(), nebulaShader);
-
-                retroShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "Retro");
-                retroShader.UseOpacity(0.75f);
-                retroShader.UseSaturation(0.65f);
-                GameShaders.Armor.BindShader(ModContent.ItemType<Retro_Dye>(), retroShader);
-
-                retroShaderRed = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "Retro");
-                retroShaderRed.UseOpacity(-0.25f);
-                retroShaderRed.UseSaturation(-0.5f);
-                GameShaders.Armor.BindShader(ModContent.ItemType<Red_Retro_Dye>(), retroShaderRed);
+                Shaders = new ShaderCache();
+                GameShaders.Armor.BindShader(ModContent.ItemType<Jade_Dye>(), Shaders.jadeDyeShader);
+                GameShaders.Armor.BindShader(ModContent.ItemType<Heatwave_Dye>(), Shaders.fireDyeShader);
+                GameShaders.Armor.BindShader(ModContent.ItemType<Starlight_Dye>(), Shaders.starlightShader);
+                GameShaders.Armor.BindShader(ModContent.ItemType<Dim_Starlight_Dye>(), Shaders.dimStarlightShader);
+                GameShaders.Armor.BindShader(ModContent.ItemType<Bright_Starlight_Dye>(), Shaders.brightStarlightShader);
+                GameShaders.Armor.BindShader(ModContent.ItemType<Hydra_Staff>(), Shaders.nebulaShader);
+                GameShaders.Armor.BindShader(ModContent.ItemType<Retro_Dye>(), Shaders.retroShader);
+                GameShaders.Armor.BindShader(ModContent.ItemType<Red_Retro_Dye>(), Shaders.retroShaderRed);
 
                 GameShaders.Armor.BindShader(ModContent.ItemType<GPS_Dye>(), new GPSArmorShaderData(new Ref<Effect>(GetEffect("Effects/GPS")), "GPS"));
 
@@ -121,6 +88,9 @@ namespace EpikV2 {
                 brightStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Bright_Starlight_Dye>());
                 nebulaShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Hydra_Staff>());
 
+                GameShaders.Armor.BindShader(ModContent.ItemType<GraphicsDebugger>(), Shaders.distortMiscShader);
+                distortShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<GraphicsDebugger>());
+
                 alphaMapShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "AlphaMap");
                 GameShaders.Armor.BindShader(ModContent.ItemType<Chroma_Dummy_Dye>(), alphaMapShader);
                 alphaMapShaderID = ModContent.ItemType<Chroma_Dummy_Dye>();
@@ -128,13 +98,8 @@ namespace EpikV2 {
                 //motionBlurShader = new MotionArmorShaderData(new Ref<Effect>(GetEffect("Effects/MotionBlur")), "MotionBlur");
                 //GameShaders.Armor.BindShader(ModContent.ItemType<Motion_Blur_Dye>(), motionBlurShader);
 
-                ExtraHeadTextures = new List<(Texture2D, int)> {
-                    (GetTexture("Items/Machiavellian_Masquerade_Head_Overlay"), GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveGoldDye)),
-                    (GetTexture("Items/Machiavellian_Masquerade_Head"), 0)
-                };
-
-                pixelTexture = GetTexture("Textures/Pixel");
-				//mappedFilter = new Filter(new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/MappedShade")), "MappedShade"), EffectPriority.High);
+                Textures = new TextureCache();
+                //mappedFilter = new Filter(new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/MappedShade")), "MappedShade"), EffectPriority.High);
                 //filterMapQueue = new SpriteBatchQueue();
             }
             On.Terraria.Player.SlopingCollision += EpikPlayer.SlopingCollision;
@@ -174,19 +139,7 @@ namespace EpikV2 {
         public override void Unload() {
             mod = null;
             EpikExtensions.DrawPlayerItemPos = null;
-            jadeShader = null;
-            jadeDyeShader = null;
-            fireDyeShader = null;
-            fireMiscShader = null;
-            starlightShader = null;
-            dimStarlightShader = null;
-            brightStarlightShader = null;
-            nebulaShader = null;
-            nebulaDistortionTexture = null;
-            retroShader = null;
-            retroShaderRed = null;
-            ExtraHeadTextures = null;
-            pixelTexture = null;
+            Textures = null;
             Orion_Bow.Unload();
             Hydra_Nebula.Unload();
             Suppressor.Unload();

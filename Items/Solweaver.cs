@@ -7,6 +7,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
+using static EpikV2.Resources;
 
 namespace EpikV2.Items {
     public class Solweaver : ModItem {
@@ -119,7 +120,7 @@ namespace EpikV2.Items {
                     new Rectangle((int)(i-(3*Main.GameUpdateCount%44))%44, 0, 1, 32), Color.OrangeRed, r,
                     new Vector2(0, 16+(float)(Math.Sin(i/6f)*Math.Cos((i*Main.GameUpdateCount)/4.5f)*3)),
                     scale*new Vector2(1,(float)(s*Math.Min(1,Math.Sqrt(i/10)))), 0, 0);
-                EpikV2.fireMiscShader.Apply(data);
+                Shaders.fireMiscShader.Apply(data);
                 data.Draw(spriteBatch);
                 //dust = Dust.NewDustPerfect(origin, 6, null, Scale:2);
                 //dust.shader = EpikV2.fireDyeShader;
