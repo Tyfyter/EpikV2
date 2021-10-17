@@ -379,6 +379,10 @@ namespace EpikV2 {
                 break;
 	        }
         }
+        public static Vector2 WithMaxLength(this Vector2 vector, float length) {
+            float pLength = vector.LengthSquared();
+            return pLength > length * length ? Vector2.Normalize(vector) * length: vector;
+        }
         public static void SayNetMode() {
             switch(Main.netMode) {
                 case NetmodeID.Server:
