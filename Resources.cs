@@ -28,6 +28,9 @@ namespace EpikV2 {
             public Texture2D pixelTexture;
             public Texture2D distTestTexture0;
             public Texture2D distTestTexture1;
+            public Texture2D Breakpoint_Glow;
+            Texture2D breakpoint_Arrow_Glow;
+            public Texture2D Breakpoint_Arrow_Glow => breakpoint_Arrow_Glow??(breakpoint_Arrow_Glow = GetTexture("EpikV2/Items/Breakpoint_Arrow_Glowmask"));
         }
         public class ShaderCache {
             public ShaderCache() {
@@ -57,7 +60,7 @@ namespace EpikV2 {
                 testDistortionTexture = mod.GetTexture("Textures/40x40Dist");
                 distortMiscShader.UseNonVanillaImage(testDistortionTexture);
 
-                trailShader = mod.GetEffect("Effects/Trail");
+                //trailShader = mod.GetEffect("Effects/Trail");
             }
             public Effect jadeShader;
             public ArmorShaderData jadeDyeShader;
@@ -72,7 +75,7 @@ namespace EpikV2 {
             public ArmorShaderData distortMiscShader;
             public Texture2D nebulaDistortionTexture;
             public Texture2D testDistortionTexture;
-            public Effect trailShader;
+            //public Effect trailShader;
         }
     }
 }
