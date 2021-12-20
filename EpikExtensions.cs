@@ -43,6 +43,15 @@ namespace EpikV2 {
             R = r;
             Theta = theta;
         }
+        public PolarVec2 RotatedBy(float offset) {
+            return new PolarVec2(R, Theta+offset);
+        }
+        public PolarVec2 WithRotation(float theta) {
+            return new PolarVec2(R, theta);
+        }
+        public PolarVec2 WithLength(float length) {
+            return new PolarVec2(length, Theta);
+        }
         public static explicit operator Vector2(PolarVec2 pv) {
             return new Vector2((float)(pv.R*Math.Cos(pv.Theta)),(float)(pv.R*Math.Sin(pv.Theta)));
         }

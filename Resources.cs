@@ -56,6 +56,8 @@ namespace EpikV2 {
                 distortMiscShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Distort")), "Distort");
                 testDistortionTexture = mod.GetTexture("Textures/40x40Dist");
                 distortMiscShader.UseNonVanillaImage(testDistortionTexture);
+
+                trailShader = mod.GetEffect("Effects/Trail");
             }
             public Effect jadeShader;
             public ArmorShaderData jadeDyeShader;
@@ -70,6 +72,7 @@ namespace EpikV2 {
             public ArmorShaderData distortMiscShader;
             public Texture2D nebulaDistortionTexture;
             public Texture2D testDistortionTexture;
+            public Effect trailShader;
         }
     }
 }

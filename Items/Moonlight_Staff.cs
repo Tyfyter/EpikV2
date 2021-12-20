@@ -9,6 +9,10 @@ using static Terraria.ModLoader.ModContent;
 using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
 using Origins.Projectiles;
+using System.Collections.Generic;
+using static Tyfyter.Utils.MiscUtils;
+using System.Diagnostics;
+using Terraria.Graphics.Effects;
 
 #pragma warning disable 672
 namespace EpikV2.Items {

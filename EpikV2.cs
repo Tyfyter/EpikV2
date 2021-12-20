@@ -140,6 +140,7 @@ namespace EpikV2 {
             mod = null;
             EpikExtensions.DrawPlayerItemPos = null;
             Textures = null;
+            Shaders = null;
             Orion_Bow.Unload();
             Hydra_Nebula.Unload();
             Suppressor.Unload();
@@ -257,7 +258,7 @@ namespace EpikV2 {
                 for (int i = 0; i < Main.glowMaskTexture.Length; i++) {
                     glowMasks[i] = Main.glowMaskTexture[i];
                 }
-                glowMasks[glowMasks.Length - 1] = mod.GetTexture("Items/" + modItem.GetType().Name + "_Glow");
+                glowMasks[glowMasks.Length - 1] = ModContent.GetTexture(modItem.Texture+"_Glow");
                 Main.glowMaskTexture = glowMasks;
                 return (short)(glowMasks.Length - 1);
             } else return 0;
