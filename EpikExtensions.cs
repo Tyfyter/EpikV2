@@ -58,6 +58,21 @@ namespace EpikV2 {
         public static explicit operator PolarVec2(Vector2 vec) {
             return new PolarVec2(vec.Length(), vec.ToRotation());
         }
+        public static bool operator ==(PolarVec2 a, PolarVec2 b) {
+            return a.Theta == b.Theta && a.R == b.R;
+        }
+        public static bool operator !=(PolarVec2 a, PolarVec2 b) {
+            return a.Theta != b.Theta || a.R != b.R;
+        }
+        public static PolarVec2 operator *(PolarVec2 a, float scalar) {
+            return new PolarVec2(a.R*scalar, a.Theta);
+        }
+        public static PolarVec2 operator *(float scalar, PolarVec2 a) {
+            return new PolarVec2(a.R*scalar, a.Theta);
+        }
+        public static PolarVec2 operator /(PolarVec2 a, float scalar) {
+            return new PolarVec2(a.R/scalar, a.Theta);
+        }
     }
     public interface ICustomDrawItem {
         void DrawInHand(Texture2D itemTexture, PlayerDrawInfo drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin);
