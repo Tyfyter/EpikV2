@@ -70,6 +70,7 @@ namespace EpikV2 {
         public bool championsHelm = false;
         public byte springDashCooldown = 0;
         public byte springDashCooldown2 = 0;
+        public byte[] npcImmuneFrames = new byte[Main.maxNPCs+1];
 
         public static BitsBytes ItemChecking;
 
@@ -150,6 +151,14 @@ namespace EpikV2 {
                 organRearrangement = 0;
             }
             extraHeadTexture = -1;
+            for (int i = 0; i <= Main.maxNPCs; i++) {
+                if (npcImmuneFrames[i] > 0) {
+                    npcImmuneFrames[i]--;
+                }
+            }
+        }
+        public override bool CanBeHitByNPC(NPC npc, ref int cooldownSlot) {
+            return npcImmuneFrames[npc.whoAmI] == 0;
         }
         public override void PostUpdate() {
             light_shots = 0;
