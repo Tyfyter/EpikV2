@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Tyfyter.Utils;
 using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items {

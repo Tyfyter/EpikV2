@@ -5,6 +5,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Tyfyter.Utils;
 using static EpikV2.Items.Magicians_Top_Hat;
 
 namespace EpikV2.Items {

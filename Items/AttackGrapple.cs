@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.ID;
+using Tyfyter.Utils;
 using Terraria.ModLoader;
 
 namespace EpikV2.Items {

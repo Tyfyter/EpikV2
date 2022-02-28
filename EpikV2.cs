@@ -26,10 +26,13 @@ using Tyfyter.Utils.ID;
 using EpikV2.NPCs;
 using static EpikV2.Resources;
 using EpikV2.Items.Debugging;
+using MonoMod.Cil;
 
 #pragma warning disable 672
 namespace EpikV2 {
 	public class EpikV2 : Mod {
+        public static string GithubUserName => "Tyfyter";
+        public static string GithubProjectName => "EpikV2";
         internal static EpikV2 mod;
         private HotKey ReadTooltipsVar = new HotKey("Read Tooltips (list mod name)", Keys.L);
 		List<int> RegItems = new List<int> {};
@@ -47,8 +50,17 @@ namespace EpikV2 {
         public static SpriteBatchQueue filterMapQueue;
         public static ArmorShaderData alphaMapShader;
         public static int alphaMapShaderID;
+        internal static List<IDrawAfterNPCs> drawAfterNPCs;
         //public static MotionArmorShaderData motionBlurShader;
-
+        public override object Call(params object[] args) {
+            if (args.Length > 0) {
+                switch (args[0]) {
+                    case "GetInfoStringForBugReport":
+                    return "testing: why didn't I choose a mod with any static non-resource data to test this with?";
+                }
+            }
+            return null;
+        }
         public EpikV2() {
 			Properties = new ModProperties() {
 				Autoload = true,
@@ -99,48 +111,66 @@ namespace EpikV2 {
                 //GameShaders.Armor.BindShader(ModContent.ItemType<Motion_Blur_Dye>(), motionBlurShader);
 
                 Textures = new TextureCache();
+                drawAfterNPCs = new List<IDrawAfterNPCs>();
                 //mappedFilter = new Filter(new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/MappedShade")), "MappedShade"), EffectPriority.High);
                 //filterMapQueue = new SpriteBatchQueue();
             }
             On.Terraria.Player.SlopingCollision += EpikPlayer.SlopingCollision;
             //Main.OnPreDraw += Main_OnPostDraw;
+            IL.Terraria.Main.DoDraw += Main_DoDraw;
+        }
+
+        private void Main_DoDraw(ILContext il) {
+            ILCursor c = new ILCursor(il);
+            if (c.TryGotoNext(MoveType.After, i => i.MatchLdcI4(6), i => i.MatchLdcI4(0), i => i.MatchCallvirt(typeof(OverlayManager), "Draw"))) {
+                c.EmitDelegate((Action)(() => {
+                    for (int i = 0; i < drawAfterNPCs.Count; i++) {
+                        drawAfterNPCs[i].DrawPostNPCLayer();
+                    }
+                    drawAfterNPCs.Clear();
+                }));
+            } else {
+                Logger.Error("could not find OverlayManager.Draw call in Main.DoDraw");
+                drawAfterNPCs = null;
+            }
         }
 
         /*
-        private void Main_OnPostDraw(GameTime obj) {
-            if(filterMapQueue is null) {
-                return;
-            }
-            bool filter = filterMapQueue.Count > 0;
-            if(!(mappedFilter is null))Main.LocalPlayer.ManageSpecialBiomeVisuals("EpikV2:FilterMapped", filter, Main.LocalPlayer.Center);
-            if(!filter) {
-                mappedFilter.Opacity = 0;
-                return;
-            }
-            RenderTarget2D filterMapTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight);
+private void Main_OnPostDraw(GameTime obj) {
+   if(filterMapQueue is null) {
+       return;
+   }
+   bool filter = filterMapQueue.Count > 0;
+   if(!(mappedFilter is null))Main.LocalPlayer.ManageSpecialBiomeVisuals("EpikV2:FilterMapped", filter, Main.LocalPlayer.Center);
+   if(!filter) {
+       mappedFilter.Opacity = 0;
+       return;
+   }
+   RenderTarget2D filterMapTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight);
 
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
-			Main.instance.GraphicsDevice.SetRenderTarget(filterMapTarget);
-			Main.instance.GraphicsDevice.Clear(new Color(0,128,128,0));
+   Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
+   Main.instance.GraphicsDevice.SetRenderTarget(filterMapTarget);
+   Main.instance.GraphicsDevice.Clear(new Color(0,128,128,0));
 
-            //Main.LocalPlayer.chatOverhead.NewMessage(alphaMapShader);
-            filterMapQueue.DrawTo(Main.spriteBatch);
-            filterMapQueue.Clear();
+   //Main.LocalPlayer.chatOverhead.NewMessage(alphaMapShader);
+   filterMapQueue.DrawTo(Main.spriteBatch);
+   filterMapQueue.Clear();
 
-            Main.spriteBatch.End();
-            Main.instance.GraphicsDevice.SetRenderTarget(null);
+   Main.spriteBatch.End();
+   Main.instance.GraphicsDevice.SetRenderTarget(null);
 
-            mappedFilter.GetShader().UseImage(filterMapTarget, 2);
-        }
-        public static float ShimmerCalc(float val) {
-            return 0.5f+MathHelper.Clamp(val/16f, -0.5f, 0.5f);
-        }//*/
+   mappedFilter.GetShader().UseImage(filterMapTarget, 2);
+}
+public static float ShimmerCalc(float val) {
+   return 0.5f+MathHelper.Clamp(val/16f, -0.5f, 0.5f);
+}//*/
 
         public override void Unload() {
             mod = null;
             EpikExtensions.DrawPlayerItemPos = null;
             Textures = null;
             Shaders = null;
+            drawAfterNPCs = null;
             Orion_Bow.Unload();
             Hydra_Nebula.Unload();
             Suppressor.Unload();

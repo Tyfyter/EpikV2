@@ -8,7 +8,7 @@ using static EpikV2.EpikExtensions;
 using static Terraria.ModLoader.ModContent;
 using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
-using Origins.Projectiles;
+using Tyfyter.Utils;
 using EpikV2.NPCs;
 
 #pragma warning disable 672

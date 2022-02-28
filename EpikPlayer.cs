@@ -71,6 +71,9 @@ namespace EpikV2 {
         public byte springDashCooldown = 0;
         public byte springDashCooldown2 = 0;
         public byte[] npcImmuneFrames = new byte[Main.maxNPCs+1];
+        public int spikeTarg = -1;
+        public int[] ownedSpikeHooks = new int[] {-1, -1, -1};
+        public bool preUpdateReleaseJump;
 
         public static BitsBytes ItemChecking;
 
@@ -155,6 +158,9 @@ namespace EpikV2 {
                 if (npcImmuneFrames[i] > 0) {
                     npcImmuneFrames[i]--;
                 }
+            }
+            for (int i = 0; i < 3; i++) {
+                ownedSpikeHooks[i] = -1;
             }
         }
         public override bool CanBeHitByNPC(NPC npc, ref int cooldownSlot) {
@@ -249,7 +255,7 @@ namespace EpikV2 {
         }
         //public static const rope_deb_412 = 0.1f;
         public override void PreUpdateMovement() {
-            if(ropeTarg>=0) {//ropeVel.HasValue&&
+            if(ropeTarg >= 0) {//ropeVel.HasValue&&
                 Projectile projectile = Main.projectile[ropeTarg];
                 Rope_Hook_Projectile rope = (Rope_Hook_Projectile)projectile.modProjectile;
                 float slide = 0;
@@ -289,10 +295,31 @@ namespace EpikV2 {
                     projectile.Kill();
                 }
                 player.fallStart = (int)(player.position.Y / 16f);
+            } else if (spikeTarg >= 0) {
+                Projectile proj = Main.projectile[spikeTarg];
+                if (proj.active && proj.type == Spike_Hook_Projectile.ID) {
+                    if((player.controlJump && preUpdateReleaseJump) || collide.x != 0 || collide.y != 0) {
+                        spikeTarg = -1;
+                        goto endCustomMovement;
+                    }
+				    Vector2 end = Main.projectile[(int)proj.ai[1]].Center;
+			        Vector2 normVel = player.velocity.SafeNormalize(Vector2.UnitX);
+                    Vector2 normDiff = (proj.Center - end).SafeNormalize(Vector2.UnitY);
+                    Vector2 gravDiff = normDiff * Math.Sign(normDiff.Y);
+                    float velMatch = Vector2.Dot(normVel, normDiff);
+                    player.velocity = normDiff * velMatch * player.velocity;
+                    if (player.velocity.Length() > 2) {
+                        player.gravity = 0f;
+                    }
+                } else {
+                    spikeTarg = -1;
+                }
             }
+            endCustomMovement:
             //ropeVel = null;
             ropeTarg = -1;
             preUpdateVel = player.velocity;
+            preUpdateReleaseJump = player.releaseJump;
         }
         public static void SlopingCollision(On.Terraria.Player.orig_SlopingCollision orig, Player self, bool fallThrough) {
             orig(self, fallThrough);

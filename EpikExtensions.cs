@@ -36,44 +36,6 @@ namespace EpikV2 {
         public const int Empty = 254;
         public const int Slain_2 = 255;
     }
-    public struct PolarVec2 {
-        public float R;
-        public float Theta;
-        public PolarVec2(float r, float theta) {
-            R = r;
-            Theta = theta;
-        }
-        public PolarVec2 RotatedBy(float offset) {
-            return new PolarVec2(R, Theta+offset);
-        }
-        public PolarVec2 WithRotation(float theta) {
-            return new PolarVec2(R, theta);
-        }
-        public PolarVec2 WithLength(float length) {
-            return new PolarVec2(length, Theta);
-        }
-        public static explicit operator Vector2(PolarVec2 pv) {
-            return new Vector2((float)(pv.R*Math.Cos(pv.Theta)),(float)(pv.R*Math.Sin(pv.Theta)));
-        }
-        public static explicit operator PolarVec2(Vector2 vec) {
-            return new PolarVec2(vec.Length(), vec.ToRotation());
-        }
-        public static bool operator ==(PolarVec2 a, PolarVec2 b) {
-            return a.Theta == b.Theta && a.R == b.R;
-        }
-        public static bool operator !=(PolarVec2 a, PolarVec2 b) {
-            return a.Theta != b.Theta || a.R != b.R;
-        }
-        public static PolarVec2 operator *(PolarVec2 a, float scalar) {
-            return new PolarVec2(a.R*scalar, a.Theta);
-        }
-        public static PolarVec2 operator *(float scalar, PolarVec2 a) {
-            return new PolarVec2(a.R*scalar, a.Theta);
-        }
-        public static PolarVec2 operator /(PolarVec2 a, float scalar) {
-            return new PolarVec2(a.R/scalar, a.Theta);
-        }
-    }
     public interface ICustomDrawItem {
         void DrawInHand(Texture2D itemTexture, PlayerDrawInfo drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin);
     }
@@ -120,58 +82,58 @@ namespace EpikV2 {
         public static Func<float, int, Vector2> DrawPlayerItemPos { get; internal set; }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Vec4FromVec2x2(Vector2 xy, Vector2 wh) {
-            return new Vector4(xy.X,xy.Y,wh.X,wh.Y);
+            return new Vector4(xy.X, xy.Y, wh.X, wh.Y);
         }
         public static double AngleDif(double alpha, double beta) {
-            double phi = Math.Abs(beta - alpha) % (Math.PI*2);       // This is either the distance or 360 - distance
-            double distance = ((phi > Math.PI)^(alpha>beta)) ? (Math.PI*2) - phi : phi;
+            double phi = Math.Abs(beta - alpha) % (Math.PI * 2);       // This is either the distance or 360 - distance
+            double distance = ((phi > Math.PI) ^ (alpha > beta)) ? (Math.PI * 2) - phi : phi;
             return distance;
         }
         public static float AngleDif(float alpha, float beta) {
             float phi = Math.Abs(beta - alpha) % MathHelper.TwoPi;       // This is either the distance or 360 - distance
-            float distance = ((phi > MathHelper.Pi)^(alpha>beta)) ? MathHelper.TwoPi - phi : phi;
+            float distance = ((phi > MathHelper.Pi) ^ (alpha > beta)) ? MathHelper.TwoPi - phi : phi;
             return distance;
         }
         public static float AngleDif(float alpha, float beta, out int dir) {
             float phi = Math.Abs(beta - alpha) % MathHelper.TwoPi;       // This is either the distance or 360 - distance
-            dir = ((phi > MathHelper.Pi)^(alpha>beta))?-1:1;
+            dir = ((phi > MathHelper.Pi) ^ (alpha > beta)) ? -1 : 1;
             float distance = phi > MathHelper.Pi ? MathHelper.TwoPi - phi : phi;
             return distance;
         }
         public static Vector2 Within(this Vector2 vector, Rectangle rect) {
             return new Vector2(
-                MathHelper.Clamp(vector.X, rect.X, rect.X+rect.Width),
-                MathHelper.Clamp(vector.Y, rect.Y, rect.Y+rect.Height));
+                MathHelper.Clamp(vector.X, rect.X, rect.X + rect.Width),
+                MathHelper.Clamp(vector.Y, rect.Y, rect.Y + rect.Height));
         }
         public static Vector2 MagnitudeMin(Vector2 vector, float mag) {
-            return vector.SafeNormalize(Vector2.Zero)*Math.Min(vector.Length(), mag);
+            return vector.SafeNormalize(Vector2.Zero) * Math.Min(vector.Length(), mag);
         }
         public static Vector2 MagnitudeMin(this ref Vector2 vector, float mag) {
             vector.Normalize();
             mag = Math.Min(vector.Length(), mag);
-            vector.X*=mag;
-            vector.Y*=mag;
+            vector.X *= mag;
+            vector.Y *= mag;
             return vector;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LinearSmoothing(ref float smoothed, float target, float rate) {
-            if(target!=smoothed) {
-                if(Math.Abs(target-smoothed)<rate) {
+            if (target != smoothed) {
+                if (Math.Abs(target - smoothed) < rate) {
                     smoothed = target;
                 } else {
-                    if(target>smoothed) {
-                        smoothed+=rate;
-                    }else if(target<smoothed) {
-                        smoothed-=rate;
+                    if (target > smoothed) {
+                        smoothed += rate;
+                    } else if (target < smoothed) {
+                        smoothed -= rate;
                     }
                 }
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LinearSmoothing(ref Vector2 smoothed, Vector2 target, float rate) {
-            if(target!=smoothed) {
+            if (target != smoothed) {
                 Vector2 diff = target - smoothed;
-                if(diff.Length()<rate) {
+                if (diff.Length() < rate) {
                     smoothed = target;
                 } else {
                     diff.Normalize();
@@ -181,53 +143,53 @@ namespace EpikV2 {
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AngularSmoothing(ref float smoothed, float target, float rate) {
-            if(target!=smoothed) {
+            if (target != smoothed) {
                 float diff = AngleDif(smoothed, target, out int dir);
-                if(Math.Abs(diff)<rate) {
+                if (Math.Abs(diff) < rate) {
                     smoothed = target;
                 } else {
-                    smoothed+=rate*dir;
+                    smoothed += rate * dir;
                 }
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AngularSmoothing(ref float smoothed, float target, float rate, bool snap) {
-            if(target!=smoothed) {
+            if (target != smoothed) {
                 float diff = AngleDif(smoothed, target, out int dir);
                 diff = Math.Abs(diff);
-                if(diff<rate||(snap&&diff>MathHelper.Pi-rate)) {
+                if (diff < rate || (snap && diff > MathHelper.Pi - rate)) {
                     smoothed = target;
                 } else {
-                    smoothed-=rate*dir;
+                    smoothed -= rate * dir;
                 }
             }
         }
         public static Rectangle BoxOf(Vector2 a, Vector2 b, float buffer) {
-            return BoxOf(a,b,new Vector2(buffer));
+            return BoxOf(a, b, new Vector2(buffer));
         }
         public static Rectangle BoxOf(Vector2 a, Vector2 b, Vector2 buffer = default) {
-            Vector2 position = Vector2.Min(a,b)-buffer;
-            Vector2 dimensions = (Vector2.Max(a,b)+buffer)-position;
-            return new Rectangle((int)position.X,(int)position.Y,(int)dimensions.X,(int)dimensions.Y);
+            Vector2 position = Vector2.Min(a, b) - buffer;
+            Vector2 dimensions = (Vector2.Max(a, b) + buffer) - position;
+            return new Rectangle((int)position.X, (int)position.Y, (int)dimensions.X, (int)dimensions.Y);
         }
         public static bool CanBeHitBy(this NPC npc, Player player, Item item, bool checkImmortal = true) {
-            if(!npc.active||(checkImmortal&&npc.immortal)||npc.dontTakeDamage) {
+            if (!npc.active || (checkImmortal && npc.immortal) || npc.dontTakeDamage) {
                 return false;
             }
-            bool itemCanHitNPC = ItemLoader.CanHitNPC(item, player, npc)??true;
+            bool itemCanHitNPC = ItemLoader.CanHitNPC(item, player, npc) ?? true;
             if (!itemCanHitNPC) {
-	            return false;
+                return false;
             }
-            bool canBeHitByItem = NPCLoader.CanBeHitByItem(npc, player, item)??true;
+            bool canBeHitByItem = NPCLoader.CanBeHitByItem(npc, player, item) ?? true;
             if (!canBeHitByItem) {
-	            return false;
+                return false;
             }
-            bool playerCanHitNPC = PlayerHooks.CanHitNPC(player, item, npc)??true;
+            bool playerCanHitNPC = PlayerHooks.CanHitNPC(player, item, npc) ?? true;
             if (!playerCanHitNPC) {
-	            return false;
+                return false;
             }
-            if(npc.friendly) {
-                switch(npc.type) {
+            if (npc.friendly) {
+                switch (npc.type) {
                     case NPCID.Guide:
                     return player.killGuide;
                     case NPCID.Clothier:
@@ -239,19 +201,19 @@ namespace EpikV2 {
             return true;
         }
         public static bool CanBeHitByNoItem(this NPC npc, Player player, Item item) {
-            if(!npc.active||npc.immortal||npc.dontTakeDamage) {
+            if (!npc.active || npc.immortal || npc.dontTakeDamage) {
                 return false;
             }
-            bool canBeHitByItem = NPCLoader.CanBeHitByItem(npc, player, item)??true;
+            bool canBeHitByItem = NPCLoader.CanBeHitByItem(npc, player, item) ?? true;
             if (!canBeHitByItem) {
-	            return false;
+                return false;
             }
-            bool playerCanHitNPC = PlayerHooks.CanHitNPC(player, item, npc)??true;
+            bool playerCanHitNPC = PlayerHooks.CanHitNPC(player, item, npc) ?? true;
             if (!playerCanHitNPC) {
-	            return false;
+                return false;
             }
-            if(npc.friendly) {
-                switch(npc.type) {
+            if (npc.friendly) {
+                switch (npc.type) {
                     case NPCID.Guide:
                     return player.killGuide;
                     case NPCID.Clothier:
@@ -263,60 +225,60 @@ namespace EpikV2 {
             return true;
         }
         public static void UseNonVanillaImage(this ArmorShaderData shaderData, Texture2D texture) {
-            typeof(ArmorShaderData).GetField("_uImage", BindingFlags.NonPublic|BindingFlags.Instance).SetValue(shaderData, new Ref<Texture2D>(texture));
+            typeof(ArmorShaderData).GetField("_uImage", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(shaderData, new Ref<Texture2D>(texture));
         }
         public static void UseNonVanillaImage(this MiscShaderData shaderData, Texture2D texture) {
-            typeof(MiscShaderData).GetField("_uImage", BindingFlags.NonPublic|BindingFlags.Instance).SetValue(shaderData, new Ref<Texture2D>(texture));
+            typeof(MiscShaderData).GetField("_uImage", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(shaderData, new Ref<Texture2D>(texture));
         }
         public static float GetAmmoConsumptionMult(this Player player) {
             float o = 1;
-            if(player.ammoBox) {
+            if (player.ammoBox) {
                 o *= 0.8f;
             }
-            if(player.ammoCost75) {
+            if (player.ammoCost75) {
                 o *= 0.75f;
             }
-            if(player.ammoCost80) {
+            if (player.ammoCost80) {
                 o *= 0.8f;
             }
-            if(player.ammoPotion) {
+            if (player.ammoPotion) {
                 o *= 0.8f;
             }
             return o;
         }
         public static void PoofOfSmoke(Rectangle rectangle) {
-			for (int i = 0; i < 25; i++) {
-				int d = Dust.NewDust(new Vector2(rectangle.X, rectangle.Y), rectangle.Width, rectangle.Height, DustID.Smoke, 0f, 0f, 100, default(Color), 2f);
-				Dust dust = Main.dust[d];
-				Dust dust2 = dust;
-				dust2.velocity *= 1.4f;
-				Main.dust[d].noLight = true;
-				Main.dust[d].noGravity = true;
-			}
-			Gore gore;
-			gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
-			gore.scale = 1f;
-			gore.velocity.X += 1f;
-			gore.velocity.Y += 1f;
-			gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
-			gore.scale = 1f;
-			gore.velocity.X -= 1f;
-			gore.velocity.Y += 1f;
-			gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
-			gore.scale = 1f;
-			gore.velocity.X += 1f;
-			gore.velocity.Y -= 1f;
-			gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
+            for (int i = 0; i < 25; i++) {
+                int d = Dust.NewDust(new Vector2(rectangle.X, rectangle.Y), rectangle.Width, rectangle.Height, DustID.Smoke, 0f, 0f, 100, default(Color), 2f);
+                Dust dust = Main.dust[d];
+                Dust dust2 = dust;
+                dust2.velocity *= 1.4f;
+                Main.dust[d].noLight = true;
+                Main.dust[d].noGravity = true;
+            }
+            Gore gore;
+            gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
             gore.scale = 1f;
-			gore.velocity.X -= 1f;
-			gore.velocity.Y -= 1f;
-		}
+            gore.velocity.X += 1f;
+            gore.velocity.Y += 1f;
+            gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
+            gore.scale = 1f;
+            gore.velocity.X -= 1f;
+            gore.velocity.Y += 1f;
+            gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
+            gore.scale = 1f;
+            gore.velocity.X += 1f;
+            gore.velocity.Y -= 1f;
+            gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
+            gore.scale = 1f;
+            gore.velocity.X -= 1f;
+            gore.velocity.Y -= 1f;
+        }
         public static Vector2 GetOnHandPos(Rectangle frame) {
-            return GetOnHandPos(frame.Y/56)-new Vector2(0,frame.Y%56);
+            return GetOnHandPos(frame.Y / 56) - new Vector2(0, frame.Y % 56);
         }
         public static Vector2 GetOnHandPos(int frame) {
             Vector2 output = new Vector2(20, 33);
-            switch(frame) {
+            switch (frame) {
                 case 0:
                 output = new Vector2(13, 39);
                 break;
@@ -378,34 +340,34 @@ namespace EpikV2 {
                 output = new Vector2(15, 35);
                 break;
             }
-            return output-new Vector2(20, 33);
+            return output - new Vector2(20, 33);
         }
-        public static void DropItemForNearbyTeammates(Vector2 Position, Vector2 HitboxSize, int ownerID, int itemType, int itemStack = 1, float maxDistance = 1280){
-	        if (itemType <= 0) {
-		        return;
-	        }
-	        switch (Main.netMode) {
+        public static void DropItemForNearbyTeammates(Vector2 Position, Vector2 HitboxSize, int ownerID, int itemType, int itemStack = 1, float maxDistance = 1280) {
+            if (itemType <= 0) {
+                return;
+            }
+            switch (Main.netMode) {
                 case NetmodeID.Server:
                 Player owner = Main.player[ownerID];
-		        int num = Item.NewItem((int)Position.X, (int)Position.Y, (int)HitboxSize.X, (int)HitboxSize.Y, itemType, itemStack, noBroadcast: true);
-		        Main.itemLockoutTime[num] = 54000;
+                int num = Item.NewItem((int)Position.X, (int)Position.Y, (int)HitboxSize.X, (int)HitboxSize.Y, itemType, itemStack, noBroadcast: true);
+                Main.itemLockoutTime[num] = 54000;
                 Player other;
-		        for (int i = 0; i <= Main.maxPlayers; i++){
+                for (int i = 0; i <= Main.maxPlayers; i++) {
                     other = Main.player[i];
-			        if (other.active && other.team==owner.team && owner.Distance(other.MountedCenter)<=maxDistance){
-				        NetMessage.SendData(MessageID.InstancedItem, i, -1, null, num);
-			        }
-		        }
-		        Main.item[num].active = false;
+                    if (other.active && other.team == owner.team && owner.Distance(other.MountedCenter) <= maxDistance) {
+                        NetMessage.SendData(MessageID.InstancedItem, i, -1, null, num);
+                    }
+                }
+                Main.item[num].active = false;
                 break;
                 case NetmodeID.SinglePlayer:
-		        Item.NewItem((int)Position.X, (int)Position.Y, (int)HitboxSize.X, (int)HitboxSize.Y, itemType, itemStack);
+                Item.NewItem((int)Position.X, (int)Position.Y, (int)HitboxSize.X, (int)HitboxSize.Y, itemType, itemStack);
                 break;
-	        }
+            }
         }
         public static Vector2 WithMaxLength(this Vector2 vector, float length) {
             float pLength = vector.LengthSquared();
-            return pLength > length * length ? Vector2.Normalize(vector) * length: vector;
+            return pLength > length * length ? Vector2.Normalize(vector) * length : vector;
         }
         public static void SayNetMode() {
             switch(Main.netMode) {
