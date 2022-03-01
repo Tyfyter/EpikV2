@@ -22,6 +22,9 @@ float uFrame;
 float2 uMax;*/
 
 /**Au demain, mon amie.
+ * Just saw that last comment
+ * no idea what it means
+ * che cazzo
 float4 Jade(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0{
 	float4 color = tex2D(uImage0, coords);
 	//color.a = 1;

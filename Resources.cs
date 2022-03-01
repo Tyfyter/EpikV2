@@ -36,6 +36,7 @@ namespace EpikV2 {
             public ShaderCache() {
                 EpikV2 mod = EpikV2.mod;
                 jadeShader = mod.GetEffect("Effects/Jade");
+                blurShader = mod.GetEffect("Effects/Blur");
 
                 jadeDyeShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "JadeConst");
                 fireDyeShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Firewave")), "Firewave");
@@ -63,6 +64,7 @@ namespace EpikV2 {
                 //trailShader = mod.GetEffect("Effects/Trail");
             }
             public Effect jadeShader;
+            public Effect blurShader;
             public ArmorShaderData jadeDyeShader;
             public ArmorShaderData fireDyeShader;
             public MiscShaderData fireMiscShader;
