@@ -14,6 +14,8 @@ using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.Utilities;
+using Tyfyter.Utils;
 
 namespace EpikV2 {
     public static class OtherDeathReasonID {
@@ -342,6 +344,33 @@ namespace EpikV2 {
             }
             return output - new Vector2(20, 33);
         }
+        public static void Shuffle<T>(this IList<T> list, UnifiedRandom rng = null) {
+            if(rng is null)rng = Main.rand;
+
+            int n = list.Count;
+            while (n > 1) {
+                n--;
+                int k = rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+        }
+        public static void Shuffle<T>(this T[] list, UnifiedRandom rng = null) {
+            if(rng is null)rng = Main.rand;
+
+            int n = list.Length;
+            while (n > 1) {
+                n--;
+                int k = rng.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+        }
+        public static FungibleSet<int> ToFungibleSet(this Recipe recipe) {
+            return new FungibleSet<int>(recipe.requiredItem.Select(i => new KeyValuePair<int, int>(i.type, i.stack)));
+		}
         public static void DropItemForNearbyTeammates(Vector2 Position, Vector2 HitboxSize, int ownerID, int itemType, int itemStack = 1, float maxDistance = 1280) {
             if (itemType <= 0) {
                 return;

@@ -227,7 +227,7 @@ namespace EpikV2.Items {
                     if(distanceToIdlePosition > 400) {
                         speed *= 2;
                     }
-                    vectorToIdlePosition = MagnitudeMin(vectorToIdlePosition, speed);
+                    vectorToIdlePosition = vectorToIdlePosition.WithMaxLength(speed);
                     projectile.velocity = vectorToIdlePosition;
                     idleVelocity = Vector2.Zero;
                     LinearSmoothing(ref idleOffset, Vector2.Zero, 0.5f);

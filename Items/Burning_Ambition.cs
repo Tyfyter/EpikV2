@@ -9,6 +9,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Tyfyter.Utils;
+using Tyfyter.Utils.ID;
 using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items {
@@ -56,10 +57,10 @@ namespace EpikV2.Items {
 			return player.altFunctionUse == 0 ? 1f : 0.85f;
 		}
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
-            if (player.altFunctionUse == 2) {
-				Projectile.NewProjectile(position, Vector2.Zero, ProjectileType<Burning_Ambition_Smelter>(), 0, 0f, player.whoAmI, Player.tileTargetX * 16 + 8, Player.tileTargetY * 16 + 8);
+			if (player.altFunctionUse == 2) {
+				Projectile.NewProjectile(position, Vector2.Zero, ProjectileType<Burning_Ambition_Smelter>(), 0, 0f, player.whoAmI, Player.tileTargetX, Player.tileTargetY);
 				return false;
-            }
+			}
 			Projectile.NewProjectile(position, new Vector2(speedX, speedY), item.shoot, damage, 0f, player.whoAmI, ai1:knockBack);
 			return false;
 		}
@@ -87,9 +88,9 @@ namespace EpikV2.Items {
 				Vector2 direction = Vector2.Normalize(projectile.velocity);
 				Vector2 side = direction.RotatedBy(MathHelper.PiOver2);
 				float zMult = (30 - projectile.ai[0]) / 30;
-                if (zMult < 0.01f) {
+				if (zMult < 0.01f) {
 					zMult = 0.01f;
-                }
+				}
 				Vector2 @base = projectile.Center + direction * 196 * zMult;
 				side *= zMult * zMult;
 				return new Triangle(projectile.Center, @base + side * 64, @base - side * 64);
@@ -135,14 +136,14 @@ namespace EpikV2.Items {
 					}
 				}
 			} else {
-                if (++projectile.ai[0] >= 30) {
+				if (++projectile.ai[0] >= 30) {
 					Main.PlaySound(SoundID.Item45, projectile.Center);
-					Projectile.NewProjectile(projectile.Center, projectile.velocity * (6 + projectile.localAI[0] * 4), ProjectileType<Burning_Ambition_Fireball>(), (int)(projectile.damage * (1 + projectile.localAI[0])), 0f, projectile.owner);
-                }
+					Projectile.NewProjectile(projectile.Center, projectile.velocity * (6 + projectile.localAI[0] * 4), ProjectileType<Burning_Ambition_Fireball>(), (int)(projectile.damage * (1 + projectile.localAI[0])), projectile.ai[1], projectile.owner);
+				}
 			}
 			owner.itemAnimation = 2;
 			owner.itemTime = 2;
-            owner.ChangeDir(projectile.velocity.X < 0 ? -1 : 1);
+			owner.ChangeDir(projectile.velocity.X < 0 ? -1 : 1);
 			owner.itemRotation = (float)Math.Atan2(projectile.velocity.Y * owner.direction, projectile.velocity.X * owner.direction);
 			projectile.Center = Main.player[projectile.owner].MountedCenter;
 			projectile.rotation += (MathHelper.TwoPi / 60) * (projectile.localAI[0] + 1);
@@ -166,9 +167,10 @@ namespace EpikV2.Items {
 				float zDist = particle.position.R * zMult;
 				float zDistAdjusted = (zDist / 64) / (particle.distance / 196);
 				zDistAdjusted /= factor;
+				Vector2 drawPosition = origin + (direction * particle.distance * zMult) + (side * (float)(zDist * cos * zMult));
 				Main.spriteBatch.Draw(
 					Main.dustTexture,
-					origin + (direction * particle.distance * zMult) + (side * (float)(zDist * cos * zMult)),
+					drawPosition,
 					particle.GetFrame(),
 					new Color(zDistAdjusted, zDistAdjusted, zDistAdjusted, zDistAdjusted),
 					(particle.age / 60f) + zDist,
@@ -176,6 +178,7 @@ namespace EpikV2.Items {
 					projectile.scale * (float)(2 + zDistAdjusted * zDistAdjusted * sin * zMult) * 0.5f,
 					SpriteEffects.None,
 					(float)(0.5 + sin * 0.1));
+				if(factor == 1f)Lighting.AddLight(drawPosition + Main.screenPosition, new Vector3(0.5f, 0.25f, 0f) * (float)(1f - Math.Abs(sin)));
 			}
 		}
 		void DrawAllParticles(bool back) {
@@ -269,7 +272,7 @@ namespace EpikV2.Items {
 			projectile.ignoreWater = true;
 			projectile.scale = 0.75f;
 		}
-        public override void AI() {
+		public override void AI() {
 			if (projectile.ai[0] == 0) {
 				if (particles is null) {
 					particles = new Fireball_Particle[90];
@@ -290,26 +293,30 @@ namespace EpikV2.Items {
 					particle.y += particle.yVelocity;
 					particle.age++;
 				}
-            } else {
+			} else {
 				for (int i = 0; i < deathParticles.Count; i++) {
 					Fireball_Particle particle = deathParticles[i];
 					particle.x += particle.xVelocity;
 					particle.y += particle.yVelocity;
-                    if (i == 0) {
+					if (i == 0) {
 
-                    }
-                    if (++particle.age > 60) {
+					}
+					if (++particle.age > 60) {
 						deathParticles.RemoveAt(i);
-                    }
+					}
 				}
-                if(deathParticles.Count > 0){
+				if(deathParticles.Count > 0){
 					projectile.timeLeft = 10;
-                } else {
+				} else {
 					projectile.Kill();
-                }
-            }
-        }
+				}
+			}
+		}
 		void Break() {
+			projectile.tileCollide = false;
+			if (particles is null) {
+				AI();
+			}
 			projectile.ai[0] = 1;
 			Main.PlaySound(SoundID.Item14, projectile.Center);
 			Vector2 center = projectile.Center;
@@ -326,29 +333,30 @@ namespace EpikV2.Items {
 					xVelocity = projectile.velocity.X * Main.rand.NextFloat(0.9f, 1.1f),
 					yVelocity = projectile.velocity.Y * Main.rand.NextFloat(0.9f, 1.1f)
 			}).OrderBy(p => Main.rand.Next(40)).Skip(30).OrderBy(p => -p.age).Skip(10).ToList();
-            for (int i = 0; i < 10; i++) {
+			for (int i = 0; i < 10; i++) {
 				Vector2 vel = (Vector2)new PolarVec2(Main.rand.NextFloat(2f, 4f), Main.rand.NextFloat(MathHelper.TwoPi));
 				Fireball_Particle particle = deathParticles[i];
 				particle.xVelocity = vel.X;
 				particle.yVelocity = vel.Y;
-            }
+			}
 			projectile.velocity = Vector2.Zero;
-        }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
-            if (projectile.ai[0] == 0 && target.life > 0) {
+		}
+		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+			if (projectile.ai[0] == 0 && target.life > 0) {
 				Break();
-            }
-        }
-        public override bool OnTileCollide(Vector2 oldVelocity) {
+			}
+			target.velocity = Vector2.Lerp(target.velocity, projectile.velocity * projectile.knockBack * Math.Max(1, target.knockBackResist), target.knockBackResist);
+		}
+		public override bool OnTileCollide(Vector2 oldVelocity) {
 			projectile.velocity = oldVelocity;
 			Break();
-            return false;
-        }
-        void DrawParticles(float factor = 1f) {
+			return false;
+		}
+		void DrawParticles(float factor = 1f) {
 			if (projectile.ai[0] == 0) {
-                if (particles is null) {
+				if (particles is null) {
 					return;
-                }
+				}
 				Vector2 origin = projectile.Center - Main.screenPosition;
 				float value = 1 / factor;
 				Color color = new Color(value, value, value, value);
@@ -368,8 +376,9 @@ namespace EpikV2.Items {
 						(float)(projectile.scale * (2 + Math.Sin(position.Z)) * 0.5f / factor),
 						SpriteEffects.None,
 						0);
+					if(factor == 1f)Lighting.AddLight(projectile.Center + new Vector2(position.X, position.Y), new Vector3(0.5f, 0.25f, 0f) * (float)(1f - Math.Cos(particle.x)));
 				}
-            } else {
+			} else {
 				Vector2 origin = projectile.Center - Main.screenPosition;
 				float value = 1 / factor;
 				Color color = new Color(value, value, value, value);
@@ -390,8 +399,9 @@ namespace EpikV2.Items {
 						(float)(projectile.scale * (2 + Math.Sin(position.Z)) * ageFactor * 0.5f / factor),
 						SpriteEffects.None,
 						0);
+					if(factor == 1f)Lighting.AddLight(projectile.Center + new Vector2(position.X, position.Y), new Vector3(0.5f, 0.25f, 0f) * (1f - Math.Abs(position.Z / 16)));
 				}
-            }
+			}
 		}
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
 			BlendState bs = new BlendState();
@@ -412,7 +422,7 @@ namespace EpikV2.Items {
 			}
 			return false;
 		}
-    }
+	}
 	public class Burning_Ambition_Smelter : ModProjectile {
 		public override string Texture => "EpikV2/Items/Burning_Ambition";
 		public override bool CloneNewInstances => true;
@@ -432,7 +442,7 @@ namespace EpikV2.Items {
 			projectile.tileCollide = false;
 			projectile.scale = 0.85f;
 		}
-        public override void AI() {
+		public override void AI() {
 			if (projectile.localAI[0] == 0) {
 				if (particles is null) {
 					particles = new Fireball_Particle[60];
@@ -447,28 +457,86 @@ namespace EpikV2.Items {
 						};
 					}
 				}
-				Vector2 target = new Vector2(projectile.ai[0], projectile.ai[1]);
+				Vector2 target = new Vector2(projectile.ai[0] * 16 + 8, projectile.ai[1] * 16 + 8);
 				Vector2 diff = projectile.Center - target;
-                if (diff.LengthSquared() > 2) {
+				if (diff.LengthSquared() > 2) {
 					projectile.Center -= (diff * 0.25f).WithMaxLength(8);
-                } else {
+				} else {
 					projectile.Center = target;
 					projectile.localAI[0] = 1;
-                }
-            } else {
+				}
+			} else {
 				projectile.scale -= 0.005f;
-            }
+				if (projectile.scale <= 0) {
+					List<Recipe> recipes = EpikV2.HellforgeRecipes.Where(
+						r => {
+							Recipe currentRecipe = r;
+							return r.requiredItem.Any(
+								i => {
+									int drop = Main.tile[(int)projectile.ai[0], (int)projectile.ai[1]].GetTileDrop();
+									return drop == i.type || currentRecipe.AcceptedByItemGroups(drop, i.type);
+								}
+							);
+						}
+					).ToList();
+					List<(Recipe, List<Point>)> validRecipes = new List<(Recipe, List<Point>)>();
+					for (int i = 0; i < recipes.Count; i++) {
+						Recipe recipe = recipes[i];
+						FungibleSet<int> ingredients = recipe.ToFungibleSet();
+						HashSet<Point> usedTiles = new HashSet<Point>();
+						List<Point> tileQueue = new List<Point>() { new Point((int)projectile.ai[0], (int)projectile.ai[1]) };
+						(int x, int y)[] directions = new (int, int)[]{ (-1, 0), (0, -1), (1, 0), (0, 1) };
+						while (tileQueue.Count > 0 && ingredients.Total > 0) {
+							int curr = Main.rand.Next(tileQueue.Count);
+							Point current = tileQueue[curr];
+							tileQueue.RemoveAt(curr);
+							if (current.X < 0 ||
+								current.Y < 0 ||
+								current.X > Main.maxTilesX ||
+								current.Y > Main.maxTilesY) {
+								continue;
+							}
+							int drop = Framing.GetTileSafely(current).GetTileDrop();
+							drop = recipe.requiredItem.Where(item => recipe.AcceptedByItemGroups(drop, item.type)).FirstOrDefault()?.type??drop;
+							if (ingredients[drop] > 0 && WorldGen.CanKillTile(current.X, current.Y)) {
+								usedTiles.Add(current);
+								for (int d = 0; d < 4; d++) {
+									Point next = new Point(current.X + directions[d].x, current.Y + directions[d].y);
+									if(!usedTiles.Contains(next))tileQueue.Add(next);
+								}
+								ingredients[drop]--;
+							}
+						}
+						if (ingredients.Total <= 0) {
+							validRecipes.Add((recipe, usedTiles.ToList()));
+						}
+					}
+					if (validRecipes.Count > 0) {
+						(Recipe recipe, List<Point> tiles) craft = validRecipes[Main.rand.Next(validRecipes.Count)];
+						for (int i = 0; i < craft.tiles.Count; i++) {
+							NPCLoader.blockLoot.Add(Framing.GetTileSafely(craft.tiles[i]).GetTileDrop());
+						}
+						for (int i = 0; i < craft.tiles.Count; i++) {
+							WorldGen.KillTile(craft.tiles[i].X, craft.tiles[i].Y);
+						}
+						NPCLoader.blockLoot.Clear();
+						Item createItem = craft.recipe.createItem;
+						Item.NewItem(projectile.Center, createItem.type, createItem.stack, prefixGiven:-1);
+					}
+					projectile.Kill();
+				}
+			}
 			for (int i = 0; i < 60; i++) {
 				Fireball_Particle particle = particles[i];
 				particle.x += particle.xVelocity;
 				particle.y += particle.yVelocity;
 				particle.age++;
 			}
-        }
-        void DrawParticles(float factor = 1f) {
-            if (particles is null) {
+		}
+		void DrawParticles(float factor = 1f) {
+			if (particles is null) {
 				return;
-            }
+			}
 			Vector2 origin = projectile.Center - Main.screenPosition;
 			float value = 1 / factor;
 			Color color = new Color(value, value, value, value);
@@ -488,6 +556,7 @@ namespace EpikV2.Items {
 					(float)((2f + Math.Sin(position.Z)) * 0.4f / factor),
 					SpriteEffects.None,
 					0);
+				if(factor == 1f)Lighting.AddLight(projectile.Center + new Vector2(position.X, position.Y), new Vector3(0.5f, 0.25f, 0f) / (1f + Math.Abs(position.Z)));
 			}
 		}
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
@@ -506,7 +575,7 @@ namespace EpikV2.Items {
 			}
 			return false;
 		}
-    }
+	}
 	internal class Fireball_Particle {
 		internal float x, y, z;
 		internal float xVelocity, yVelocity;
@@ -533,7 +602,7 @@ namespace EpikV2.Items {
 				(float)(z * Math.Sin(x) * Math.Cos(y)),
 				(float)(z * Math.Sin(x) * Math.Sin(y)),
 				(float)Math.Cos(x));
-        }
+		}
 		public Vector3 GetCartesian(float pastFactor) {
 			float x = this.x - xVelocity * pastFactor;
 			float y = this.y - yVelocity * pastFactor;
@@ -541,11 +610,11 @@ namespace EpikV2.Items {
 				(float)(z * Math.Sin(x) * Math.Cos(y)),
 				(float)(z * Math.Sin(x) * Math.Sin(y)),
 				(float)Math.Cos(x));
-        }
+		}
 		public Vector3 GetPosition(float pastFactor = 0f) {
 			float x = this.x - xVelocity * pastFactor;
 			float y = this.y - yVelocity * pastFactor;
 			return new Vector3(x, y, z);
-        }
+		}
 	}
 }

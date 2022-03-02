@@ -247,7 +247,7 @@ namespace EpikV2.Items {
                     //AngularSmoothing(ref projectile.rotation, player.direction==1?0:MathHelper.Pi, 0.1f, true);
                     projectile.rotation = player.direction == 1 ? Pi : 0;
                 }
-                vectorToIdlePosition = MagnitudeMin(vectorToIdlePosition, speed);
+                vectorToIdlePosition = vectorToIdlePosition.WithMaxLength(speed);
                 projectile.velocity = vectorToIdlePosition;//(projectile.velocity * (inertia - 1) + vectorToIdlePosition) / inertia;
 			}
             #endregion
@@ -318,7 +318,7 @@ namespace EpikV2.Items {
                 data = new DrawData(neckTexture, drawPos - Main.screenPosition, new Rectangle(0, 0, 16, 16), color, rotation, new Vector2(8, 8), projectile.scale, SpriteEffects.None, 0);
                 parameters["uWorldPosition"].SetValue(drawPos);
                 data.Draw(spriteBatch);
-                drawVel = MagnitudeMin(bendTarg - drawPos, 8).RotatedBy((player.direction*0.5f*MathHelper.Clamp((projectile.Center-startPos).Y, -1, 1))+0.05f);
+                drawVel = (bendTarg - drawPos).WithMaxLength(8).RotatedBy((player.direction*0.5f*MathHelper.Clamp((projectile.Center-startPos).Y, -1, 1))+0.05f);
                 drawPos += drawVel;
                 if((bendTarg - drawPos).Length()<4) break;
                 bendTarg = Vector2.Lerp(idlePosition, projectile.Center+off, 0.2f);
