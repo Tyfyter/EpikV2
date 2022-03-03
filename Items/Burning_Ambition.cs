@@ -17,7 +17,7 @@ namespace EpikV2.Items {
 		static short customGlowMask;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Burning Avaritia");//does not contain the letter e
-			Tooltip.SetDefault("");
+			Tooltip.SetDefault("<right> to smelt tiles.");
 			customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
 		}
 		public override void SetDefaults() {
@@ -468,61 +468,63 @@ namespace EpikV2.Items {
 			} else {
 				projectile.scale -= 0.005f;
 				if (projectile.scale <= 0) {
-					List<Recipe> recipes = EpikV2.HellforgeRecipes.Where(
-						r => {
-							Recipe currentRecipe = r;
-							return r.requiredItem.Any(
-								i => {
-									int drop = Main.tile[(int)projectile.ai[0], (int)projectile.ai[1]].GetTileDrop();
-									return drop == i.type || currentRecipe.AcceptedByItemGroups(drop, i.type);
-								}
-							);
-						}
-					).ToList();
-					List<(Recipe, List<Point>)> validRecipes = new List<(Recipe, List<Point>)>();
-					for (int i = 0; i < recipes.Count; i++) {
-						Recipe recipe = recipes[i];
-						FungibleSet<int> ingredients = recipe.ToFungibleSet();
-						HashSet<Point> usedTiles = new HashSet<Point>();
-						List<Point> tileQueue = new List<Point>() { new Point((int)projectile.ai[0], (int)projectile.ai[1]) };
-						(int x, int y)[] directions = new (int, int)[]{ (-1, 0), (0, -1), (1, 0), (0, 1) };
-						while (tileQueue.Count > 0 && ingredients.Total > 0) {
-							int curr = Main.rand.Next(tileQueue.Count);
-							Point current = tileQueue[curr];
-							tileQueue.RemoveAt(curr);
-							if (current.X < 0 ||
-								current.Y < 0 ||
-								current.X > Main.maxTilesX ||
-								current.Y > Main.maxTilesY) {
-								continue;
+					try {
+						List<Recipe> recipes = EpikV2.HellforgeRecipes.Where(
+							r => {
+								Recipe currentRecipe = r;
+								return r.requiredItem.Any(
+									i => {
+										int drop = Main.tile[(int)projectile.ai[0], (int)projectile.ai[1]].GetTileDrop();
+										return drop == i.type || currentRecipe.AcceptedByItemGroups(drop, i.type);
+									}
+								);
 							}
-							int drop = Framing.GetTileSafely(current).GetTileDrop();
-							drop = recipe.requiredItem.Where(item => recipe.AcceptedByItemGroups(drop, item.type)).FirstOrDefault()?.type??drop;
-							if (ingredients[drop] > 0 && WorldGen.CanKillTile(current.X, current.Y)) {
-								usedTiles.Add(current);
-								for (int d = 0; d < 4; d++) {
-									Point next = new Point(current.X + directions[d].x, current.Y + directions[d].y);
-									if(!usedTiles.Contains(next))tileQueue.Add(next);
+						).ToList();
+						List<(Recipe, List<Point>)> validRecipes = new List<(Recipe, List<Point>)>();
+						for (int i = 0; i < recipes.Count; i++) {
+							Recipe recipe = recipes[i];
+							FungibleSet<int> ingredients = recipe.ToFungibleSet();
+							HashSet<Point> usedTiles = new HashSet<Point>();
+							List<Point> tileQueue = new List<Point>() { new Point((int)projectile.ai[0], (int)projectile.ai[1]) };
+							(int x, int y)[] directions = new (int, int)[] { (-1, 0), (0, -1), (1, 0), (0, 1) };
+							while (tileQueue.Count > 0 && ingredients.Total > 0) {
+								int curr = Main.rand.Next(tileQueue.Count);
+								Point current = tileQueue[curr];
+								tileQueue.RemoveAt(curr);
+								if (current.X < 0 ||
+									current.Y < 0 ||
+									current.X > Main.maxTilesX ||
+									current.Y > Main.maxTilesY) {
+									continue;
 								}
-								ingredients[drop]--;
+								int drop = Framing.GetTileSafely(current).GetTileDrop();
+								drop = recipe.requiredItem.Where(item => recipe.AcceptedByItemGroups(drop, item.type)).FirstOrDefault()?.type ?? drop;
+								if (ingredients[drop] > 0 && WorldGen.CanKillTile(current.X, current.Y)) {
+									usedTiles.Add(current);
+									for (int d = 0; d < 4; d++) {
+										Point next = new Point(current.X + directions[d].x, current.Y + directions[d].y);
+										if (!usedTiles.Contains(next)) tileQueue.Add(next);
+									}
+									ingredients[drop]--;
+								}
+							}
+							if (ingredients.Total <= 0) {
+								validRecipes.Add((recipe, usedTiles.ToList()));
 							}
 						}
-						if (ingredients.Total <= 0) {
-							validRecipes.Add((recipe, usedTiles.ToList()));
+						if (validRecipes.Count > 0) {
+							(Recipe recipe, List<Point> tiles) craft = validRecipes[Main.rand.Next(validRecipes.Count)];
+							for (int i = 0; i < craft.tiles.Count; i++) {
+								NPCLoader.blockLoot.Add(Framing.GetTileSafely(craft.tiles[i]).GetTileDrop());
+							}
+							for (int i = 0; i < craft.tiles.Count; i++) {
+								WorldGen.KillTile(craft.tiles[i].X, craft.tiles[i].Y);
+							}
+							NPCLoader.blockLoot.Clear();
+							Item createItem = craft.recipe.createItem;
+							Item.NewItem(projectile.Center, createItem.type, createItem.stack, prefixGiven: -1);
 						}
-					}
-					if (validRecipes.Count > 0) {
-						(Recipe recipe, List<Point> tiles) craft = validRecipes[Main.rand.Next(validRecipes.Count)];
-						for (int i = 0; i < craft.tiles.Count; i++) {
-							NPCLoader.blockLoot.Add(Framing.GetTileSafely(craft.tiles[i]).GetTileDrop());
-						}
-						for (int i = 0; i < craft.tiles.Count; i++) {
-							WorldGen.KillTile(craft.tiles[i].X, craft.tiles[i].Y);
-						}
-						NPCLoader.blockLoot.Clear();
-						Item createItem = craft.recipe.createItem;
-						Item.NewItem(projectile.Center, createItem.type, createItem.stack, prefixGiven:-1);
-					}
+					} catch (Exception e) {}
 					projectile.Kill();
 				}
 			}

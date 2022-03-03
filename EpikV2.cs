@@ -79,7 +79,7 @@ namespace EpikV2 {
 			};
 			EpikWorld.sacrifices = new List<int>() {};
 			EpikPlayer.ItemChecking = new BitsBytes(32);
-
+			Logging.IgnoreExceptionContents("at EpikV2.Items.Burning_Ambition_Smelter.AI() in EpikV2\\Items\\Burning_Ambition.cs:line 472");
 			if(Main.netMode!=NetmodeID.Server) {
 				//RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
 				//jadeShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Jade")), "Jade");
