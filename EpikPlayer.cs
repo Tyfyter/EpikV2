@@ -36,7 +36,7 @@ namespace EpikV2 {
         public byte wetTime = 0;
         Vector2 preUpdateVel;
         public (sbyte x, sbyte y) collide;
-        const sbyte yoteTime = 3;
+        const sbyte yoteTime = 16;
         public (sbyte x, sbyte y) yoteTimeCollide;
         public int orionDash = 0;
         public int nextHeldProj = 0;
@@ -335,7 +335,7 @@ namespace EpikV2 {
                     epikPlayer.OrionExplosion();
                     epikPlayer.orionDash = 0;
                 }
-                epikPlayer.yoteTimeCollide.x = (sbyte)(x * 10);
+                epikPlayer.yoteTimeCollide.x = (sbyte)(x * yoteTime);
             }
             if(Math.Abs(self.velocity.Y)<0.01f&&Math.Abs(epikPlayer.preUpdateVel.Y)>=0.01f) {
                 y = (sbyte)Math.Sign(epikPlayer.preUpdateVel.Y);
@@ -343,7 +343,7 @@ namespace EpikV2 {
                     epikPlayer.OrionExplosion();
                     epikPlayer.orionDash = 0;
                 }
-                epikPlayer.yoteTimeCollide.y = (sbyte)(y * 10);
+                epikPlayer.yoteTimeCollide.y = (sbyte)(y * yoteTime);
             }
             epikPlayer.collide = (x,y);
         }
@@ -384,17 +384,25 @@ namespace EpikV2 {
                 explosion.melee = false;
                 return false;
             }
-            if(damageSource.SourceOtherIndex == OtherDeathReasonID.Fall && player.miscEquips[4].type == Spring_Boots.ID) damage /= 2;
+            if (damageSource.SourceOtherIndex == OtherDeathReasonID.Fall) {
+				if (player.miscEquips[4].type == Spring_Boots.ID) {
+                    damage /= 2;
+				} else if (player.miscEquips[4].type == Lucky_Spring_Boots.ID || player.miscEquips[4].type == Orion_Boots.ID) {
+                    damage = 0;
+                    return false;
+				}
+            }
             if(damage<player.statLife||!ChargedGem()) return true;
             for(int i = 0; i < player.inventory.Length; i++) {
                 ModItem mI = player.inventory[i]?.modItem;
-                if(mI?.mod!=EpikV2.mod)
-                if(mI is AquamarineMaterial) {
-                    player.inventory[i].type = ItemID.LargeEmerald;
-                    player.inventory[i].SetDefaults(ItemID.LargeEmerald);
-                } else if(mI is SunstoneMaterial) {
-                    player.inventory[i].type = ItemID.LargeAmber;
-                    player.inventory[i].SetDefaults(ItemID.LargeAmber);
+                if (mI?.mod != EpikV2.mod) {
+                    if (mI is AquamarineMaterial) {
+                        player.inventory[i].type = ItemID.LargeEmerald;
+                        player.inventory[i].SetDefaults(ItemID.LargeEmerald);
+                    } else if (mI is SunstoneMaterial) {
+                        player.inventory[i].type = ItemID.LargeAmber;
+                        player.inventory[i].SetDefaults(ItemID.LargeAmber);
+                    }
                 }
             }
             return true;

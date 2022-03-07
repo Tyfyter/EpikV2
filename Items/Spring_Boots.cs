@@ -13,8 +13,8 @@ namespace EpikV2.Items {
         public static int ID = -1;
         public const float collisionMult = 0.5f;
 		public override void SetStaticDefaults() {
-		  DisplayName.SetDefault("Spring Boots");
-		  Tooltip.SetDefault("A bit ropey");
+		    DisplayName.SetDefault("Spring Boots");
+		    Tooltip.SetDefault("'A bit ropey'");
             ID = item.type;
 		}
 		public override void SetDefaults() {
@@ -23,6 +23,22 @@ namespace EpikV2.Items {
             item.shoot = ProjectileType<Spring_Boots_Projectile>();
 		}
     }
+	public class Lucky_Spring_Boots : Spring_Boots {
+        public static new int ID = -1;
+		public override void SetStaticDefaults() {
+		    DisplayName.SetDefault("Lucky Boots");
+		    Tooltip.SetDefault("'They've never failed you'");
+            ID = item.type;
+		}
+		public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(Spring_Boots.ID);
+            recipe.AddIngredient(ItemID.LuckyHorseshoe);
+            recipe.AddTile(TileID.TinkerersWorkbench);
+            recipe.SetResult(this);
+            recipe.AddRecipe();
+		}
+	}
 	public class Spring_Boots_Projectile : ModProjectile {
 
         public override string Texture => "Terraria/Projectile_"+ProjectileID.Hook;
@@ -53,8 +69,9 @@ namespace EpikV2.Items {
 		public override void GrapplePullSpeed(Player player, ref float speed) {
 			speed = 0f;
 		}
-        public override void AI() {
+        public override void PostAI() {
             Player player = Main.player[projectile.owner];
+            if(player.grapCount>0)player.grappling[--player.grapCount] = -1;
             EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
             float fact = 1;
             if(epikPlayer.yoteTimeCollide.y>0&&projectile.velocity.Y>0) {
@@ -71,6 +88,7 @@ namespace EpikV2.Items {
                 projectile.velocity.X = 0;
                 fact *= Spring_Boots.collisionMult;
             }
+            epikPlayer.yoteTimeCollide = (0, 0);
             Vector2 normProjVel = projectile.velocity.SafeNormalize(Vector2.Zero);
             float v = projectile.velocity.Length();
             player.velocity = normProjVel * v * fact;

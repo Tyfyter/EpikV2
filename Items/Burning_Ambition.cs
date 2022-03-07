@@ -17,21 +17,21 @@ namespace EpikV2.Items {
 		static short customGlowMask;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Burning Avaritia");//does not contain the letter e
-			Tooltip.SetDefault("<right> to smelt tiles.");
+			Tooltip.SetDefault("Penetrates up to 8 armor\n<right> to smelt tiles.");
 			customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
 		}
 		public override void SetDefaults() {
 			item.CloneDefaults(ItemID.FlowerofFire);
-			item.damage = 24;
+			item.damage = 19;
 			item.magic = true;
 			item.mana = 20;
 			item.width = 36;
 			item.height = 76;
 			item.useStyle = 5;
-			item.useTime = 35;
-			item.useAnimation = 35;
+			item.useTime = 20;
+			item.useAnimation = 20;
 			item.noMelee = true;
-			item.knockBack = 7f;
+			item.knockBack = 6f;
 			item.value = 100000;
 			item.rare = ItemRarityID.Purple;
 			item.autoReuse = false;
@@ -61,7 +61,7 @@ namespace EpikV2.Items {
 				Projectile.NewProjectile(position, Vector2.Zero, ProjectileType<Burning_Ambition_Smelter>(), 0, 0f, player.whoAmI, Player.tileTargetX, Player.tileTargetY);
 				return false;
 			}
-			Projectile.NewProjectile(position, new Vector2(speedX, speedY), item.shoot, damage, 0f, player.whoAmI, ai1:knockBack);
+			Projectile.NewProjectileDirect(position, new Vector2(speedX, speedY), item.shoot, damage, 0f, player.whoAmI, ai1:knockBack).localAI[1] = 20 - item.useTime;
 			return false;
 		}
 	}
@@ -126,7 +126,7 @@ namespace EpikV2.Items {
 				float dist = Main.rand.NextFloat(float.Epsilon, 1);
 				particles.Add(new Particle(dist * 196, new PolarVec2(Main.rand.NextFloat(32, 64) * dist, Main.rand.NextFloat(MathHelper.TwoPi))));
 			} else if (projectile.ai[0] == 0) {
-				if (!owner.channel || (projectile.timeLeft < 16 && !owner.CheckMana(owner.HeldItem, owner.HeldItem.mana / 5 + (int)(projectile.localAI[0] * 2), true))) {
+				if (!owner.channel || (projectile.timeLeft < 16 && !owner.CheckMana(owner.HeldItem, owner.HeldItem.mana / 4 + (int)(projectile.localAI[0] * 2), true))) {
 					projectile.timeLeft = 30;
 					projectile.ai[0] = 1;
 				} else {
@@ -218,20 +218,50 @@ namespace EpikV2.Items {
 			return null;
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-			//damage += (int)(damage * projectile.localAI[0]);
+			Player owner = Main.player[projectile.owner];
+			int armor = Math.Max(target.defense - owner.armorPenetration, 0);
+			damage += Math.Min(armor, 10) / 2;
 		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			Player owner = Main.player[projectile.owner];
 			float zMult = (30 - projectile.ai[0]) / 30;
 			Vector2 direction = Vector2.Normalize(projectile.velocity);
-			Vector2 targetPos = owner.MountedCenter + direction * (8 + 24 * zMult + (target.width + target.height) * 0.5f);
+			Vector2 targetPos = owner.MountedCenter + direction * (8 + 24 * zMult + Math.Max(target.width, target.height));
 			Vector2 targetVelocity = (targetPos - target.Center).WithMaxLength(projectile.ai[1] * (projectile.localAI[0] + 1));
-			target.velocity = Vector2.Lerp(target.velocity, targetVelocity, target.knockBackResist);
+			target.velocity = Vector2.Lerp(target.velocity, targetVelocity, target.knockBackResist * projectile.ai[1] * 0.16f);
 			if (damage > 0) {
 				if (Main.rand.NextFloat(projectile.localAI[0] - 0.15f, projectile.localAI[0]) >= 0.15f) {
 					target.AddBuff(BuffID.Midas, (int)(projectile.localAI[0] * 100));
 				}
-				projectile.localNPCImmunity[target.whoAmI] -= Math.Min((int)(projectile.localAI[0] * 7), 13);
+				projectile.localNPCImmunity[target.whoAmI] -= (int)(Math.Min((projectile.localAI[0] * 7), 13 - projectile.localAI[1]) + projectile.localAI[1]);
+			}
+		}
+		public override void CutTiles() {
+			var bounds = Hitbox.GetBounds();
+			int minX = (int)Math.Floor(bounds.min.X / 16);
+			int minY = (int)Math.Floor(bounds.min.Y / 16);
+			int maxX = (int)Math.Ceiling(bounds.max.X / 16);
+			int maxY = (int)Math.Ceiling(bounds.max.Y / 16);
+			if (minX < 0) {
+				minX = 0;
+			}
+			if (minY < 0) {
+				minY = 0;
+			}
+			if (maxX > Main.maxTilesX) {
+				maxX = Main.maxTilesX;
+			}
+			if (maxY > Main.maxTilesY) {
+				maxY = Main.maxTilesY;
+			}
+			Tile tile;
+			for (int x = minX; x <= maxX; x++) {
+				for (int y = minY; y <= maxY; y++) {
+					tile = Framing.GetTileSafely(x, y);
+					if (tile.active() && Main.tileCut[tile.type] && Hitbox.Intersects(new Rectangle(x * 16 + 4, y * 16 + 4, 8, 8))) {
+						WorldGen.KillTile(x, y);
+					}
+				}
 			}
 		}
 		internal class Particle {
@@ -562,18 +592,19 @@ namespace EpikV2.Items {
 			}
 		}
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-			BlendState bs = new BlendState();
-			bs.ColorSourceBlend = Blend.SourceAlpha;
-			bs.ColorDestinationBlend = Blend.One;
+			BlendState bs = new BlendState {
+				ColorSourceBlend = Blend.SourceAlpha,
+				ColorDestinationBlend = Blend.One
+			};
 			Main.spriteBatch.End();
-			Main.spriteBatch.Begin(SpriteSortMode.Deferred, bs, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, Resources.Shaders.blurShader);
+			Main.spriteBatch.Begin(SpriteSortMode.Deferred, bs, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, Resources.Shaders.blurShader, Main.Transform);
 			try {
 				for (int i = 4; i >= 0; i--) {
 					DrawParticles(i + 1);
 				}
 			} finally {
 				Main.spriteBatch.End();
-				Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer);
+				Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
 			}
 			return false;
 		}

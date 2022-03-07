@@ -90,8 +90,9 @@ namespace EpikV2.Items {
 		public override void GrapplePullSpeed(Player player, ref float speed) {
 			speed = 0f;
 		}
-        public override void AI() {
+        public override void PostAI() {
             Player player = Main.player[projectile.owner];
+            if(player.grapCount>0)player.grappling[--player.grapCount] = -1;
             EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
             float fact = 1;
             if(epikPlayer.yoteTimeCollide==(0,0)) {
@@ -119,6 +120,7 @@ namespace EpikV2.Items {
                     fact *= Orion_Boots.collisionMult;
                 }
             }
+            epikPlayer.yoteTimeCollide = (0, 0);
             Vector2 normProjVel = projectile.velocity.SafeNormalize(Vector2.Zero);
             Vector2 d = player.velocity.SafeNormalize(Vector2.Zero)*normProjVel;
             float v = projectile.velocity.Length();
