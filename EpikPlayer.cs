@@ -48,8 +48,11 @@ namespace EpikV2 {
         public bool glaiveRecall = false;
         public bool noAttackCD = false;
         public bool redStar = false;
+        public bool wormToothNecklace = false;
+        public bool ichorNecklace = false;
         public int moonlightThreads = 0;
         public int extraHeadTexture = 0;
+        public int extraNeckTexture = 0;
         #region Machiavellian Masquerade
         public bool machiavellianMasquerade = false;
         public int marionetteDeathTime = 0;
@@ -96,6 +99,8 @@ namespace EpikV2 {
                 }
             }
             redStar = false;
+            wormToothNecklace = false;
+            ichorNecklace = false;
             if(marionetteDeathTime>0) {
                 player.statLife = 0;
                 player.breath = player.breathMax;
@@ -154,6 +159,7 @@ namespace EpikV2 {
                 organRearrangement = 0;
             }
             extraHeadTexture = -1;
+            extraNeckTexture = -1;
             for (int i = 0; i <= Main.maxNPCs; i++) {
                 if (npcImmuneFrames[i] > 0) {
                     npcImmuneFrames[i]--;
@@ -514,6 +520,12 @@ namespace EpikV2 {
             OnStrikeNPC(target, damage, knockback, crit, melee:proj.melee, ranged:proj.ranged, magic:proj.magic, summon:proj.minion);
         }
         public void OnStrikeNPC(NPC target, int damage, float knockback, bool crit, bool melee = false, bool ranged = false, bool magic = false, bool summon = false) {
+			if (wormToothNecklace && (crit || Main.rand.NextBool(3))) {
+                target.AddBuff(BuffID.CursedInferno, Main.rand.Next(150, 300));
+			}
+            if (ichorNecklace && (crit || Main.rand.NextBool(3))) {
+                target.AddBuff(BuffID.Ichor, Main.rand.Next(300, 600));
+			}
             if(magiciansHat && (magic||summon) && target.type!=NPCID.TargetDummy) {
                 AddMagiciansHatDamage(target, damage);
             }
@@ -582,12 +594,18 @@ namespace EpikV2 {
                 layers.Insert(layers.IndexOf(PlayerLayer.Head)+1, layer);
                 //layers[layers.IndexOf(PlayerLayer.Head)] = layer;
                 layer.visible = true;
-            }else if(machiavellianMasquerade) {
+            } else if(machiavellianMasquerade) {
                 PlayerLayer layer = new PlayerLayer("EpikV2", "ExtraHeadLayer1", null, DrawExtraHelmetLayer(1));
                 layers.Insert(layers.IndexOf(PlayerLayer.Head), layer);
                 layer.visible = true;
                 layer = new PlayerLayer("EpikV2", "ExtraHeadLayer2", null, DrawExtraHelmetLayer(0));
                 layers.Insert(layers.IndexOf(PlayerLayer.Head), layer);
+                layer.visible = true;
+            }
+             if(extraNeckTexture>-1) {
+                PlayerLayer layer = new PlayerLayer("EpikV2", "ExtraNeckLayer", null, DrawExtraNeckLayer(extraNeckTexture));
+                layers.Insert(layers.IndexOf(PlayerLayer.NeckAcc)+1, layer);
+                //layers[layers.IndexOf(PlayerLayer.Head)] = layer;
                 layer.visible = true;
             }
             if(player.head == Magicians_Top_Hat.ArmorID) {
@@ -649,9 +667,18 @@ namespace EpikV2 {
         internal static Action<PlayerDrawInfo> DrawExtraHelmetLayer(int extraTextureIndex) => (PlayerDrawInfo drawInfo) => {
             Player drawPlayer = drawInfo.drawPlayer;
             var texture = Textures.ExtraHeadTextures[extraTextureIndex];
-            DrawData data = new DrawData(texture.texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.headPosition + drawInfo.headOrigin, drawPlayer.bodyFrame, drawInfo.upperArmorColor, drawPlayer.headRotation, drawInfo.headOrigin, 1f, drawInfo.spriteEffects, 0);
-            data.shader = drawInfo.headArmorShader==0?texture.shader:drawInfo.headArmorShader;
-            Main.playerDrawData.Add(data);
+			DrawData data = new DrawData(texture.texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.headPosition + drawInfo.headOrigin, drawPlayer.bodyFrame, drawInfo.upperArmorColor, drawPlayer.headRotation, drawInfo.headOrigin, 1f, drawInfo.spriteEffects, 0) {
+				shader = drawInfo.headArmorShader == 0 ? texture.shader : drawInfo.headArmorShader
+			};
+			Main.playerDrawData.Add(data);
+        };
+        internal static Action<PlayerDrawInfo> DrawExtraNeckLayer(int extraTextureIndex) => (PlayerDrawInfo drawInfo) => {
+            Player drawPlayer = drawInfo.drawPlayer;
+            var texture = Textures.ExtraNeckTextures[extraTextureIndex];
+			DrawData data = new DrawData(texture.texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.bodyPosition + new Vector2(drawPlayer.bodyFrame.Width / 2, drawPlayer.bodyFrame.Height / 2), drawPlayer.bodyFrame, drawInfo.middleArmorColor, drawPlayer.bodyRotation, drawInfo.bodyOrigin, 1f, drawInfo.spriteEffects, 0) {
+				shader = drawInfo.neckShader == 0 ? texture.shader : drawInfo.neckShader
+			};
+			Main.playerDrawData.Add(data);
         };
         internal static PlayerLayer MarionetteStringLayer(int marionetteDeathTime) => new PlayerLayer("EpikV2", "MarionetteStringLayer", null, delegate (PlayerDrawInfo drawInfo) {
             Vector2 size = drawInfo.drawPlayer.Size;

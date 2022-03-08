@@ -69,7 +69,7 @@ namespace EpikV2.Items {
 		public override void GrapplePullSpeed(Player player, ref float speed) {
 			speed = 0f;
 		}
-        public override void PostAI() {
+        public override bool PreAI() {
             Player player = Main.player[projectile.owner];
             if(player.grapCount>0)player.grappling[--player.grapCount] = -1;
             EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
@@ -94,6 +94,7 @@ namespace EpikV2.Items {
             player.velocity = normProjVel * v * fact;
             epikPlayer.springDashCooldown = epikPlayer.springDashCooldown2 = 9;
             projectile.Kill();
+            return false;
         }
     }
 }

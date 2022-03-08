@@ -12,11 +12,11 @@ using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace EpikV2.Items {
-    public class Jade_Dye : ModItem{
-        public override void SetStaticDefaults(){
+    public class Jade_Dye : ModItem {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Jade Dye");
         }
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			byte dye = item.dye;
 			item.CloneDefaults(ItemID.RedandBlackDye);
 			item.dye = dye;
@@ -30,12 +30,12 @@ namespace EpikV2.Items {
         }
     }
 
-    public class Heatwave_Dye : ModItem{
+    public class Heatwave_Dye : ModItem {
         public override string Texture => "EpikV2/Items/Non-Chromatic_Dye";
-        public override void SetStaticDefaults(){
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Heatwave Dye");
         }
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			byte dye = item.dye;
 			item.CloneDefaults(ItemID.RedandBlackDye);
 			item.dye = dye;
@@ -49,11 +49,11 @@ namespace EpikV2.Items {
         }
     }
 
-    public class Starlight_Dye : ModItem{
-        public override void SetStaticDefaults(){
+    public class Starlight_Dye : ModItem {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Starlight Dye");
         }
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			byte dye = item.dye;
 			item.CloneDefaults(ItemID.RedandBlackDye);
 			item.dye = dye;
@@ -68,12 +68,12 @@ namespace EpikV2.Items {
         }
     }
 
-    public class Dim_Starlight_Dye : ModItem{
+    public class Dim_Starlight_Dye : ModItem {
         public override string Texture => "EpikV2/Items/Starlight_Dye";
-        public override void SetStaticDefaults(){
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Dim Starlight Dye");
         }
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			byte dye = item.dye;
 			item.CloneDefaults(ItemID.RedandBlackDye);
 			item.dye = dye;
@@ -89,12 +89,12 @@ namespace EpikV2.Items {
         }
     }
 
-    public class Bright_Starlight_Dye : ModItem{
+    public class Bright_Starlight_Dye : ModItem {
         public override string Texture => "EpikV2/Items/Starlight_Dye";
-        public override void SetStaticDefaults(){
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Bright Starlight Dye");
         }
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			byte dye = item.dye;
 			item.CloneDefaults(ItemID.RedandBlackDye);
 			item.dye = dye;
@@ -110,34 +110,34 @@ namespace EpikV2.Items {
         }
     }
 
-    public class Retro_Dye : ModItem{
-        public override void SetStaticDefaults(){
+    public class Retro_Dye : ModItem {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Retro Dye");
         }
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			byte dye = item.dye;
 			item.CloneDefaults(ItemID.RedandBlackDye);
 			item.dye = dye;
 		}
     }
 
-    public class Red_Retro_Dye : ModItem{
-        public override void SetStaticDefaults(){
+    public class Red_Retro_Dye : ModItem {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Retro Dye (Red)");
         }
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			byte dye = item.dye;
 			item.CloneDefaults(ItemID.RedandBlackDye);
 			item.dye = dye;
 		}
     }
 
-    public class GPS_Dye : ModItem{
+    public class GPS_Dye : ModItem {
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
-        public override void SetStaticDefaults(){
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("GPS Dye");
         }
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			byte dye = item.dye;
 			item.CloneDefaults(ItemID.RedandBlackDye);
 			item.dye = dye;
@@ -157,12 +157,12 @@ namespace EpikV2.Items {
         }
     }
 
-    public class Chroma_Dummy_Dye : ModItem{
+    public class Chroma_Dummy_Dye : ModItem {
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
-        public override void SetStaticDefaults(){
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Chroma_Dummy_Dye");
         }
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			byte dye = item.dye;
 			item.CloneDefaults(ItemID.RedandBlackDye);
 			item.dye = dye;
@@ -170,10 +170,27 @@ namespace EpikV2.Items {
 		}
     }
 
-    public class Motion_Blur_Dye : ModItem{
+    public class Motion_Blur_Dye : ModItem {
         public override string Texture => "EpikV2/Items/Non-Chromatic_Dye";
-        public override void SetStaticDefaults(){
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Swift Dye");
+        }
+		public override void SetDefaults() {
+			byte dye = item.dye;
+			item.CloneDefaults(ItemID.RedandBlackDye);
+			item.dye = dye;
+		}
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.Diamond);
+            recipe.AddTile(TileID.DyeVat);
+            recipe.SetResult(this, 3);
+            recipe.AddRecipe();
+        }
+    }
+    public class Cursed_Hades_Dye : ModItem {
+        public override void SetStaticDefaults(){
+            DisplayName.SetDefault("Cursed Hades Dye");
         }
 		public override void SetDefaults(){
 			byte dye = item.dye;
@@ -182,7 +199,8 @@ namespace EpikV2.Items {
 		}
         public override void AddRecipes() {
             ModRecipe recipe = new ModRecipe(mod);
-            recipe.AddIngredient(ItemID.Diamond);
+            recipe.AddIngredient(ItemID.HadesDye, 3);
+            recipe.AddIngredient(ItemID.CursedFlame);
             recipe.AddTile(TileID.DyeVat);
             recipe.SetResult(this, 3);
             recipe.AddRecipe();

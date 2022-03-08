@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using EpikV2.Items;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,8 +24,12 @@ namespace EpikV2 {
                     (GetTexture("EpikV2/Items/Machiavellian_Masquerade_Head_Overlay"), GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveGoldDye)),
                     (GetTexture("EpikV2/Items/Machiavellian_Masquerade_Head"), 0)
                 };
+                ExtraNeckTextures = new List<(Texture2D, int)> {
+                    (GetTexture("EpikV2/Items/Worm_Tooth_Torc_Neck_Flame"), GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Cursed_Hades_Dye>()))
+                };
             }
             public List<(Texture2D texture, int shader)> ExtraHeadTextures { get; private set; }
+            public List<(Texture2D texture, int shader)> ExtraNeckTextures { get; private set; }
             public Texture2D pixelTexture;
             public Texture2D distTestTexture0;
             public Texture2D distTestTexture1;

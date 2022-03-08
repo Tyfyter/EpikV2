@@ -14,11 +14,11 @@ using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items {
 	public class Burning_Ambition : ModItem {
-		static short customGlowMask;
+		//static short customGlowMask;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Burning Avaritia");//does not contain the letter e
 			Tooltip.SetDefault("Penetrates up to 8 armor\n<right> to smelt tiles.");
-			customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
+			//customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
 		}
 		public override void SetDefaults() {
 			item.CloneDefaults(ItemID.FlowerofFire);
@@ -39,7 +39,7 @@ namespace EpikV2.Items {
 			item.noUseGraphic = true;
 			item.shoot = ProjectileType<Burning_Ambition_Vortex>();
 			item.shootSpeed = 6.25f;
-			item.glowMask = customGlowMask;
+			//item.glowMask = customGlowMask;
 		}
 		public override void AddRecipes() {
 			ModRecipe recipe = new Burning_Ambition_Recipe(mod);
