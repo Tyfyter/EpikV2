@@ -524,7 +524,7 @@ namespace EpikV2 {
                 target.AddBuff(BuffID.CursedInferno, Main.rand.Next(150, 300));
 			}
             if (ichorNecklace && (crit || Main.rand.NextBool(3))) {
-                target.AddBuff(BuffID.Ichor, Main.rand.Next(300, 600));
+                target.AddBuff(BuffID.Ichor, Main.rand.Next(180, 360));
 			}
             if(magiciansHat && (magic||summon) && target.type!=NPCID.TargetDummy) {
                 AddMagiciansHatDamage(target, damage);
@@ -667,7 +667,18 @@ namespace EpikV2 {
         internal static Action<PlayerDrawInfo> DrawExtraHelmetLayer(int extraTextureIndex) => (PlayerDrawInfo drawInfo) => {
             Player drawPlayer = drawInfo.drawPlayer;
             var texture = Textures.ExtraHeadTextures[extraTextureIndex];
-			DrawData data = new DrawData(texture.texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.headPosition + drawInfo.headOrigin, drawPlayer.bodyFrame, drawInfo.upperArmorColor, drawPlayer.headRotation, drawInfo.headOrigin, 1f, drawInfo.spriteEffects, 0) {
+			if (drawInfo.headArmorShader != 0 && (texture.textureFlags&TextureFlags.CancelIfShaded) != 0) {
+                return;
+			}
+			DrawData data = new DrawData(
+                texture.texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.headPosition + drawInfo.headOrigin,
+                drawPlayer.bodyFrame,
+                (texture.textureFlags&TextureFlags.FullBright) != 0 ? Color.White : drawInfo.upperArmorColor,
+                drawPlayer.headRotation,
+                drawInfo.headOrigin,
+                1f,
+                drawInfo.spriteEffects,
+                0) {
 				shader = drawInfo.headArmorShader == 0 ? texture.shader : drawInfo.headArmorShader
 			};
 			Main.playerDrawData.Add(data);
@@ -675,7 +686,19 @@ namespace EpikV2 {
         internal static Action<PlayerDrawInfo> DrawExtraNeckLayer(int extraTextureIndex) => (PlayerDrawInfo drawInfo) => {
             Player drawPlayer = drawInfo.drawPlayer;
             var texture = Textures.ExtraNeckTextures[extraTextureIndex];
-			DrawData data = new DrawData(texture.texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.bodyPosition + new Vector2(drawPlayer.bodyFrame.Width / 2, drawPlayer.bodyFrame.Height / 2), drawPlayer.bodyFrame, drawInfo.middleArmorColor, drawPlayer.bodyRotation, drawInfo.bodyOrigin, 1f, drawInfo.spriteEffects, 0) {
+			if (drawInfo.neckShader != 0 && (texture.textureFlags&TextureFlags.CancelIfShaded) != 0) {
+                return;
+			}
+			DrawData data = new DrawData(
+                texture.texture,
+                new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.bodyPosition + new Vector2(drawPlayer.bodyFrame.Width / 2, drawPlayer.bodyFrame.Height / 2),
+                drawPlayer.bodyFrame,
+                (texture.textureFlags&TextureFlags.FullBright) != 0 ? Color.White : drawInfo.middleArmorColor,
+                drawPlayer.bodyRotation,
+                drawInfo.bodyOrigin,
+                1f,
+                drawInfo.spriteEffects,
+                0) {
 				shader = drawInfo.neckShader == 0 ? texture.shader : drawInfo.neckShader
 			};
 			Main.playerDrawData.Add(data);

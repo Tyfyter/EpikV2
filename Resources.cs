@@ -20,16 +20,24 @@ namespace EpikV2 {
                 pixelTexture = GetTexture("EpikV2/Textures/Pixel");
                 distTestTexture0 = GetTexture("EpikV2/Textures/40x40");
                 distTestTexture1 = GetTexture("EpikV2/Textures/40x40Dist");
-                ExtraHeadTextures = new List<(Texture2D, int)> {
-                    (GetTexture("EpikV2/Items/Machiavellian_Masquerade_Head_Overlay"), GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveGoldDye)),
-                    (GetTexture("EpikV2/Items/Machiavellian_Masquerade_Head"), 0)
+                ExtraHeadTextures = new List<ExtraTexture> {
+                    new ExtraTexture(GetTexture("EpikV2/Items/Machiavellian_Masquerade_Head_Overlay"),
+                        GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveGoldDye)),
+
+                    new ExtraTexture(GetTexture("EpikV2/Items/Machiavellian_Masquerade_Head"))
                 };
-                ExtraNeckTextures = new List<(Texture2D, int)> {
-                    (GetTexture("EpikV2/Items/Worm_Tooth_Torc_Neck_Flame"), GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Cursed_Hades_Dye>()))
+                ExtraNeckTextures = new List<ExtraTexture> {
+                    new ExtraTexture(GetTexture("EpikV2/Items/Worm_Tooth_Torc_Neck_Flame"),
+                        GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Cursed_Hades_Dye>()),
+                        TextureFlags.FullBright),
+
+                    new ExtraTexture(GetTexture("EpikV2/Items/Ichor_Riviere_Neck"),
+                        GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Ichor_Dye>()),
+                        TextureFlags.FullBright | TextureFlags.CancelIfShaded)
                 };
             }
-            public List<(Texture2D texture, int shader)> ExtraHeadTextures { get; private set; }
-            public List<(Texture2D texture, int shader)> ExtraNeckTextures { get; private set; }
+            public List<ExtraTexture> ExtraHeadTextures { get; private set; }
+            public List<ExtraTexture> ExtraNeckTextures { get; private set; }
             public Texture2D pixelTexture;
             public Texture2D distTestTexture0;
             public Texture2D distTestTexture1;
@@ -37,6 +45,22 @@ namespace EpikV2 {
             Texture2D breakpoint_Arrow_Glow;
             public Texture2D Breakpoint_Arrow_Glow => breakpoint_Arrow_Glow??(breakpoint_Arrow_Glow = GetTexture("EpikV2/Items/Breakpoint_Arrow_Glowmask"));
         }
+        public struct ExtraTexture {
+            public readonly Texture2D texture;
+            public readonly int shader;
+            public readonly TextureFlags textureFlags;
+            public ExtraTexture(Texture2D texture, int shader = 0, TextureFlags textureFlags = TextureFlags.None) {
+                this.texture = texture;
+                this.shader = shader;
+                this.textureFlags = textureFlags;
+            }
+		}
+        [Flags]
+        public enum TextureFlags {
+            None = 0,
+            FullBright = 1,
+            CancelIfShaded = 2
+		}
         public class ShaderCache {
             public ShaderCache() {
                 EpikV2 mod = EpikV2.mod;

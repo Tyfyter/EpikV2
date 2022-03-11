@@ -371,6 +371,11 @@ namespace EpikV2.Items {
 			}
 			projectile.velocity = Vector2.Zero;
 		}
+		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+			Player owner = Main.player[projectile.owner];
+			int armor = Math.Max(target.defense - owner.armorPenetration, 0);
+			damage += Math.Min(armor, 10) / 2;
+		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			if (projectile.ai[0] == 0 && target.life > 0) {
 				Break();

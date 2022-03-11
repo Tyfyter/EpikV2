@@ -44,6 +44,7 @@ namespace EpikV2 {
 		public static int brightStarlightShaderID;
 		public static int nebulaShaderID;
 		public static int distortShaderID;
+		public static int ichorShaderID;
 		public static Filter mappedFilter {
 			get=>Filters.Scene["EpikV2:FilterMapped"];
 			set=>Filters.Scene["EpikV2:FilterMapped"] = value;
@@ -109,8 +110,13 @@ namespace EpikV2 {
 				GameShaders.Armor.BindShader(ModContent.ItemType<Chroma_Dummy_Dye>(), alphaMapShader);
 				alphaMapShaderID = ModContent.ItemType<Chroma_Dummy_Dye>();
 
-				GameShaders.Armor.BindShader(ModContent.ItemType<Cursed_Hades_Dye>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorHades")).UseColor(0.2f, 1.5f, 0.2f).UseSecondaryColor(0.2f, 1.5f, 0.2f);
-
+				GameShaders.Armor.BindShader(ModContent.ItemType<Cursed_Hades_Dye>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorHades"))
+					.UseColor(0.2f, 1.5f, 0.2f).UseSecondaryColor(0.2f, 1.5f, 0.2f);
+				GameShaders.Armor.BindShader(ModContent.ItemType<Ichor_Dye>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorLivingFlame"))
+					.UseColor(1.12f, 1f, 0f).UseSecondaryColor(1.25f, 0.8f, 0f);
+				ichorShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Ichor_Dye>());
+				GameShaders.Armor.BindShader(ModContent.ItemType<Golden_Flame_Dye>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorHades"))
+					.UseColor(1f, 1f, 1f).UseSecondaryColor(1.5f, 1.25f, 0.2f);
 				//motionBlurShader = new MotionArmorShaderData(new Ref<Effect>(GetEffect("Effects/MotionBlur")), "MotionBlur");
 				//GameShaders.Armor.BindShader(ModContent.ItemType<Motion_Blur_Dye>(), motionBlurShader);
 
@@ -338,16 +344,16 @@ public static float ShimmerCalc(float val) {
 		[DefaultValue(false)]
 		public bool ConstellationDraco = false;
 	}
-	/*[Label("ClientSettings")]
+	[Label("Client Settings")]
 	public class EpikClientConfig : ModConfig {
 		public static EpikClientConfig Instance;
 		public override ConfigScope Mode => ConfigScope.ClientSide;
-		[Header("Debuffing")]
 
-		[Label("Step 2")]
+		[Label("Reduce Jitter")]
+		[Tooltip("Reduces intentional jitter in some elements\nOn by default for the sake of players with photosensitive epilepsy")]
 		[DefaultValue(true)]
-		public bool step2deb = true;
-	}*/
+		public bool reduceJitter = true;
+	}
 	public class EpikWorld : ModWorld {
 		//public static int GolemTime = 0;
 		public static List<int> sacrifices;

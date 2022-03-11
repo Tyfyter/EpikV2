@@ -206,6 +206,42 @@ namespace EpikV2.Items {
             recipe.AddRecipe();
         }
     }
+    public class Ichor_Dye : ModItem {
+        public override void SetStaticDefaults(){
+            DisplayName.SetDefault("Ichor Dye");
+        }
+		public override void SetDefaults(){
+			byte dye = item.dye;
+			item.CloneDefaults(ItemID.RedandBlackDye);
+			item.dye = dye;
+		}
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.PurpleOozeDye, 3);
+            recipe.AddIngredient(ItemID.Ichor);
+            recipe.AddTile(TileID.DyeVat);
+            recipe.SetResult(this, 3);
+            recipe.AddRecipe();
+        }
+    }
+    public class Golden_Flame_Dye : ModItem {
+        public override void SetStaticDefaults(){
+            DisplayName.SetDefault("Golden Flame Dye");
+        }
+		public override void SetDefaults(){
+			byte dye = item.dye;
+			item.CloneDefaults(ItemID.RedandBlackDye);
+			item.dye = dye;
+		}
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.HadesDye, 3);
+            recipe.AddIngredient(ItemID.GoldDust);
+            recipe.AddTile(TileID.DyeVat);
+            recipe.SetResult(this, 3);
+            recipe.AddRecipe();
+        }
+    }
     public class MotionArmorShaderData : ArmorShaderData {
         public MotionArmorShaderData(Ref<Effect> shader, string passName) : base(shader, passName) {}
         public override void Apply(Entity entity, DrawData? drawData = null) {

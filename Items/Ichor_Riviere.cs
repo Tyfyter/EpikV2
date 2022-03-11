@@ -1,19 +1,24 @@
 using System;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace EpikV2.Items {
+	[AutoloadEquip(EquipType.Neck)]
 	public class Ichor_Riviere : ModItem {
+		public static sbyte NeckSlot { get; internal set; }
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Ichor Rivière");
 			Tooltip.SetDefault("Increases armor penetration by 4\nAttacks may reduce enemy defense");
 		}
 		public override void SetDefaults() {
+			NeckSlot = item.neckSlot;
 			item.CloneDefaults(ItemID.SharkToothNecklace);
-			item.width = 28;
-			item.height = 30;
+			item.neckSlot = NeckSlot;
+			item.width = 22;
+			item.height = 26;
 			item.value = 40000;
 			item.rare = ItemRarityID.LightRed;
 			item.maxStack = 1;
@@ -31,5 +36,8 @@ namespace EpikV2.Items {
 			player.armorPenetration += 4;
 			player.GetModPlayer<EpikPlayer>().ichorNecklace = true;
 		}
+        public override void UpdateVanity(Player player, EquipType type) {
+            player.GetModPlayer<EpikPlayer>().extraNeckTexture = 1;
+        }
 	}
 }
