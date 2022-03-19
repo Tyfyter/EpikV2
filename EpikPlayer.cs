@@ -27,9 +27,10 @@ namespace EpikV2 {
         public int golemTime = 0;
         public bool chargedEmerald = false;
         public bool chargedAmber = false;
+        public bool chargedDiamond = false;
         public byte sacrifice = 0;
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ChargedGem() => chargedAmber||chargedEmerald;
+        public bool ChargedGem() => chargedAmber||chargedEmerald||chargedDiamond;
         public Vector2 ropeVel = default;
         public int ropeTarg = -1;
         public bool oily = false;
@@ -84,6 +85,7 @@ namespace EpikV2 {
             //majesticWings = false;
             chargedEmerald = false;
             chargedAmber = false;
+            chargedDiamond = false;
             oily = false;
             glaiveRecall = false;
             if(dracoDash>0)dracoDash--;
@@ -363,6 +365,7 @@ namespace EpikV2 {
             Main.PlaySound(SoundID.Item14, exPos);
         }
         public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource) {
+            bool canDodge = true;
             if(marionetteDeathTime>0) {
                 return false;
             }
@@ -378,9 +381,10 @@ namespace EpikV2 {
             if(damageSource.SourceCustomReason==Red_Star_Pendant.DeathReason(player).SourceCustomReason) {
                 playSound = false;
                 customDamage = true;
-                return true;
+                canDodge = false;
+                //return true;
             }
-            if(dracoDash!=0) return false;
+            if(dracoDash!=0) return !canDodge;
             if(orionDash>0) {
                 player.immuneTime = 15;
                 Projectile explosion = Projectile.NewProjectileDirect(player.Center, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 40, 12.5f, player.whoAmI);
@@ -388,7 +392,7 @@ namespace EpikV2 {
                 explosion.width*=7;
                 explosion.Center = player.Center;
                 explosion.melee = false;
-                return false;
+                return !canDodge;
             }
             if (damageSource.SourceOtherIndex == OtherDeathReasonID.Fall) {
 				if (player.miscEquips[4].type == Spring_Boots.ID) {
@@ -398,16 +402,22 @@ namespace EpikV2 {
                     return false;
 				}
             }
-            if(damage<player.statLife||!ChargedGem()) return true;
+            if(damage<player.statLife) return true;
+			if (!ChargedGem()) {
+                return true;
+			}
             for(int i = 0; i < player.inventory.Length; i++) {
                 ModItem mI = player.inventory[i]?.modItem;
-                if (mI?.mod != EpikV2.mod) {
+                if (mI?.mod == EpikV2.mod) {
                     if (mI is AquamarineMaterial) {
                         player.inventory[i].type = ItemID.LargeEmerald;
                         player.inventory[i].SetDefaults(ItemID.LargeEmerald);
                     } else if (mI is SunstoneMaterial) {
                         player.inventory[i].type = ItemID.LargeAmber;
                         player.inventory[i].SetDefaults(ItemID.LargeAmber);
+                    } else if (mI is MoonlaceMaterial) {
+                        player.inventory[i].type = ItemID.LargeDiamond;
+                        player.inventory[i].SetDefaults(ItemID.LargeDiamond);
                     }
                 }
             }
