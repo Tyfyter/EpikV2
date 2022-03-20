@@ -78,6 +78,7 @@ namespace EpikV2 {
         public int spikeTarg = -1;
         public int[] ownedSpikeHooks = new int[] {-1, -1, -1};
         public bool preUpdateReleaseJump;
+        public float redStarGlow = 0.05f;
 
         public static BitsBytes ItemChecking;
 
@@ -97,10 +98,18 @@ namespace EpikV2 {
                 if(sacrifice==0&&Main.rand.Next(5)==0&&EpikWorld.sacrifices.Count>0) {
                     int i = Main.rand.Next(EpikWorld.sacrifices.Count);
                     EpikWorld.sacrifices.RemoveAt(i);
-                    for(i = 0; i < 4; i++)Dust.NewDust(player.position,player.width, player.height, 16, Alpha:100, newColor:new Color(255,150,150));
+                    for(i = 0; i < 4; i++)Dust.NewDust(player.position,player.width, player.height, DustID.Cloud, Alpha:100, newColor:new Color(255,150,150));
                 }
             }
-            redStar = false;
+            if (redStar) {
+                redStar = false;
+                Lighting.AddLight(player.Center + GetNecklacePos(player.bodyFrame) * new Vector2(player.direction, 1), redStarGlow, 0, 0);
+            }
+            if (redStarGlow > 0.05f) {
+                redStarGlow -= 0.0075f;
+			} else {
+                redStarGlow = 0.05f;
+            }
             wormToothNecklace = false;
             ichorNecklace = false;
             if(marionetteDeathTime>0) {
@@ -215,6 +224,7 @@ namespace EpikV2 {
                 player.Hurt(Red_Star_Pendant.DeathReason(player), neededHealth, 0, cooldownCounter:0);
                 player.hurtCooldowns[0] = cd;
                 player.statMana = neededMana;
+                redStarGlow = Math.Min(redStarGlow + (2f - neededHealth * 0.01f) / 2f, 2f);
             }
         }
         public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) {

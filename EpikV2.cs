@@ -28,6 +28,7 @@ using static EpikV2.Resources;
 using EpikV2.Items.Debugging;
 using MonoMod.Cil;
 using System.Linq;
+using Terraria.UI.Chat;
 
 #pragma warning disable 672
 namespace EpikV2 {
@@ -125,6 +126,9 @@ namespace EpikV2 {
 				//mappedFilter = new Filter(new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/MappedShade")), "MappedShade"), EffectPriority.High);
 				//filterMapQueue = new SpriteBatchQueue();
 			}
+			ChatManager.Register<CatgirlMemeHandler>(new string[]{
+				"herb"
+			});
 			On.Terraria.Player.SlopingCollision += EpikPlayer.SlopingCollision;
 			//Main.OnPreDraw += Main_OnPostDraw;
 			IL.Terraria.Main.DoDraw += Main_DoDraw;

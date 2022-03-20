@@ -344,6 +344,102 @@ namespace EpikV2 {
             }
             return output - new Vector2(20, 33);
         }
+        public static Vector2 GetNecklacePos(Rectangle frame) {
+            return GetNecklacePos(frame.Y / 56) - new Vector2(0, frame.Y % 56);
+        }
+        public static Vector2 GetNecklacePos(int frame) {
+            switch (frame) {
+                case 7:
+                case 8:
+                case 9:
+                case 10:
+                case 16:
+                case 17:
+                case 18:
+                case 19:
+                return new Vector2(3, 3);
+
+                default:
+                return new Vector2(3, 5);
+            }
+        }
+        public static string GetHerbText() {
+            char[] text = "The herb which flourishes within shall never wither in the eyes of god".ToCharArray();
+            string spacing = "";
+            float width = Main.fontMouseText.MeasureString(new string(text)).X;
+            if (!(EpikClientConfig.Instance?.reduceJitter ?? false)) {
+                unchecked {
+                    switch (Main.rand.Next(16)) {
+                        case 0:
+                        text[Main.rand.Next(text.Length)]--;
+                        break;
+                        case 1:
+                        text[Main.rand.Next(text.Length)]++;
+                        break;
+                        case 2:
+                        text[Main.rand.Next(text.Length)] = 'Ω';//'Ω';
+                        break;
+                        case 3:
+                        text[Main.rand.Next(text.Length)] = (char)Main.rand.Next(' ', 256);
+                        break;
+                    }
+                }
+                float newWidth = Main.fontMouseText.MeasureString(new string(text)).X;
+                //                              7    9    12   13
+                //char[] spaces = new char[] { ' ', '　', ' ', ' ' };
+                switch ((int)(newWidth - width) + 5) {
+                    case 0:
+                    spacing = "  ";//7 + 13
+                    break;
+                    case 1:
+                    spacing = "  ";//7 + 12
+                    break;
+                    case 2:
+                    spacing = "  ";//7 + 12
+                    break;
+                    case 3:
+                    spacing = "　　";//9 + 9
+                    break;
+                    case 4:
+                    spacing = " 　";//7 + 9
+                    break;
+                    case 5:
+                    spacing = "  ";//7 + 7
+                    break;
+                    case 6:
+                    spacing = "  ";//7 + 7
+                    break;
+                    case 7:
+                    spacing = " ";//13
+                    break;
+                    case 8:
+                    spacing = " ";//12
+                    break;
+                    case 9:
+                    spacing = " ";//12
+                    break;
+                    case 10:
+                    spacing = "　";//9
+                    break;
+                    case 11:
+                    spacing = "　";//9
+                    break;
+                    case 12:
+                    spacing = " ";//7
+                    break;
+                    case 13:
+                    spacing = " ";//7
+                    break;
+                    case 14:
+                    spacing = " ";//7
+                    break;
+                    case 15:
+                    spacing = " ";//7
+                    break;
+                }
+            }
+            return new string(text) + spacing;
+        }
         public static void Shuffle<T>(this IList<T> list, UnifiedRandom rng = null) {
             if(rng is null)rng = Main.rand;
 

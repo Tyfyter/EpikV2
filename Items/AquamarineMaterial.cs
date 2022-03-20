@@ -164,7 +164,7 @@ namespace EpikV2.Items {
 			player.manaRegen = 0;
 			player.manaRegenDelay = 60;
 			player.manaRegenCount = 0;
-			if (time % (8 - Math.Min(time / 360, 6)) == 0) {
+			if (time % (20 - Math.Min(time / 360, 16)) == 0) {
 				if (player.statMana <= 2) {
 					for (int i = 3; i < 8 + player.extraAccessorySlots; i++) {
 						if (player.armor[i].type == ItemType<Red_Star_Pendant>()) {
@@ -173,7 +173,7 @@ namespace EpikV2.Items {
 						}
 					}
 				}
-				int manaCost = Math.Max(1, (time / 360) - 7);
+				int manaCost = 1;//Math.Max(1, (time / 360) - 7);
 				if (player.statMana == player.statManaMax2) {
 					manaCost += 1;
 				}
