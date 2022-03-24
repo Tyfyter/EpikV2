@@ -440,6 +440,231 @@ namespace EpikV2 {
             }
             return new string(text) + spacing;
         }
+        public static int GetItemBaseRarity(Item item) {
+            return item.rare - GetPrefixRarityOffset(item);
+        }
+        public static int GetPrefixRarityOffset(Item item) {
+            int rare = 0;
+            float value = GetPrefixValue(item.prefix, out int _) * (1f + item.crit * 0.02f);
+            if (value >= 1.2) {
+                rare += 2;
+            } else if (value >= 1.05) {
+                rare++;
+            } else if (value <= 0.8) {
+                rare -= 2;
+            } else if (value <= 0.95) {
+                rare--;
+            }
+            return rare;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="prefix">the prefix id</param>
+        /// <param name="crit">the prefix's crit value, because the weapon's base crit also affects value for some reason</param>
+        /// <returns>the value multiplier of the prefix, before crit</returns>
+        public static float GetPrefixValue(int prefix, out int crit) {
+            crit = 0;
+            switch (prefix) {
+                case 0:
+                return 1;
+                case 1:
+                return 1.12f;
+                case 2:
+                return 1.18f;
+                case 3:
+                crit = 2;
+                return 1.1024998f;
+                case 4:
+                return 1.3310001f;
+                case 5:
+                return 1.15f;
+                case 6:
+                return 1.1f;
+                case 7:
+                return 0.82f;
+                case 8:
+                return 0.628575f;
+                case 9:
+                return 0.9f;
+                case 10:
+                return 0.85f;
+                case 11:
+                return 0.7289999f;
+                case 12:
+                return 1.0799251f;
+                case 13:
+                return 0.792f;
+                case 14:
+                return 1.035f;
+                case 15:
+                return 1.035f;
+                case 16:
+                crit = 3;
+                return 1.1f;
+                case 17:
+                return 1.265f;
+                case 18:
+                return 1.265f;
+                case 19:
+                return 1.2074999f;
+                case 20:
+                crit = 2;
+                return 1.2733874f;
+                case 21:
+                return 1.265f;
+                case 22:
+                return 0.6885f;
+                case 23:
+                return 0.765f;
+                case 24:
+                return 0.71999997f;
+                case 25:
+                crit = 1;
+                return 1.035f;
+                case 26:
+                return 1.265f;
+                case 27:
+                return 1.15f;
+                case 28:
+                return 1.3886249f;
+                case 29:
+                return 0.9f;
+                case 30:
+                return 0.7199999f;
+                case 31:
+                return 0.80999994f;
+                case 32:
+                return 0.93500006f;
+                case 33:
+                return 1.089f;
+                case 34:
+                return 1.1979f;
+                case 35:
+                return 1.0579998f;
+                case 36:
+                crit = 3;
+                return 1;
+                case 37:
+                crit = 3;
+                return 1.21f;
+                case 38:
+                return 1.15f;
+                case 39:
+                return 0.56f;
+                case 40:
+                return 0.85f;
+                case 41:
+                return 0.765f;
+                case 42:
+                return 1.1f;
+                case 43:
+                return 1.21f;
+                case 44:
+                crit = 3;
+                return 1.1f;
+                case 45:
+                return 1.05f;
+                case 46:
+                crit = 3;
+                return 1.1342f;
+                case 47:
+                return 0.85f;
+                case 48:
+                return 0.79999995f;
+                case 49:
+                return 0.91999996f;
+                case 50:
+                return 0.68f;
+                case 51:
+                crit = 2;
+                return 1.0395f;
+                case 52:
+                return 1.089f;
+                case 53:
+                return 1.1f;
+                case 54:
+                return 1.15f;
+                case 55:
+                return 1.2074999f;
+                case 56:
+                return 0.8f;
+                case 57:
+                return 1.0619999f;
+                case 58:
+                return 0.9775f;
+                case 59:
+                crit = 5;
+                return 1.3225f;
+                case 60:
+                crit = 5;
+                return 1.15f;
+                case 61:
+                crit = 5;
+                return 1;
+                case 62:
+                return 1.05f;
+                case 63:
+                return 1.1f;
+                case 64:
+                return 1.15f;
+                case 65:
+                return 1.2f;
+                case 66:
+                return 1.15f;
+                case 67:
+                return 1.1f;
+                case 68:
+                return 1.2f;
+                case 69:
+                return 1.05f;
+                case 70:
+                return 1.1f;
+                case 71:
+                return 1.15f;
+                case 72:
+                return 1.2f;
+                case 73:
+                return 1.05f;
+                case 74:
+                return 1.1f;
+                case 75:
+                return 1.15f;
+                case 76:
+                return 1.2f;
+                case 77:
+                return 1.05f;
+                case 78:
+                return 1.1f;
+                case 79:
+                return 1.15f;
+                case 80:
+                return 1.2f;
+                case 81:
+                crit = 5;
+                return 1.600225f;
+                case 82:
+                crit = 5;
+                return 1.600225f;
+                case 83:
+                crit = 5;
+                return 1.600225f;
+            }
+
+            float num3 = 1f;
+            float num4 = 1f;
+            float num5 = 1f;
+            float num6 = 1f;
+            float num7 = 1f;
+            float num8 = 1f;
+			if (ModPrefix.GetPrefix((byte)prefix) is ModPrefix modPrefix) {
+                modPrefix.SetStats(ref num3, ref num4, ref num5, ref num6, ref num7, ref num8, ref crit);
+                float num2 = 1f * num3 * (2f - num5) * (2f - num8) * num6 * num4 * num7;
+                modPrefix.ModifyValue(ref num2);
+                return num2;
+            }
+            return 1f;
+        }
         public static void Shuffle<T>(this IList<T> list, UnifiedRandom rng = null) {
             if(rng is null)rng = Main.rand;
 

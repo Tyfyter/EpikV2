@@ -438,7 +438,7 @@ namespace EpikV2 {
                 //if(PlayerInput.Triggers.JustPressed.Jump)SayNetMode();
                 //Dust dust;
                 //dust = Main.dust[];
-                Dust.NewDust(player.position, player.width, player.height, 102, 0f, 0f, 0, default, 1f);
+                Dust.NewDust(player.position, player.width, player.height, DustID.Water_Desert, 0f, 0f, 0, default, 1f);
 	            //dust.shader = GameShaders.Armor.GetSecondaryShader(3, Main.LocalPlayer);
                 bool wet = player.wet;
                 Vector2 dist;
