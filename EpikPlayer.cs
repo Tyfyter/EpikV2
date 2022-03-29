@@ -79,6 +79,7 @@ namespace EpikV2 {
         public int[] ownedSpikeHooks = new int[] {-1, -1, -1};
         public bool preUpdateReleaseJump;
         public float redStarGlow = 0.05f;
+        public int haligbrand = -1;
 
         public static BitsBytes ItemChecking;
 
@@ -112,7 +113,10 @@ namespace EpikV2 {
             }
             wormToothNecklace = false;
             ichorNecklace = false;
-            if(marionetteDeathTime>0) {
+			if (haligbrand >= 0 && !Main.projectile[haligbrand].active) {
+                haligbrand = -1;
+            }
+            if (marionetteDeathTime>0) {
                 player.statLife = 0;
                 player.breath = player.breathMax;
                 if(++marionetteDeathTime>marionetteDeathTimeMax||!machiavellianMasquerade) {

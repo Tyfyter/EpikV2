@@ -748,6 +748,12 @@ namespace EpikV2 {
         public static void SendMessage(object text) {
             SendMessage(text.ToString());
         }
+        public static bool IsNPCActive(int index) {
+			if (index<0 || index > Main.maxNPCs) {
+                return false;
+			}
+            return Main.npc[index].active;
+		}
         public static GraphicsDevice Clone(this GraphicsDevice graphicsDevice) {
             return new GraphicsDevice(graphicsDevice.Adapter, graphicsDevice.GraphicsProfile, graphicsDevice.PresentationParameters);
         }
