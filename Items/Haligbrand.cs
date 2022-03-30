@@ -84,11 +84,19 @@ namespace EpikV2.Items {
 					projectile.ai[1] = 1;
 					projectile.direction = Math.Sign(projectile.Center.X - player.MountedCenter.X);
 				} else {
-					projectile.localAI[0] = Main.MouseWorld.X;
-					projectile.localAI[1] = Main.MouseWorld.Y;
+					Vector2 additional = Vector2.Normalize(Main.MouseWorld - player.Center) * 30;
+					projectile.localAI[0] = Main.MouseWorld.X + additional.X;
+					projectile.localAI[1] = Main.MouseWorld.Y + additional.Y;
 					projectile.ai[1] = 2;
 					projectile.direction = Math.Sign(projectile.Center.X - player.MountedCenter.X);
 				}
+				projectile.netUpdate = true;
+			} else {
+				projectile.localAI[0] = Main.MouseWorld.X;
+				projectile.localAI[1] = Main.MouseWorld.Y;
+				projectile.ai[1] = 4;
+				projectile.direction = Math.Sign(projectile.Center.X - player.MountedCenter.X);
+				projectile.netUpdate = true;
 			}
 			return false;
 		}
@@ -124,6 +132,7 @@ namespace EpikV2.Items {
 			projectile.height = 24;
 			projectile.usesLocalNPCImmunity = true;
 			projectile.tileCollide = false;
+			//projectile.localNPCHitCooldown = 0;
 		}
 		public override void AI() {
 			Player player = Main.player[projectile.owner];
@@ -151,9 +160,10 @@ namespace EpikV2.Items {
 					if (projectile.frame > 0) {//dist < 40 * 40
 						speed *= 0.1f;
 						projectile.frame += 1;
-						float rot = projectile.frame * 0.03125f;
-						rot *= 2 - rot;
-						projectile.rotation = rot * -projectile.direction * MathHelper.TwoPi - projectile.direction * 0.84806207898f;
+						float frameFactor = projectile.frame * 0.0625f;
+						//18.64 was chosen based on entirely different exponents and would have to be 28.384 if my method of determining the coefficient was correct, but it seemingly works perfectly as-is
+						float rot = (float)(frameFactor * frameFactor + Math.Pow(frameFactor, 0.05f)) * (MathHelper.TwoPi / 18.64f);
+						projectile.rotation += rot * -projectile.direction;
 						if (projectile.frame >= 16) {
 							projectile.frame = 0;
 							projectile.ai[1] = 3;
@@ -164,7 +174,8 @@ namespace EpikV2.Items {
 							projectile.frame += 1;
 						}
 						speed *= (float)speedMult;
-						projectile.rotation = projectile.direction * 0.84806207898f;
+						projectile.rotation += projectile.direction * 0.35f;//0.84806207898f;
+						EpikExtensions.AngularSmoothing(ref projectile.rotation, 0, 0.25f + Math.Abs(projectile.rotation * 0.1f));
 					}
 					projectile.velocity = direction.WithMaxLength(speed);
 				}
@@ -184,6 +195,58 @@ namespace EpikV2.Items {
 					}
 				}
 				break;
+
+				case 4: {
+					Vector2 direction = targetPos - projectile.Center;
+					float targetRotation = direction.ToRotation() - MathHelper.PiOver2;
+					if (projectile.rotation == targetRotation) {
+						projectile.ai[1] = 5;
+					} else {
+						EpikExtensions.AngularSmoothing(ref projectile.rotation, targetRotation, 0.30f);
+					}
+				}
+				break;
+
+				case 5: {
+					Vector2 direction = targetPos - projectile.Center;
+					float speed = player.HeldItem.shootSpeed * 2f;
+					projectile.velocity = direction.SafeNormalize(Vector2.Zero) * speed;
+					if (direction.Length() <= speed) {
+						projectile.ai[1] = 6;
+						projectile.ai[0] = 1;
+					}
+				}
+				break;
+
+				case 6: {
+					projectile.ai[0] *= 0.9f;
+					projectile.velocity *= 0.9f;
+					EpikExtensions.AngularSmoothing(ref projectile.rotation, 0, 0.25f);
+					if (projectile.rotation == 0) {
+						int direction = Math.Sign(Main.MouseWorld.X - player.Center.X);
+						Vector2 teleportTarget = projectile.Center - new Vector2(direction * 24, -12);
+						if (!Collision.SolidCollision(teleportTarget - player.Size / 2, player.width, player.height)) {
+							for (int i = 50; i-->0;) {
+								Dust.NewDust(player.position, player.width, player.height, DustID.GoldFlame);
+							}
+							Main.PlaySound(SoundID.Item45, player.Center);
+							player.Teleport(teleportTarget - player.Size / 2, 5);
+							for (int i = 25; i-- > 0;) {
+								Dust.NewDust(player.position, player.width, player.height, DustID.GoldFlame);
+							}
+							Main.PlaySound(SoundID.Item45, player.Center);
+							player.velocity = projectile.velocity * (0.65f / projectile.ai[0]) - new Vector2(0, 2);
+							if (direction != projectile.direction) {
+								player.velocity.X *= 0.5f;
+							}
+							projectile.velocity = Vector2.Zero;
+							projectile.ai[1] = 0;
+						} else {
+							projectile.ai[1] = 3;
+						}
+					}
+				}
+				break;
 			}
 			epikPlayer.haligbrand = projectile.whoAmI;
 			player.heldProj = projectile.whoAmI;
@@ -191,11 +254,21 @@ namespace EpikV2.Items {
 			Lighting.AddLight(projectile.Center, glowColor);
 			Lighting.AddLight(projectile.Center + new Vector2(0, 45 * projectile.scale).RotatedBy(projectile.rotation), glowColor);
 		}
+
+		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+			Player player = Main.player[projectile.owner];
+			damage = (int)(damage * player.allDamage * player.allDamageMult * player.minionDamage * player.minionDamageMult);
+		}
+
 		public override bool? CanHitNPC(NPC target) {
 			switch ((int)projectile.ai[1]) {
 				case 0:
 				case 3:
 				return false;
+
+				case 1:
+				case 2:
+				return projectile.frame > 0;
 
 				default:
 				return true;
