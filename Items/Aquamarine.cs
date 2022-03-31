@@ -86,7 +86,7 @@ namespace EpikV2.Items
 			}
             Lighting.AddLight(projectile.Center, 0, 0.75f, 0.5625f);
             Dust.NewDustPerfect(projectile.Center, 226, projectile.velocity*-0.25f, 100, new Color(0, 255, 191), 0.5f).noGravity = true;
-		}
+        }
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
             damage+=target.defense/3;
         }

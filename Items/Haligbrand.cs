@@ -2,6 +2,7 @@ using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Terraria;
 using Terraria.DataStructures;
@@ -12,7 +13,6 @@ using Tyfyter.Utils;
 namespace EpikV2.Items {
 	///TODO:
 	///destroy weaker enemy projectiles
-	///teleport stab on alt fire
 	///high knockback shield attack on alt fire + down
 	public class Haligbrand : ModItem {
 		public override void SetStaticDefaults() {
@@ -23,15 +23,16 @@ namespace EpikV2.Items {
 			item.summon = true;
 			item.noMelee = true;
 			item.noUseGraphic = true;
-			item.damage = 133;
+			item.mana = 7;
+			item.damage = 277;
 			item.crit = 29;
 			item.width = 32;
 			item.height = 32;
 			item.useTime = 10;
-			item.useAnimation = 10;
+			item.useAnimation = 100;
 			item.knockBack = 5;
 			item.shoot = ModContent.ProjectileType<Haligbrand_P>();
-			item.shootSpeed = 10f;
+			item.shootSpeed = 16f;
 			item.value = 5000;
 			item.useStyle = 777;
 			item.holdStyle = ItemHoldStyleID.HoldingUp;
@@ -67,13 +68,22 @@ namespace EpikV2.Items {
 				return false;
 			}
 			Projectile projectile = Main.projectile[epikPlayer.haligbrand];
+
+			float add = 1f;
+			float mult = 1f;
+			float flat = 0;
+			CombinedHooks.ModifyWeaponDamage(player, item, ref add, ref mult, ref flat);
+			damage = (int)(item.damage * add * mult + 5E-06f + flat);
+			CombinedHooks.GetWeaponDamage(player, item, ref damage);
+			projectile.damage = damage;
+
 			if (player.altFunctionUse != 2) {
 				int npcTarget = -1;
 				for (int i = 0; i <= Main.maxNPCs; i++) {
 					if (Main.npc[i].CanBeChasedBy(projectile)) {
 						Vector2 p = Main.MouseWorld.Within(Main.npc[i].Hitbox);
 						float dist = (Main.MouseWorld - p).LengthSquared();
-						if (dist < ((i == player.MinionAttackTargetNPC) ? (256 * 256) : (64 * 64))) {
+						if (dist < ((i == player.MinionAttackTargetNPC) ? (128 * 128) : (64 * 64))) {
 							npcTarget = i;
 						}
 						break;
@@ -90,14 +100,19 @@ namespace EpikV2.Items {
 					projectile.ai[1] = 2;
 					projectile.direction = Math.Sign(projectile.Center.X - player.MountedCenter.X);
 				}
-				projectile.netUpdate = true;
 			} else {
 				projectile.localAI[0] = Main.MouseWorld.X;
 				projectile.localAI[1] = Main.MouseWorld.Y;
 				projectile.ai[1] = 4;
 				projectile.direction = Math.Sign(projectile.Center.X - player.MountedCenter.X);
-				projectile.netUpdate = true;
 			}
+			projectile.frame = 0;
+			int speedFactor = item.useAnimation;
+			speedFactor += speedFactor - 100;
+			projectile.frameCounter = (int)((item.shootSpeed * 100) / (speedFactor / 100f));
+			projectile.netUpdate = true;
+			player.itemAnimation = 1;
+			//player.itemTime = -1;
 			return false;
 		}
 		public override void AddRecipes() {
@@ -111,6 +126,10 @@ namespace EpikV2.Items {
 		}
 	}
 	public class Haligbrand_P : ModProjectile {
+		public static Texture2D TrailTexture { get; private set; }
+		internal static void Unload() {
+			TrailTexture = null;
+		}
 		public Triangle Hitbox {
 			get {
 				return new Triangle(
@@ -122,6 +141,10 @@ namespace EpikV2.Items {
 		}
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Haligbrand");
+			ProjectileID.Sets.TrailingMode[projectile.type] = 2;
+			ProjectileID.Sets.TrailCacheLength[projectile.type] = 19;
+			if (Main.netMode == NetmodeID.Server) return;
+			TrailTexture = mod.GetTexture("Items/Haligbrand_P_Trail");
 		}
 		public override void SetDefaults() {
 			projectile.minion = true;
@@ -138,12 +161,30 @@ namespace EpikV2.Items {
 			Player player = Main.player[projectile.owner];
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			Vector2 targetPos = new Vector2(projectile.localAI[0], projectile.localAI[1]);
+			float flySpeed = (projectile.frameCounter / 100f);
+			bool persist = true;
 			switch ((int)projectile.ai[1]) {
 				case 0: {
 					int direction = Math.Sign(Main.MouseWorld.X - player.Center.X);
-					projectile.Center = player.MountedCenter + new Vector2(direction * 24, -12);
+					float bashOffset = projectile.frame < 12 ? (float)Math.Sin(projectile.frame * MathHelper.Pi / 12) * 8 : 0;
+					projectile.Center = player.MountedCenter + new Vector2(direction * (24 + bashOffset), -12);
 					EpikExtensions.AngularSmoothing(ref projectile.rotation, 0, 0.05f);
+					if (projectile.frame > 0) {
+						projectile.frame += 1;
+						if (projectile.frame > 40) {
+							projectile.frame = 0;
+						}
+					} else {
+						if (AttackEnemyProjectiles(0.35f)) {
+							projectile.frame = 1;
+							player.immune = true;
+							player.hurtCooldowns[0] = 5;
+							player.hurtCooldowns[1] = 5;
+							player.immuneTime += 5;
+						}
+					}
 					projectile.velocity = Vector2.Zero;
+					persist = false;
 				}
 				break;
 
@@ -155,7 +196,7 @@ namespace EpikV2.Items {
 
 				case 2: {
 					Vector2 direction = targetPos - projectile.Center;
-					float speed = player.HeldItem.shootSpeed;
+					float speed = flySpeed;
 					float dist = direction.LengthSquared();
 					if (projectile.frame > 0) {//dist < 40 * 40
 						speed *= 0.1f;
@@ -168,6 +209,7 @@ namespace EpikV2.Items {
 							projectile.frame = 0;
 							projectile.ai[1] = 3;
 						}
+						AttackEnemyProjectiles(1.5f, true);
 					} else {
 						double speedMult = 0.1d + Math.Min(0.9d, Math.Sqrt(dist) * 0.015625d);
 						if (speedMult < 1d) {
@@ -176,6 +218,7 @@ namespace EpikV2.Items {
 						speed *= (float)speedMult;
 						projectile.rotation += projectile.direction * 0.35f;//0.84806207898f;
 						EpikExtensions.AngularSmoothing(ref projectile.rotation, 0, 0.25f + Math.Abs(projectile.rotation * 0.1f));
+						AttackEnemyProjectiles(0.75f, true);
 					}
 					projectile.velocity = direction.WithMaxLength(speed);
 				}
@@ -186,12 +229,13 @@ namespace EpikV2.Items {
 					targetPos = player.MountedCenter + new Vector2(dir * 24, -12);
 
 					Vector2 direction = targetPos - projectile.Center;
-					Vector2 force = direction.WithMaxLength(player.HeldItem.shootSpeed);
+					Vector2 force = direction.WithMaxLength(flySpeed);
 					projectile.velocity = (projectile.velocity + (force * 0.3f)).WithMaxLength(force.Length());
 					projectile.rotation = (float)Math.Asin(Math.Min(projectile.velocity.X * 0.05f, 0.75f));
 					//EpikExtensions.AngularSmoothing(ref projectile.rotation, , 0.15f);
 					if (direction.LengthSquared() < 24 * 24) {
 						projectile.ai[1] = 0;
+						projectile.frame = 0;
 					}
 				}
 				break;
@@ -209,7 +253,7 @@ namespace EpikV2.Items {
 
 				case 5: {
 					Vector2 direction = targetPos - projectile.Center;
-					float speed = player.HeldItem.shootSpeed * 2f;
+					float speed = flySpeed * 1.5f;
 					projectile.velocity = direction.SafeNormalize(Vector2.Zero) * speed;
 					if (direction.Length() <= speed) {
 						projectile.ai[1] = 6;
@@ -235,12 +279,13 @@ namespace EpikV2.Items {
 								Dust.NewDust(player.position, player.width, player.height, DustID.GoldFlame);
 							}
 							Main.PlaySound(SoundID.Item45, player.Center);
-							player.velocity = projectile.velocity * (0.65f / projectile.ai[0]) - new Vector2(0, 2);
+							player.velocity = projectile.velocity * (0.5f / projectile.ai[0]) - new Vector2(0, 2);
 							if (direction != projectile.direction) {
 								player.velocity.X *= 0.5f;
 							}
 							projectile.velocity = Vector2.Zero;
 							projectile.ai[1] = 0;
+							projectile.frame = 0;
 						} else {
 							projectile.ai[1] = 3;
 						}
@@ -248,8 +293,11 @@ namespace EpikV2.Items {
 				}
 				break;
 			}
+			if (persist) {
+				projectile.timeLeft = 6;
+			}
 			epikPlayer.haligbrand = projectile.whoAmI;
-			player.heldProj = projectile.whoAmI;
+			//player.heldProj = projectile.whoAmI;
 			Vector3 glowColor = new Vector3(0.5f, 0.35f, 0f);
 			Lighting.AddLight(projectile.Center, glowColor);
 			Lighting.AddLight(projectile.Center + new Vector2(0, 45 * projectile.scale).RotatedBy(projectile.rotation), glowColor);
@@ -257,27 +305,63 @@ namespace EpikV2.Items {
 
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
 			Player player = Main.player[projectile.owner];
-			damage = (int)(damage * player.allDamage * player.allDamageMult * player.minionDamage * player.minionDamageMult);
-		}
-
-		public override bool? CanHitNPC(NPC target) {
+			float dmgMult = player.allDamageMult * player.minionDamageMult;
 			switch ((int)projectile.ai[1]) {
 				case 0:
+				dmgMult *= 0.35f;
+				break;
+				case 1:
+				case 2:
+				if (projectile.frame <= 0) {
+					dmgMult *= 0.35f;
+				}
+				break;
+			}
+			damage = (int)(damage * (player.allDamage + player.minionDamage - 1) * dmgMult);
+		}
+
+		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+			if ((int)projectile.ai[1] == 0) {
+				projectile.frame = 1;
+			}
+		}
+		public override bool? CanHitNPC(NPC target) {
+			switch ((int)projectile.ai[1]) {
 				case 3:
 				return false;
 
+				case 0:
+				return projectile.frame <= 0;
+
 				case 1:
 				case 2:
-				return projectile.frame > 0;
-
 				default:
 				return true;
 			}
+		}
+		public bool AttackEnemyProjectiles(float damageMult = 1f, bool weakenStrong = false) {
+			bool hitAny = false;
+			for (int i = 0; i <= Main.maxProjectiles; i++) {
+				Projectile target = Main.projectile[i];
+				if (target.active && (target.hostile || target.trap) && target.damage > 0 && Hitbox.Intersects(target.Hitbox)) {
+					if (target.damage <= projectile.damage * damageMult) {
+						target.Kill();
+						hitAny = true;
+					} else if (weakenStrong) {
+						target.damage -= (int)(projectile.damage * damageMult);
+						hitAny = true;
+					}
+				}
+			}
+			return hitAny;
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			return Hitbox.Intersects(targetHitbox);
 		}
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+			if (ModLoader.GetMod("GraphicsLib") is Mod) try {
+				HandleGraphicsLibIntegration();
+			} catch (Exception) { }
 			spriteBatch.Draw(
 				Main.projectileTexture[projectile.type],
 				projectile.Center - Main.screenPosition,
@@ -290,6 +374,125 @@ namespace EpikV2.Items {
 				0
 			);
 			return false;
+		}
+		public void HandleGraphicsLibIntegration() {
+			Vector2[] positions = new Vector2[projectile.oldPos.Length + 1];
+			projectile.oldPos.CopyTo(positions, 1);
+			positions[0] = projectile.position;
+
+			float[] rotations = new float[projectile.oldRot.Length + 1];
+			projectile.oldRot.CopyTo(rotations, 1);
+			rotations[0] = projectile.rotation;
+
+			Vector2 centerOffset = new Vector2(projectile.width, projectile.height) * 0.5f - Main.screenPosition;
+			Vector2[] vertices = new Vector2[40];
+			Vector2[] texCoords = new Vector2[40];
+			Color[] colors = new Color[40];
+			List<int> indices = new List<int>();
+			for (int i = 0; i < 20; i++) {
+				float fact = (20 - i) / 40f;
+				vertices[i] = positions[i] + centerOffset;
+				texCoords[i] = new Vector2(i / 20f, 0);
+				colors[i] = new Color(fact, fact, fact, 0f);
+
+				vertices[i + 20] = positions[i] + centerOffset + new Vector2(0, 45 * projectile.scale).RotatedBy(rotations[i]);
+				texCoords[i + 20] = new Vector2(i / 20f, 1);
+				colors[i + 20] = new Color(fact, fact, fact, 0f);
+			}
+			for (int i = 0; i < 20; i++) {
+				if (i > 0) {
+					indices.Add(i);
+					Vector2 vert0 = vertices[i];
+					Vector2 vert1 = vertices[i + 19];
+					Vector2 vert2 = vertices[i + 20];
+					float dir2 = (vert1 - vert0).ToRotation();
+					float dir3 = (vert2 - vert0).ToRotation();
+					if (dir2 < 0)
+						dir2 += MathHelper.TwoPi;
+					if (dir3 < 0)
+						dir3 += MathHelper.TwoPi;
+
+					if (dir3 > 3 * MathHelper.PiOver2 && dir2 < MathHelper.PiOver2)
+						dir2 += MathHelper.TwoPi;
+					if (dir2 > 3 * MathHelper.PiOver2 && dir3 < MathHelper.PiOver2)
+						dir3 += MathHelper.TwoPi;
+
+					if (dir2 > dir3) {
+						indices.Add(i + 20);
+						indices.Add(i + 19);
+					} else {
+						dir2 = (vert2 - vert0).ToRotation();
+						dir3 = (vert1 - vert0).ToRotation();
+						if (dir2 < 0)
+							dir2 += MathHelper.TwoPi;
+						if (dir3 < 0)
+							dir3 += MathHelper.TwoPi;
+
+						if (dir3 > 3 * MathHelper.PiOver2 && dir2 < MathHelper.PiOver2)
+							dir2 += MathHelper.TwoPi;
+						if (dir2 > 3 * MathHelper.PiOver2 && dir3 < MathHelper.PiOver2)
+							dir3 += MathHelper.TwoPi;
+						if (dir2 > dir3) {
+							indices.Add(i + 19);
+							indices.Add(i + 20);
+						} else {
+							indices.RemoveAt(indices.Count - 1);
+						}
+					}
+				}
+				if (i < 19) {
+					indices.Add(i);
+					Vector2 vert0 = vertices[i];
+					Vector2 vert1 = vertices[i + 1];
+					Vector2 vert2 = vertices[i + 20];
+					float dir2 = (vert1 - vert0).ToRotation();
+					float dir3 = (vert2 - vert0).ToRotation();
+
+					if (dir2 < 0)
+						dir2 += MathHelper.TwoPi;
+					if (dir3 < 0)
+						dir3 += MathHelper.TwoPi;
+
+					if (dir3 > 3 * MathHelper.PiOver2 && dir2 < MathHelper.PiOver2)
+						dir2 += MathHelper.TwoPi;
+					if (dir2 > 3 * MathHelper.PiOver2 && dir3 < MathHelper.PiOver2)
+						dir3 += MathHelper.TwoPi;
+
+					if (dir2 > dir3) {
+						indices.Add(i + 20);
+						indices.Add(i + 1);
+					} else {
+						dir2 = (vert2 - vert0).ToRotation();
+						dir3 = (vert1 - vert0).ToRotation();
+						if (dir2 < 0)
+							dir2 += MathHelper.TwoPi;
+						if (dir3 < 0)
+							dir3 += MathHelper.TwoPi;
+
+						if (dir3 > 3 * MathHelper.PiOver2 && dir2 < MathHelper.PiOver2)
+							dir2 += MathHelper.TwoPi;
+						if (dir2 > 3 * MathHelper.PiOver2 && dir3 < MathHelper.PiOver2)
+							dir3 += MathHelper.TwoPi;
+						if (dir2 > dir3) {
+							indices.Add(i + 1);
+							indices.Add(i + 20);
+						} else {
+							indices.RemoveAt(indices.Count - 1);
+						}
+					}
+				}
+			}
+			GraphicsLib.Meshes.Mesh mesh = new GraphicsLib.Meshes.Mesh(TrailTexture, vertices, texCoords, colors, indices.ToArray(), null);
+			mesh.Draw();
+		}
+		public static void SetAIMode(Projectile projectile, int mode, float ai0 = -1, Vector2? targetPos = null) {
+			projectile.frame = 0;
+			projectile.ai[1] = mode;
+			projectile.ai[0] = ai0;
+			if (targetPos is Vector2 target) {
+				projectile.localAI[0] = target.X;
+				projectile.localAI[1] = target.Y;
+			}
 		}
 	}
 }

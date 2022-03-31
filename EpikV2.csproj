@@ -18,6 +18,9 @@
     <PackageReference Include="tModLoader.CodeAssist" Version="0.1.*" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="GraphicsLib">
+      <HintPath>..\..\references\mods\GraphicsLib_v1.1.0.1.dll</HintPath>
+    </Reference>
     <Reference Include="Origins">
       <HintPath>..\..\references\mods\Origins_v0.1.dll</HintPath>
     </Reference>
