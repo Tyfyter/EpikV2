@@ -116,7 +116,7 @@ namespace EpikV2.Items {
             projectile.light = 0;
             projectile.alpha = 100;
             drawHeldProjInFrontOfHeldItemAndArms = true;
-            if(EpikIntegration.EnabledMods.origins) OriginsIntegration();
+            if(EpikIntegration.EnabledMods.Origins) OriginsIntegration();
         }
 
         public override void AI() {

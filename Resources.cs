@@ -41,9 +41,11 @@ namespace EpikV2 {
             public Texture2D pixelTexture;
             public Texture2D distTestTexture0;
             public Texture2D distTestTexture1;
-            public Texture2D Breakpoint_Glow;
-            Texture2D breakpoint_Arrow_Glow;
-            public Texture2D Breakpoint_Arrow_Glow => breakpoint_Arrow_Glow??(breakpoint_Arrow_Glow = GetTexture("EpikV2/Items/Breakpoint_Arrow_Glowmask"));
+            public Texture2D BreakpointGlow;
+            Texture2D breakpointArrowGlow;
+            Texture2D moonlaceTrailTexture;
+            public Texture2D BreakpointArrowGlow => breakpointArrowGlow??(breakpointArrowGlow = GetTexture("EpikV2/Items/Breakpoint_Arrow_Glowmask"));
+            public Texture2D MoonlaceTrailTexture => moonlaceTrailTexture ?? (moonlaceTrailTexture = GetTexture("EpikV2/Dusts/Moonlight_Trail"));
         }
         public struct ExtraTexture {
             public readonly Texture2D texture;
@@ -66,6 +68,7 @@ namespace EpikV2 {
                 EpikV2 mod = EpikV2.mod;
                 jadeShader = mod.GetEffect("Effects/Jade");
                 blurShader = mod.GetEffect("Effects/Blur");
+                fadeShader = mod.GetEffect("Effects/Fade");
 
                 jadeDyeShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "JadeConst");
                 fireDyeShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Firewave")), "Firewave");
@@ -94,6 +97,7 @@ namespace EpikV2 {
             }
             public Effect jadeShader;
             public Effect blurShader;
+            public Effect fadeShader;
             public ArmorShaderData jadeDyeShader;
             public ArmorShaderData fireDyeShader;
             public MiscShaderData fireMiscShader;

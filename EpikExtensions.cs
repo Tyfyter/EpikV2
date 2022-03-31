@@ -754,6 +754,35 @@ namespace EpikV2 {
 			}
             return Main.npc[index].active;
 		}
+        public static void RemoveInvalidIndices(List<int> indices, Vector2[] vertices) {
+            int i = 0;
+			while (i < indices.Count) {
+                Vector2 vert0 = vertices[indices[i]];
+                Vector2 vert1 = vertices[indices[i + 1]];
+                Vector2 vert2 = vertices[indices[i + 2]];
+
+                float dir2 = (vert1 - vert0).ToRotation();
+                float dir3 = (vert2 - vert0).ToRotation();
+
+                if (dir2 < 0)
+                    dir2 += MathHelper.TwoPi;
+                if (dir3 < 0)
+                    dir3 += MathHelper.TwoPi;
+
+                if (dir3 > 3 * MathHelper.PiOver2 && dir2 < MathHelper.PiOver2)
+                    dir2 += MathHelper.TwoPi;
+                if (dir2 > 3 * MathHelper.PiOver2 && dir3 < MathHelper.PiOver2)
+                    dir3 += MathHelper.TwoPi;
+
+                if (dir2 - dir3 > 0) {
+                    indices.RemoveAt(i + 2);
+                    indices.RemoveAt(i + 1);
+                    indices.RemoveAt(i);
+				} else {
+                    i += 3;
+				}
+            }
+		}
         public static GraphicsDevice Clone(this GraphicsDevice graphicsDevice) {
             return new GraphicsDevice(graphicsDevice.Adapter, graphicsDevice.GraphicsProfile, graphicsDevice.PresentationParameters);
         }

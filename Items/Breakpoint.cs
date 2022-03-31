@@ -187,7 +187,7 @@ namespace EpikV2.Items {
                 }
             }
             spriteBatch.Draw(Main.projectileTexture[projectile.type], projectile.Center - Main.screenPosition, null, lightColor, projectile.rotation, new Vector2(11, 12), projectile.scale, SpriteEffects.None, 0);
-            spriteBatch.Draw(Resources.Textures.Breakpoint_Arrow_Glow, projectile.Center - Main.screenPosition, null, new Color(1f, 0.85f * embedGlowMultiplier, 1f, 0f), projectile.rotation, new Vector2(11, 12), projectile.scale, SpriteEffects.None, 0);
+            spriteBatch.Draw(Resources.Textures.BreakpointArrowGlow, projectile.Center - Main.screenPosition, null, new Color(1f, 0.85f * embedGlowMultiplier, 1f, 0f), projectile.rotation, new Vector2(11, 12), projectile.scale, SpriteEffects.None, 0);
             return false;
         }
     }

@@ -48,7 +48,7 @@ namespace EpikV2.Items {
             item.noMelee = true;
             item.knockBack = 7.5f;
             item.value = 1000;
-            item.rare = 6;
+            item.rare = ItemRarityID.LightPurple;
             item.UseSound = null;
             item.autoReuse = true;
             item.channel = true;

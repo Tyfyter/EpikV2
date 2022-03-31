@@ -82,7 +82,9 @@ namespace EpikV2 {
 			EpikWorld.sacrifices = new List<int>() {};
 			EpikPlayer.ItemChecking = new BitsBytes(32);
 			Logging.IgnoreExceptionContents("at EpikV2.Items.Burning_Ambition_Smelter.AI() in EpikV2\\Items\\Burning_Ambition.cs:line 472");
-			if(Main.netMode!=NetmodeID.Server) {
+			Logging.IgnoreExceptionContents("at EpikV2.Items.Haligbrand_P.HandleGraphicsLibIntegration()");
+			Logging.IgnoreExceptionContents("at EpikV2.Items.Moonlace_Proj.HandleGraphicsLibIntegration()");
+			if (Main.netMode!=NetmodeID.Server) {
 				//RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
 				//jadeShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Jade")), "Jade");
 				EpikExtensions.DrawPlayerItemPos = (Func<float, int, Vector2>)typeof(Main).GetMethod("DrawPlayerItemPos", BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate(typeof(Func<float, int, Vector2>), Main.instance);
@@ -191,6 +193,7 @@ public static float ShimmerCalc(float val) {
 			Ashen_Glaive.Unload();
 			Lucre_Launcher.Unload();
 			Scorpio.Unload();
+			Haligbrand_P.Unload();
 			EpikWorld.sacrifices = null;
 			HellforgeRecipes = null;
 			//filterMapQueue.Clear();
@@ -314,9 +317,8 @@ public static float ShimmerCalc(float val) {
 			}
 		}
 		public override void PostAddRecipes() {
-			Mod recipeBrowser = ModLoader.GetMod("RecipeBrowser");
-			if(!(recipeBrowser is null)&&recipeBrowser.Version>=new Version(0,5))EpikIntegration.AddRecipeBrowserIntegration();
-			EpikIntegration.EnabledMods.origins = !(ModLoader.GetMod("Origins") is null);
+			EpikIntegration.EnabledMods.CheckEnabled();
+			if (EpikIntegration.EnabledMods.RecipeBrowser)EpikIntegration.AddRecipeBrowserIntegration();
 			HellforgeRecipes = new HashSet<Recipe>(Main.recipe.Where(
 				r => r.requiredTile.Sum(
 					t => {

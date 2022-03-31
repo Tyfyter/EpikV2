@@ -559,7 +559,7 @@ namespace EpikV2.Items {
 							Item createItem = craft.recipe.createItem;
 							Item.NewItem(projectile.Center, createItem.type, createItem.stack, prefixGiven: -1);
 						}
-					} catch (Exception e) {}
+					} catch (Exception) {}
 					projectile.Kill();
 				}
 			}

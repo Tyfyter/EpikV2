@@ -9,10 +9,10 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Tyfyter.Utils;
+using static EpikV2.EpikIntegration;
 
 namespace EpikV2.Items {
 	///TODO:
-	///destroy weaker enemy projectiles
 	///high knockback shield attack on alt fire + down
 	public class Haligbrand : ModItem {
 		public override void SetStaticDefaults() {
@@ -126,9 +126,11 @@ namespace EpikV2.Items {
 		}
 	}
 	public class Haligbrand_P : ModProjectile {
+		public const int trail_length = 20;
 		public static Texture2D TrailTexture { get; private set; }
 		internal static void Unload() {
 			TrailTexture = null;
+
 		}
 		public Triangle Hitbox {
 			get {
@@ -142,7 +144,7 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Haligbrand");
 			ProjectileID.Sets.TrailingMode[projectile.type] = 2;
-			ProjectileID.Sets.TrailCacheLength[projectile.type] = 19;
+			ProjectileID.Sets.TrailCacheLength[projectile.type] = trail_length - 1;
 			if (Main.netMode == NetmodeID.Server) return;
 			TrailTexture = mod.GetTexture("Items/Haligbrand_P_Trail");
 		}
@@ -231,7 +233,9 @@ namespace EpikV2.Items {
 					Vector2 direction = targetPos - projectile.Center;
 					Vector2 force = direction.WithMaxLength(flySpeed);
 					projectile.velocity = (projectile.velocity + (force * 0.3f)).WithMaxLength(force.Length());
-					projectile.rotation = (float)Math.Asin(Math.Min(projectile.velocity.X * 0.05f, 0.75f));
+					projectile.rotation += projectile.direction * 0.35f;//0.84806207898f;
+					EpikExtensions.AngularSmoothing(ref projectile.rotation, 0, 0.25f + Math.Abs(projectile.rotation * 0.1f));
+					//projectile.rotation = (float)Math.Asin(Math.Min(projectile.velocity.X * 0.05f, 0.75f));
 					//EpikExtensions.AngularSmoothing(ref projectile.rotation, , 0.15f);
 					if (direction.LengthSquared() < 24 * 24) {
 						projectile.ai[1] = 0;
@@ -359,7 +363,7 @@ namespace EpikV2.Items {
 			return Hitbox.Intersects(targetHitbox);
 		}
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-			if (ModLoader.GetMod("GraphicsLib") is Mod) try {
+			if (EnabledMods.GraphicsLib) try {
 				HandleGraphicsLibIntegration();
 			} catch (Exception) { }
 			spriteBatch.Draw(
@@ -385,26 +389,26 @@ namespace EpikV2.Items {
 			rotations[0] = projectile.rotation;
 
 			Vector2 centerOffset = new Vector2(projectile.width, projectile.height) * 0.5f - Main.screenPosition;
-			Vector2[] vertices = new Vector2[40];
-			Vector2[] texCoords = new Vector2[40];
-			Color[] colors = new Color[40];
+			Vector2[] vertices = new Vector2[trail_length * 2];
+			Vector2[] texCoords = new Vector2[trail_length * 2];
+			Color[] colors = new Color[trail_length * 2];
 			List<int> indices = new List<int>();
-			for (int i = 0; i < 20; i++) {
-				float fact = (20 - i) / 40f;
+			for (int i = 0; i < trail_length; i++) {
+				float fact = 1f;//(20 - i) / 40f;
 				vertices[i] = positions[i] + centerOffset;
-				texCoords[i] = new Vector2(i / 20f, 0);
+				texCoords[i] = new Vector2(i / (float)trail_length, 0);
 				colors[i] = new Color(fact, fact, fact, 0f);
 
-				vertices[i + 20] = positions[i] + centerOffset + new Vector2(0, 45 * projectile.scale).RotatedBy(rotations[i]);
-				texCoords[i + 20] = new Vector2(i / 20f, 1);
-				colors[i + 20] = new Color(fact, fact, fact, 0f);
+				vertices[i + trail_length] = positions[i] + centerOffset + new Vector2(0, 45 * projectile.scale).RotatedBy(rotations[i]);
+				texCoords[i + trail_length] = new Vector2(i / (float)trail_length, 1);
+				colors[i + trail_length] = new Color(fact, fact, fact, 0f);
 			}
-			for (int i = 0; i < 20; i++) {
+			for (int i = 0; i < trail_length; i++) {
 				if (i > 0) {
 					indices.Add(i);
 					Vector2 vert0 = vertices[i];
-					Vector2 vert1 = vertices[i + 19];
-					Vector2 vert2 = vertices[i + 20];
+					Vector2 vert1 = vertices[i + trail_length - 1];
+					Vector2 vert2 = vertices[i + trail_length];
 					float dir2 = (vert1 - vert0).ToRotation();
 					float dir3 = (vert2 - vert0).ToRotation();
 					if (dir2 < 0)
@@ -418,33 +422,18 @@ namespace EpikV2.Items {
 						dir3 += MathHelper.TwoPi;
 
 					if (dir2 > dir3) {
-						indices.Add(i + 20);
-						indices.Add(i + 19);
+						indices.Add(i + trail_length);
+						indices.Add(i + trail_length - 1);
 					} else {
-						dir2 = (vert2 - vert0).ToRotation();
-						dir3 = (vert1 - vert0).ToRotation();
-						if (dir2 < 0)
-							dir2 += MathHelper.TwoPi;
-						if (dir3 < 0)
-							dir3 += MathHelper.TwoPi;
-
-						if (dir3 > 3 * MathHelper.PiOver2 && dir2 < MathHelper.PiOver2)
-							dir2 += MathHelper.TwoPi;
-						if (dir2 > 3 * MathHelper.PiOver2 && dir3 < MathHelper.PiOver2)
-							dir3 += MathHelper.TwoPi;
-						if (dir2 > dir3) {
-							indices.Add(i + 19);
-							indices.Add(i + 20);
-						} else {
-							indices.RemoveAt(indices.Count - 1);
-						}
+						indices.Add(i + trail_length - 1);
+						indices.Add(i + trail_length);
 					}
 				}
-				if (i < 19) {
+				if (i < trail_length - 1) {
 					indices.Add(i);
 					Vector2 vert0 = vertices[i];
 					Vector2 vert1 = vertices[i + 1];
-					Vector2 vert2 = vertices[i + 20];
+					Vector2 vert2 = vertices[i + trail_length];
 					float dir2 = (vert1 - vert0).ToRotation();
 					float dir3 = (vert2 - vert0).ToRotation();
 
@@ -459,31 +448,24 @@ namespace EpikV2.Items {
 						dir3 += MathHelper.TwoPi;
 
 					if (dir2 > dir3) {
-						indices.Add(i + 20);
+						indices.Add(i + trail_length);
 						indices.Add(i + 1);
 					} else {
-						dir2 = (vert2 - vert0).ToRotation();
-						dir3 = (vert1 - vert0).ToRotation();
-						if (dir2 < 0)
-							dir2 += MathHelper.TwoPi;
-						if (dir3 < 0)
-							dir3 += MathHelper.TwoPi;
-
-						if (dir3 > 3 * MathHelper.PiOver2 && dir2 < MathHelper.PiOver2)
-							dir2 += MathHelper.TwoPi;
-						if (dir2 > 3 * MathHelper.PiOver2 && dir3 < MathHelper.PiOver2)
-							dir3 += MathHelper.TwoPi;
-						if (dir2 > dir3) {
-							indices.Add(i + 1);
-							indices.Add(i + 20);
-						} else {
-							indices.RemoveAt(indices.Count - 1);
-						}
+						indices.Add(i + 1);
+						indices.Add(i + trail_length);
 					}
 				}
 			}
-			GraphicsLib.Meshes.Mesh mesh = new GraphicsLib.Meshes.Mesh(TrailTexture, vertices, texCoords, colors, indices.ToArray(), null);
-			mesh.Draw();
+			EpikExtensions.RemoveInvalidIndices(indices, vertices);
+			if (indices.Count == 0) return;
+			Resources.Shaders.fadeShader.Parameters["uColor"].SetValue(Vector3.One);
+			Resources.Shaders.fadeShader.Parameters["uSecondaryColor"].SetValue(Vector3.Zero);
+			Resources.Shaders.fadeShader.Parameters["uOpacity"].SetValue(0);
+			Resources.Shaders.fadeShader.Parameters["uSaturation"].SetValue(0);
+			try {
+				GraphicsLib.Meshes.Mesh mesh = new GraphicsLib.Meshes.Mesh(TrailTexture, vertices, texCoords, colors, indices.ToArray(), Resources.Shaders.fadeShader);
+				mesh.Draw();
+			} catch (Exception) {}
 		}
 		public static void SetAIMode(Projectile projectile, int mode, float ai0 = -1, Vector2? targetPos = null) {
 			projectile.frame = 0;

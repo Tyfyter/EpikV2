@@ -215,7 +215,7 @@ namespace EpikV2.Items {
             projectile.timeLeft = 3600;
             projectile.light = 0;
             drawHeldProjInFrontOfHeldItemAndArms = true;
-            if(EpikIntegration.EnabledMods.origins) OriginsIntegration();
+            if(EpikIntegration.EnabledMods.Origins) OriginsIntegration();
 		}
 
         public override void AI() {
@@ -317,7 +317,7 @@ namespace EpikV2.Items {
             projectile.CloneDefaults(ProjectileID.FallingStar);
             aiType = ProjectileID.FallingStar;
             if(t>-1)type = t;
-            if(EpikIntegration.EnabledMods.origins) OriginsIntegration();
+            if(EpikIntegration.EnabledMods.Origins) OriginsIntegration();
         }
         public override void AI() {
             projectile.rotation = projectile.velocity.ToRotation()+MathHelper.PiOver2;

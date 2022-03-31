@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using static Tyfyter.Utils.MiscUtils;
 using System.Diagnostics;
 using Terraria.Graphics.Effects;
+using static EpikV2.EpikIntegration;
 
 #pragma warning disable 672
 namespace EpikV2.Items {
@@ -84,6 +85,7 @@ namespace EpikV2.Items {
 			ProjectileID.Sets.MinionTargettingFeature[projectile.type] = true;
 			ProjectileID.Sets.MinionSacrificable[projectile.type] = true;
 			ProjectileID.Sets.Homing[projectile.type] = true;
+            ProjectileID.Sets.TrailCacheLength[projectile.type] = 10;
             ID = projectile.type;
         }
         public override void SetDefaults() {
@@ -234,6 +236,10 @@ namespace EpikV2.Items {
                 }
 			}
             #endregion
+            /*Vector2[] newOldPos = new Vector2[10];
+            Array.Copy(projectile.oldPos, 0, newOldPos, 1, 9);
+            newOldPos[0] = projectile.Center + idleOffset;
+            projectile.oldPos = newOldPos;*/
         }
         public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
             projectile.ai[0] = 15;
@@ -267,7 +273,7 @@ namespace EpikV2.Items {
                     idleOffset.X += 8;
                 }
                 dist = Max(Math.Abs(idleOffset.X), Math.Abs(idleOffset.Y));
-                dist2 = Min(Math.Abs(idleOffset.X), Math.Abs(idleOffset.Y));
+                //dist2 = Min(Math.Abs(idleOffset.X), Math.Abs(idleOffset.Y));
                 if(dist>10) {
                     idleVelocity = idleVelocity.RotatedBy((dist-9.5)*0.02);
                     /*if(!red) {
@@ -309,12 +315,104 @@ namespace EpikV2.Items {
             return 1f;
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+            /*if (EnabledMods.GraphicsLib) try {
+                HandleGraphicsLibIntegration();
+                return false;
+            } catch (Exception e) {
+                
+            }*/
             /* Dust.NewDustPerfect(projectile.Center+new Vector2(10,10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.White).scale = 0.25f;
              Dust.NewDustPerfect(projectile.Center+new Vector2(10,-10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.Red).scale = 0.25f;
              Dust.NewDustPerfect(projectile.Center-new Vector2(10,10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.Green).scale = 0.25f;
              Dust.NewDustPerfect(projectile.Center-new Vector2(10,-10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.Blue).scale = 0.25f;*/
-            Dust.NewDustPerfect(projectile.Center+idleOffset, DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.White).scale = 0.45f;
+            Dust.NewDustPerfect(projectile.Center + idleOffset, DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.White).scale = 0.45f;
             return false;
+        }
+        public void HandleGraphicsLibIntegration() {
+            Vector2[] positions = new Vector2[projectile.oldPos.Length + 1];
+            projectile.oldPos.CopyTo(positions, 1);
+            positions[0] = projectile.position;
+
+            Vector2[] vertices = new Vector2[20];
+            Vector2[] texCoords = new Vector2[20];
+            Color[] colors = new Color[20];
+            List<int> indices = new List<int>();
+            for (int i = 0; i < 10; i++) {
+                float fact = 1f;//(20 - i) / 40f;
+
+                Vector2 off = new Vector2(0, 4 * projectile.scale).RotatedBy((positions[i + 1] - positions[i]).ToRotation());
+
+                vertices[i] = positions[i + 1] - Main.screenPosition - off;
+                texCoords[i] = new Vector2(i / 20f, 0);
+                colors[i] = new Color(fact, fact, fact, 0f);
+
+                vertices[i + 10] = positions[i + 1] - Main.screenPosition + off;
+                texCoords[i + 10] = new Vector2(i / 20f, 1);
+                colors[i + 10] = new Color(fact, fact, fact, 0f);
+            }
+            for (int i = 0; i < 10; i++) {
+                if (i > 0) {
+                    indices.Add(i);
+                    Vector2 vert0 = vertices[i];
+                    Vector2 vert1 = vertices[i + 9];
+                    Vector2 vert2 = vertices[i + 10];
+                    float dir2 = (vert1 - vert0).ToRotation();
+                    float dir3 = (vert2 - vert0).ToRotation();
+                    if (dir2 < 0)
+                        dir2 += MathHelper.TwoPi;
+                    if (dir3 < 0)
+                        dir3 += MathHelper.TwoPi;
+
+                    if (dir3 > 3 * MathHelper.PiOver2 && dir2 < MathHelper.PiOver2)
+                        dir2 += MathHelper.TwoPi;
+                    if (dir2 > 3 * MathHelper.PiOver2 && dir3 < MathHelper.PiOver2)
+                        dir3 += MathHelper.TwoPi;
+
+                    if (dir2 > dir3) {
+                        indices.Add(i + 10);
+                        indices.Add(i + 9);
+                    } else {
+                        indices.Add(i + 9);
+                        indices.Add(i + 10);
+                    }
+                }
+                if (i < 19) {
+                    indices.Add(i);
+                    Vector2 vert0 = vertices[i];
+                    Vector2 vert1 = vertices[i + 1];
+                    Vector2 vert2 = vertices[i + 10];
+                    float dir2 = (vert1 - vert0).ToRotation();
+                    float dir3 = (vert2 - vert0).ToRotation();
+
+                    if (dir2 < 0)
+                        dir2 += MathHelper.TwoPi;
+                    if (dir3 < 0)
+                        dir3 += MathHelper.TwoPi;
+
+                    if (dir3 > 3 * MathHelper.PiOver2 && dir2 < MathHelper.PiOver2)
+                        dir2 += MathHelper.TwoPi;
+                    if (dir2 > 3 * MathHelper.PiOver2 && dir3 < MathHelper.PiOver2)
+                        dir3 += MathHelper.TwoPi;
+
+                    if (dir2 > dir3) {
+                        indices.Add(i + 10);
+                        indices.Add(i + 1);
+                    } else {
+                        indices.Add(i + 1);
+                        indices.Add(i + 10);
+                    }
+                }
+            }
+            EpikExtensions.RemoveInvalidIndices(indices, vertices);
+            if (indices.Count == 0) return;
+            Resources.Shaders.fadeShader.Parameters["uColor"].SetValue(Vector3.One);
+            Resources.Shaders.fadeShader.Parameters["uSecondaryColor"].SetValue(Vector3.Zero);
+            Resources.Shaders.fadeShader.Parameters["uOpacity"].SetValue(1);
+            Resources.Shaders.fadeShader.Parameters["uSaturation"].SetValue(0);
+            try {
+                GraphicsLib.Meshes.Mesh mesh = new GraphicsLib.Meshes.Mesh(Resources.Textures.MoonlaceTrailTexture, vertices, texCoords, colors, indices.ToArray(), Resources.Shaders.fadeShader);
+                mesh.Draw();
+            } catch (Exception) { }
         }
         enum Quirk {
             Circle,
