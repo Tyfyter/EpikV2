@@ -12,8 +12,6 @@ using Tyfyter.Utils;
 using static EpikV2.EpikIntegration;
 
 namespace EpikV2.Items {
-	///TODO:
-	///high knockback shield attack on alt fire + down
 	public class Haligbrand : ModItem {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Haligbrand");
@@ -31,7 +29,7 @@ namespace EpikV2.Items {
 			item.useTime = 10;
 			item.useAnimation = 100;
 			item.knockBack = 5;
-			item.shoot = ModContent.ProjectileType<Haligbrand_P>();
+			item.shoot = Haligbrand_P.ID;
 			item.shootSpeed = 16f;
 			item.value = 5000;
 			item.useStyle = 777;
@@ -61,6 +59,11 @@ namespace EpikV2.Items {
 				return Main.projectile[epikPlayer.haligbrand].ai[1] == 0;
 			}
 			return false;
+		}
+		public override void ModifyManaCost(Player player, ref float reduce, ref float mult) {
+			if (player.altFunctionUse == 2) {
+				mult *= player.controlDown ? 8 : 4;
+			}
 		}
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
@@ -101,9 +104,13 @@ namespace EpikV2.Items {
 					projectile.direction = Math.Sign(projectile.Center.X - player.MountedCenter.X);
 				}
 			} else {
-				projectile.localAI[0] = Main.MouseWorld.X;
-				projectile.localAI[1] = Main.MouseWorld.Y;
-				projectile.ai[1] = 4;
+				if (player.controlDown) {
+					Haligbrand_P.SetAIMode(projectile, 7);
+				} else {
+					projectile.localAI[0] = Main.MouseWorld.X;
+					projectile.localAI[1] = Main.MouseWorld.Y;
+					projectile.ai[1] = 4;
+				}
 				projectile.direction = Math.Sign(projectile.Center.X - player.MountedCenter.X);
 			}
 			projectile.frame = 0;
@@ -126,11 +133,11 @@ namespace EpikV2.Items {
 		}
 	}
 	public class Haligbrand_P : ModProjectile {
+		public static int ID { get; internal set; } = -1;
 		public const int trail_length = 20;
 		public static Texture2D TrailTexture { get; private set; }
 		internal static void Unload() {
 			TrailTexture = null;
-
 		}
 		public Triangle Hitbox {
 			get {
@@ -145,6 +152,7 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Haligbrand");
 			ProjectileID.Sets.TrailingMode[projectile.type] = 2;
 			ProjectileID.Sets.TrailCacheLength[projectile.type] = trail_length - 1;
+			ID = projectile.type;
 			if (Main.netMode == NetmodeID.Server) return;
 			TrailTexture = mod.GetTexture("Items/Haligbrand_P_Trail");
 		}
@@ -283,6 +291,17 @@ namespace EpikV2.Items {
 								Dust.NewDust(player.position, player.width, player.height, DustID.GoldFlame);
 							}
 							Main.PlaySound(SoundID.Item45, player.Center);
+							Projectile.NewProjectileDirect(
+								player.Center,
+								Vector2.Zero,
+								Haligbrand_Guard.ID,
+								projectile.damage / 2,
+								projectile.knockBack * 10,
+								projectile.owner).scale = 0.5f;
+							player.immune = true;
+							player.hurtCooldowns[0] += 10;
+							player.hurtCooldowns[1] += 10;
+							player.immuneTime += 10;
 							player.velocity = projectile.velocity * (0.5f / projectile.ai[0]) - new Vector2(0, 2);
 							if (direction != projectile.direction) {
 								player.velocity.X *= 0.5f;
@@ -294,6 +313,43 @@ namespace EpikV2.Items {
 							projectile.ai[1] = 3;
 						}
 					}
+				}
+				break;
+
+				case 7: {
+					if (projectile.frame == 0) {
+						projectile.velocity.Y += 16;
+					}
+					if (projectile.frame >= 20 || Collision.SolidCollision(projectile.Center + new Vector2(0, 45 * projectile.scale) - new Vector2(8), 16, 16)) {
+						SetAIMode(projectile, 8);
+						break;
+					}
+					projectile.frame += 1;
+				}
+				break;
+
+				case 8: {
+					projectile.position = projectile.oldPosition;
+					if (projectile.frame == 0) {
+						Main.PlaySound(42, (int)projectile.Center.X, (int)projectile.Center.Y, 186, 0.75f, 1f);
+						projectile.velocity.Y += 20;
+						Projectile.NewProjectile(projectile.Center, Vector2.Zero, Haligbrand_Guard.ID, projectile.damage, projectile.knockBack * 10, projectile.owner);
+						player.immune = true;
+						player.hurtCooldowns[0] += 15;
+						player.hurtCooldowns[1] += 15;
+						player.immuneTime += 15;
+					} else {
+						if (projectile.frame < 8) {
+							projectile.velocity.Y-=2;
+						} else {
+							if (projectile.frame >= 40) {
+								projectile.velocity = Vector2.Zero;
+								SetAIMode(projectile, 0);
+								break;
+							}
+						}
+					}
+					projectile.frame += 1;
 				}
 				break;
 			}
@@ -475,6 +531,46 @@ namespace EpikV2.Items {
 				projectile.localAI[0] = target.X;
 				projectile.localAI[1] = target.Y;
 			}
+		}
+	}
+	public class Haligbrand_Guard : ModProjectile {
+		public override string Texture => "Terraria/Projectile_" + ProjectileID.NebulaBlaze2;
+		public static int ID { get; internal set; } = -1;
+		public float ScaleFactor => base_size * projectile.scale * (1 - projectile.timeLeft / 10f);
+		const float base_size = 64;
+		public override void SetStaticDefaults() {
+			DisplayName.SetDefault("Haligbrand");
+			ID = projectile.type;
+		}
+		public override void SetDefaults() {
+			projectile.minion = true;
+			projectile.friendly = true;
+			projectile.penetrate = -1;
+			projectile.width = 0;
+			projectile.height = 0;
+			projectile.usesLocalNPCImmunity = true;
+			projectile.tileCollide = false;
+			projectile.timeLeft = 5;
+			//projectile.localNPCHitCooldown = 0;
+		}
+		public override bool? CanHitNPC(NPC target) {
+			target.oldVelocity = target.velocity;
+			return null;
+		}
+		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+			target.velocity = (target.Center - projectile.Center).SafeNormalize(Vector2.Zero) * (target.velocity - target.oldVelocity).Length();
+		}
+		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
+			float scaleFactor = ScaleFactor;
+			return (projectile.Center - projectile.Center.Within(targetHitbox)).LengthSquared() < scaleFactor * scaleFactor;
+		}
+		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+			for (int i = 72; i-->0;) {
+				Vector2 diff = (Vector2)new PolarVec2(ScaleFactor, (i / 72f) * MathHelper.TwoPi);
+				Vector2 position = projectile.Center + diff;
+				Dust.NewDustDirect(position, 0, 0, DustID.GoldFlame, diff.X / 4, diff.Y / 4).noGravity = true;
+			}
+			return false;
 		}
 	}
 }
