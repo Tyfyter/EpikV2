@@ -45,7 +45,12 @@ namespace EpikV2.Items {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			if (epikPlayer.haligbrand == -1) {
 				int direction = Math.Sign(player.Center.X - Main.MouseWorld.X);
-				epikPlayer.haligbrand = Projectile.NewProjectile(player.MountedCenter - new Vector2(direction * 32, 12), Vector2.Zero, item.shoot, item.damage, item.knockBack, Main.myPlayer);
+				Projectile proj = Projectile.NewProjectileDirect(player.MountedCenter - new Vector2(direction * 32, 12), Vector2.Zero, item.shoot, item.damage, item.knockBack, Main.myPlayer);
+				epikPlayer.haligbrand = proj.whoAmI;
+				for (int i = 0; i < proj.oldPos.Length; i++) {
+					proj.oldPos[i] = proj.position;
+					proj.oldRot[i] = proj.rotation;
+				}
 			}
 			Projectile projectile = Main.projectile[epikPlayer.haligbrand];
 			player.direction = Math.Sign(projectile.Center.X - player.MountedCenter.X);
@@ -241,7 +246,12 @@ namespace EpikV2.Items {
 
 					Vector2 direction = targetPos - projectile.Center;
 					Vector2 force = direction.WithMaxLength(flySpeed);
-					projectile.velocity = (projectile.velocity + (force * 0.3f)).WithMaxLength(force.Length());
+					if (direction.LengthSquared() < 64 * 64) {
+						projectile.velocity = (projectile.velocity + (force * 0.3f)).WithMaxLength(force.Length());
+					} else {
+						projectile.velocity = force;
+					}
+
 					projectile.rotation += projectile.direction * 0.35f;//0.84806207898f;
 					EpikExtensions.AngularSmoothing(ref projectile.rotation, 0, 0.25f + Math.Abs(projectile.rotation * 0.1f));
 					//projectile.rotation = (float)Math.Asin(Math.Min(projectile.velocity.X * 0.05f, 0.75f));
@@ -394,6 +404,7 @@ namespace EpikV2.Items {
 		public override bool? CanHitNPC(NPC target) {
 			switch ((int)projectile.ai[1]) {
 				case 3:
+				case 8:
 				return false;
 
 				case 0:
