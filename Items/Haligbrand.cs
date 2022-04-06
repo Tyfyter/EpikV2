@@ -21,6 +21,7 @@ namespace EpikV2.Items {
 			item.summon = true;
 			item.noMelee = true;
 			item.noUseGraphic = true;
+			item.autoReuse = true;
 			item.mana = 7;
 			item.damage = 277;
 			item.crit = 29;
@@ -295,7 +296,7 @@ namespace EpikV2.Items {
 								player.Center,
 								Vector2.Zero,
 								Haligbrand_Guard.ID,
-								projectile.damage / 2,
+								projectile.damage / 4,
 								projectile.knockBack * 10,
 								projectile.owner).scale = 0.5f;
 							player.immune = true;
@@ -333,7 +334,12 @@ namespace EpikV2.Items {
 					if (projectile.frame == 0) {
 						Main.PlaySound(42, (int)projectile.Center.X, (int)projectile.Center.Y, 186, 0.75f, 1f);
 						projectile.velocity.Y += 20;
-						Projectile.NewProjectile(projectile.Center, Vector2.Zero, Haligbrand_Guard.ID, projectile.damage, projectile.knockBack * 10, projectile.owner);
+						Projectile.NewProjectile(projectile.Center,
+							Vector2.Zero,
+							Haligbrand_Guard.ID,
+							projectile.damage / 2,
+							projectile.knockBack * 10,
+							projectile.owner);
 						player.immune = true;
 						player.hurtCooldowns[0] += 15;
 						player.hurtCooldowns[1] += 15;
@@ -560,9 +566,48 @@ namespace EpikV2.Items {
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			target.velocity = (target.Center - projectile.Center).SafeNormalize(Vector2.Zero) * (target.velocity - target.oldVelocity).Length();
 		}
+		public override void AI() {
+			if ((projectile.timeLeft % 4) == 1) {
+				AttackEnemyProjectiles(kill:false, deflect:true, weakenStrong:false);
+			}
+		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			float scaleFactor = ScaleFactor;
 			return (projectile.Center - projectile.Center.Within(targetHitbox)).LengthSquared() < scaleFactor * scaleFactor;
+		}
+		public bool AttackEnemyProjectiles(float damageMult = 1f, bool kill = true, bool deflect = false, bool weakenStrong = false) {
+			bool hitAny = false;
+			float damage = projectile.damage * damageMult;
+			for (int i = 0; i <= Main.maxProjectiles; i++) {
+				Projectile target = Main.projectile[i];
+				if (target.active && (target.hostile || target.trap) && target.damage > 0 && target.restrikeDelay <= 0 && (Colliding(default, target.Hitbox)??false)) {
+					if (kill && target.damage <= damage) {
+						target.Kill();
+						hitAny = true;
+					} else {
+						if (deflect) {
+							PolarVec2 velocity = (PolarVec2)target.velocity;
+							PolarVec2 diff = (PolarVec2)(target.Center - projectile.Center);
+							//diff.R = 1 - (diff.R / (ScaleFactor * 2));
+							float factor = Math.Min(damage / target.damage, 1);
+							EpikExtensions.AngularSmoothing(ref velocity.Theta, diff.Theta, factor * MathHelper.Pi);
+							velocity.R = MathHelper.Lerp(velocity.R, velocity.R / 2, 1 - factor);
+							target.velocity = (Vector2)velocity;
+							target.restrikeDelay = 15;
+							target.friendly = true;
+							hitAny = true;
+							if (weakenStrong && EpikExtensions.AngleDif(velocity.Theta, diff.Theta) > 1.5f) {
+								target.damage -= (int)damage;
+								Dust.NewDust(target.position, target.width, target.height, DustID.DungeonWater_Old);
+							}
+						} else if (weakenStrong) {
+							target.damage -= (int)damage;
+							hitAny = true;
+						}
+					}
+				}
+			}
+			return hitAny;
 		}
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
 			for (int i = 72; i-->0;) {
