@@ -5,20 +5,22 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
+//ʙʀᴀɴᴅ-ғʀᴇᴇ ᴘᴇᴀᴄʜ ʙᴇᴠᴇʀᴀɢᴇ
 namespace EpikV2.Items {
-	public class Blood_Mushroom_Soup : ModItem {
+	public class Brand_Free_Peach_Beverage : ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Blood Mushroom Soup");
-			Tooltip.SetDefault("I'm pretty sure this is just mislabeled tomato soup.");
+			DisplayName.SetDefault("Brand-Free Peach Beverage");
+			Tooltip.SetDefault("'That's some good Brand-Free Peach Beverage'");
 		}
 		public override void SetDefaults() {
 			//item.name = "jfdjfrbh";
 			item.CloneDefaults(ItemID.LesserHealingPotion);
 			item.width = 16;
 			item.height = 26;
-			item.value = 25000;
+			item.value = 2500;
 			item.rare = ItemRarityID.Green;
             item.healLife = 50;
+			item.consumable = true;
 		}
 	}
 }

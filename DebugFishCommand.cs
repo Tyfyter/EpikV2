@@ -1,4 +1,4 @@
-﻿using EpikV2.NPCs;
+﻿/*using EpikV2.NPCs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,3 +33,4 @@ namespace EpikV2 {
 		}
 	}
 }
+*/
