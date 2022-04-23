@@ -10,6 +10,7 @@ using static Terraria.ModLoader.ModContent;
 using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
 using Origins.Projectiles;
+using System.IO;
 
 #pragma warning disable 672
 namespace EpikV2.Items {
@@ -232,6 +233,12 @@ namespace EpikV2.Items {
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
             projectile.type = ID;
+        }
+        public override void SendExtraAI(BinaryWriter writer) {
+            writer.Write(projectile.localAI[0]);
+        }
+        public override void ReceiveExtraAI(BinaryReader reader) {
+            projectile.localAI[0] = reader.ReadSingle();
         }
         private void OriginsIntegration() {
             OriginGlobalProj.explosiveOverrideNext = true;

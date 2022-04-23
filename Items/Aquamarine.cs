@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Terraria;
@@ -68,8 +69,20 @@ namespace EpikV2.Items
 			projectile.aiStyle = 0;
             projectile.alpha = 100;
             projectile.ignoreWater = true;
-		}
-		public override void AI(){
+        }
+        public override void SendExtraAI(BinaryWriter writer) {
+            writer.Write(arrows);
+            writer.Write(damage);
+            writer.Write(speed.X);
+            writer.Write(speed.Y);
+        }
+        public override void ReceiveExtraAI(BinaryReader reader) {
+            arrows = reader.ReadInt32();
+            damage = reader.ReadInt32();
+            speed.X = reader.ReadSingle();
+            speed.Y = reader.ReadSingle();
+        }
+        public override void AI(){
             //projectile.aiStyle = projectile.wet?0:1;
             //if(!projectile.wet)projectile.velocity += new Vector2(0, 0.04f);
             projectile.rotation = projectile.velocity.ToRotation()+MathHelper.Pi/2;

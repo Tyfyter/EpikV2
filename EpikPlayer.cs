@@ -80,6 +80,8 @@ namespace EpikV2 {
         public bool preUpdateReleaseJump;
         public float redStarGlow = 0.05f;
         public int haligbrand = -1;
+        public int pyrkasivarsCount = 0;
+        public int[] pyrkasivars = new int[7];
 
         public static BitsBytes ItemChecking;
 
@@ -116,6 +118,12 @@ namespace EpikV2 {
 			if (haligbrand >= 0 && !Main.projectile[haligbrand].active) {
                 haligbrand = -1;
             }
+			for (int i = 0; i < 7; i++) {
+                if (pyrkasivars[i] >= 0 && !Main.projectile[pyrkasivars[i]].active) {
+                    pyrkasivars[i] = -1;
+                }
+            }
+            pyrkasivarsCount = 0;
             if (marionetteDeathTime>0) {
                 player.statLife = 0;
                 player.breath = player.breathMax;
@@ -280,20 +288,39 @@ namespace EpikV2 {
             if(ropeTarg >= 0) {//ropeVel.HasValue&&
                 Projectile projectile = Main.projectile[ropeTarg];
                 Rope_Hook_Projectile rope = (Rope_Hook_Projectile)projectile.modProjectile;
-                float slide = 0;
-                if(player.controlUp^player.controlDown) {
-                    if(player.controlUp)slide-=2;
-                    else slide+=5;
-                }
-                float range = Math.Min(rope.distance+slide, Rope_Hook_Projectile.rope_range);
-                rope.distance = range;
-                Vector2 displacement = projectile.Center-player.MountedCenter;
+                Vector2 displacement = projectile.Center - player.MountedCenter;
                 float distance = displacement.Length();
-                if(distance>=range) {
-                    if(player.Center.Y<(projectile.Center.Y - Math.Abs(displacement.X) * 0.5f)) {
+
+                float slide = 0;
+                if (player.controlUp ^ player.controlDown) {
+                    if (player.controlUp) slide -= 2;
+                    else slide += 5;
+                }
+                float range = Math.Min(rope.distance + slide, Rope_Hook_Projectile.rope_range);
+                if (rope.distance > range) {
+                    float d = Vector2.Dot(player.velocity, displacement.SafeNormalize(Vector2.Zero));
+                    player.velocity += (2 - d) * displacement.SafeNormalize(Vector2.Zero);
+                    rope.distance = range;
+                    goto endCustomMovement;
+                }
+                rope.distance = range;
+
+                if(Math.Round(distance)>Math.Round(range)) {
+                    Vector2 stretch = displacement.SafeNormalize(Vector2.Zero) * (range - distance) * -4;
+                    if (Collision.TileCollision(player.position, stretch, player.width, player.height, true, false) != stretch) {
+                        rope.distance = distance;
+                        goto endCustomMovement;
+                    }
+
+                    float d = Vector2.Dot(player.velocity, displacement.SafeNormalize(Vector2.Zero));
+                    player.velocity += (2 - d) * displacement.SafeNormalize(Vector2.Zero);
+                    rope.distance = range;
+                    goto endCustomMovement;
+                    /*
+                    if(player.Center.Y<(projectile.Center.Y - Math.Abs(displacement.X) * 1f)) {
                         projectile.ai[0]=1f;//kills the projectile
                         return;
-                    }
+                    }//*/
                     const float perpAngle = PiOver2 + 0.01f;// - Math.Min((distance-range)*0.01f, 0.2f);
                     //gets the magnitude and direction of the diference between the angles of player.velocity and displacement
                     float angleDiff = AngleDif(player.velocity.ToRotation(), displacement.ToRotation(), out int angleDir);

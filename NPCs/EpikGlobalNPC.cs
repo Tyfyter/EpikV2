@@ -150,7 +150,7 @@ namespace EpikV2.NPCs
 			if (celestialFlames) {
                 drawColor = drawColor.MultiplyRGBA(new Color(230, 240, 255, 100));
 				if (Main.rand.Next(4) < 3) {
-					int dust = Dust.NewDust(npc.position - new Vector2(2f, 2f), npc.width + 4, npc.height + 4, 66, npc.velocity.X * 0.4f, npc.velocity.Y * 0.4f, 100, new Color(230, 240, 255, 0), 1f);
+					int dust = Dust.NewDust(npc.position - new Vector2(2f, 2f), npc.width + 4, npc.height + 4, DustID.Rainbow, npc.velocity.X * 0.4f, npc.velocity.Y * 0.4f, 100, new Color(230, 240, 255, 0), 1f);
 					Main.dust[dust].noGravity = true;
 					Main.dust[dust].velocity *= 0.6f;
 					Main.dust[dust].velocity.Y -= 0.5f;

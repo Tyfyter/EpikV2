@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -189,6 +190,14 @@ namespace EpikV2.Items {
             spriteBatch.Draw(Main.projectileTexture[projectile.type], projectile.Center - Main.screenPosition, null, lightColor, projectile.rotation, new Vector2(11, 12), projectile.scale, SpriteEffects.None, 0);
             spriteBatch.Draw(Resources.Textures.BreakpointArrowGlow, projectile.Center - Main.screenPosition, null, new Color(1f, 0.85f * embedGlowMultiplier, 1f, 0f), projectile.rotation, new Vector2(11, 12), projectile.scale, SpriteEffects.None, 0);
             return false;
+        }
+        public override void SendExtraAI(BinaryWriter writer) {
+            writer.Write(projectile.localAI[0]);
+            writer.Write(projectile.localAI[1]);
+        }
+        public override void ReceiveExtraAI(BinaryReader reader) {
+            projectile.localAI[0] = reader.ReadSingle();
+            projectile.localAI[1] = reader.ReadSingle();
         }
     }
 }

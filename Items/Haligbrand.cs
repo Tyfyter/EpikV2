@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 using Terraria;
 using Terraria.DataStructures;
@@ -548,6 +549,14 @@ namespace EpikV2.Items {
 				projectile.localAI[0] = target.X;
 				projectile.localAI[1] = target.Y;
 			}
+		}
+		public override void SendExtraAI(BinaryWriter writer) {
+			writer.Write(projectile.localAI[0]);
+			writer.Write(projectile.localAI[1]);
+		}
+		public override void ReceiveExtraAI(BinaryReader reader) {
+			projectile.localAI[0] = reader.ReadSingle();
+			projectile.localAI[1] = reader.ReadSingle();
 		}
 	}
 	public class Haligbrand_Guard : ModProjectile {

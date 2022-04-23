@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using EpikV2.Projectiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -185,10 +186,18 @@ namespace EpikV2.Items {
             return false;
         }
         public override void PostDraw(SpriteBatch spriteBatch, Color drawColor) {
-			//spriteBatch.End();
-			//spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
+            //spriteBatch.End();
+            //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
         }
-	}
+        public override void SendExtraAI(BinaryWriter writer) {
+            writer.Write(projectile.localAI[0]);
+            writer.Write(projectile.localAI[1]);
+        }
+        public override void ReceiveExtraAI(BinaryReader reader) {
+            projectile.localAI[0] = reader.ReadSingle();
+            projectile.localAI[1] = reader.ReadSingle();
+        }
+    }
 	/*public class Jade_Reaper_Throw : ModProjectile{
         public override string Texture => "EpikV2/Items/Jade_Reaper";
 		//public static int id;

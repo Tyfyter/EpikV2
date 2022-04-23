@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
@@ -263,6 +264,12 @@ namespace EpikV2.Items {
 					}
 				}
 			}
+		}
+		public override void SendExtraAI(BinaryWriter writer) {
+			writer.Write(projectile.localAI[0]);
+		}
+		public override void ReceiveExtraAI(BinaryReader reader) {
+			projectile.localAI[0] = reader.ReadSingle();
 		}
 		internal class Particle {
 			internal float distance;
@@ -612,6 +619,12 @@ namespace EpikV2.Items {
 				Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
 			}
 			return false;
+		}
+		public override void SendExtraAI(BinaryWriter writer) {
+			writer.Write(projectile.localAI[0]);
+		}
+		public override void ReceiveExtraAI(BinaryReader reader) {
+			projectile.localAI[0] = reader.ReadSingle();
 		}
 	}
 	internal class Fireball_Particle {

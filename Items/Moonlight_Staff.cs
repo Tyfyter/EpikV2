@@ -14,6 +14,7 @@ using static Tyfyter.Utils.MiscUtils;
 using System.Diagnostics;
 using Terraria.Graphics.Effects;
 using static EpikV2.EpikIntegration;
+using System.IO;
 
 #pragma warning disable 672
 namespace EpikV2.Items {
@@ -327,6 +328,14 @@ namespace EpikV2.Items {
              Dust.NewDustPerfect(projectile.Center-new Vector2(10,-10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.Blue).scale = 0.25f;*/
             Dust.NewDustPerfect(projectile.Center + idleOffset, DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.White).scale = 0.45f;
             return false;
+        }
+        public override void SendExtraAI(BinaryWriter writer) {
+            writer.Write(projectile.localAI[0]);
+            writer.Write(projectile.localAI[1]);
+        }
+        public override void ReceiveExtraAI(BinaryReader reader) {
+            projectile.localAI[0] = reader.ReadSingle();
+            projectile.localAI[1] = reader.ReadSingle();
         }
         public void HandleGraphicsLibIntegration() {
             Vector2[] positions = new Vector2[projectile.oldPos.Length + 1];

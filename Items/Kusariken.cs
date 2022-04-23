@@ -199,12 +199,14 @@ namespace EpikV2.Items {
             return false;
         }
         public override void SendExtraAI(BinaryWriter writer) {
+			writer.Write(projectile.localAI[0]);
 			writer.Write(aiMode);
         }
         public override void ReceiveExtraAI(BinaryReader reader) {
+			projectile.localAI[0] = reader.ReadSingle();
 			aiMode = reader.ReadByte();
-        }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
+		}
+		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
             spriteBatch.Draw(Main.projectileTexture[projectile.type], projectile.Center - Main.screenPosition, new Rectangle(0, 0, 60, 60), lightColor, projectile.rotation, new Vector2(49, 11), projectile.scale, SpriteEffects.None, 0f);
             Vector2 playerCenter = Main.player[projectile.owner].MountedCenter;
 			Vector2 center = projectile.Center + new Vector2(-46, 46).RotatedBy(projectile.rotation);
