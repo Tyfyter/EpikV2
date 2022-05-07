@@ -67,7 +67,7 @@ namespace EpikV2.Items {
 		}
 		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
-
+			
 			float add = 1f;
 			float mult = 1f;
 			float flat = 0;
