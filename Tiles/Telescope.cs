@@ -149,12 +149,14 @@ namespace EpikV2.Tiles {
 			recipe.AddIngredient(ItemID.Lens, 2);
 			recipe.AddTile(TileID.Tables);
 			recipe.AddTile(TileID.Chairs);
+			recipe.SetResult(this);
 			recipe.AddRecipe();
 			recipe = new ModRecipe(mod);
 			recipe.AddIngredient(ItemID.TungstenBar, 8);
 			recipe.AddIngredient(ItemID.Lens, 2);
 			recipe.AddTile(TileID.Tables);
 			recipe.AddTile(TileID.Chairs);
+			recipe.SetResult(this);
 			recipe.AddRecipe();
 		}
 	}
