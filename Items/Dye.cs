@@ -170,7 +170,7 @@ namespace EpikV2.Items {
 		}
     }
 
-    public class Motion_Blur_Dye : ModItem {
+    /*public class Motion_Blur_Dye : ModItem {
         public override string Texture => "EpikV2/Items/Non-Chromatic_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Swift Dye");
@@ -187,7 +187,7 @@ namespace EpikV2.Items {
             recipe.SetResult(this, 3);
             recipe.AddRecipe();
         }
-    }
+    }*/
     public class Cursed_Hades_Dye : ModItem {
         public override void SetStaticDefaults(){
             DisplayName.SetDefault("Cursed Hades Dye");
