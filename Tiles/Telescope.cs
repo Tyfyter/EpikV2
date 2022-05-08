@@ -19,8 +19,8 @@ namespace EpikV2.Tiles {
 			TileObjectData.newTile.Width = 4;
 			TileObjectData.newTile.Height = 3;
 			TileObjectData.newTile.Origin = new Point16(1, 2);
-			TileObjectData.newTile.AnchorBottom = new AnchorData();
-			//TileObjectData.newTile.AnchorBottom = new AnchorData(Terraria.Enums.AnchorType.SolidTile | Terraria.Enums.AnchorType.SolidWithTop, 2, 1);
+			//TileObjectData.newTile.AnchorBottom = new AnchorData();
+			TileObjectData.newTile.AnchorBottom = new AnchorData(Terraria.Enums.AnchorType.SolidTile | Terraria.Enums.AnchorType.SolidWithTop, 2, 1);
 			TileObjectData.newTile.UsesCustomCanPlace = true;
 			TileObjectData.newTile.Direction = Terraria.Enums.TileObjectDirection.None;
 			TileObjectData.newTile.LavaDeath = false;
@@ -32,15 +32,17 @@ namespace EpikV2.Tiles {
 			ModTranslation name = CreateMapEntryName();
 			name.SetDefault("Telescope");
 			AddMapEntry(new Color(200, 200, 200), name);
-			disableSmartCursor = true;
+			disableSmartCursor = false;
+			disableSmartInteract = false;
 		}
-
+		public override bool HasSmartInteract() {
+			return true;
+		}
 		public override void KillMultiTile(int i, int j, int frameX, int frameY) {
 			Item.NewItem(i * 16, j * 16, 64, 32, ModContent.ItemType<Telescope_Item>());
 		}
 
 		public override bool NewRightClick(int i, int j) {
-			Player player = Main.LocalPlayer;
 			Tile tile = Main.tile[i, j];
 			//tile.frameX = 0;
 			//tile.frameY = 18;
@@ -50,21 +52,26 @@ namespace EpikV2.Tiles {
 				baseX = i - (((tile.frameX - 72) / 18) % 4);
 			}
 			int currentAim = GetAim(baseX, baseY);
-			int newAim = (j - baseY) + 1;
-			if (i != baseX) {
-				newAim = -newAim;
+			int newAim = currentAim;
+			if ((i - baseX) % 3 == 0) {
+				newAim = (j - baseY) + 1;
+				if (i != baseX) {
+					newAim = -newAim;
+				}
 			}
-			Main.NewText(currentAim + " -> " + newAim);
 			if (currentAim != newAim) {
 				SetAim(baseX, baseY, newAim);
 			} else {
-				Projectile.NewProjectile(
+				Projectile proj = Projectile.NewProjectileDirect(
 					new Vector2(baseX * 16 + 32, baseY * 16 + 32),
-					new Vector2(8, 0).RotatedBy((Math.Abs(currentAim) - 1) * MathHelper.PiOver4 * -0.5f) * (currentAim > 0 ? Vector2.One : new Vector2(-1, 1)),
-					ProjectileID.BeeArrow,
+					new Vector2(16, 0).RotatedBy((Math.Abs(currentAim) - 1) * MathHelper.PiOver4 * -0.5f) * (currentAim > 0 ? Vector2.One : new Vector2(-1, 1)),
+					Telescope_View_P.ID,
 					6,
 					6,
-					255);
+					Main.myPlayer);
+				EpikPlayer epikPlayer = Main.LocalPlayer.GetModPlayer<EpikPlayer>();
+				epikPlayer.telescopeID = proj.whoAmI;
+				epikPlayer.telescopePos = proj.Center;
 			}
 			return true;
 		}
@@ -78,7 +85,7 @@ namespace EpikV2.Tiles {
 					int baseY = (tile.frameY % 54);
 					tile.frameX = (short)(right ? baseX : baseX + 72);
 					tile.frameY = (short)(baseY + 54 * (angle - 1));
-					Main.NewText(tile.frameX + " ; " + tile.frameY);
+					//Main.NewText(tile.frameX + " ; " + tile.frameY);
 				}
 			}
 		}
@@ -98,6 +105,35 @@ namespace EpikV2.Tiles {
 			player.showItemIcon2 = ModContent.ItemType<Telescope_Item>();
 		}
 	}
+	public class Telescope_View_P : ModProjectile {
+		public override string Texture => "Terraria/Item_260";
+		public static int ID { get; internal set; } = -1;
+		public override void SetStaticDefaults() {
+			DisplayName.SetDefault("Telescope_View_P");
+			ID = projectile.type;
+		}
+		public override void SetDefaults() {
+			projectile.hide = true;
+			projectile.width = 8;
+			projectile.height = 8;
+			projectile.extraUpdates = 3;
+		}
+		public override void AI() {
+			Vector2 nextPos = projectile.Center + projectile.velocity;
+			if (nextPos.X < 0 || nextPos.Y < 0 || nextPos.X > Main.maxTilesX * 16 || nextPos.Y > Main.maxTilesY * 16) {
+				OnTileCollide(projectile.velocity);
+			}
+			projectile.timeLeft = 6;
+			if (Main.player[projectile.owner].GetModPlayer<EpikPlayer>().telescopeID != projectile.whoAmI) {
+				projectile.Kill();
+			}
+		}
+		public override bool OnTileCollide(Vector2 oldVelocity) {
+			projectile.velocity = Vector2.Zero;
+			projectile.tileCollide = false;
+			return false;
+		}
+	}
 	public class Telescope_Item : ModItem {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Telescope");
@@ -106,6 +142,20 @@ namespace EpikV2.Tiles {
 			item.CloneDefaults(ItemID.StoneBlock);
 			item.placeStyle = 0;
 			item.createTile = ModContent.TileType<Telescope>();
+		}
+		public override void AddRecipes() {
+			ModRecipe recipe = new ModRecipe(mod);
+			recipe.AddIngredient(ItemID.SilverBar, 8);
+			recipe.AddIngredient(ItemID.Lens, 2);
+			recipe.AddTile(TileID.Tables);
+			recipe.AddTile(TileID.Chairs);
+			recipe.AddRecipe();
+			recipe = new ModRecipe(mod);
+			recipe.AddIngredient(ItemID.TungstenBar, 8);
+			recipe.AddIngredient(ItemID.Lens, 2);
+			recipe.AddTile(TileID.Tables);
+			recipe.AddTile(TileID.Chairs);
+			recipe.AddRecipe();
 		}
 	}
 }

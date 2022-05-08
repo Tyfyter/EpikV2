@@ -82,6 +82,8 @@ namespace EpikV2 {
         public int haligbrand = -1;
         public int pyrkasivarsCount = 0;
         public int[] pyrkasivars = new int[7];
+        public int telescopeID = -1;
+        public Vector2 telescopePos = default;
 
         public static BitsBytes ItemChecking;
 
@@ -122,6 +124,10 @@ namespace EpikV2 {
                 if (pyrkasivars[i] >= 0 && !Main.projectile[pyrkasivars[i]].active) {
                     pyrkasivars[i] = -1;
                 }
+            }
+            if (telescopeID >= 0 && (!Main.projectile[telescopeID].active || player.WithinRange(telescopePos, player.blockRange * 16) || player.controlJump)) {
+                telescopeID = -1;
+                telescopePos = default;
             }
             pyrkasivarsCount = 0;
             if (marionetteDeathTime>0) {
@@ -202,7 +208,19 @@ namespace EpikV2 {
                 noAttackCD = false;
             }
         }
-        public override void ModifyHitNPC(Item item, NPC target, ref int damage, ref float knockback, ref bool crit) {
+		public override void ModifyScreenPosition() {
+            if (telescopeID >= 0) {
+                Projectile proj = Main.projectile[telescopeID];
+                if (proj.active) {
+                    Main.screenPosition = proj.Center - new Vector2(Main.screenWidth * 0.5f, Main.screenHeight * 0.5f);
+                    if (Main.screenPosition.X + Main.screenWidth < 0 || Main.screenPosition.Y - Main.screenHeight < 0 || Main.screenPosition.X + Main.screenWidth > Main.maxTilesX * 16 || Main.screenPosition.Y + Main.screenHeight > Main.maxTilesY * 16) {
+                        proj.velocity = Vector2.Zero;
+                        proj.tileCollide = false;
+                    }
+                }
+            }
+		}
+		public override void ModifyHitNPC(Item item, NPC target, ref int damage, ref float knockback, ref bool crit) {
             if(target.HasBuff(Sovereign_Debuff.ID)) {
                 damage += Math.Min(8, (target.defense-player.armorPenetration)/2);
             }
