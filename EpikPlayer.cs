@@ -16,6 +16,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
 using EpikV2.NPCs;
 using static EpikV2.Resources;
+using EpikV2.Tiles;
 
 namespace EpikV2 {
     public class EpikPlayer : ModPlayer {
@@ -125,9 +126,17 @@ namespace EpikV2 {
                     pyrkasivars[i] = -1;
                 }
             }
-            if (telescopeID >= 0 && (!Main.projectile[telescopeID].active || player.WithinRange(telescopePos, player.blockRange * 16) || player.controlJump)) {
-                telescopeID = -1;
-                telescopePos = default;
+            if (telescopeID >= 0) {
+                Projectile telescopeProj = Main.projectile[telescopeID];
+                bool cancel = !telescopeProj.active || telescopeProj.type != Telescope_View_P.ID;
+                if (!cancel && (!player.WithinRange(telescopePos, (7 + player.blockRange + Math.Max(Player.tileRangeX, Player.tileRangeY)) * 16) || player.controlJump)) {
+                    cancel = true;
+                    telescopeProj.Kill();
+                }
+				if (cancel) {
+                    telescopeID = -1;
+                    telescopePos = default;
+                }
             }
             pyrkasivarsCount = 0;
             if (marionetteDeathTime>0) {
@@ -340,7 +349,7 @@ namespace EpikV2 {
                         return;
                     }//*/
                     const float perpAngle = PiOver2 + 0.01f;// - Math.Min((distance-range)*0.01f, 0.2f);
-                    //gets the magnitude and direction of the diference between the angles of player.velocity and displacement
+                    //gets the magnitude and direction of the difference between the angles of player.velocity and displacement
                     float angleDiff = AngleDif(player.velocity.ToRotation(), displacement.ToRotation(), out int angleDir);
                     Vector2 targetVelocity = player.velocity.RotatedBy((angleDiff - perpAngle) * angleDir);
                     targetVelocity += Vector2.Normalize(displacement) * Math.Min((distance-range)*0.1f, 1f);

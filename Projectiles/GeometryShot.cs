@@ -11,16 +11,15 @@ namespace EpikV2.Projectiles{
     public class GeometryShot : ModProjectile{
         private bool init = true;
         public override bool CloneNewInstances => true;
-        public override String Texture => "EpikV2/Projectiles/MagShot";
+        public override string Texture => "EpikV2/Projectiles/MagShot";
         public override void SetDefaults(){
-            //projectile.name = "Wind Shot";  //projectile name
-            projectile.width = 12;       //projectile width
-            projectile.height = 12;  //projectile height
-            projectile.friendly = true;      //make the projectile will not damage players allied with its owner
-            projectile.ranged = true;         // 
-            projectile.tileCollide = true;   //make it so that the projectile will be destroyed if it hits terrain
-            projectile.penetrate = 20;      //how many npcs will penetrate
-            projectile.timeLeft = 600;   //how many time this projectile has before it expipires
+            projectile.width = 12;
+            projectile.height = 12;
+            projectile.friendly = true;
+            projectile.ranged = true;
+            projectile.tileCollide = true;
+            projectile.penetrate = 20;
+            projectile.timeLeft = 600;  
             projectile.extraUpdates = 4;
             projectile.ignoreWater = true;   
             projectile.localNPCHitCooldown = 20;

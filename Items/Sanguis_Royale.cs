@@ -69,7 +69,7 @@ namespace EpikV2.Items {
             projectile.height = 10;  //projectile height
             projectile.friendly = true;      //make that the projectile will not damage you
             projectile.magic = true;         //
-            projectile.tileCollide = true;   //make that the projectile will be destroed if it hits the terrain
+            projectile.tileCollide = true;
             projectile.penetrate = -1;      //how many npc will penetrate
             projectile.timeLeft = 150;
             //projectile.light = 0.75f;
@@ -115,7 +115,7 @@ namespace EpikV2.Items {
             projectile.height = 10;  //projectile height
             projectile.friendly = true;      //make that the projectile will not damage you
             projectile.magic = true;         //
-            projectile.tileCollide = false;   //make that the projectile will be destroed if it hits the terrain
+            projectile.tileCollide = false;
             projectile.penetrate = -1;      //how many npc will penetrate
             projectile.timeLeft = 15;
             //projectile.light = 0.75f;

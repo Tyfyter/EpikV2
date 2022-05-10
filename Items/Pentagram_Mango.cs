@@ -12,7 +12,7 @@ namespace EpikV2.Items {
     public class Pentagram_Mango : ModItem {
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Mango With a Pentagram on it");
-		    Tooltip.SetDefault("Rearanges enemy organs");
+		    Tooltip.SetDefault("Rearranges enemy organs");
 		}
         public override void SetDefaults() {
             item.CloneDefaults(ItemID.FrostStaff);

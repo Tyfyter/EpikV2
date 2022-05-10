@@ -62,7 +62,7 @@ You have ten fingers.
 			for(int i = 0; i < Main.player[item.owner].inventory.Length-1; i++){
 				Item i2 = Main.player[item.owner].inventory[i];
 				if(i2.type==item.type&&i2!=item){
-					if(((Tape_Ring)i2.modItem).count<=count&&count<10){
+					if(((Tape_Ring)i2.modItem).count<=count && count<10){
 						this.RightClick(Main.player[item.owner]);
 						perhapsthis = true;
 						return false;
@@ -83,7 +83,7 @@ You have ten fingers.
 			for(int i = 0; i < Main.player[item.owner].inventory.Length-1; i++){
 				Item i2 = Main.player[item.owner].inventory[i];
 				if(i2.type==item.type&&i2!=item){
-					if(((Tape_Ring)i2.modItem).count<=count&&count<10){
+					if(((Tape_Ring)i2.modItem).count<=count && count<10){
 						((Tape_Ring)i2.modItem).count--;
 						if(((Tape_Ring)i2.modItem).count==0){
 							if(i2.stack--<=0){

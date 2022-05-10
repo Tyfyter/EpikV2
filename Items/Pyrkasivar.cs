@@ -16,7 +16,7 @@ using static EpikV2.EpikIntegration;
 namespace EpikV2.Items {
 	public class Pyrkasivar: ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Pyrkasivar");//google translate seems to think this means armrest in finnish, but 
+			DisplayName.SetDefault("Pyrkasivar");//Google translate seems to think this means armrest in Finnish, but 
 			Tooltip.SetDefault("");
 		}
 		public override void SetDefaults() {

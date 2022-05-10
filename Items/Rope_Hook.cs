@@ -50,7 +50,7 @@ namespace EpikV2.Items {
 			projectile.netImportant = true;
 		}
 
-		// Use this hook for hooks that can have multiple hooks midflight: Dual Hook, Web Slinger, Fish Hook, Static Hook, Lunar Hook
+		// Use this hook for hooks that can have multiple hooks mid-flight: Dual Hook, Web Slinger, Fish Hook, Static Hook, Lunar Hook
 		public override bool? CanUseGrapple(Player player) {
 			int hooksOut = 0;
 			for (int l = 0; l < 1000; l++) {

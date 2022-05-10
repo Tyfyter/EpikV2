@@ -56,14 +56,13 @@ namespace EpikV2.Items {
         }
     }
     public class Solweaver_Beam : ModProjectile {
-        private Vector2 _targetPos;         //Ending position of the laser beam
+        private Vector2 _targetPos;
         public override void SetDefaults() {
-            //projectile.name = "Wind";  //this is the projectile name
             projectile.width = 10;
             projectile.height = 10;
-            projectile.friendly = true;     //this defines if the projectile is frendly
-            projectile.penetrate = -1;  //this defines the projectile penetration, -1 = infinity
-            projectile.tileCollide = false;   //this defines if the tile can colide with walls
+            projectile.friendly = true;
+            projectile.penetrate = -1;
+            projectile.tileCollide = false;
             projectile.magic = true;
             projectile.timeLeft = 25;
             //projectile.hide = true;
@@ -223,7 +222,7 @@ namespace EpikV2.Items {
 #region old tile collision
             /*int dist = 0;
             Vector2 lastpos = start;
-            for (; dist <= 1200; dist += 5)      //this 1600 is the dsitance of the beam {
+            for (; dist <= 1200; dist += 5)      //this 1600 is the distance of the beam {
                 start = projectile.Center + unit * dist;
                 if (!Collision.CanHitLine(lastpos, 0, 0, start, 0, 0)){
                     dist -= 5;
@@ -279,7 +278,7 @@ namespace EpikV2.Items {
             unit *= -1;
             int dist = 0;
             Vector2 lastpos = start;
-            for (; dist <= 1200; dist += 5)      //this 1600 is the dsitance of the beam {
+            for (; dist <= 1200; dist += 5)      //this 1600 is the distance of the beam {
                 start = projectile.Center + unit.RotatedByRandom(0.2) * dist;
                 if (!Collision.CanHit(lastpos, 1, 1, start, 1, 1)){
                     dist -= 5;

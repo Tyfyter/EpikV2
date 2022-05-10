@@ -3,6 +3,9 @@ Icon coming soon, have a potato for now
 
 Changelog:
 
+0.2.5.1:
+Fixed telescope not deactivating when player leaves range
+
 0.2.5:
 More hats
 String
@@ -47,7 +50,7 @@ Added Jade Dye
 
 Credits:
 Tyfyter2002 (you know, the dev of the mod)
-Mostly just the people in the TModLoader discord, but especially DarkLight and JopoJelly.
+The helpful folks in the tModLoader discord, without whom I'd never have fixed many of the bugs.
 
 Special Thanks to the 7387 people who've downloaded the original mod.
 Wait, why is it 7395 now...
