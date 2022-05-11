@@ -1,10 +1,12 @@
 A continuation of my first mod, "Epikmod".
 Icon coming soon, have a potato for now
+"The only terraria mod with a telescope except for any other mods which happen to have one"
 
 Changelog:
 
 0.2.5.1:
 Fixed telescope not deactivating when player leaves range
+Applied spellcheck
 
 0.2.5:
 More hats

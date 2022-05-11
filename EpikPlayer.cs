@@ -223,8 +223,7 @@ namespace EpikV2 {
                 if (proj.active) {
                     Main.screenPosition = proj.Center - new Vector2(Main.screenWidth * 0.5f, Main.screenHeight * 0.5f);
                     if (Main.screenPosition.X + Main.screenWidth < 0 || Main.screenPosition.Y - Main.screenHeight < 0 || Main.screenPosition.X + Main.screenWidth > Main.maxTilesX * 16 || Main.screenPosition.Y + Main.screenHeight > Main.maxTilesY * 16) {
-                        proj.velocity = Vector2.Zero;
-                        proj.tileCollide = false;
+                        proj.modProjectile?.OnTileCollide(proj.velocity);
                     }
                 }
             }

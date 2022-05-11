@@ -117,6 +117,7 @@ namespace EpikV2.Tiles {
 			projectile.width = 8;
 			projectile.height = 8;
 			projectile.extraUpdates = 3;
+			projectile.tileCollide = false;
 		}
 		public override void AI() {
 			Vector2 nextPos = projectile.Center + projectile.velocity;
@@ -127,10 +128,15 @@ namespace EpikV2.Tiles {
 			if (Main.player[projectile.owner].GetModPlayer<EpikPlayer>().telescopeID != projectile.whoAmI) {
 				projectile.Kill();
 			}
+			bool[] transparentTiles = Main.tileBlockLight.Select(b => !b).ToArray();
+			if(Collision.AdvancedTileCollision(transparentTiles, projectile.position - projectile.velocity, projectile.velocity, projectile.width, projectile.height, true, true) != projectile.velocity) {
+				OnTileCollide(projectile.velocity);
+			}
 		}
 		public override bool OnTileCollide(Vector2 oldVelocity) {
 			projectile.velocity = Vector2.Zero;
 			projectile.tileCollide = false;
+			projectile.extraUpdates = 0;
 			return false;
 		}
 	}
