@@ -136,7 +136,8 @@ namespace EpikV2.Items {
                 if(player.channel) {
                     player.direction = (projectile.Center.X>player.MountedCenter.X) ? 1 : -1;
                     player.itemRotation = (player.MountedCenter-projectile.Center).ToRotation()+(player.direction>0?MathHelper.Pi:0);
-                    if(projectile.timeLeft<2) {
+                    if (player.manaRegenDelay < 2) player.manaRegenDelay = 2;
+                    if (projectile.timeLeft<2) {
                         if(player.CheckMana(player.HeldItem.mana, true))projectile.timeLeft = 8;
                     }
                 }

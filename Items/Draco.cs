@@ -31,7 +31,7 @@ namespace EpikV2.Items {
             item.knockBack = 5f;
             item.useTime = 30;
             item.useAnimation = 30;
-            item.mana /= 2;
+            item.mana = 100;
 			item.shootSpeed = 10f;
             item.shoot = Draco_Blaze.ID;
             item.UseSound = null;
@@ -48,14 +48,19 @@ namespace EpikV2.Items {
         public override void HoldItem(Player player) {
             if(player.itemAnimation != 0 && player.heldProj != -1) {
                 Projectile projectile = Main.projectile[player.heldProj];
-                Draco_Blaze dracoBlaze = projectile.modProjectile as Draco_Blaze;
-                if(!projectile.active || dracoBlaze is null) {
-                    player.itemAnimation = 0;
-                    player.itemTime = 0;
-                    return;
-                }
-                Vector2 unit = Vector2.Normalize(Main.MouseWorld - player.MountedCenter);
-                if(charge < maxCharge && player.CheckMana(item, item.mana/8, true)) {
+				if (!projectile.active || !(projectile.modProjectile is Draco_Blaze)) {
+					player.itemAnimation = 0;
+					player.itemTime = 0;
+					return;
+				}
+				Vector2 unit = Vector2.Normalize(Main.MouseWorld - player.MountedCenter);
+                EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+
+                float reduce = player.manaCost, mult = 1f;
+                CombinedHooks.ModifyManaCost(player, item, ref reduce, ref mult);
+                float mana = (item.mana * reduce * mult);
+
+                if (charge < maxCharge && epikPlayer.CheckFloatMana(item, mana / 8, true)) {
                     charge += 33 - item.useTime;
                     if(charge >= maxCharge) {
                         charge = maxCharge;
@@ -63,8 +68,8 @@ namespace EpikV2.Items {
                     }
                 }
                 projectile.extraUpdates = charge / (maxCharge/3);
-                if(player.controlUseTile && player.CheckMana(item, item.mana*2, true)) {
-                    projectile.localAI[0] = 1;
+                if(player.controlUseTile && epikPlayer.CheckFloatMana(item, mana * 2, true)) {
+                    projectile.ai[0] = 1;
                     Main.PlaySound(SoundID.Item119, projectile.Center);
                 }else if(player.controlUseItem) {
                     player.itemTime = 2;
@@ -76,7 +81,7 @@ namespace EpikV2.Items {
                     projectile.timeLeft = 30;
                     return;
                 }
-                bool orionDash = player.GetModPlayer<EpikPlayer>().orionDash != 0;
+                bool orionDash = epikPlayer.orionDash != 0;
                 float totalCharge = ChargePercent + BaseMult + (orionDash?0.5f:0);
                 projectile.damage = (int)(projectile.damage * totalCharge);
                 projectile.velocity = unit * item.shootSpeed * totalCharge;
@@ -91,9 +96,12 @@ namespace EpikV2.Items {
             damage += (int)((damage - 75) * 2.5f);
         }
 #pragma warning restore 619
+        public override void ModifyManaCost(Player player, ref float reduce, ref float mult) {
+            mult *= 0.09f;
+        }
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
             if(player.heldProj != -1)return false;
-            Projectile.NewProjectile(position, Vector2.Zero, Draco_Blaze.ID, damage, knockBack, player.whoAmI);
+            Projectile.NewProjectile(position, Vector2.Zero, Draco_Blaze.ID, damage, knockBack, player.whoAmI, ai1:item.mana);
             return false;
         }
     }
@@ -126,33 +134,33 @@ namespace EpikV2.Items {
             Vector2 offset = new Vector2(16,0).RotatedBy(projectile.rotation*1.5f);
 			Dust d = Dust.NewDustPerfect(projectile.Center+offset, Utils.SelectRandom(Main.rand, 242, 59, 88), Vector2.Zero, 0, default, 1.2f);
 			d.noGravity = true;
-			if (Main.rand.Next(2) == 0) {
+			if (Main.rand.NextBool(2)) {
 				d.fadeIn = 1.4f;
 			}
             d.shader = Shaders.starlightShader;
             d = Dust.NewDustPerfect(projectile.Center-offset, Utils.SelectRandom(Main.rand, 242, 59, 88), Vector2.Zero, 0, default, 1.2f);
 			d.noGravity = true;
-			if (Main.rand.Next(2) == 0) {
+			if (Main.rand.NextBool(2)) {
 				d.fadeIn = 1.4f;
 			}
             d.shader = Shaders.starlightShader;
             offset = new Vector2(16,0).RotatedBy(-projectile.rotation);
 			d = Dust.NewDustPerfect(projectile.Center+offset, Utils.SelectRandom(Main.rand, 242, 59, 88), Vector2.Zero, 0, default, 1.2f);
 			d.noGravity = true;
-			if (Main.rand.Next(2) == 0) {
+			if (Main.rand.NextBool(2)) {
 				d.fadeIn = 1.4f;
 			}
             d.shader = Shaders.starlightShader;
             d = Dust.NewDustPerfect(projectile.Center-offset, Utils.SelectRandom(Main.rand, 242, 59, 88), Vector2.Zero, 0, default, 1.2f);
 			d.noGravity = true;
-			if (Main.rand.Next(2) == 0) {
+			if (Main.rand.NextBool(2)) {
 				d.fadeIn = 1.4f;
 			}
             d.shader = Shaders.starlightShader;
 
             Player owner = Main.player[projectile.owner];
             EpikPlayer epikPlayer = owner.GetModPlayer<EpikPlayer>();
-            if(projectile.localAI[0]==1f) {
+            if(projectile.ai[0]==1f) {
                 int tileX = (int)projectile.Center.X/16;
                 int tileY = (int)projectile.Center.Y/16;
                 owner.velocity = projectile.velocity*-0.5f;
@@ -161,19 +169,20 @@ namespace EpikV2.Items {
                     return;
                 }
                 if(projectile.owner == Main.myPlayer && projectile.timeLeft < 3580) {
-                    Item item = new Item();
-                    item.SetDefaults(Draco.ID);
-                    if((!owner.manaRegenBuff||owner.controlUseTile)&&(projectile.timeLeft%16)==0&&!owner.CheckMana(item, owner.manaRegenBuff?4:1, true)) {
-                        projectile.localAI[0] = 0;
+
+                    if (owner.manaRegenDelay < 30) owner.manaRegenDelay = 30;
+                    if (!epikPlayer.CheckFloatMana(projectile.ai[1] * owner.manaCost * (owner.controlUseTile ? 0.00125f : 0.000625f), true)) {
+                        projectile.ai[0] = 0;
                         owner.velocity = projectile.velocity * 0.5f;
                     }
+
                     if(!owner.mouseInterface && Terraria.GameInput.PlayerInput.Triggers.JustPressed.MouseLeft) {
                         projectile.timeLeft = 0;
                     } else if(!owner.mouseInterface && owner.controlUseTile) {
                         projectile.velocity = Vector2.Normalize(Main.MouseWorld - owner.MountedCenter)*projectile.velocity.Length();
                         if((projectile.timeLeft%16)!=15)projectile.timeLeft--;
                     }else if(Terraria.GameInput.PlayerInput.Triggers.JustPressed.Jump) {
-                        projectile.localAI[0] = 0;
+                        projectile.ai[0] = 0;
                         owner.velocity = projectile.velocity * 0.5f;
                     }
                 }
@@ -198,7 +207,7 @@ namespace EpikV2.Items {
             for(int i = 0; i < 27; i++) {
                 d = Dust.NewDustPerfect(projectile.Center, Utils.SelectRandom(Main.rand, 242, 59, 88), new Vector2(Main.rand.NextFloat(2,5)+i%3,0).RotatedBy(rot*i+Main.rand.NextFloat(-0.1f,0.1f)), 0, default, 1.2f);
 			    d.noGravity = true;
-			    if (Main.rand.Next(2) == 0) {
+			    if (Main.rand.NextBool(2)) {
 				    d.fadeIn = 1.4f;
 			    }
                 d.shader = Shaders.starlightShader;
@@ -235,10 +244,10 @@ namespace EpikV2.Items {
             projectile.type = ID;
         }
         public override void SendExtraAI(BinaryWriter writer) {
-            writer.Write(projectile.localAI[0]);
+            //writer.Write(projectile.localAI[0]);
         }
         public override void ReceiveExtraAI(BinaryReader reader) {
-            projectile.localAI[0] = reader.ReadSingle();
+            //projectile.localAI[0] = reader.ReadSingle();
         }
         private void OriginsIntegration() {
             OriginGlobalProj.explosiveOverrideNext = true;

@@ -85,6 +85,7 @@ namespace EpikV2 {
         public int[] pyrkasivars = new int[7];
         public int telescopeID = -1;
         public Vector2 telescopePos = default;
+        public float partialManaCost = 0;
 
         public static BitsBytes ItemChecking;
 
@@ -101,7 +102,7 @@ namespace EpikV2 {
             moonlightThreads = 0;
             if(sacrifice>0) {
                 sacrifice--;
-                if(sacrifice==0&&Main.rand.Next(5)==0&&EpikWorld.sacrifices.Count>0) {
+                if(sacrifice==0&&Main.rand.NextBool(5)&&EpikWorld.sacrifices.Count>0) {
                     int i = Main.rand.Next(EpikWorld.sacrifices.Count);
                     EpikWorld.sacrifices.RemoveAt(i);
                     for(i = 0; i < 4; i++)Dust.NewDust(player.position,player.width, player.height, DustID.Cloud, Alpha:100, newColor:new Color(255,150,150));
@@ -430,6 +431,27 @@ namespace EpikV2 {
             explosion.Center = exPos;
             explosion.melee = false;
             Main.PlaySound(SoundID.Item14, exPos);
+        }
+        public bool CheckFloatMana(Item item, float amount = -1, bool blockQuickMana = false) {
+            if (amount <= -1) {
+                amount = player.GetManaCost(item);
+            }
+            partialManaCost += amount;
+            int intManaCost = (int)partialManaCost;
+            partialManaCost -= intManaCost;
+            if (intManaCost > 0) {
+                return player.CheckMana(item, intManaCost, true, blockQuickMana);
+			}
+            return true;
+        }
+        public bool CheckFloatMana(float amount, bool blockQuickMana = false) {
+            partialManaCost += amount;
+            int intManaCost = (int)partialManaCost;
+            partialManaCost -= intManaCost;
+            if (intManaCost > 0) {
+                return player.CheckMana(intManaCost, true, blockQuickMana);
+            }
+            return true;
         }
         public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource) {
             bool canDodge = true;

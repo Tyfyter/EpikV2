@@ -15,7 +15,7 @@ namespace EpikV2.Items {
         public override void SetDefaults(){
             item.damage = 80;
             item.magic = true;
-            item.mana = 8;
+            item.mana = 6;
             item.shoot = ProjectileType<Solweaver_Beam>();
             item.shootSpeed = 0f;
             item.useTime = item.useAnimation = 40;
@@ -42,7 +42,12 @@ namespace EpikV2.Items {
         public override bool AltFunctionUse(Player player) {
             return true;
         }
-        public override bool CanUseItem(Player player) {
+		public override void ModifyManaCost(Player player, ref float reduce, ref float mult) {
+            if (player.altFunctionUse == 2) {
+                mult *= 5;
+            }
+        }
+		public override bool CanUseItem(Player player) {
             if(player.altFunctionUse == 2) {
                 item.shoot = ProjectileType<Solweaver_Blast>();
                 item.channel = false;
@@ -50,7 +55,7 @@ namespace EpikV2.Items {
             }else{
                 item.shoot = ProjectileType<Solweaver_Beam>();
                 item.channel = true;
-                item.mana = 8;
+                item.mana = 6;
             }
             return true;
         }
@@ -200,6 +205,7 @@ namespace EpikV2.Items {
                     projectile.timeLeft = 14;
                     player.itemTime = 2;
                     player.itemAnimation = 2;
+					if(player.manaRegenDelay < 10) player.manaRegenDelay = 10;
                 }
                 player.itemRotation = (float)Math.Atan2(diff.Y * dir, diff.X * dir);
                 projectile.soundDelay--;
@@ -207,12 +213,12 @@ namespace EpikV2.Items {
             }
 
 
-            if ((!player.channel || (Main.GameUpdateCount % 10 < 1 && !player.CheckMana(player.inventory[player.selectedItem].mana, true)))&&projectile.timeLeft>10){
+            if ((!player.channel || (Main.GameUpdateCount % 5 == 0 && !player.CheckMana(player.inventory[player.selectedItem].mana, true)))&&projectile.timeLeft>10){
                 projectile.timeLeft = 10;
             }
 
             if (projectile.soundDelay <= 0){
-                Main.PlaySound(2, (int)projectile.Center.X, (int)projectile.Center.Y, 20);
+                Main.PlaySound(SoundID.Item, (int)projectile.Center.X, (int)projectile.Center.Y, 20);
                 projectile.soundDelay = 30;
             }
 
