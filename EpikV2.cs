@@ -46,6 +46,7 @@ namespace EpikV2 {
 		public static int nebulaShaderID;
 		public static int distortShaderID;
 		public static int ichorShaderID;
+		public static int laserBowShaderID;
 		public static Filter mappedFilter {
 			get=>Filters.Scene["EpikV2:FilterMapped"];
 			set=>Filters.Scene["EpikV2:FilterMapped"] = value;
@@ -120,6 +121,12 @@ namespace EpikV2 {
 				ichorShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Ichor_Dye>());
 				GameShaders.Armor.BindShader(ModContent.ItemType<Golden_Flame_Dye>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorHades"))
 					.UseColor(1f, 1f, 1f).UseSecondaryColor(1.5f, 1.25f, 0.2f);
+
+				GameShaders.Armor.BindShader(ModContent.ItemType<Laser_Bow>(), Shaders.laserBowOverlayShader);
+				laserBowShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Laser_Bow>());
+
+				GameShaders.Armor.BindShader(ModContent.ItemType<Chimera_Dye>(), Shaders.chimeraShader);
+				GameShaders.Armor.BindShader(ModContent.ItemType<Opaque_Chimera_Dye>(), Shaders.opaqueChimeraShader);
 				//motionBlurShader = new MotionArmorShaderData(new Ref<Effect>(GetEffect("Effects/MotionBlur")), "MotionBlur");
 				//GameShaders.Armor.BindShader(ModContent.ItemType<Motion_Blur_Dye>(), motionBlurShader);
 

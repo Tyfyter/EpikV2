@@ -107,7 +107,7 @@ namespace EpikV2.Items {
 			recipe.AddTile(TileID.MythrilAnvil);
 			recipe.needLava = true;
 			recipe.SetResult(this);
-			recipe.AddRecipe();
+			//recipe.AddRecipe();
 		}
 	}
 	public class Pyrkasivar_P : ModProjectile {

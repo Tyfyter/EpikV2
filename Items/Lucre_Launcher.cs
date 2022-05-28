@@ -13,13 +13,13 @@ using static Terraria.ModLoader.ModContent;
 namespace EpikV2.Items {
 
     public class Lucre_Launcher : ModItem, ICustomDrawItem, IScrollableItem {
-        public static Texture2D[] coinsTextures { get; private set; }
-        public static Texture2D frontTexture { get; private set; }
-        public static Texture2D backTexture { get; private set; }
+        public static Texture2D[] CoinsTextures { get; private set; }
+        public static Texture2D FrontTexture { get; private set; }
+        public static Texture2D BackTexture { get; private set; }
         internal static void Unload() {
-            coinsTextures = null;
-            frontTexture = null;
-            backTexture = null;
+            CoinsTextures = null;
+            FrontTexture = null;
+            BackTexture = null;
         }
         int mode = 0;
         int totalCoins = 0;
@@ -105,9 +105,9 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Lucre Launcher");
 		    Tooltip.SetDefault("It's pay to win\nScroll while holding<Torch> to change coin type\nRight click to load in coins");
             if(Main.netMode == NetmodeID.Server)return;
-            frontTexture = mod.GetTexture("Items/Lucre_Launcher_Front");
-            backTexture = mod.GetTexture("Items/Lucre_Launcher_Back");
-            coinsTextures = new Texture2D[]{
+            FrontTexture = mod.GetTexture("Items/Lucre_Launcher_Front");
+            BackTexture = mod.GetTexture("Items/Lucre_Launcher_Back");
+            CoinsTextures = new Texture2D[]{
                 mod.GetTexture("Items/Lucre_Launcher_Copper"),
                 mod.GetTexture("Items/Lucre_Launcher_Silver"),
                 mod.GetTexture("Items/Lucre_Launcher_Gold"),
@@ -259,16 +259,16 @@ namespace EpikV2.Items {
 
             Vector2 pos = new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
 
-            value = new DrawData(backTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
+            value = new DrawData(BackTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
             Main.playerDrawData.Add(value);
 
             if(totalCoins>=Price) {
                 int offset = Math.Max((16-(totalCoins / Price))/2,0)*drawPlayer.direction*-2;
-                value = new DrawData(coinsTextures[mode], pos+(Vector2.UnitX.RotatedBy(itemRotation)*offset), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
+                value = new DrawData(CoinsTextures[mode], pos+(Vector2.UnitX.RotatedBy(itemRotation)*offset), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
                 //value.shader = 84;
                 Main.playerDrawData.Add(value);
             }
-            value = new DrawData(frontTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
+            value = new DrawData(FrontTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
             //value.shader = 84;
             Main.playerDrawData.Add(value);
         }

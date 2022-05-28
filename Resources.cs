@@ -93,6 +93,10 @@ namespace EpikV2 {
                 testDistortionTexture = mod.GetTexture("Textures/40x40Dist");
                 distortMiscShader.UseNonVanillaImage(testDistortionTexture);
 
+                laserBowOverlayShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/LaserBow")), "LaserBow");
+                chimeraShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "Chimerebos");
+                opaqueChimeraShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "ChimerebosOpaque");
+
                 //trailShader = mod.GetEffect("Effects/Trail");
             }
             public Effect jadeShader;
@@ -108,6 +112,9 @@ namespace EpikV2 {
             public ArmorShaderData retroShader;
             public ArmorShaderData retroShaderRed;
             public ArmorShaderData distortMiscShader;
+            public ArmorShaderData laserBowOverlayShader;
+            public ArmorShaderData chimeraShader;
+            public ArmorShaderData opaqueChimeraShader;
             public Texture2D nebulaDistortionTexture;
             public Texture2D testDistortionTexture;
             //public Effect trailShader;

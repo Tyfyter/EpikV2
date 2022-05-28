@@ -144,6 +144,46 @@ namespace EpikV2.Items {
             item.color = Color.Blue;
 		}
     }
+    public class Chimera_Dye : ModItem {
+        public override string Texture => "EpikV2/Items/Red_Retro_Dye";
+        public override void SetStaticDefaults() {
+            DisplayName.SetDefault("Chimera's Blood");
+        }
+        public override void SetDefaults() {
+            byte dye = item.dye;
+            item.CloneDefaults(ItemID.RedandBlackDye);
+            item.dye = dye;
+            item.color = Color.Blue;
+        }
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.FragmentVortex, 5);
+            recipe.AddIngredient(ItemID.FragmentNebula, 5);
+            recipe.AddTile(TileID.DyeVat);
+            recipe.SetResult(this, 9);
+            recipe.AddRecipe();
+        }
+    }
+    public class Opaque_Chimera_Dye : ModItem {
+        public override string Texture => "EpikV2/Items/Red_Retro_Dye";
+        public override void SetStaticDefaults() {
+            DisplayName.SetDefault("Blackened Chimera's Blood");
+        }
+        public override void SetDefaults() {
+            byte dye = item.dye;
+            item.CloneDefaults(ItemID.RedandBlackDye);
+            item.dye = dye;
+            item.color = Color.Blue;
+        }
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ModContent.ItemType<Chimera_Dye>(), 1);
+            recipe.AddIngredient(ItemID.BlackInk, 1);
+            recipe.AddTile(TileID.DyeVat);
+            recipe.SetResult(this, 2);
+            recipe.AddRecipe();
+        }
+    }
     public class GPSArmorShaderData : ArmorShaderData {
         public GPSArmorShaderData(Ref<Effect> shader, string passName) : base(shader, passName) {}
         public override void Apply(Entity entity, DrawData? drawData = null) {
