@@ -51,6 +51,7 @@ namespace EpikV2.Items
             item.shootSpeed = 12.5f;
 			item.scale = 0.85f;
 			item.useAmmo = AmmoID.Arrow;
+            item.UseSound = null;
         }
         public override void AddRecipes() {
             ModRecipe recipe = new ModRecipe(mod);
@@ -87,6 +88,8 @@ namespace EpikV2.Items
                     nextShotTime -= shotDelay;
                     Vector2 perturbedSpeed = new Vector2(speedX, speedY).RotatedByRandom((shotDelay - 3) / 60f);
                     Projectile.NewProjectileDirect(position, perturbedSpeed, ProjectileType<Laser_Arrow>(), damage, knockBack, player.whoAmI, 0, 0);
+                    Main.PlaySound(SoundID.Item5, position);
+                    Main.PlaySound(SoundID.Item75, position);
                 }
 				if (shotDelay > 5f) {
                     shotDelay -= 10f / item.useTime;
@@ -142,7 +145,7 @@ namespace EpikV2.Items
             float speed = projectile.velocity.Length();
             Vector2 unitBack = -projectile.velocity / speed;
             Vector2 baseVel = -projectile.velocity * 0.1f;
-            for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 4; i++) {
                 Dust.NewDustPerfect(projectile.Center + (unitBack * i * 4), DustType<Dusts.Chimerebos_Dust>(), baseVel + unitBack, 100, new Color(1f, 0f, 0.369f, 0.15f - (i * 0.025f)), 0.75f);
             }
             unitBack = unitBack.RotatedBy(MathHelper.PiOver4);

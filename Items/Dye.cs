@@ -12,15 +12,10 @@ using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace EpikV2.Items {
-    public class Jade_Dye : ModItem {
+    public class Jade_Dye : Dye_Item {
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Jade Dye");
         }
-		public override void SetDefaults() {
-			byte dye = item.dye;
-			item.CloneDefaults(ItemID.RedandBlackDye);
-			item.dye = dye;
-		}
         public override void AddRecipes() {
             ModRecipe recipe = new ModRecipe(mod);
             recipe.AddIngredient(AquamarineMaterial.id);
@@ -30,16 +25,11 @@ namespace EpikV2.Items {
         }
     }
 
-    public class Heatwave_Dye : ModItem {
+    public class Heatwave_Dye : Dye_Item {
         public override string Texture => "EpikV2/Items/Non-Chromatic_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Heatwave Dye");
         }
-		public override void SetDefaults() {
-			byte dye = item.dye;
-			item.CloneDefaults(ItemID.RedandBlackDye);
-			item.dye = dye;
-		}
         public override void AddRecipes() {
             ModRecipe recipe = new ModRecipe(mod);
             recipe.AddIngredient(SunstoneMaterial.id);
@@ -49,15 +39,10 @@ namespace EpikV2.Items {
         }
     }
 
-    public class Starlight_Dye : ModItem {
+    public class Starlight_Dye : Dye_Item {
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Starlight Dye");
         }
-		public override void SetDefaults() {
-			byte dye = item.dye;
-			item.CloneDefaults(ItemID.RedandBlackDye);
-			item.dye = dye;
-		}
         public override void AddRecipes() {
             ModRecipe recipe = new ModRecipe(mod);
             recipe.AddIngredient(ItemID.FragmentStardust, 5);
@@ -68,7 +53,7 @@ namespace EpikV2.Items {
         }
     }
 
-    public class Dim_Starlight_Dye : ModItem {
+    public class Dim_Starlight_Dye : Dye_Item {
         public override string Texture => "EpikV2/Items/Starlight_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Dim Starlight Dye");
@@ -89,7 +74,7 @@ namespace EpikV2.Items {
         }
     }
 
-    public class Bright_Starlight_Dye : ModItem {
+    public class Bright_Starlight_Dye : Dye_Item {
         public override string Texture => "EpikV2/Items/Starlight_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Bright Starlight Dye");
@@ -110,29 +95,19 @@ namespace EpikV2.Items {
         }
     }
 
-    public class Retro_Dye : ModItem {
+    public class Retro_Dye : Dye_Item {
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Retro Dye");
         }
-		public override void SetDefaults() {
-			byte dye = item.dye;
-			item.CloneDefaults(ItemID.RedandBlackDye);
-			item.dye = dye;
-		}
     }
 
-    public class Red_Retro_Dye : ModItem {
+    public class Red_Retro_Dye : Dye_Item {
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Retro Dye (Red)");
         }
-		public override void SetDefaults() {
-			byte dye = item.dye;
-			item.CloneDefaults(ItemID.RedandBlackDye);
-			item.dye = dye;
-		}
     }
 
-    public class GPS_Dye : ModItem {
+    public class GPS_Dye : Dye_Item {
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("GPS Dye");
@@ -143,46 +118,6 @@ namespace EpikV2.Items {
 			item.dye = dye;
             item.color = Color.Blue;
 		}
-    }
-    public class Chimera_Dye : ModItem {
-        public override string Texture => "EpikV2/Items/Red_Retro_Dye";
-        public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Chimera's Blood");
-        }
-        public override void SetDefaults() {
-            byte dye = item.dye;
-            item.CloneDefaults(ItemID.RedandBlackDye);
-            item.dye = dye;
-            item.color = Color.Blue;
-        }
-        public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
-            recipe.AddIngredient(ItemID.FragmentVortex, 5);
-            recipe.AddIngredient(ItemID.FragmentNebula, 5);
-            recipe.AddTile(TileID.DyeVat);
-            recipe.SetResult(this, 9);
-            recipe.AddRecipe();
-        }
-    }
-    public class Opaque_Chimera_Dye : ModItem {
-        public override string Texture => "EpikV2/Items/Red_Retro_Dye";
-        public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Blackened Chimera's Blood");
-        }
-        public override void SetDefaults() {
-            byte dye = item.dye;
-            item.CloneDefaults(ItemID.RedandBlackDye);
-            item.dye = dye;
-            item.color = Color.Blue;
-        }
-        public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
-            recipe.AddIngredient(ModContent.ItemType<Chimera_Dye>(), 1);
-            recipe.AddIngredient(ItemID.BlackInk, 1);
-            recipe.AddTile(TileID.DyeVat);
-            recipe.SetResult(this, 2);
-            recipe.AddRecipe();
-        }
     }
     public class GPSArmorShaderData : ArmorShaderData {
         public GPSArmorShaderData(Ref<Effect> shader, string passName) : base(shader, passName) {}
@@ -197,7 +132,7 @@ namespace EpikV2.Items {
         }
     }
 
-    public class Chroma_Dummy_Dye : ModItem {
+    public class Chroma_Dummy_Dye : Dye_Item {
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Chroma_Dummy_Dye");
@@ -228,15 +163,10 @@ namespace EpikV2.Items {
             recipe.AddRecipe();
         }
     }*/
-    public class Cursed_Hades_Dye : ModItem {
+    public class Cursed_Hades_Dye : Dye_Item {
         public override void SetStaticDefaults(){
             DisplayName.SetDefault("Cursed Hades Dye");
         }
-		public override void SetDefaults(){
-			byte dye = item.dye;
-			item.CloneDefaults(ItemID.RedandBlackDye);
-			item.dye = dye;
-		}
         public override void AddRecipes() {
             ModRecipe recipe = new ModRecipe(mod);
             recipe.AddIngredient(ItemID.HadesDye, 3);
@@ -246,15 +176,10 @@ namespace EpikV2.Items {
             recipe.AddRecipe();
         }
     }
-    public class Ichor_Dye : ModItem {
+    public class Ichor_Dye : Dye_Item {
         public override void SetStaticDefaults(){
             DisplayName.SetDefault("Ichor Dye");
         }
-		public override void SetDefaults(){
-			byte dye = item.dye;
-			item.CloneDefaults(ItemID.RedandBlackDye);
-			item.dye = dye;
-		}
         public override void AddRecipes() {
             ModRecipe recipe = new ModRecipe(mod);
             recipe.AddIngredient(ItemID.PurpleOozeDye, 3);
@@ -264,21 +189,44 @@ namespace EpikV2.Items {
             recipe.AddRecipe();
         }
     }
-    public class Golden_Flame_Dye : ModItem {
+    public class Golden_Flame_Dye : Dye_Item {
         public override void SetStaticDefaults(){
             DisplayName.SetDefault("Golden Flame Dye");
         }
-		public override void SetDefaults(){
-			byte dye = item.dye;
-			item.CloneDefaults(ItemID.RedandBlackDye);
-			item.dye = dye;
-		}
         public override void AddRecipes() {
             ModRecipe recipe = new ModRecipe(mod);
             recipe.AddIngredient(ItemID.HadesDye, 3);
             recipe.AddIngredient(ItemID.GoldDust);
             recipe.AddTile(TileID.DyeVat);
             recipe.SetResult(this, 3);
+            recipe.AddRecipe();
+        }
+    }
+    public class Chimera_Dye : Dye_Item {
+        public override string Texture => "EpikV2/Items/Red_Retro_Dye";
+        public override void SetStaticDefaults() {
+            DisplayName.SetDefault("Chimera's Blood");
+        }
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.FragmentVortex, 5);
+            recipe.AddIngredient(ItemID.FragmentNebula, 5);
+            recipe.AddTile(TileID.DyeVat);
+            recipe.SetResult(this, 9);
+            recipe.AddRecipe();
+        }
+    }
+    public class Opaque_Chimera_Dye : Dye_Item {
+        public override string Texture => "EpikV2/Items/Red_Retro_Dye";
+        public override void SetStaticDefaults() {
+            DisplayName.SetDefault("Blackened Chimera's Blood");
+        }
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ModContent.ItemType<Chimera_Dye>(), 1);
+            recipe.AddIngredient(ItemID.BlackInk, 1);
+            recipe.AddTile(TileID.DyeVat);
+            recipe.SetResult(this, 2);
             recipe.AddRecipe();
         }
     }
@@ -292,6 +240,14 @@ namespace EpikV2.Items {
         public void Apply(Vector2 velocity, DrawData? drawData = null) {
             Shader.Parameters["uVelocity"].SetValue(velocity);
             base.Apply(null, drawData);
+        }
+    }
+    public abstract class Dye_Item : ModItem {
+        public virtual bool UseShaderOnSelf => false;
+        public override void SetDefaults() {
+            byte dye = item.dye;
+            item.CloneDefaults(ItemID.RedandBlackDye);
+            item.dye = dye;
         }
     }
 }
