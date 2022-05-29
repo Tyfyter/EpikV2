@@ -229,6 +229,23 @@ namespace EpikV2 {
                 }
             }
 		}
+		public override bool ShiftClickSlot(Item[] inventory, int context, int slot) {
+			switch (context) {
+                case Terraria.UI.ItemSlot.Context.EquipArmor:
+                case Terraria.UI.ItemSlot.Context.EquipAccessory:
+                case Terraria.UI.ItemSlot.Context.EquipLight:
+                case Terraria.UI.ItemSlot.Context.EquipMinecart:
+                case Terraria.UI.ItemSlot.Context.EquipMount:
+                case Terraria.UI.ItemSlot.Context.EquipPet:
+                case Terraria.UI.ItemSlot.Context.EquipGrapple: {
+                    if (Main.LocalPlayer.armor[slot].modItem is Parasitic_Accessory paras) {
+                        return !paras.CanRemove(Main.LocalPlayer);
+                    }
+                }
+                break;
+            }
+			return false;
+		}
 		public override void ModifyHitNPC(Item item, NPC target, ref int damage, ref float knockback, ref bool crit) {
             if(target.HasBuff(Sovereign_Debuff.ID)) {
                 damage += Math.Min(8, (target.defense-player.armorPenetration)/2);

@@ -107,6 +107,8 @@ namespace EpikV2 {
 			On.Terraria.Player.SlopingCollision += EpikPlayer.SlopingCollision;
 			//Main.OnPreDraw += Main_OnPostDraw;
 			IL.Terraria.Main.DoDraw += Main_DoDraw;
+			On.Terraria.UI.ItemSlot.PickItemMovementAction += ItemSlot_PickItemMovementAction;
+			On.Terraria.UI.ItemSlot.ArmorSwap += ItemSlot_ArmorSwap; ;
 		}
 
 		private void Main_DoDraw(ILContext il) {
@@ -122,6 +124,78 @@ namespace EpikV2 {
 				Logger.Error("could not find OverlayManager.Draw call in Main.DoDraw");
 				drawAfterNPCs = null;
 			}
+		}
+		private Item ItemSlot_ArmorSwap(On.Terraria.UI.ItemSlot.orig_ArmorSwap orig, Item item, out bool success) {
+			success = false;
+			Player player = Main.LocalPlayer;
+			int targetSlot = 0;
+			int num = ((item.vanity && !item.accessory) ? 10 : 0);
+			if (item.headSlot != -1) {
+				targetSlot = num;
+			} else if (item.bodySlot != -1) {
+				targetSlot = num + 1;
+			} else if (item.legSlot != -1) {
+				targetSlot = num + 2;
+			} else if (item.accessory) {
+				int accSlotCount = (int)typeof(ItemSlot).GetField("accSlotCount", BindingFlags.NonPublic|BindingFlags.Static).GetValue(null);
+				int totalAccSlots = 5 + Main.player[Main.myPlayer].extraAccessorySlots;
+				for (int i = 3; i < 3 + totalAccSlots; i++) {
+					if (player.armor[i].type == ItemID.None) {
+						accSlotCount = i - 3;
+						break;
+					}
+				}
+				for (int j = 0; j < player.armor.Length; j++) {
+					if (item.IsTheSameAs(player.armor[j])) {
+						accSlotCount = j - 3;
+					}
+					if (j < 10 && item.wingSlot > 0 && player.armor[j].wingSlot > 0) {
+						accSlotCount = j - 3;
+					}
+				}
+				for (int l = 0; l < totalAccSlots; l++) {
+					int index = 3 + (accSlotCount + totalAccSlots) % totalAccSlots;
+					if (ItemLoader.CanEquipAccessory(item, index)) {
+						accSlotCount = index - 3;
+						break;
+					}
+				}
+				if (accSlotCount >= totalAccSlots) {
+					accSlotCount = 0;
+				}
+				if (accSlotCount < 0) {
+					accSlotCount = totalAccSlots - 1;
+				}
+				int num3 = 3 + accSlotCount;
+				for (int k = 0; k < player.armor.Length; k++) {
+					if (item.IsTheSameAs(player.armor[k])) {
+						num3 = k;
+					}
+				}
+				targetSlot = num3;
+			}
+			if (player.armor[targetSlot].modItem is Parasitic_Accessory paras && !paras.CanRemove(Main.LocalPlayer)) {
+				return item;
+			}
+			return orig(item, out success);
+		}
+
+		private int ItemSlot_PickItemMovementAction(On.Terraria.UI.ItemSlot.orig_PickItemMovementAction orig, Item[] inv, int context, int slot, Item checkItem) {
+			switch (context) {
+				case ItemSlot.Context.EquipArmor:
+				case ItemSlot.Context.EquipAccessory:
+				case ItemSlot.Context.EquipLight:
+				case ItemSlot.Context.EquipMinecart:
+				case ItemSlot.Context.EquipMount:
+				case ItemSlot.Context.EquipPet:
+				case ItemSlot.Context.EquipGrapple: {
+					if (Main.LocalPlayer.armor[slot].modItem is Parasitic_Accessory paras && !paras.CanRemove(Main.LocalPlayer)) {
+						return -1;
+					}
+				}
+				break;
+			}
+			return orig(inv, context, slot, checkItem);
 		}
 
 		/*
