@@ -10,6 +10,7 @@ using Terraria.DataStructures;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
+using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items {
     public class Jade_Dye : Dye_Item {
@@ -227,10 +228,46 @@ namespace EpikV2.Items {
         }
         public override void AddRecipes() {
             ModRecipe recipe = new ModRecipe(mod);
-            recipe.AddIngredient(ModContent.ItemType<Chimera_Dye>(), 1);
+            recipe.AddIngredient(ItemType<Chimera_Dye>(), 1);
             recipe.AddIngredient(ItemID.BlackInk, 1);
             recipe.AddTile(TileID.DyeVat);
             recipe.SetResult(this, 2);
+            recipe.AddRecipe();
+        }
+    }
+    public class Inverted_Chimera_Dye : Dye_Item {
+        public override bool UseShaderOnSelf => true;
+        public override string Texture => "EpikV2/Items/Red_Retro_Dye";
+        public override void SetStaticDefaults() {
+            DisplayName.SetDefault("Chimera's Blood (Inverted)");
+        }
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemType<Chimera_Dye>());
+            recipe.SetResult(this, 1);
+            recipe.AddRecipe();
+
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(this, 1);
+            recipe.SetResult(ItemType<Chimera_Dye>());
+            recipe.AddRecipe();
+        }
+    }
+    public class Opaque_Inverted_Chimera_Dye : Dye_Item {
+        public override bool UseShaderOnSelf => true;
+        public override string Texture => "EpikV2/Items/Red_Retro_Dye";
+        public override void SetStaticDefaults() {
+            DisplayName.SetDefault("Blackened Chimera's Blood (Inverted)");
+        }
+        public override void AddRecipes() {
+            ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemType<Opaque_Chimera_Dye>());
+            recipe.SetResult(this, 1);
+            recipe.AddRecipe();
+
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(this, 1);
+            recipe.SetResult(ItemType<Opaque_Chimera_Dye>());
             recipe.AddRecipe();
         }
     }

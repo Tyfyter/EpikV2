@@ -139,10 +139,17 @@ namespace EpikV2 {
                 GameShaders.Armor.BindShader(ItemType<Opaque_Chimera_Dye>(), opaqueChimeraShader);
                 EpikV2.opaqueChimeraShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Opaque_Chimera_Dye>());
 
+                GameShaders.Armor.BindShader(ItemType<Inverted_Chimera_Dye>(), new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "ChimerebosInverted"));
+                int invertedChimeraShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Inverted_Chimera_Dye>());
+
+                GameShaders.Armor.BindShader(ItemType<Opaque_Inverted_Chimera_Dye>(), new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "ChimerebosInvertedOpaque"));
+                int opaqueInvertedChimeraShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Opaque_Inverted_Chimera_Dye>());
+
                 InvalidArmorShaders = new List<InvalidArmorShader> {
                     new InvalidArmorShader(EpikV2.starlightShaderID, EpikV2.dimStarlightShaderID),
                     new InvalidArmorShader(EpikV2.brightStarlightShaderID, EpikV2.dimStarlightShaderID),
-                    new InvalidArmorShader(EpikV2.chimeraShaderID, EpikV2.opaqueChimeraShaderID)
+                    new InvalidArmorShader(EpikV2.chimeraShaderID, EpikV2.opaqueChimeraShaderID),
+                    new InvalidArmorShader(invertedChimeraShaderID, opaqueInvertedChimeraShaderID)
                 };
 
                 //trailShader = mod.GetEffect("Effects/Trail");

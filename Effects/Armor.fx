@@ -62,6 +62,28 @@ float4 ChimerebosOpaque(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) 
 	return float4(float3(1, 0, 0.369) * value, color.a);
 }
 
+float4 ChimerebosInverted(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
+	float4 color = tex2D(uImage0, coords);
+	float b = (1 - ((color.r + color.g + color.b) / 3));
+	float value = b - frac(uTime);
+	if (value <= 0) {
+		value += 1;
+	}
+	value *= color.a;
+	return float4(1, 0, 0.369, 1) * value;
+}
+
+float4 ChimerebosInvertedOpaque(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
+	float4 color = tex2D(uImage0, coords);
+	float b = (1 - ((color.r + color.g + color.b) / 3));
+	float value = b - frac(uTime);
+	if (value <= 0) {
+		value += 1;
+	}
+	value *= color.a;
+	return float4(float3(1, 0, 0.369) * value, color.a);
+}
+
 float Epsilon = 1e-10;
 float3 HUEtoRGB(in float H) {
 	float R = abs(H*6-3)-1;
@@ -135,5 +157,11 @@ technique Technique1 {
 	}
 	pass ChimerebosOpaque {
 		PixelShader = compile ps_2_0 ChimerebosOpaque();
+	}
+	pass ChimerebosInverted {
+		PixelShader = compile ps_2_0 ChimerebosInverted();
+	}
+	pass ChimerebosInvertedOpaque {
+		PixelShader = compile ps_2_0 ChimerebosInvertedOpaque();
 	}
 }
