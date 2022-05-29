@@ -35,7 +35,7 @@ namespace EpikV2 {
 	public class EpikV2 : Mod {
 		public static string GithubUserName => "Tyfyter";
 		public static string GithubProjectName => "EpikV2";
-		internal static EpikV2 mod;
+		internal static EpikV2 instance;
 		private HotKey ReadTooltipsVar = new HotKey("Read Tooltips (list mod name)", Keys.L);
 		List<int> RegItems = new List<int> {};
 		List<int> ModItems = new List<int> {};
@@ -47,6 +47,8 @@ namespace EpikV2 {
 		public static int distortShaderID;
 		public static int ichorShaderID;
 		public static int laserBowShaderID;
+		public static int chimeraShaderID;
+		public static int opaqueChimeraShaderID;
 		public static Filter mappedFilter {
 			get=>Filters.Scene["EpikV2:FilterMapped"];
 			set=>Filters.Scene["EpikV2:FilterMapped"] = value;
@@ -74,7 +76,7 @@ namespace EpikV2 {
 			};
 		}
 		public override void Load() {
-			mod = this;
+			instance = this;
 			Properties = new ModProperties() {
 				Autoload = true,
 				AutoloadGores = true,
@@ -91,42 +93,6 @@ namespace EpikV2 {
 				EpikExtensions.DrawPlayerItemPos = (Func<float, int, Vector2>)typeof(Main).GetMethod("DrawPlayerItemPos", BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate(typeof(Func<float, int, Vector2>), Main.instance);
 
 				Shaders = new ShaderCache();
-				GameShaders.Armor.BindShader(ModContent.ItemType<Jade_Dye>(), Shaders.jadeDyeShader);
-				GameShaders.Armor.BindShader(ModContent.ItemType<Heatwave_Dye>(), Shaders.fireDyeShader);
-				GameShaders.Armor.BindShader(ModContent.ItemType<Starlight_Dye>(), Shaders.starlightShader);
-				GameShaders.Armor.BindShader(ModContent.ItemType<Dim_Starlight_Dye>(), Shaders.dimStarlightShader);
-				GameShaders.Armor.BindShader(ModContent.ItemType<Bright_Starlight_Dye>(), Shaders.brightStarlightShader);
-				GameShaders.Armor.BindShader(ModContent.ItemType<Hydra_Staff>(), Shaders.nebulaShader);
-				GameShaders.Armor.BindShader(ModContent.ItemType<Retro_Dye>(), Shaders.retroShader);
-				GameShaders.Armor.BindShader(ModContent.ItemType<Red_Retro_Dye>(), Shaders.retroShaderRed);
-
-				GameShaders.Armor.BindShader(ModContent.ItemType<GPS_Dye>(), new GPSArmorShaderData(new Ref<Effect>(GetEffect("Effects/GPS")), "GPS"));
-
-				starlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Starlight_Dye>());
-				dimStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Dim_Starlight_Dye>());
-				brightStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Bright_Starlight_Dye>());
-				nebulaShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Hydra_Staff>());
-
-				GameShaders.Armor.BindShader(ModContent.ItemType<GraphicsDebugger>(), Shaders.distortMiscShader);
-				distortShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<GraphicsDebugger>());
-
-				alphaMapShader = new ArmorShaderData(new Ref<Effect>(GetEffect("Effects/Armor")), "AlphaMap");
-				GameShaders.Armor.BindShader(ModContent.ItemType<Chroma_Dummy_Dye>(), alphaMapShader);
-				alphaMapShaderID = ModContent.ItemType<Chroma_Dummy_Dye>();
-
-				GameShaders.Armor.BindShader(ModContent.ItemType<Cursed_Hades_Dye>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorHades"))
-					.UseColor(0.2f, 1.5f, 0.2f).UseSecondaryColor(0.2f, 1.5f, 0.2f);
-				GameShaders.Armor.BindShader(ModContent.ItemType<Ichor_Dye>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorLivingFlame"))
-					.UseColor(1.12f, 1f, 0f).UseSecondaryColor(1.25f, 0.8f, 0f);
-				ichorShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Ichor_Dye>());
-				GameShaders.Armor.BindShader(ModContent.ItemType<Golden_Flame_Dye>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorHades"))
-					.UseColor(1f, 1f, 1f).UseSecondaryColor(1.5f, 1.25f, 0.2f);
-
-				GameShaders.Armor.BindShader(ModContent.ItemType<Laser_Bow>(), Shaders.laserBowOverlayShader);
-				laserBowShaderID = GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Laser_Bow>());
-
-				GameShaders.Armor.BindShader(ModContent.ItemType<Chimera_Dye>(), Shaders.chimeraShader);
-				GameShaders.Armor.BindShader(ModContent.ItemType<Opaque_Chimera_Dye>(), Shaders.opaqueChimeraShader);
 				//motionBlurShader = new MotionArmorShaderData(new Ref<Effect>(GetEffect("Effects/MotionBlur")), "MotionBlur");
 				//GameShaders.Armor.BindShader(ModContent.ItemType<Motion_Blur_Dye>(), motionBlurShader);
 
@@ -189,7 +155,7 @@ public static float ShimmerCalc(float val) {
 }//*/
 
 		public override void Unload() {
-			mod = null;
+			instance = null;
 			EpikExtensions.DrawPlayerItemPos = null;
 			Textures = null;
 			Shaders = null;
@@ -256,17 +222,17 @@ public static float ShimmerCalc(float val) {
 					break;
 
 					case PacketType.golemDeath:
-					Logger.InfoFormat("recieved golem death packet");
+					Logger.InfoFormat("received golem death packet");
 					Main.LocalPlayer.GetModPlayer<EpikPlayer>().golemTime = 5;
 					break;
 
 					case PacketType.playerHP:
-					Logger.InfoFormat("recieved player hp update packet");
+					Logger.InfoFormat("received player hp update packet");
 					Main.player[reader.ReadByte()].GetModPlayer<EpikPlayer>().rearrangeOrgans(reader.ReadSingle());
 					break;
 
 					case PacketType.npcHP:
-					Logger.InfoFormat("recieved npc hp update packet");
+					Logger.InfoFormat("received npc hp update packet");
 					NPC npc = Main.npc[reader.ReadByte()];
 					npc.lifeMax = Math.Min(npc.lifeMax, reader.ReadInt32());
 					if(npc.life > npc.lifeMax)npc.life = npc.lifeMax;

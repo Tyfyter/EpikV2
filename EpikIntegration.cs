@@ -29,10 +29,10 @@ namespace EpikV2 {
 		internal static void AddRecipeBrowserIntegration() {
 			try {
 				RecipeBrowser.LootCache.instance.lootInfos.Add(
-					new RecipeBrowser.JSONItem(EpikV2.mod.Name, "GolemDeath", ModContent.ItemType<GolemDeath>()),
+					new RecipeBrowser.JSONItem(EpikV2.instance.Name, "GolemDeath", ModContent.ItemType<GolemDeath>()),
 					new List<RecipeBrowser.JSONNPC>() { new RecipeBrowser.JSONNPC("Terraria", "Golem", NPCID.Golem) }
 				);
-				EpikV2.mod.Logger.Info("Added Recipe Browser integration");
+				EpikV2.instance.Logger.Info("Added Recipe Browser integration");
 			} catch(Exception){}
 		}
 	}

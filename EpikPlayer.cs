@@ -497,7 +497,7 @@ namespace EpikV2 {
 			}
             for(int i = 0; i < player.inventory.Length; i++) {
                 ModItem mI = player.inventory[i]?.modItem;
-                if (mI?.mod == EpikV2.mod) {
+                if (mI?.mod == EpikV2.instance) {
                     if (mI is AquamarineMaterial) {
                         player.inventory[i].type = ItemID.LargeEmerald;
                         player.inventory[i].SetDefaults(ItemID.LargeEmerald);
@@ -638,7 +638,7 @@ namespace EpikV2 {
             if(magiciansHatDamage>magiciansHatDamageThreshhold) {
                 magiciansHatDamage -= magiciansHatDamageThreshhold;
                 if(Main.netMode == NetmodeID.MultiplayerClient) {
-                    ModPacket packet = EpikV2.mod.GetPacket(9);
+                    ModPacket packet = EpikV2.instance.GetPacket(9);
                     packet.Write(EpikV2.PacketType.topHatCard);
                     packet.Write(target.whoAmI);
                     packet.Write(player.whoAmI);
@@ -661,15 +661,17 @@ namespace EpikV2 {
                     drawInfo.headArmorShader = 84;
                 }
             }
-
-            if(drawInfo.hairShader == EpikV2.starlightShaderID || drawInfo.hairShader == EpikV2.brightStarlightShaderID)
-                drawInfo.hairShader = EpikV2.dimStarlightShaderID;
-            if((drawInfo.headArmorShader == EpikV2.starlightShaderID || drawInfo.headArmorShader == EpikV2.brightStarlightShaderID) && !(drawInfo.drawHair||drawInfo.drawAltHair))
-                drawInfo.headArmorShader = EpikV2.dimStarlightShaderID;
-            if(drawInfo.bodyArmorShader == EpikV2.starlightShaderID || drawInfo.bodyArmorShader == EpikV2.brightStarlightShaderID)
-                drawInfo.bodyArmorShader = EpikV2.dimStarlightShaderID;
-            if(drawInfo.legArmorShader == EpikV2.starlightShaderID || drawInfo.legArmorShader == EpikV2.brightStarlightShaderID)
-                drawInfo.legArmorShader = EpikV2.dimStarlightShaderID;
+			for (int i = 0; i< Shaders.InvalidArmorShaders.Count; i++) {
+                InvalidArmorShader invalidShader = Shaders.InvalidArmorShaders[i];
+                if (drawInfo.hairShader == invalidShader.shader)
+                    drawInfo.hairShader = invalidShader.fallbackShader;
+                if (drawInfo.headArmorShader == invalidShader.shader && !(drawInfo.drawHair || drawInfo.drawAltHair))
+                    drawInfo.headArmorShader = invalidShader.fallbackShader;
+                if (drawInfo.bodyArmorShader == invalidShader.shader)
+                    drawInfo.bodyArmorShader = invalidShader.fallbackShader;
+                if (drawInfo.legArmorShader == invalidShader.shader)
+                    drawInfo.legArmorShader = invalidShader.fallbackShader;
+            }
 
             if(marionetteDeathTime > 0) {
                 float fadeTime = (255-(marionetteDeathTime * 10f))/255f;

@@ -26,6 +26,7 @@ namespace EpikV2.Items {
     }
 
     public class Heatwave_Dye : Dye_Item {
+        public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Non-Chromatic_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Heatwave Dye");
@@ -108,6 +109,7 @@ namespace EpikV2.Items {
     }
 
     public class GPS_Dye : Dye_Item {
+        public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("GPS Dye");
@@ -116,7 +118,6 @@ namespace EpikV2.Items {
 			byte dye = item.dye;
 			item.CloneDefaults(ItemID.RedandBlackDye);
 			item.dye = dye;
-            item.color = Color.Blue;
 		}
     }
     public class GPSArmorShaderData : ArmorShaderData {
@@ -133,6 +134,7 @@ namespace EpikV2.Items {
     }
 
     public class Chroma_Dummy_Dye : Dye_Item {
+        public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Chroma_Dummy_Dye");
@@ -203,6 +205,7 @@ namespace EpikV2.Items {
         }
     }
     public class Chimera_Dye : Dye_Item {
+        public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Chimera's Blood");
@@ -217,6 +220,7 @@ namespace EpikV2.Items {
         }
     }
     public class Opaque_Chimera_Dye : Dye_Item {
+        public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Blackened Chimera's Blood");
@@ -249,5 +253,49 @@ namespace EpikV2.Items {
             item.CloneDefaults(ItemID.RedandBlackDye);
             item.dye = dye;
         }
-    }
+        public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
+			if (!UseShaderOnSelf) {
+                return true;
+            }
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.UIScaleMatrix);
+            
+            DrawData data = new DrawData{
+                texture = Main.itemTexture[item.type],
+                position = position,
+                color = drawColor,
+                rotation = 0f,
+                scale = new Vector2(scale),
+                shader = item.dye
+			};
+			GameShaders.Armor.ApplySecondary(item.dye, Main.player[item.owner], data);
+            return true;
+        }
+		public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.UIScaleMatrix);
+        }
+		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI) {
+            if (!UseShaderOnSelf) {
+                return true;
+            }
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.LocalPlayer.gravDir == 1f ? Main.GameViewMatrix.ZoomMatrix : Main.GameViewMatrix.TransformationMatrix);
+
+            DrawData data = new DrawData {
+                texture = Main.itemTexture[item.type],
+                position = item.position - Main.screenPosition,
+                color = lightColor,
+                rotation = rotation,
+                scale = new Vector2(scale),
+                shader = item.dye
+            };
+            GameShaders.Armor.ApplySecondary(item.dye, Main.player[item.owner], data);
+            return true;
+        }
+		public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI) {
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+        }
+	}
 }
