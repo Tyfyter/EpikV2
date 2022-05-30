@@ -149,12 +149,12 @@ namespace EpikV2.NPCs
 		{
 			if (celestialFlames) {
                 drawColor = drawColor.MultiplyRGBA(new Color(230, 240, 255, 100));
-				if (Main.rand.Next(4) < 3) {
+				if (!Main.rand.NextBool(4)) {
 					int dust = Dust.NewDust(npc.position - new Vector2(2f, 2f), npc.width + 4, npc.height + 4, DustID.Rainbow, npc.velocity.X * 0.4f, npc.velocity.Y * 0.4f, 100, new Color(230, 240, 255, 0), 1f);
 					Main.dust[dust].noGravity = true;
 					Main.dust[dust].velocity *= 0.6f;
 					Main.dust[dust].velocity.Y -= 0.5f;
-                    Main.dust[dust].noLight = Main.rand.Next(4) != 0;
+                    Main.dust[dust].noLight = !Main.rand.NextBool(4);
 					/*if (Main.rand.Next(4) == 0) {
 						//Main.dust[dust].noGravity = false;
 						Main.dust[dust].scale *= 0.5f;
@@ -202,12 +202,15 @@ namespace EpikV2.NPCs
                         Main.LocalPlayer.GetModPlayer<EpikPlayer>().golemTime = 5;
                     }
                 }
-            } else if(npc.type == NPCID.CultistArcherWhite && Main.rand.Next(0, 19) == 0) {
-                Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<Sacrificial_Dagger>(), 1);
+            } else if(npc.type == NPCID.CultistArcherWhite && Main.rand.NextBool(19)) {
+                Item.NewItem(npc.Hitbox, ModContent.ItemType<Sacrificial_Dagger>(), 1);
             } else if(npc.type == NPCID.SantaClaus||npc.type == NPCID.Steampunker||(npc.type == NPCID.TravellingMerchant&&!itemPurchasedFrom)) {
-                if(npc.playerInteraction[Main.myPlayer])Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<Red_Star_Pendant>(), 1);
+                if(npc.playerInteraction[Main.myPlayer])Item.NewItem(npc.Hitbox, ModContent.ItemType<Red_Star_Pendant>(), 1);
             }
-			if(npc.HasBuff(ModContent.BuffType<ShroomInfestedDebuff>())){
+            if (npc.type == NPCID.RainbowSlime && Main.rand.NextBool(19)) {
+                Item.NewItem(npc.Hitbox, ModContent.ItemType<Psychodelic_Potion>());
+            }
+            if (npc.HasBuff(ModContent.BuffType<ShroomInfestedDebuff>())){
 				int a;
 				for(int i = 0; i < npc.buffTime[npc.FindBuffIndex(ModContent.BuffType<ShroomInfestedDebuff>())]; i++){
 					a = Projectile.NewProjectile(new Vector2(Main.rand.NextFloat(npc.position.X, npc.position.X + npc.width), Main.rand.NextFloat(npc.position.Y, npc.position.Y + npc.height)), new Vector2(4, 0).RotatedByRandom(100), ModContent.ProjectileType<Shroom_Shot>(), 50, 0, Main.myPlayer, 10, 64);
@@ -217,19 +220,22 @@ namespace EpikV2.NPCs
 					}
 				}
 			}
-			if(EpikConfig.Instance.AncientPresents&&((Main.rand.Next(0, 74) == 0 && Main.xMas) || (Main.rand.Next(0, 39) == 0 && Main.snowMoon) || (npc.type == NPCID.PresentMimic && Main.rand.Next(0, 19) == 0) || (npc.type == NPCID.SlimeRibbonGreen && Main.rand.Next(0, 19) == 0) || (npc.type == NPCID.SlimeRibbonRed && Main.rand.Next(0, 29) == 0) || (npc.type == NPCID.SlimeRibbonWhite && Main.rand.Next(0, 39) == 0) || (npc.type == NPCID.SlimeRibbonYellow && Main.rand.Next(0, 49) == 0))){
-				Item.NewItem((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height, ModContent.ItemType<Mobile_Glitch_Present>(), 1);
+			if(EpikConfig.Instance.AncientPresents&&((Main.rand.NextBool(74) && Main.xMas) || (Main.rand.NextBool(39) && Main.snowMoon) || (npc.type == NPCID.PresentMimic && Main.rand.NextBool(19)) || (npc.type == NPCID.SlimeRibbonGreen && Main.rand.NextBool(19)) || (npc.type == NPCID.SlimeRibbonRed && Main.rand.NextBool(29)) || (npc.type == NPCID.SlimeRibbonWhite && Main.rand.NextBool(39)) || (npc.type == NPCID.SlimeRibbonYellow && Main.rand.NextBool(49)))){
+				Item.NewItem(npc.Hitbox, ModContent.ItemType<Mobile_Glitch_Present>(), 1);
 			}
 		}
 
 		public override void SpawnNPC(int npc, int tileX, int tileY){
-			if(Main.npc[npc].SpawnedFromStatue && Main.rand.Next(0,29) == 0){
+			if(Main.npc[npc].SpawnedFromStatue && Main.rand.NextBool(29)){
 				Main.npc[npc].SpawnedFromStatue = false;
 			}
 		}
         public override void EditSpawnPool(IDictionary<int, float> pool, NPCSpawnInfo spawnInfo) {
             if(NPC.downedGolemBoss&&!spawnInfo.sky&&!spawnInfo.safeRangeX&&!spawnInfo.playerSafe&&!pool.ContainsKey(NPCID.CultistArcherWhite)) {
                 pool.Add(NPCID.CultistArcherWhite,0.02f);
+            }
+			if (spawnInfo.player.GetModPlayer<EpikPlayer>().drugPotion) {
+                pool.Add(ModContent.NPCType<Wrong_Spawn_NPC>(), 4);
             }
         }
         public override void SetDefaults(NPC npc) {

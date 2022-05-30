@@ -92,7 +92,7 @@ namespace EpikV2.Items {
             }
         }
 		public override void OpenVanillaBag(string context, Player player, int arg) {
-            if(context=="goodieBag"&&Main.rand.Next(10)==0) {
+            if(context=="goodieBag"&&Main.rand.NextBool(10)) {
                 player.QuickSpawnItem(ModContent.ItemType<Chocolate_Bar>());
             }
 		}

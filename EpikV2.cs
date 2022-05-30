@@ -405,6 +405,7 @@ public static float ShimmerCalc(float val) {
 		[Label("Reduce Jitter")]
 		[Tooltip("Reduces intentional jitter in some elements\nOn by default for the sake of players with photosensitive epilepsy")]
 		[DefaultValue(true)]
+		[ReloadRequired]
 		public bool reduceJitter = true;
 	}
 	public class EpikWorld : ModWorld {

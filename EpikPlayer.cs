@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using EpikV2.NPCs;
 using static EpikV2.Resources;
 using EpikV2.Tiles;
+using Terraria.Graphics.Effects;
 
 namespace EpikV2 {
     public class EpikPlayer : ModPlayer {
@@ -89,6 +90,7 @@ namespace EpikV2 {
         public bool manaAdictionEquipped = false;
         public bool manaWithdrawal = false;
         public int timeSinceRespawn = 0;
+        public bool drugPotion = false;
 
         public static BitsBytes ItemChecking;
 
@@ -145,6 +147,7 @@ namespace EpikV2 {
             }
             pyrkasivarsCount = 0;
             manaWithdrawal = false;
+            drugPotion = false;
             if (marionetteDeathTime>0) {
                 player.statLife = 0;
                 player.breath = player.breathMax;
@@ -217,7 +220,17 @@ namespace EpikV2 {
 		public override void OnRespawn(Player player) {
             timeSinceRespawn = 0;
         }
-		public override bool CanBeHitByNPC(NPC npc, ref int cooldownSlot) {
+        public override void UpdateBiomes() {
+			if (drugPotion) {
+                bool corrupt = player.ZoneCorrupt;
+                player.ZoneCorrupt = player.ZoneCrimson;
+                player.ZoneCrimson = corrupt;
+            }
+        }
+        public override void UpdateBiomeVisuals() {
+            player.ManageSpecialBiomeVisuals("EpikV2:LSD", drugPotion);
+        }
+        public override bool CanBeHitByNPC(NPC npc, ref int cooldownSlot) {
             return npcImmuneFrames[npc.whoAmI] == 0;
         }
         public override void PostUpdate() {
@@ -348,6 +361,7 @@ namespace EpikV2 {
         //public static const rope_deb_412 = 0.1f;
         public override void PreUpdateMovement() {
             if(ropeTarg >= 0) {//ropeVel.HasValue&&
+                player.fallStart = (int)(player.position.Y / 16f);
                 Projectile projectile = Main.projectile[ropeTarg];
                 Rope_Hook_Projectile rope = (Rope_Hook_Projectile)projectile.modProjectile;
                 Vector2 displacement = projectile.Center - player.MountedCenter;
@@ -382,7 +396,7 @@ namespace EpikV2 {
                     if(player.Center.Y<(projectile.Center.Y - Math.Abs(displacement.X) * 1f)) {
                         projectile.ai[0]=1f;//kills the projectile
                         return;
-                    }//*/
+                    }//* /
                     const float perpAngle = PiOver2 + 0.01f;// - Math.Min((distance-range)*0.01f, 0.2f);
                     //gets the magnitude and direction of the difference between the angles of player.velocity and displacement
                     float angleDiff = AngleDif(player.velocity.ToRotation(), displacement.ToRotation(), out int angleDir);
@@ -400,12 +414,11 @@ namespace EpikV2 {
                     //player.chatOverhead.NewMessage($"{{{Math.Round(player.velocity.X, 1)}, {Math.Round(player.velocity.Y, 1)}}}\n{{{Math.Round(targetVelocity.X, 1)}, {Math.Round(targetVelocity.Y, 1)}}}", 5);
                     player.velocity = targetVelocity * 1.0085f;// * Math.Min(1.2f+dot, 1f);
 
-                    if(player.velocity.Y == 0)player.velocity.Y+=player.gravity*player.gravDir;
+                    if(player.velocity.Y == 0)player.velocity.Y+=player.gravity*player.gravDir;//*/
                 }
                 if(player.Hitbox.Intersects(projectile.Hitbox)) {
                     projectile.Kill();
                 }
-                player.fallStart = (int)(player.position.Y / 16f);
             } else if (spikeTarg >= 0) {
                 Projectile proj = Main.projectile[spikeTarg];
                 if (proj.active && proj.type == Spike_Hook_Projectile.ID) {

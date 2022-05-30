@@ -23,5 +23,28 @@ namespace EpikV2.Items {
         public override void UpdateEquip(Player player) {
             player.GetModPlayer<EpikPlayer>().redStar = true;
         }
-    }
+		public override void AddRecipes() {
+			ModRecipe recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.CrossNecklace);
+            recipe.AddIngredient(ItemType<Mana_Addiction>());
+            recipe.AddIngredient(ItemID.PurpleSolution, 2);
+            recipe.AddIngredient(ItemID.BlueSolution, 2);
+            recipe.AddTile(TileID.Tables);
+            recipe.AddTile(TileID.Chairs);
+            recipe.AddTile(TileID.CrystalBall);
+            recipe.SetResult(this);
+            recipe.AddRecipe();
+
+            recipe = new ModRecipe(mod);
+            recipe.AddIngredient(ItemID.CrossNecklace);
+            recipe.AddIngredient(ItemType<Mana_Addiction>());
+            recipe.AddIngredient(ItemID.RedSolution, 2);
+            recipe.AddIngredient(ItemID.BlueSolution, 2);
+            recipe.AddTile(TileID.Tables);
+            recipe.AddTile(TileID.Chairs);
+            recipe.AddTile(TileID.CrystalBall);
+            recipe.SetResult(this);
+            recipe.AddRecipe();
+        }
+	}
 }
