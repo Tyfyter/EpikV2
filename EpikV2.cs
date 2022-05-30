@@ -174,7 +174,7 @@ namespace EpikV2 {
 				}
 				targetSlot = num3;
 			}
-			if (player.armor[targetSlot].modItem is Parasitic_Accessory paras && !paras.CanRemove(Main.LocalPlayer)) {
+			if (player.armor[targetSlot].modItem is Parasitic_Accessory paras && (player.GetModPlayer<EpikPlayer>().timeSinceRespawn > 300 && !paras.CanRemove(Main.LocalPlayer))) {
 				return item;
 			}
 			return orig(item, out success);
@@ -189,7 +189,7 @@ namespace EpikV2 {
 				case ItemSlot.Context.EquipMount:
 				case ItemSlot.Context.EquipPet:
 				case ItemSlot.Context.EquipGrapple: {
-					if (Main.LocalPlayer.armor[slot].modItem is Parasitic_Accessory paras && !paras.CanRemove(Main.LocalPlayer)) {
+					if (Main.LocalPlayer.armor[slot].modItem is Parasitic_Accessory paras && (Main.LocalPlayer.GetModPlayer<EpikPlayer>().timeSinceRespawn > 300 && !paras.CanRemove(Main.LocalPlayer))) {
 						return -1;
 					}
 				}

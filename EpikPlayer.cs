@@ -86,6 +86,9 @@ namespace EpikV2 {
         public int telescopeID = -1;
         public Vector2 telescopePos = default;
         public float partialManaCost = 0;
+        public bool manaAdictionEquipped = false;
+        public bool manaWithdrawal = false;
+        public int timeSinceRespawn = 0;
 
         public static BitsBytes ItemChecking;
 
@@ -94,6 +97,7 @@ namespace EpikV2 {
             chargedEmerald = false;
             chargedAmber = false;
             chargedDiamond = false;
+            manaAdictionEquipped = false;
             oily = false;
             glaiveRecall = false;
             if(dracoDash>0)dracoDash--;
@@ -140,6 +144,7 @@ namespace EpikV2 {
                 }
             }
             pyrkasivarsCount = 0;
+            manaWithdrawal = false;
             if (marionetteDeathTime>0) {
                 player.statLife = 0;
                 player.breath = player.breathMax;
@@ -207,8 +212,12 @@ namespace EpikV2 {
             for (int i = 0; i < 3; i++) {
                 ownedSpikeHooks[i] = -1;
             }
+            timeSinceRespawn++;
         }
-        public override bool CanBeHitByNPC(NPC npc, ref int cooldownSlot) {
+		public override void OnRespawn(Player player) {
+            timeSinceRespawn = 0;
+        }
+		public override bool CanBeHitByNPC(NPC npc, ref int cooldownSlot) {
             return npcImmuneFrames[npc.whoAmI] == 0;
         }
         public override void PostUpdate() {
@@ -239,7 +248,7 @@ namespace EpikV2 {
                 case Terraria.UI.ItemSlot.Context.EquipPet:
                 case Terraria.UI.ItemSlot.Context.EquipGrapple: {
                     if (Main.LocalPlayer.armor[slot].modItem is Parasitic_Accessory paras) {
-                        return !paras.CanRemove(Main.LocalPlayer);
+                        return timeSinceRespawn > 300 && !paras.CanRemove(Main.LocalPlayer);
                     }
                 }
                 break;
@@ -286,11 +295,20 @@ namespace EpikV2 {
         public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) {
             if(item.value!=0)vendor.GetGlobalNPC<EpikGlobalNPC>().itemPurchasedFrom = true;
         }
-        /*
+		/*
         public override void UpdateBiomeVisuals() {
             player.ManageSpecialBiomeVisuals("EpikV2:FilterMapped", true, player.Center);
         }//*/
-        public override void PostUpdateEquips() {
+		public override void UpdateBadLifeRegen() {
+			if (manaWithdrawal) {
+				if (player.lifeRegen > -10) {
+                    player.lifeRegen -= 10;
+                }
+                player.lifeRegen -= 8;
+                player.lifeRegenTime = 0;
+			}
+		}
+		public override void PostUpdateEquips() {
             oldStatLife = player.statLife;
             if(ChargedGem()) player.aggro+=600;
             /*if(majesticWings&&(player.wingFrameCounter!=0||player.wingFrame!=0)) {
@@ -459,7 +477,7 @@ namespace EpikV2 {
             if (intManaCost > 0) {
                 return player.CheckMana(item, intManaCost, true, blockQuickMana);
 			}
-            return true;
+            return player.statMana > 0;
         }
         public bool CheckFloatMana(float amount, bool blockQuickMana = false) {
             partialManaCost += amount;
@@ -616,8 +634,11 @@ namespace EpikV2 {
             ItemChecking[player.whoAmI] = false;
         }
         public override float UseTimeMultiplier(Item item) {
-            if(machiavellianMasquerade&&(item.ranged||item.magic)) {
+            if(machiavellianMasquerade && (item.ranged || item.magic)) {
                 return 1.15f;
+            }
+			if (manaAdictionEquipped && item.magic) {
+                return manaWithdrawal ? 0.9f : 1.1f;
             }
             return 1f;
         }

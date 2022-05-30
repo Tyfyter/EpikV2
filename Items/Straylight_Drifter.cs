@@ -9,7 +9,7 @@ using static Terraria.ModLoader.ModContent;
 using static Microsoft.Xna.Framework.MathHelper;
 
 namespace EpikV2.Items {
-    //the name is a reference to 2 games and a webcomic
+    //a reference to 2ish games and a webcomic
     public class Straylight_Drifter : ModItem {
         internal static int id = -1;
 		public override void SetStaticDefaults() {

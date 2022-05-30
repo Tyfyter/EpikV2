@@ -5,10 +5,10 @@ using Terraria.ID;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System;
+using Terraria.DataStructures;
 
 namespace EpikV2.Items {
-	public class Parasitic_Accessory : ModItem {
-		public override string Texture => "Terraria/Item_13";
+	public abstract class Parasitic_Accessory : ModItem {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Parasitic_Accessory");
             Tooltip.SetDefault("Equip to cover yourself in Parasitic_Accessory");
@@ -16,10 +16,6 @@ namespace EpikV2.Items {
 		}
 
 		public override void SetDefaults() {
-			item.width = 170;
-			item.height = 126;
-			item.value = 10000;
-			item.rare = ItemRarityID.Green;
 			item.accessory = true;
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
@@ -30,13 +26,11 @@ namespace EpikV2.Items {
 			}
 		}
 		public virtual bool CanRemove(Player player) {
-			return player.CheckMana(item, 420, pay: true);
+			player.Hurt(PlayerDeathReason.ByPlayer(player.whoAmI), 100, 0);
+			return player.statLife > 0;
 		}
 		public static float GetColorValue(float value) {
 			return ((value - 173) / 82f);
-		}
-		public override void UpdateAccessory(Player player, bool hideVisual) {
-
 		}
 	}
 }
