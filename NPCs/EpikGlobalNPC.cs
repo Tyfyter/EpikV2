@@ -234,7 +234,7 @@ namespace EpikV2.NPCs
             if(NPC.downedGolemBoss&&!spawnInfo.sky&&!spawnInfo.safeRangeX&&!spawnInfo.playerSafe&&!pool.ContainsKey(NPCID.CultistArcherWhite)) {
                 pool.Add(NPCID.CultistArcherWhite,0.02f);
             }
-			if (spawnInfo.player.GetModPlayer<EpikPlayer>().drugPotion) {
+			if ((spawnInfo.player.ZoneCorrupt || spawnInfo.player.ZoneCrimson || spawnInfo.sky) && spawnInfo.player.GetModPlayer<EpikPlayer>().drugPotion) {
                 pool.Add(ModContent.NPCType<Wrong_Spawn_NPC>(), 4);
             }
         }

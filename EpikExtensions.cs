@@ -719,6 +719,10 @@ namespace EpikV2 {
             float pLength = vector.LengthSquared();
             return pLength > length * length ? Vector2.Normalize(vector) * length : vector;
         }
+        public static void Restart(this SpriteBatch spriteBatch, SpriteSortMode sortMode = SpriteSortMode.Deferred, BlendState blendState = null, SamplerState samplerState = null, RasterizerState rasterizerState = null, Effect effect = null, Matrix? transformMatrix = null) {
+            Main.spriteBatch.End();
+            Main.spriteBatch.Begin(sortMode, blendState??BlendState.AlphaBlend, samplerState??SamplerState.LinearClamp, DepthStencilState.None, rasterizerState??Main.instance.Rasterizer, effect, transformMatrix??Main.GameViewMatrix.TransformationMatrix);
+        }
         public static void SayNetMode() {
             switch(Main.netMode) {
                 case NetmodeID.Server:
