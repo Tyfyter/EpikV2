@@ -70,8 +70,11 @@ namespace EpikV2.Items
             recipe.SetResult(this);
             recipe.AddRecipe();
         }
+		public override bool AltFunctionUse(Player player) {
+			return true;
+		}
 
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
+		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
             int aiValue = (Main.rand.Next(3)) + (Main.rand.Next(3) << 2) + (Main.rand.Next(4) << 4);
 
 			for (int i = Main.rand.Next(4); i < 4; i++) {
@@ -210,18 +213,16 @@ namespace EpikV2.Items
                 FlaskType = (byte)((FlaskType & ~(0xf << 6)) | ((((int)value) & 0xf) << 6));
             }
         }
-        public static Texture2D FlaskTexture { get; private set; }
+        public HSVColor lastColor = default;
+        public HSVColor nextColor = default;
         public static Texture2D LiquidTexture { get; private set; }
         internal static void Unload() {
-            FlaskTexture = null;
             LiquidTexture = null;
         }
         public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Alchemera");
             if (Main.netMode == NetmodeID.Server) return;
-            FlaskTexture = mod.GetTexture("Items/Alchemera_Flask");
-            LiquidTexture = mod.GetTexture("Items/Alchemera_Flask");
-            //customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
+            LiquidTexture = mod.GetTexture("Items/Alchemera_Flask_Liquid");
         }
         public override void SetDefaults(){
 			projectile.CloneDefaults(ProjectileID.ToxicFlask);
@@ -242,51 +243,98 @@ namespace EpikV2.Items
 			if (HomingType != 0) {
 				if (HomingType == 2) {
                     if (projectile.timeLeft < 3570) {
-                        int target = -1;
+                        bool foundTarget = false;
+                        (Vector2 topLeft, Vector2 bottomRight) target = default;
                         float targetDist = 320 * 320;
-						NPC targetNPC;
-						for (int i = 0; i < Main.maxNPCs; i++) {
-                            targetNPC = Main.npc[i];
-                            if (targetNPC.active && targetNPC.CanBeChasedBy()) {
-                                float dist = targetNPC.DistanceSQ(projectile.Center);
-                                if (dist < targetDist) {
-                                    target = i;
-                                    targetDist = dist;
+
+                        if (projectile.ai[1] == 2) {
+                            Player owner = Main.player[projectile.owner];
+                            Player targetPlayer;
+                            for (int i = 0; i < Main.maxNPCs; i++) {
+                                targetPlayer = Main.player[i];
+                                if (targetPlayer.active && (targetPlayer.team == owner.team)) {
+                                    float dist = targetPlayer.DistanceSQ(projectile.Center);
+                                    if (dist < targetDist) {
+                                        foundTarget = true;
+                                        target = (targetPlayer.TopLeft, targetPlayer.BottomRight);
+                                        targetDist = dist;
+                                    }
+                                }
+                            }
+                        } else {
+                            NPC targetNPC;
+                            for (int i = 0; i < Main.maxNPCs; i++) {
+                                targetNPC = Main.npc[i];
+                                if (targetNPC.active && targetNPC.CanBeChasedBy()) {
+                                    float dist = targetNPC.DistanceSQ(projectile.Center);
+                                    if (dist < targetDist) {
+                                        foundTarget = true;
+                                        target = (targetNPC.TopLeft, targetNPC.BottomRight);
+                                        targetDist = dist;
+                                    }
                                 }
                             }
                         }
-                        if (target > -1) {
-                            targetNPC = Main.npc[target];
+                        if (foundTarget) {
                             HomingType = 1;
                             Main.TeleportEffect(projectile.Hitbox, 3, dustCountMult: 0.3f);
-                            projectile.Center = projectile.Center.Within(targetNPC.Hitbox) - projectile.velocity * 12;
+                            projectile.Center = Vector2.Clamp(projectile.Center, target.topLeft, target.bottomRight) - projectile.velocity * 12;
                             projectile.velocity *= 1.5f;
                             Main.TeleportEffect(projectile.Hitbox, 3, dustCountMult: 0.3f);
                         }
                     }
 				} else {
-                    int target = -1;
+                    bool foundTarget = false;
+                    Vector2 target = default;
                     float targetDist = 320 * 320;
-					NPC targetNPC;
-					for (int i = 0; i < Main.maxNPCs; i++) {
-                        targetNPC = Main.npc[i];
-                        if (targetNPC.active && targetNPC.CanBeChasedBy()) {
-                            float dist = targetNPC.DistanceSQ(projectile.Center);
-                            if (dist < targetDist) {
-                                target = i;
-                                targetDist = dist;
+					if (projectile.ai[1] == 2) {
+                        Player owner = Main.player[projectile.owner];
+                        Player targetPlayer;
+                        for (int i = 0; i < Main.maxNPCs; i++) {
+                            targetPlayer = Main.player[i];
+                            if (targetPlayer.active && (targetPlayer.team == owner.team)) {
+                                float dist = targetPlayer.DistanceSQ(projectile.Center);
+                                if (dist < targetDist) {
+                                    foundTarget = true;
+                                    target = targetPlayer.Center + targetPlayer.velocity;
+                                    targetDist = dist;
+                                }
+                            }
+                        }
+                    } else {
+                        NPC targetNPC;
+                        for (int i = 0; i < Main.maxNPCs; i++) {
+                            targetNPC = Main.npc[i];
+                            if (targetNPC.active && targetNPC.CanBeChasedBy()) {
+                                float dist = targetNPC.DistanceSQ(projectile.Center);
+                                if (dist < targetDist) {
+                                    foundTarget = true;
+                                    target = targetNPC.Center + targetNPC.velocity;
+                                    targetDist = dist;
+                                }
                             }
                         }
                     }
-                    if (target > -1) {
-                        targetNPC = Main.npc[target];
+                    if (foundTarget) {
                         Vector2 currentAngle = projectile.velocity.SafeNormalize(default);
-                        Vector2 targetAngle = ((targetNPC.Center + targetNPC.velocity) - projectile.Center).SafeNormalize(default);
+                        Vector2 targetAngle = (target - projectile.Center).SafeNormalize(default);
                         float dot = Vector2.Dot(currentAngle, targetAngle);
                         projectile.velocity = ((projectile.velocity * (1 + dot)) + (targetAngle * 3 * (1 - dot))).WithMaxLength(16f);
 					}
                 }
-			}
+            }
+            bool isChaos = HitType == FlaskHitType.Chaos;
+            if (projectile.timeLeft % (isChaos ? 10 : 30) == 0 || lastColor == default) {
+                lastColor = nextColor;
+                nextColor = (HSVColor)GetNextColor();
+                //lastColor = new HSVColor(80, 1, 1);
+                //nextColor = new HSVColor(280, 1, 1);
+                if (isChaos) {
+                    FlightType = Main.rand.Next(3);
+                    HomingType = Main.rand.Next(3);
+                    BuffType = Main.rand.Next(4);
+                }
+            }
         }
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			base.OnHitNPC(target, damage, knockback, crit);
@@ -322,6 +370,61 @@ namespace EpikV2.Items
 				}
             }
         }
+        public Color GetNextColor() {
+            WeightedRandom<Color> colors = new WeightedRandom<Color>(Main.rand);
+			switch (FlightType) {
+                case 1:
+                colors.Add(new Color(128, 255, 255));
+                break;
+                case 2:
+                colors.Add(new Color(112, 17, 234));
+                break;
+            }
+            switch (HomingType) {
+                case 1:
+                colors.Add(new Color(228, 26, 149));
+                break;
+                case 2:
+                colors.Add(new Color(2, 150, 243));
+                break;
+            }
+            switch (BuffType) {
+                case 0:
+                colors.Add(new Color(216, 22, 27));
+                break;
+                case 1:
+                colors.Add(new Color(125, 85, 255));
+                break;
+                case 2:
+                colors.Add(new Color(245, 15, 6));
+                break;
+                case 3:
+                colors.Add(new Color(0, 255, 255));
+                break;
+            }
+            if (HitType.HasFlag(FlaskHitType.Fireball)) {
+                colors.Add(new Color(245, 79, 6), 2);
+            }
+            if (HitType.HasFlag(FlaskHitType.Magic)) {
+                colors.Add(new Color(69, 6, 255), 2);
+            }
+            if (HitType.HasFlag(FlaskHitType.CursedFlames)) {
+                colors.Add(new Color(69, 255, 6), 2);
+            }
+            if (HitType.HasFlag(FlaskHitType.Ichor)) {
+                colors.Add(new Color(255, 235, 6), 2);
+            }
+            if (HitType.HasFlag(FlaskHitType.Chaos)) {
+                colors.Add(new Color(Main.rand.NextFloat(), Main.rand.NextFloat(), Main.rand.NextFloat()), 8);
+            }
+            Color lastRGB = (Color)lastColor;
+            colors.elements.RemoveAll(v => v.Item1 == lastRGB);
+            if (colors.elements.Count > 0) {
+                Color color = colors.Get();
+                return color;
+			}
+            return Color.Green;
+		}
 		public override void Kill(int timeLeft) {
             Main.PlaySound(SoundID.Item107, projectile.position);
             Gore.NewGore(projectile.Center, -projectile.oldVelocity * 0.2f, 704);
@@ -355,6 +458,25 @@ namespace EpikV2.Items
                 }
             }
         }
+		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+            spriteBatch.Restart(sortMode: SpriteSortMode.Immediate);
+            float shiftRate = (HitType == FlaskHitType.Chaos ? 10 : 30);
+            DrawData data = new DrawData(
+                LiquidTexture,
+                projectile.Center - Main.screenPosition,
+                null,
+                (Color)HSVColor.Lerp(lastColor, nextColor, 1f - (projectile.timeLeft % shiftRate) / shiftRate),
+                projectile.rotation,
+                new Vector2(9),
+                projectile.scale,
+                SpriteEffects.None,
+            0);
+            //Shaders.opaqueChimeraShader.Apply(projectile, data);
+            data.Draw(spriteBatch);
+            //spriteBatch.Draw(LiquidTexture, projectile.Center, null, lightColor, projectile.rotation, new Vector2(9), projectile.scale, SpriteEffects.None, 0);
+            spriteBatch.Restart(sortMode: SpriteSortMode.Deferred);
+			return true;
+		}
 	}
     public class Shadowflame_Arc : ModProjectile {
         public static int ID { get; private set; }
@@ -405,7 +527,26 @@ namespace EpikV2.Items
                     dust.scale += projectile.scale * 0.75f;
                 }
             }
+            int ownerTeam = Main.player[projectile.owner].team;
+            for (int i = 0; i < Main.maxPlayers; i++) {
+                Player target = Main.player[i];
+				if (target.team == ownerTeam && target.Hitbox.Intersects(projectile.Hitbox)) {
+                    target.AddBuff(BuffID.ShadowFlame, 600);
+				}
+			}
         }
+		public override bool CanHitPlayer(Player target) {
+			if (target.team == Main.player[projectile.owner].team) {
+
+			}
+			return base.CanHitPlayer(target);
+		}
+		public override bool CanHitPvp(Player target) {
+            if (target.team == Main.player[projectile.owner].team) {
+
+            }
+            return base.CanHitPvp(target);
+		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
             target.AddBuff(BuffID.ShadowFlame, Main.rand.Next(240, 480));
         }

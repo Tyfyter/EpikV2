@@ -616,7 +616,7 @@ namespace EpikV2.Items {
 							target.restrikeDelay = 15;
 							target.friendly = true;
 							hitAny = true;
-							if (weakenStrong && EpikExtensions.AngleDif(velocity.Theta, diff.Theta) > 1.5f) {
+							if (weakenStrong && GeometryUtils.AngleDif(velocity.Theta, diff.Theta) > 1.5f) {
 								target.damage -= (int)damage;
 								Dust.NewDust(target.position, target.width, target.height, DustID.DungeonWater_Old);
 							}

@@ -157,7 +157,7 @@ namespace EpikV2.Items {
 			projectile.velocity = (projectile.velocity * (inertia - 1) + vectorToIdlePosition) / inertia;
 			projectile.rotation = (Main.MouseWorld - projectile.Center).ToRotation();
 			//EpikExtensions.AngularSmoothing(ref projectile.rotation, (Main.MouseWorld - player.MountedCenter).ToRotation(), 0.1f, true);
-			EpikExtensions.AngleDif(projectile.rotation, MathHelper.PiOver2, out projectile.direction);
+			GeometryUtils.AngleDif(projectile.rotation, MathHelper.PiOver2, out projectile.direction);
 			bool persist = false;
 			if (projectile.ai[1] > 0) {
 				projectile.ai[1]--;

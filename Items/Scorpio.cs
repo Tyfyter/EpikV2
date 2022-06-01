@@ -118,7 +118,7 @@ namespace EpikV2.Items {
             PolarVec2 targetVelocity = (PolarVec2)target.velocity;
             PolarVec2 velocity = (PolarVec2)projectile.velocity;
             AngularSmoothing(ref targetVelocity.Theta, velocity.Theta, knockBackResist * (8 / (0.5f+targetVelocity.R)));
-            if(AngleDif(targetVelocity.Theta, velocity.Theta, out int _)<0.5f) {
+            if(GeometryUtils.AngleDif(targetVelocity.Theta, velocity.Theta, out int _)<0.5f) {
                 targetVelocity.R = projectile.knockBack;
                 target.velocity = (Vector2)targetVelocity;
             } else {

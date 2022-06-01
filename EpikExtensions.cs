@@ -86,22 +86,6 @@ namespace EpikV2 {
         public static Vector4 Vec4FromVec2x2(Vector2 xy, Vector2 wh) {
             return new Vector4(xy.X, xy.Y, wh.X, wh.Y);
         }
-        public static double AngleDif(double alpha, double beta) {
-            double phi = Math.Abs(beta - alpha) % (Math.PI * 2);       // This is either the distance or 360 - distance
-            double distance = ((phi > Math.PI) ^ (alpha > beta)) ? (Math.PI * 2) - phi : phi;
-            return distance;
-        }
-        public static float AngleDif(float alpha, float beta) {
-            float phi = Math.Abs(beta - alpha) % MathHelper.TwoPi;       // This is either the distance or 360 - distance
-            float distance = ((phi > MathHelper.Pi) ^ (alpha > beta)) ? MathHelper.TwoPi - phi : phi;
-            return distance;
-        }
-        public static float AngleDif(float alpha, float beta, out int dir) {
-            float phi = Math.Abs(beta - alpha) % MathHelper.TwoPi;       // This is either the distance or 360 - distance
-            dir = ((phi > MathHelper.Pi) ^ (alpha > beta)) ? -1 : 1;
-            float distance = phi > MathHelper.Pi ? MathHelper.TwoPi - phi : phi;
-            return distance;
-        }
         public static Vector2 Within(this Vector2 vector, Rectangle rect) {
             return new Vector2(
                 MathHelper.Clamp(vector.X, rect.X, rect.X + rect.Width),
@@ -146,7 +130,7 @@ namespace EpikV2 {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AngularSmoothing(ref float smoothed, float target, float rate) {
             if (target != smoothed) {
-                float diff = AngleDif(smoothed, target, out int dir);
+                float diff = GeometryUtils.AngleDif(smoothed, target, out int dir);
                 if (Math.Abs(diff) < rate) {
                     smoothed = target;
                 } else {
@@ -157,7 +141,7 @@ namespace EpikV2 {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AngularSmoothing(ref float smoothed, float target, float rate, bool snap) {
             if (target != smoothed) {
-                float diff = AngleDif(smoothed, target, out int dir);
+                float diff = GeometryUtils.AngleDif(smoothed, target, out int dir);
                 diff = Math.Abs(diff);
                 if (diff < rate || (snap && diff > MathHelper.Pi - rate)) {
                     smoothed = target;
