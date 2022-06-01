@@ -430,7 +430,7 @@ namespace EpikV2.Items
             Gore.NewGore(projectile.Center, -projectile.oldVelocity * 0.2f, 704);
             Gore.NewGore(projectile.Center, -projectile.oldVelocity * 0.2f, 705);
             if (HitType.HasFlag(FlaskHitType.Fireball)) {
-                Projectile.NewProjectile(projectile.Center, default, ProjectileID.SolarWhipSwordExplosion, projectile.damage, projectile.knockBack, projectile.owner, 0, 1.25f);
+                Projectile.NewProjectile(projectile.Center, default, Fireball.ID, projectile.damage, projectile.knockBack, projectile.owner, 0, 1.25f);
             }
             if (HitType.HasFlag(FlaskHitType.Magic)) {
                 Vector2 direction = new Vector2(8, 0);
@@ -477,7 +477,25 @@ namespace EpikV2.Items
             spriteBatch.Restart(sortMode: SpriteSortMode.Deferred);
 			return true;
 		}
-	}
+    }
+    public class Fireball : ModProjectile {
+        public static int ID { get; private set; }
+        public override string Texture => "Terraria/Projectile_" + ProjectileID.SolarWhipSwordExplosion;
+        public override void SetStaticDefaults() {
+            DisplayName.SetDefault("Fireball");
+            ID = projectile.type;
+        }
+        public override void SetDefaults() {
+            projectile.CloneDefaults(ProjectileID.SolarWhipSwordExplosion);
+            aiType = ProjectileID.SolarWhipSwordExplosion;
+        }
+		public override void AI() {
+			
+		}
+		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+            //target.AddBuff(BuffID.ShadowFlame, Main.rand.Next(240, 480));
+        }
+    }
     public class Shadowflame_Arc : ModProjectile {
         public static int ID { get; private set; }
 		public override string Texture => "Terraria/Projectile_" + ProjectileID.ShadowFlame;
@@ -487,7 +505,6 @@ namespace EpikV2.Items
 		}
 		public override void SetDefaults() {
             projectile.CloneDefaults(ProjectileID.ShadowFlame);
-            projectile.aiStyle = ProjectileID.ShadowFlame;
             projectile.tileCollide = false;
             projectile.penetrate = -1;
         }
@@ -531,24 +548,34 @@ namespace EpikV2.Items
             for (int i = 0; i < Main.maxPlayers; i++) {
                 Player target = Main.player[i];
 				if (target.team == ownerTeam && target.Hitbox.Intersects(projectile.Hitbox)) {
-                    target.AddBuff(BuffID.ShadowFlame, 600);
+                    target.AddBuff(Shadowflame_Imbue.ID, 600);
 				}
 			}
         }
-		public override bool CanHitPlayer(Player target) {
-			if (target.team == Main.player[projectile.owner].team) {
-
-			}
-			return base.CanHitPlayer(target);
-		}
-		public override bool CanHitPvp(Player target) {
-            if (target.team == Main.player[projectile.owner].team) {
-
-            }
-            return base.CanHitPvp(target);
-		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
             target.AddBuff(BuffID.ShadowFlame, Main.rand.Next(240, 480));
         }
+    }
+    public class Shadowflame_Imbue : ModBuff {
+        public static int ID { get; private set; }
+        public override bool Autoload(ref string name, ref string texture) {
+            texture = "EpikV2/Buffs/Shadowflame_Imbue";
+            return true;
+        }
+        public override void SetDefaults() {
+            DisplayName.SetDefault("Shadowflame Imbuement");
+            ID = Type;
+        }
+    }
+    public class Fire_Imbue : ModBuff {
+        public static int ID { get; private set; }
+		public override bool Autoload(ref string name, ref string texture) {
+            texture = "EpikV2/Buffs/Fire_Imbue";
+			return true;
+		}
+		public override void SetDefaults() {
+            DisplayName.SetDefault("Flame Imbuement");
+            ID = Type;
+		}
 	}
 }
