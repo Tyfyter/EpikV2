@@ -91,6 +91,7 @@ namespace EpikV2 {
         public bool manaWithdrawal = false;
         public int timeSinceRespawn = 0;
         public bool drugPotion = false;
+        public bool shieldBuff = false;
 
         public static BitsBytes ItemChecking;
 
@@ -148,6 +149,7 @@ namespace EpikV2 {
             pyrkasivarsCount = 0;
             manaWithdrawal = false;
             drugPotion = false;
+            shieldBuff = false;
             if (marionetteDeathTime>0) {
                 player.statLife = 0;
                 player.breath = player.breathMax;
@@ -503,7 +505,8 @@ namespace EpikV2 {
         }
         public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource) {
             bool canDodge = true;
-            if(marionetteDeathTime>0) {
+            bool canReduce = true;
+            if (marionetteDeathTime>0) {
                 return false;
             }
             if(machiavellianMasquerade&&damage>player.statLife) {
@@ -512,16 +515,22 @@ namespace EpikV2 {
                 player.statLife = 0;
                 return false;
             }
-            if(clubBuff) {
-                damage -= damage / (magiciansHat ? 10 : 20);
-            }
-            if(damageSource.SourceCustomReason==Red_Star_Pendant.DeathReason(player).SourceCustomReason) {
+            if (damageSource.SourceCustomReason == Red_Star_Pendant.DeathReason(player).SourceCustomReason) {
                 playSound = false;
                 customDamage = true;
                 canDodge = false;
+                canReduce = false;
                 //return true;
             }
-            if(dracoDash!=0) return !canDodge;
+            if (clubBuff && canReduce) {
+                damage -= damage / (magiciansHat ? 10 : 20);
+            }
+            if (shieldBuff && canReduce) {
+                damage /= 2;
+                int index = player.FindBuffIndex(Shield_Buff.ID);
+                if (index > -1) player.DelBuff(index);
+            }
+            if (dracoDash!=0) return !canDodge;
             if(orionDash>0) {
                 player.immuneTime = 15;
                 Projectile explosion = Projectile.NewProjectileDirect(player.Center, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 40, 12.5f, player.whoAmI);
