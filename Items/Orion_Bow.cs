@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static EpikV2.EpikExtensions;
@@ -33,24 +34,24 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Orion's Bow");
 		    Tooltip.SetDefault("Shoot for the stars");
-            ID = item.type;
+            ID = Item.type;
             if(Main.netMode == NetmodeID.Server)return;
-            goldTexture = mod.GetTexture("Items/Orion_Bow_Limb_Gold");
-            skyTexture = mod.GetTexture("Items/Orion_Bow_Limb_Sky");
+            goldTexture = Mod.GetTexture("Items/Orion_Bow_Limb_Gold");
+            skyTexture = Mod.GetTexture("Items/Orion_Bow_Limb_Sky");
             //starTexture = mod.GetTexture("Items/Orion_Bow_Limb_Stars");
-            stringTexture = mod.GetTexture("Items/Orion_Bow_String");
+            stringTexture = Mod.GetTexture("Items/Orion_Bow_String");
 		}
 		public override void SetDefaults() {
-            item.CloneDefaults(ItemID.Phantasm);
-            item.damage = 75;
-            item.useTime = 30;
-            item.useAnimation = 30;
-			item.shootSpeed = 20f;
-            item.shoot = Orion_Arrow.ID;
-            item.UseSound = null;
+            Item.CloneDefaults(ItemID.Phantasm);
+            Item.damage = 75;
+            Item.useTime = 30;
+            Item.useAnimation = 30;
+			Item.shootSpeed = 20f;
+            Item.shoot = Orion_Arrow.ID;
+            Item.UseSound = null;
 		}
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            ModRecipe recipe = new ModRecipe(Mod);
             recipe.AddIngredient(ItemID.Phantasm, 1);
             recipe.AddIngredient(ItemID.FragmentStardust, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);
@@ -63,7 +64,7 @@ namespace EpikV2.Items {
         public override void HoldItem(Player player) {
             if(player.itemAnimation != 0 && player.heldProj != -1) {
                 Projectile projectile = Main.projectile[player.heldProj];
-                Orion_Arrow orionArrow = projectile.modProjectile as Orion_Arrow;
+                Orion_Arrow orionArrow = projectile.ModProjectile as Orion_Arrow;
                 if(!projectile.active || orionArrow is null) {
                     player.itemAnimation = 0;
                     player.itemTime = 0;
@@ -79,10 +80,10 @@ namespace EpikV2.Items {
                     return;
                 }
                 if(charge < maxCharge) {
-                    charge += 33 - item.useTime;
+                    charge += 33 - Item.useTime;
                     if(charge >= maxCharge) {
                         charge = maxCharge;
-                        Main.PlaySound(SoundID.Item37, projectile.Center).Pitch = 1;//MaxMana
+                        SoundEngine.PlaySound(SoundID.Item37, projectile.Center).Pitch = 1;//MaxMana
                     }
                 }
                 if(player.controlUseItem) {
@@ -106,7 +107,7 @@ namespace EpikV2.Items {
                 bool orionDash = player.GetModPlayer<EpikPlayer>().orionDash != 0;
                 float totalCharge = ChargePercent + BaseMult + (orionDash?0.5f:0);
                 projectile.damage = (int)(projectile.damage * totalCharge);
-                projectile.velocity = unit * item.shootSpeed * totalCharge;
+                projectile.velocity = unit * Item.shootSpeed * totalCharge;
                 projectile.tileCollide = true;
                 projectile.timeLeft = 3600;
                 if(charge == maxCharge) {
@@ -116,7 +117,7 @@ namespace EpikV2.Items {
                     projectile.aiStyle = 1;
                     projectile.extraUpdates = 0;
                 }
-                Main.PlaySound(SoundID.Item5, projectile.Center);
+                SoundEngine.PlaySound(SoundID.Item5, projectile.Center);
                 charge = 0;
             }
         }
@@ -159,7 +160,7 @@ namespace EpikV2.Items {
                 2,
                 stringLength);
 
-            value = new DrawData(stringTexture, drawRect, null, item.GetAlpha(Color.White), stringRotation-stringSpread+Pi, stringOrigin, drawInfo.spriteEffects, 0);
+            value = new DrawData(stringTexture, drawRect, null, Item.GetAlpha(Color.White), stringRotation-stringSpread+Pi, stringOrigin, drawInfo.spriteEffects, 0);
             value.shader = fireArrow?112:115;
             Main.playerDrawData.Add(value);
 
@@ -172,24 +173,24 @@ namespace EpikV2.Items {
                 2,
                 stringLength);
 
-            value = new DrawData(stringTexture, drawRect, null, item.GetAlpha(Color.White), stringRotation+stringSpread, stringOrigin, drawInfo.spriteEffects, 0);
+            value = new DrawData(stringTexture, drawRect, null, Item.GetAlpha(Color.White), stringRotation+stringSpread, stringOrigin, drawInfo.spriteEffects, 0);
             value.shader = fireArrow?112:115;
             Main.playerDrawData.Add(value);
 
             //sky
-            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(Color.White), itemRotation-drawSpread, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
+            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation-drawSpread, drawOrigin, Item.scale, drawInfo.spriteEffects, 0);
             value.shader = fireArrow?112:115;
             Main.playerDrawData.Add(value);
-            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(Color.White), itemRotation+drawSpread, drawOrigin, item.scale, drawInfo.spriteEffects^SpriteEffects.FlipVertically, 0);
+            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation+drawSpread, drawOrigin, Item.scale, drawInfo.spriteEffects^SpriteEffects.FlipVertically, 0);
             value.shader = fireArrow?112:115;//115, 112, 106
             Main.playerDrawData.Add(value);
 
             //gold
             //new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y))
-            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation-drawSpread, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
+            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation-drawSpread, drawOrigin, Item.scale, drawInfo.spriteEffects, 0);
             value.shader = 80;
             Main.playerDrawData.Add(value);
-            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation+drawSpread, drawOrigin, item.scale, drawInfo.spriteEffects^SpriteEffects.FlipVertically, 0);
+            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation+drawSpread, drawOrigin, Item.scale, drawInfo.spriteEffects^SpriteEffects.FlipVertically, 0);
             value.shader = 80;
             Main.playerDrawData.Add(value);
         }
@@ -198,55 +199,55 @@ namespace EpikV2.Items {
         public static int ID = -1;
         internal static int t = -1;
         public int type { get; private set; } = -1;
-        public bool Fired => projectile.velocity.Length() > 0;
+        public bool Fired => Projectile.velocity.Length() > 0;
         public override string Texture => "Terraria/Projectile_"+ProjectileID.JestersArrow;
         public override bool CloneNewInstances => true;
 
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Orion's Bow");
-            ID = projectile.type;
+            ID = Projectile.type;
         }
         public override void SetDefaults() {
             if(Fired)return;
-			projectile.CloneDefaults(ProjectileID.JestersArrow);
+			Projectile.CloneDefaults(ProjectileID.JestersArrow);
             if(t>-1)type = t;
-            projectile.tileCollide = false;
-            projectile.aiStyle = 0;
-            projectile.timeLeft = 3600;
-            projectile.light = 0;
+            Projectile.tileCollide = false;
+            Projectile.aiStyle = 0;
+            Projectile.timeLeft = 3600;
+            Projectile.light = 0;
             drawHeldProjInFrontOfHeldItemAndArms = true;
             if(EpikIntegration.EnabledMods.Origins) OriginsIntegration();
 		}
 
         public override void AI() {
             if(Fired) {
-                projectile.rotation = projectile.velocity.ToRotation()+MathHelper.PiOver2;
+                Projectile.rotation = Projectile.velocity.ToRotation()+MathHelper.PiOver2;
                 if(type<ProjectileID.Count) {
-                    projectile.type = type;
-                    projectile.VanillaAI();
-                    projectile.type = ID;
+                    Projectile.type = type;
+                    Projectile.VanillaAI();
+                    Projectile.type = ID;
                 } else {
                     ProjectileLoader.GetProjectile(type)?.AI();
                 }
-                if(projectile.Center.Y+projectile.velocity.Y<Main.offLimitBorderTiles * 16) {
-                    projectile.Kill();
+                if(Projectile.Center.Y+Projectile.velocity.Y<Main.offLimitBorderTiles * 16) {
+                    Projectile.Kill();
                     Orion_Star.t = type;
-			        for(int i = 0; i < 3; i++)Projectile.NewProjectile(projectile.Center.X+Main.rand.NextFloat(-8,8)*16, Main.offLimitBorderTiles * 16, Main.rand.NextFloat(-5,5), 25, Orion_Star.ID, 250, 10f, projectile.owner);
+			        for(int i = 0; i < 3; i++)Projectile.NewProjectile(Projectile.Center.X+Main.rand.NextFloat(-8,8)*16, Main.offLimitBorderTiles * 16, Main.rand.NextFloat(-5,5), 25, Orion_Star.ID, 250, 10f, Projectile.owner);
                 }
             } else {
-                Main.player[projectile.owner].GetModPlayer<EpikPlayer>().nextHeldProj = projectile.whoAmI;
-                Main.player[projectile.owner].heldProj = projectile.whoAmI;
+                Main.player[Projectile.owner].GetModPlayer<EpikPlayer>().nextHeldProj = Projectile.whoAmI;
+                Main.player[Projectile.owner].heldProj = Projectile.whoAmI;
             }
         }
         public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
             if(type<ProjectileID.Count) {
-                projectile.type = type;
-                projectile.StatusNPC(target.whoAmI);
-                projectile.type = ID;
+                Projectile.type = type;
+                Projectile.StatusNPC(target.whoAmI);
+                Projectile.type = ID;
                 switch(type) {
                     case ProjectileID.HolyArrow:
                     case ProjectileID.HellfireArrow:
-                    Projectile.NewProjectileDirect(projectile.Center, Vector2.Zero, type, projectile.damage, projectile.knockBack, projectile.owner).Kill();
+                    Projectile.NewProjectileDirect(Projectile.Center, Vector2.Zero, type, Projectile.damage, Projectile.knockBack, Projectile.owner).Kill();
                     break;
                 }
             } else {
@@ -257,9 +258,9 @@ namespace EpikV2.Items {
             if(type > ProjectileID.Count) {
                 ProjectileLoader.GetProjectile(type)?.ModifyHitNPC(target, ref damage, ref knockback, ref crit, ref hitDirection);
             }
-            if(projectile.aiStyle == 0) {
+            if(Projectile.aiStyle == 0) {
                 crit = true;
-                float crt = Main.player[projectile.owner].rangedCrit/100f;
+                float crt = Main.player[Projectile.owner].rangedCrit/100f;
                 damage+=(int)(damage * crt);
             }
         }
@@ -267,7 +268,7 @@ namespace EpikV2.Items {
             if(type > ProjectileID.Count) {
                 return ProjectileLoader.GetProjectile(type)?.PreKill(timeLeft)??true;
             }
-            projectile.type = type;
+            Projectile.type = type;
             return true;
         }
         public override void Kill(int timeLeft) {
@@ -282,7 +283,7 @@ namespace EpikV2.Items {
             return Fired;
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-            projectile.type = type;
+            Projectile.type = type;
             spriteBatch.End();
 			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, Shaders.starlightShader.Shader, Main.Transform);
             if(type > ProjectileID.Count) {
@@ -294,7 +295,7 @@ namespace EpikV2.Items {
             if(type > ProjectileID.Count) {
                 ProjectileLoader.GetProjectile(type)?.PreDraw(spriteBatch, lightColor);
             }
-            projectile.type = ID;
+            Projectile.type = ID;
 			spriteBatch.End();
 			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
         }
@@ -311,33 +312,33 @@ namespace EpikV2.Items {
         public override string Texture => "Terraria/Projectile_"+ProjectileID.FallingStar;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Orion's Bow");
-            ID = projectile.type;
+            ID = Projectile.type;
         }
         public override void SetDefaults() {
-            projectile.CloneDefaults(ProjectileID.FallingStar);
+            Projectile.CloneDefaults(ProjectileID.FallingStar);
             aiType = ProjectileID.FallingStar;
             if(t>-1)type = t;
             if(EpikIntegration.EnabledMods.Origins) OriginsIntegration();
         }
         public override void AI() {
-            projectile.rotation = projectile.velocity.ToRotation()+MathHelper.PiOver2;
+            Projectile.rotation = Projectile.velocity.ToRotation()+MathHelper.PiOver2;
             if(type<ProjectileID.Count) {
-                projectile.type = type;
-                projectile.VanillaAI();
-                projectile.type = ID;
+                Projectile.type = type;
+                Projectile.VanillaAI();
+                Projectile.type = ID;
             } else {
                 ProjectileLoader.GetProjectile(type)?.AI();
             }
         }
         public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
             if(type<ProjectileID.Count) {
-                projectile.type = type;
-                projectile.StatusNPC(target.whoAmI);
-                projectile.type = ID;
+                Projectile.type = type;
+                Projectile.StatusNPC(target.whoAmI);
+                Projectile.type = ID;
                 switch(type) {
                     case ProjectileID.HolyArrow:
                     case ProjectileID.HellfireArrow:
-                    Projectile.NewProjectileDirect(projectile.Center, Vector2.Zero, type, projectile.damage, projectile.knockBack, projectile.owner).Kill();
+                    Projectile.NewProjectileDirect(Projectile.Center, Vector2.Zero, type, Projectile.damage, Projectile.knockBack, Projectile.owner).Kill();
                     break;
                 }
             } else {
@@ -353,7 +354,7 @@ namespace EpikV2.Items {
             if(type > ProjectileID.Count) {
                 return ProjectileLoader.GetProjectile(type)?.PreKill(timeLeft)??true;
             }
-            projectile.type = type;
+            Projectile.type = type;
             return true;
         }
         public override void Kill(int timeLeft) {

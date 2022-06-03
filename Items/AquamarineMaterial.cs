@@ -17,15 +17,15 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Charged Emerald");
 			Tooltip.SetDefault("This won't retain a charge for long in this state\ndisplaytime");
-			id = item.type;
+			id = Item.type;
 		}
 		public override void SetDefaults() {
-			item.CloneDefaults(ItemID.LargeEmerald);
-			item.color = new Color(0, 200, 255);
-			item.rare = ItemRarityID.Purple;
+			Item.CloneDefaults(ItemID.LargeEmerald);
+			Item.color = new Color(0, 200, 255);
+			Item.rare = ItemRarityID.Purple;
 		}
 		public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(mod);
+			ModRecipe recipe = new ModRecipe(Mod);
 			recipe.AddIngredient(ItemID.LargeEmerald);
 			recipe.AddIngredient(ItemType<GolemDeath>());
 			recipe.SetResult(this);
@@ -42,8 +42,8 @@ namespace EpikV2.Items {
 		public override void UpdateInventory(Player player) {
 			if(time>0)time--;
 			else {
-				item.type = ItemID.LargeEmerald;
-				item.SetDefaults(item.type);
+				Item.type = ItemID.LargeEmerald;
+				Item.SetDefaults(Item.type);
 			}
 			player.GetModPlayer<EpikPlayer>().chargedEmerald = true;
 		}
@@ -57,15 +57,15 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Charged Amber");
 			Tooltip.SetDefault("This is quite unstable\ndisplayhp");
-			id = item.type;
+			id = Item.type;
 		}
 		public override void SetDefaults() {
-			item.CloneDefaults(ItemID.LargeAmber);
-			item.color = new Color(255, 128, 0);
-			item.rare = ItemRarityID.Purple;
+			Item.CloneDefaults(ItemID.LargeAmber);
+			Item.color = new Color(255, 128, 0);
+			Item.rare = ItemRarityID.Purple;
 		}
 		public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(mod);
+			ModRecipe recipe = new ModRecipe(Mod);
 			recipe.AddIngredient(ItemID.LargeAmber);
 			recipe.AddIngredient(ItemType<GolemDeath>());
 			recipe.SetResult(this);
@@ -87,8 +87,8 @@ namespace EpikV2.Items {
 			if(dmg<=0)return;
 			hp-=dmg;
 			if(hp<=0){
-				item.type = ItemID.LargeAmber;
-				item.SetDefaults(item.type);
+				Item.type = ItemID.LargeAmber;
+				Item.SetDefaults(Item.type);
 			}
 		}
 	}
@@ -98,12 +98,12 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Sanguine Ruby");
 			Tooltip.SetDefault("You are a horrible person.\n100% filled");
-			id = item.type;
+			id = Item.type;
 		}
 		public override void SetDefaults() {
-			item.CloneDefaults(ItemID.LargeRuby);
-			item.color = new Color(255, 100, 100);
-			item.rare = ItemRarityID.Purple;
+			Item.CloneDefaults(ItemID.LargeRuby);
+			Item.color = new Color(255, 100, 100);
+			Item.rare = ItemRarityID.Purple;
 		}
 		/*public override void UpdateInventory(Player player) {
 			player.GetModPlayer<EpikPlayer>().chargedRuby = true;
@@ -117,12 +117,12 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Sanguine Ruby");
 			Tooltip.SetDefault("You are a horrible person.\ndisplaycharge");
-			id = item.type;
+			id = Item.type;
 		}
 		public override void SetDefaults() {
-			item.CloneDefaults(ItemID.LargeRuby);
-			item.color = new Color(255, 200, 200);
-			item.rare = ItemRarityID.Purple;
+			Item.CloneDefaults(ItemID.LargeRuby);
+			Item.color = new Color(255, 200, 200);
+			Item.rare = ItemRarityID.Purple;
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			for(int i = 1; i < tooltips.Count; i++) {
@@ -138,8 +138,8 @@ namespace EpikV2.Items {
 				epikPlayer.sacrifice = 0;
 				charge++;
 				if(charge>=3) {
-					item.type = SanguineMaterial.id;
-					item.SetDefaults(item.type);
+					Item.type = SanguineMaterial.id;
+					Item.SetDefaults(Item.type);
 				}
 			}
 		}
@@ -152,12 +152,12 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Radiant Diamond");
 			Tooltip.SetDefault("");
-			id = item.type;
+			id = Item.type;
 		}
 		public override void SetDefaults() {
-			item.CloneDefaults(ItemID.LargeDiamond);
-			item.color = new Color(255, 255, 255, 0);
-			item.rare = ItemRarityID.Purple;
+			Item.CloneDefaults(ItemID.LargeDiamond);
+			Item.color = new Color(255, 255, 255, 0);
+			Item.rare = ItemRarityID.Purple;
 		}
 		public override void UpdateInventory(Player player) {
 			player.GetModPlayer<EpikPlayer>().chargedDiamond = true;
@@ -177,9 +177,9 @@ namespace EpikV2.Items {
 				if (player.statMana == player.statManaMax2) {
 					manaCost += 1;
 				}
-				if (!player.CheckMana(item, manaCost, true, false)) {
-					item.type = ItemID.LargeDiamond;
-					item.SetDefaults(item.type);
+				if (!player.CheckMana(Item, manaCost, true, false)) {
+					Item.type = ItemID.LargeDiamond;
+					Item.SetDefaults(Item.type);
 				}
 			}
 			time++;
@@ -191,13 +191,13 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("");
 		}
 		public override void SetDefaults() {
-			item.CloneDefaults(ItemID.PsychoKnife);
-			item.melee = false;
-			item.useTime = 15;
-			item.useAnimation = 15;
-			item.damage = 150;
-			item.knockBack = 0;
-			item.scale = 0.8f;
+			Item.CloneDefaults(ItemID.PsychoKnife);
+			Item.melee = false;
+			Item.useTime = 15;
+			Item.useAnimation = 15;
+			Item.damage = 150;
+			Item.knockBack = 0;
+			Item.scale = 0.8f;
 		}
 		public override bool? CanHitNPC(Player player, NPC target) {
 			return true;
@@ -237,7 +237,7 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("");
 		}
 		public override void SetDefaults() {
-			item.CloneDefaults(ItemID.GolemTrophy);
+			Item.CloneDefaults(ItemID.GolemTrophy);
 		}
 
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
@@ -251,7 +251,7 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("");
 		}
 		public override void SetDefaults() {
-			item.CloneDefaults(ItemID.GolemTrophy);
+			Item.CloneDefaults(ItemID.GolemTrophy);
 		}
 
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {

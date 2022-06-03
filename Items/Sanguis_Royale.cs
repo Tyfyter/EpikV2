@@ -17,26 +17,26 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Sanguis Royale");
 			Tooltip.SetDefault("");
-            Item.staff[item.type] = true;
+            Item.staff[Item.type] = true;
 		}
         public override void SetDefaults(){
-            item.damage = 78;
-            item.magic = true;
-            item.noMelee = true;
-            item.mana = 18;
-            item.shoot = ProjectileType<Sanguis_Royale_P>();
-            item.shootSpeed = 0f;
-            item.useTime = item.useAnimation = 18;
-            item.useStyle = 5;
-            item.width = 12;
-            item.height = 10;
-            item.value = 10000;
-            item.rare = ItemRarityID.Purple;
-            item.shootSpeed = 5.5f;
-            item.UseSound = SoundID.Item8;
+            Item.damage = 78;
+            Item.magic = true;
+            Item.noMelee = true;
+            Item.mana = 18;
+            Item.shoot = ProjectileType<Sanguis_Royale_P>();
+            Item.shootSpeed = 0f;
+            Item.useTime = Item.useAnimation = 18;
+            Item.useStyle = 5;
+            Item.width = 12;
+            Item.height = 10;
+            Item.value = 10000;
+            Item.rare = ItemRarityID.Purple;
+            Item.shootSpeed = 5.5f;
+            Item.UseSound = SoundID.Item8;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            ModRecipe recipe = new ModRecipe(Mod);
             recipe.AddIngredient(SanguineMaterial.id);
             recipe.AddTile(TileID.DemonAltar);
             recipe.SetResult(this);
@@ -47,13 +47,13 @@ namespace EpikV2.Items {
         }
         public override bool CanUseItem(Player player) {
             if(player.altFunctionUse == 2) {
-                item.shoot = ProjectileType<Sanguis_Royale_Grab>();
-                item.channel = true;
-                item.mana = 5;
+                Item.shoot = ProjectileType<Sanguis_Royale_Grab>();
+                Item.channel = true;
+                Item.mana = 5;
             }else{
-                item.shoot = ProjectileType<Sanguis_Royale_P>();
-                item.channel = false;
-                item.mana = 18;
+                Item.shoot = ProjectileType<Sanguis_Royale_P>();
+                Item.channel = false;
+                Item.mana = 18;
             }
             return true;
         }
@@ -64,25 +64,25 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Sanguis Royale");
 		}
         public override void SetDefaults() {
-            projectile.aiStyle = 0;//48;
-            projectile.width = 10;       //projectile width
-            projectile.height = 10;  //projectile height
-            projectile.friendly = true;      //make that the projectile will not damage you
-            projectile.magic = true;         //
-            projectile.tileCollide = true;
-            projectile.penetrate = -1;      //how many npc will penetrate
-            projectile.timeLeft = 150;
+            Projectile.aiStyle = 0;//48;
+            Projectile.width = 10;       //projectile width
+            Projectile.height = 10;  //projectile height
+            Projectile.friendly = true;      //make that the projectile will not damage you
+            Projectile.magic = true;         //
+            Projectile.tileCollide = true;
+            Projectile.penetrate = -1;      //how many npc will penetrate
+            Projectile.timeLeft = 150;
             //projectile.light = 0.75f;
-            projectile.ignoreWater = true;
-            projectile.extraUpdates = 150;
-            projectile.usesLocalNPCImmunity = true;
-            projectile.localNPCHitCooldown = 3;
+            Projectile.ignoreWater = true;
+            Projectile.extraUpdates = 150;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 3;
         }
         public override void AI() {
-            projectile.rotation = (float)Math.Atan2(projectile.velocity.Y, projectile.velocity.X) + 1.57f;
+            Projectile.rotation = (float)Math.Atan2(Projectile.velocity.Y, Projectile.velocity.X) + 1.57f;
             Dust dust;
             for (int i = 0; i < 1; i++) {
-                dust = Dust.NewDustPerfect(projectile.Center, 60);
+                dust = Dust.NewDustPerfect(Projectile.Center, 60);
                 dust.shader = GameShaders.Armor.GetShaderFromItemId(ItemID.GrimDye);
                 dust.noGravity = true;
             }
@@ -93,9 +93,9 @@ namespace EpikV2.Items {
             damage+=(int)Math.Max((35-target.defense)*(2+bonus), 0);
         }
         public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
-            target.immune[projectile.owner] = 0;
+            target.immune[Projectile.owner] = 0;
             for(int i = -2; i < 6; i++) {
-                Dust.NewDustPerfect(projectile.Center+(projectile.velocity.SafeNormalize(default)*(i*2)), DustID.Blood);
+                Dust.NewDustPerfect(Projectile.Center+(Projectile.velocity.SafeNormalize(default)*(i*2)), DustID.Blood);
             }
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
@@ -110,23 +110,23 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Sanguis Royale");
 		}
         public override void SetDefaults() {
-            projectile.aiStyle = 0;//48;
-            projectile.width = 10;       //projectile width
-            projectile.height = 10;  //projectile height
-            projectile.friendly = true;      //make that the projectile will not damage you
-            projectile.magic = true;         //
-            projectile.tileCollide = false;
-            projectile.penetrate = -1;      //how many npc will penetrate
-            projectile.timeLeft = 15;
+            Projectile.aiStyle = 0;//48;
+            Projectile.width = 10;       //projectile width
+            Projectile.height = 10;  //projectile height
+            Projectile.friendly = true;      //make that the projectile will not damage you
+            Projectile.magic = true;         //
+            Projectile.tileCollide = false;
+            Projectile.penetrate = -1;      //how many npc will penetrate
+            Projectile.timeLeft = 15;
             //projectile.light = 0.75f;
-            projectile.ignoreWater = true;
-            projectile.extraUpdates = 0;
-            projectile.usesLocalNPCImmunity = true;
-            projectile.localNPCHitCooldown = 5;
+            Projectile.ignoreWater = true;
+            Projectile.extraUpdates = 0;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 5;
         }
         public override void AI() {
-            if(Main.myPlayer == projectile.owner) {
-                projectile.Center = Main.MouseWorld;
+            if(Main.myPlayer == Projectile.owner) {
+                Projectile.Center = Main.MouseWorld;
                 Player player = Main.LocalPlayer;
                 if(player.controlUseTile) {
                     player.itemTime = 3;
@@ -134,17 +134,17 @@ namespace EpikV2.Items {
                     player.channel = true;
                 }
                 if(player.channel) {
-                    player.direction = (projectile.Center.X>player.MountedCenter.X) ? 1 : -1;
-                    player.itemRotation = (player.MountedCenter-projectile.Center).ToRotation()+(player.direction>0?MathHelper.Pi:0);
+                    player.direction = (Projectile.Center.X>player.MountedCenter.X) ? 1 : -1;
+                    player.itemRotation = (player.MountedCenter-Projectile.Center).ToRotation()+(player.direction>0?MathHelper.Pi:0);
                     if (player.manaRegenDelay < 2) player.manaRegenDelay = 2;
-                    if (projectile.timeLeft<2) {
-                        if(player.CheckMana(player.HeldItem.mana, true))projectile.timeLeft = 8;
+                    if (Projectile.timeLeft<2) {
+                        if(player.CheckMana(player.HeldItem.mana, true))Projectile.timeLeft = 8;
                     }
                 }
             }
             Dust dust;
             for (int i = 0; i < 2; i++) {
-                dust = Dust.NewDustPerfect(projectile.Center, 60);
+                dust = Dust.NewDustPerfect(Projectile.Center, 60);
                 dust.shader = GameShaders.Armor.GetShaderFromItemId(ItemID.GrimDye);
                 dust.noGravity = true;
             }
@@ -154,7 +154,7 @@ namespace EpikV2.Items {
                 EpikGlobalNPC EGN = npc.GetGlobalNPC<EpikGlobalNPC>();
                 EGN.freeze = true;
                 if(EGN.crushTime==0)EGN.crushTime = -8;
-                Vector2 velocity = projectile.Center-npc.Center;
+                Vector2 velocity = Projectile.Center-npc.Center;
                 velocity = velocity.SafeNormalize(default)*Math.Min(velocity.Length(), 80f);
                 npc.velocity = Vector2.Lerp(velocity,npc.velocity,0.7f);
                 /*float acc = (npc.velocity-npc.oldVelocity).Length();

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static EpikV2.EpikExtensions;
@@ -13,9 +14,9 @@ using Terraria.DataStructures;
 namespace EpikV2.Items {
 	public class Rope_Hook : ModItem {
 		public override void SetDefaults() {
-            item.CloneDefaults(ItemID.AmethystHook);
-			item.shootSpeed = 25f;
-            item.shoot = ProjectileType<Rope_Hook_Projectile>();
+            Item.CloneDefaults(ItemID.AmethystHook);
+			Item.shootSpeed = 25f;
+            Item.shoot = ProjectileType<Rope_Hook_Projectile>();
 		}
 		public override void SetStaticDefaults() {
 		  DisplayName.SetDefault("Rope Hook");
@@ -24,7 +25,7 @@ namespace EpikV2.Items {
 
 
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            ModRecipe recipe = new ModRecipe(Mod);
             recipe.AddIngredient(ItemID.Hook, 1);
             recipe.AddIngredient(ItemID.RopeCoil, 1);
             recipe.AddTile(TileID.WorkBenches);
@@ -33,7 +34,7 @@ namespace EpikV2.Items {
         }
 
         public override bool CanUseItem(Player player){
-            Main.NewText(player.ownedProjectileCounts[item.shoot]);
+            Main.NewText(player.ownedProjectileCounts[Item.shoot]);
             return base.CanUseItem(player);
         }
     }
@@ -46,22 +47,22 @@ namespace EpikV2.Items {
         public float distance = rope_range;
 
         public override void SetDefaults() {
-			projectile.CloneDefaults(ProjectileID.GemHookAmethyst);
-			projectile.netImportant = true;
+			Projectile.CloneDefaults(ProjectileID.GemHookAmethyst);
+			Projectile.netImportant = true;
 		}
 
 		// Use this hook for hooks that can have multiple hooks mid-flight: Dual Hook, Web Slinger, Fish Hook, Static Hook, Lunar Hook
 		public override bool? CanUseGrapple(Player player) {
 			int hooksOut = 0;
 			for (int l = 0; l < 1000; l++) {
-				if (Main.projectile[l].active && Main.projectile[l].owner == Main.myPlayer && Main.projectile[l].type == projectile.type) {
+				if (Main.projectile[l].active && Main.projectile[l].owner == Main.myPlayer && Main.projectile[l].type == Projectile.type) {
 					hooksOut++;
 				}
 			}
             if (hooksOut > 1) {// This hook can have 1 hook out.
-                Vector2 trgtvel = player.position - projectile.position;
+                Vector2 trgtvel = player.position - Projectile.position;
                 trgtvel.Normalize();
-                Main.npc[(int)projectile.localAI[0]].velocity = -3*trgtvel;
+                Main.npc[(int)Projectile.localAI[0]].velocity = -3*trgtvel;
 				return false;
 			}
 			return true;
@@ -88,24 +89,24 @@ namespace EpikV2.Items {
 		}
 
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-            Player owner = Main.player[projectile.owner];
+            Player owner = Main.player[Projectile.owner];
 			Vector2 playerCenter = owner.MountedCenter;
-			Vector2 center = projectile.Center;
-			Vector2 distToProj = playerCenter - projectile.Center;
+			Vector2 center = Projectile.Center;
+			Vector2 distToProj = playerCenter - Projectile.Center;
 			float projRotation = distToProj.ToRotation() - 1.57f;
 			float distance = distToProj.Length();
 			distToProj.Normalize();
 			distToProj *= 8f;
             DrawData data;
-            Texture2D texture = mod.GetTexture("Items/Rope_Hook_Chain");
+            Texture2D texture = Mod.GetTexture("Items/Rope_Hook_Chain");
 			while (distance > 8f && !float.IsNaN(distance)) {
 				center += distToProj;
 				distance = (playerCenter - center).Length();
 				Color drawColor = lightColor;
 
                 data = new DrawData(texture, center - Main.screenPosition,
-					new Rectangle(0, 0, Main.chain30Texture.Width, Main.chain30Texture.Height), drawColor, projRotation,
-					new Vector2(Main.chain30Texture.Width * 0.5f, Main.chain30Texture.Height * 0.5f), new Vector2(0.75f,1), SpriteEffects.None, 0);
+					new Rectangle(0, 0, TextureAssets.Chain30.Value.Width, TextureAssets.Chain30.Value.Height), drawColor, projRotation,
+					new Vector2(TextureAssets.Chain30.Value.Width * 0.5f, TextureAssets.Chain30.Value.Height * 0.5f), new Vector2(0.75f,1), SpriteEffects.None, 0);
                 data.shader = owner.cGrapple;
                 data.Draw(spriteBatch);
             }
@@ -116,17 +117,17 @@ namespace EpikV2.Items {
             //projectile.aiStyle = 1;
         }*/
         public override void PostAI() {
-            if(projectile.ai[0] != 2f)return;
-            Player player = Main.player[projectile.owner];
-            if(projectile.ai[1] == 0f) {
-                distance = (projectile.Center-player.MountedCenter).Length();
-                projectile.ai[1] = 1f;
+            if(Projectile.ai[0] != 2f)return;
+            Player player = Main.player[Projectile.owner];
+            if(Projectile.ai[1] == 0f) {
+                distance = (Projectile.Center-player.MountedCenter).Length();
+                Projectile.ai[1] = 1f;
             }
             player.grappling[--player.grapCount] = -1;
             if(player.whoAmI==Main.myPlayer) {
-                if(Terraria.GameInput.PlayerInput.Triggers.JustPressed.Jump)projectile.Kill();
+                if(Terraria.GameInput.PlayerInput.Triggers.JustPressed.Jump)Projectile.Kill();
             }
-            player.GetModPlayer<EpikPlayer>().ropeTarg = projectile.whoAmI;
+            player.GetModPlayer<EpikPlayer>().ropeTarg = Projectile.whoAmI;
             /*
             float speed = player.velocity.Length();
             Vector2 displacement = ropeTarg-player.MountedCenter;

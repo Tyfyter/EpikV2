@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
@@ -13,23 +15,23 @@ namespace EpikV2.Items {
     public class Solweaver : ModItem {
 
         public override void SetDefaults(){
-            item.damage = 80;
-            item.magic = true;
-            item.mana = 6;
-            item.shoot = ProjectileType<Solweaver_Beam>();
-            item.shootSpeed = 0f;
-            item.useTime = item.useAnimation = 40;
-            item.useStyle = 5;
-            item.noUseGraphic = true;
-            item.width = 12;
-            item.height = 10;
-            item.value = 10000;
-            item.rare = ItemRarityID.Purple;
-            item.channel = true;
-            item.UseSound = SoundID.Item20;
+            Item.damage = 80;
+            Item.magic = true;
+            Item.mana = 6;
+            Item.shoot = ProjectileType<Solweaver_Beam>();
+            Item.shootSpeed = 0f;
+            Item.useTime = Item.useAnimation = 40;
+            Item.useStyle = 5;
+            Item.noUseGraphic = true;
+            Item.width = 12;
+            Item.height = 10;
+            Item.value = 10000;
+            Item.rare = ItemRarityID.Purple;
+            Item.channel = true;
+            Item.UseSound = SoundID.Item20;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            ModRecipe recipe = new ModRecipe(Mod);
             recipe.AddIngredient(SunstoneMaterial.id);
             recipe.AddTile(TileID.DemonAltar);
             recipe.SetResult(this);
@@ -49,13 +51,13 @@ namespace EpikV2.Items {
         }
 		public override bool CanUseItem(Player player) {
             if(player.altFunctionUse == 2) {
-                item.shoot = ProjectileType<Solweaver_Blast>();
-                item.channel = false;
-                item.mana = 30;
+                Item.shoot = ProjectileType<Solweaver_Blast>();
+                Item.channel = false;
+                Item.mana = 30;
             }else{
-                item.shoot = ProjectileType<Solweaver_Beam>();
-                item.channel = true;
-                item.mana = 6;
+                Item.shoot = ProjectileType<Solweaver_Beam>();
+                Item.channel = true;
+                Item.mana = 6;
             }
             return true;
         }
@@ -63,13 +65,13 @@ namespace EpikV2.Items {
     public class Solweaver_Beam : ModProjectile {
         private Vector2 _targetPos;
         public override void SetDefaults() {
-            projectile.width = 10;
-            projectile.height = 10;
-            projectile.friendly = true;
-            projectile.penetrate = -1;
-            projectile.tileCollide = false;
-            projectile.magic = true;
-            projectile.timeLeft = 25;
+            Projectile.width = 10;
+            Projectile.height = 10;
+            Projectile.friendly = true;
+            Projectile.penetrate = -1;
+            Projectile.tileCollide = false;
+            Projectile.magic = true;
+            Projectile.timeLeft = 25;
             //projectile.hide = true;
         }
 		public override void SetStaticDefaults() {
@@ -83,9 +85,9 @@ namespace EpikV2.Items {
         }
 
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-            Vector2 unit = _targetPos - projectile.Center;
+            Vector2 unit = _targetPos - Projectile.Center;
             unit.Normalize();
-            DrawLaser(spriteBatch, Main.projectileTexture[projectile.type], projectile.Center, unit, 1, new Vector2(1f,0.55f), maxDist:(_targetPos-projectile.Center).Length());
+            DrawLaser(spriteBatch, TextureAssets.Projectile[Projectile.type].Value, Projectile.Center, unit, 1, new Vector2(1f,0.55f), maxDist:(_targetPos-Projectile.Center).Length());
             return false;
 
         }
@@ -102,7 +104,7 @@ namespace EpikV2.Items {
             float maxl = (_targetPos-start).Length();
             float r = unit.ToRotation();// + rotation??(float)(Math.PI/2);
             float l = unit.Length();//*2.5f;
-            int t = projectile.timeLeft>10?25-projectile.timeLeft:projectile.timeLeft;
+            int t = Projectile.timeLeft>10?25-Projectile.timeLeft:Projectile.timeLeft;
             float s = Math.Min(t/15f,1f);
             Vector2 perpUnit = unit.RotatedBy(MathHelper.PiOver2);
             //Dust dust;
@@ -168,7 +170,7 @@ namespace EpikV2.Items {
         }
 
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-            int t = projectile.timeLeft>10?25-projectile.timeLeft:projectile.timeLeft;
+            int t = Projectile.timeLeft>10?25-Projectile.timeLeft:Projectile.timeLeft;
             damage = (int)(damage*Math.Min(t/15f,1f));
         }
 
@@ -176,8 +178,8 @@ namespace EpikV2.Items {
         /// Change the way of collision check of the projectile
         /// </summary>
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
-            Player p = Main.player[projectile.owner];
-            Vector2 unit = (Main.player[projectile.owner].MountedCenter - _targetPos);
+            Player p = Main.player[Projectile.owner];
+            Vector2 unit = (Main.player[Projectile.owner].MountedCenter - _targetPos);
             unit.Normalize();
             float point = 0f;
             return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), p.Center - 45f * unit, _targetPos, 24, ref point);
@@ -191,38 +193,38 @@ namespace EpikV2.Items {
         public override void AI() {
 
             Vector2 mousePos = Main.MouseWorld;
-            Player player = Main.player[projectile.owner];
+            Player player = Main.player[Projectile.owner];
 
             #region Set projectile position
-            if (projectile.owner == Main.myPlayer){
+            if (Projectile.owner == Main.myPlayer){
                 Vector2 diff = mousePos - player.MountedCenter;
                 diff.Normalize();
-                projectile.position = player.MountedCenter + diff * 16 - new Vector2(4,0);
-                int dir = projectile.position.X > player.position.X ? 1 : -1;
+                Projectile.position = player.MountedCenter + diff * 16 - new Vector2(4,0);
+                int dir = Projectile.position.X > player.position.X ? 1 : -1;
                 player.ChangeDir(dir);
-                player.heldProj = projectile.whoAmI;
-                if(projectile.timeLeft>10&&projectile.timeLeft<15) {
-                    projectile.timeLeft = 14;
+                player.heldProj = Projectile.whoAmI;
+                if(Projectile.timeLeft>10&&Projectile.timeLeft<15) {
+                    Projectile.timeLeft = 14;
                     player.itemTime = 2;
                     player.itemAnimation = 2;
 					if(player.manaRegenDelay < 10) player.manaRegenDelay = 10;
                 }
                 player.itemRotation = (float)Math.Atan2(diff.Y * dir, diff.X * dir);
-                projectile.soundDelay--;
+                Projectile.soundDelay--;
                 #endregion
             }
 
 
-            if ((!player.channel || (Main.GameUpdateCount % 5 == 0 && !player.CheckMana(player.inventory[player.selectedItem].mana, true)))&&projectile.timeLeft>10){
-                projectile.timeLeft = 10;
+            if ((!player.channel || (Main.GameUpdateCount % 5 == 0 && !player.CheckMana(player.inventory[player.selectedItem].mana, true)))&&Projectile.timeLeft>10){
+                Projectile.timeLeft = 10;
             }
 
-            if (projectile.soundDelay <= 0){
-                Main.PlaySound(SoundID.Item, (int)projectile.Center.X, (int)projectile.Center.Y, 20);
-                projectile.soundDelay = 30;
+            if (Projectile.soundDelay <= 0){
+                SoundEngine.PlaySound(SoundID.Item, (int)Projectile.Center.X, (int)Projectile.Center.Y, 20);
+                Projectile.soundDelay = 30;
             }
 
-            Vector2 start = projectile.Center;
+            Vector2 start = Projectile.Center;
             Vector2 unit = mousePos - player.MountedCenter;
             unit.Normalize();
 #region old tile collision
@@ -245,21 +247,21 @@ namespace EpikV2.Items {
             _targetPos = lastpos;//player.MountedCenter + unit * dist;
             */
 #endregion
-            Vector2 samplingPoint = projectile.Center;
+            Vector2 samplingPoint = Projectile.Center;
 
 			// Overriding that, if the player shoves the Prism into or through a wall, the interpolation starts at the player's center.
 			// This last part prevents the player from projecting beams through walls under any circumstances.
-			if (!Collision.CanHitLine(player.Center, 0, 0, projectile.Center, 0, 0)) {
+			if (!Collision.CanHitLine(player.Center, 0, 0, Projectile.Center, 0, 0)) {
 				samplingPoint = player.Center;
 			}
             float[] laserScanResults = new float[sample_points];
-			Collision.LaserScan(samplingPoint, unit, collision_size * projectile.scale, 1200f, laserScanResults);
+			Collision.LaserScan(samplingPoint, unit, collision_size * Projectile.scale, 1200f, laserScanResults);
 			float averageLengthSample = 0f;
 			for (int i = 0; i < laserScanResults.Length; ++i) {
 				averageLengthSample += laserScanResults[i];
 			}
 			averageLengthSample /= sample_points;
-            _targetPos = projectile.Center + (unit*averageLengthSample);
+            _targetPos = Projectile.Center + (unit*averageLengthSample);
 
             //dust
             /*for (int i = 0; i < 15; ++i) {
@@ -305,17 +307,17 @@ namespace EpikV2.Items {
         const int duration = 15;
         const float range_growth = 10f;
         public override void SetDefaults() {
-            projectile.width = projectile.height = 1;
-            projectile.magic = true;
-            projectile.friendly = true;
-            projectile.hostile = false;
-            projectile.tileCollide = false;
-            projectile.timeLeft = duration;
-            projectile.extraUpdates = 3;
-            projectile.ignoreWater = true;
-            projectile.penetrate = 15;
-            projectile.usesLocalNPCImmunity = true;
-            projectile.localNPCHitCooldown = 90;
+            Projectile.width = Projectile.height = 1;
+            Projectile.magic = true;
+            Projectile.friendly = true;
+            Projectile.hostile = false;
+            Projectile.tileCollide = false;
+            Projectile.timeLeft = duration;
+            Projectile.extraUpdates = 3;
+            Projectile.ignoreWater = true;
+            Projectile.penetrate = 15;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 90;
         }
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Solweaver");
@@ -323,10 +325,10 @@ namespace EpikV2.Items {
         public override void AI() {
             Vector2 velocity;
             for(int y = 0; y < 60; y++) {
-                velocity = new Vector2((duration-projectile.timeLeft)*range_growth, 0).RotatedBy(MathHelper.ToRadians(y*6-projectile.timeLeft));
+                velocity = new Vector2((duration-Projectile.timeLeft)*range_growth, 0).RotatedBy(MathHelper.ToRadians(y*6-Projectile.timeLeft));
                 //Point pos = (projectile.Center+velocity).ToWorldCoordinates().ToPoint();
                 //if(Main.tile[pos.X,pos.Y].collisionType<=0)continue;
-                Dust d = Dust.NewDustPerfect(projectile.Center+velocity, 267, null, 0, Color.OrangeRed, 0.6f);
+                Dust d = Dust.NewDustPerfect(Projectile.Center+velocity, 267, null, 0, Color.OrangeRed, 0.6f);
                 velocity.Normalize();
                 d.velocity = (velocity+velocity.RotatedBy(-MathHelper.PiOver2)*3f)*range_growth/4f;
                 //d.position -= d.velocity * 8;
@@ -339,19 +341,19 @@ namespace EpikV2.Items {
             target.AddBuff(BuffID.BetsysCurse, 240);
         }
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
-            Vector2 pos = Vector2.Clamp(projectile.Center, targetHitbox.TopLeft(), targetHitbox.BottomRight());
-            float dist = (duration-projectile.timeLeft)*range_growth;
+            Vector2 pos = Vector2.Clamp(Projectile.Center, targetHitbox.TopLeft(), targetHitbox.BottomRight());
+            float dist = (duration-Projectile.timeLeft)*range_growth;
             Vector2 target = targetHitbox.Center.ToVector2();
-            if((pos-projectile.Center).Length()<=dist && ((pos-target-target)-projectile.Center).Length()>=dist) {
+            if((pos-Projectile.Center).Length()<=dist && ((pos-target-target)-Projectile.Center).Length()>=dist) {
                 return true;
             }
             return false;
         }
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
-            hitDirection = target.Center.X<projectile.Center.X ? -1 : 1;
-            Vector2 pos = Vector2.Clamp(projectile.Center, target.Hitbox.TopLeft(), target.Hitbox.BottomRight());
+            hitDirection = target.Center.X<Projectile.Center.X ? -1 : 1;
+            Vector2 pos = Vector2.Clamp(Projectile.Center, target.Hitbox.TopLeft(), target.Hitbox.BottomRight());
             float dist = duration*range_growth;
-            damage = (int)(damage/(Math.Max((pos-projectile.Center).Length(),1)/dist));
+            damage = (int)(damage/(Math.Max((pos-Projectile.Center).Length(),1)/dist));
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
             return false;

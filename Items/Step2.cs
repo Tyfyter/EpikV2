@@ -16,11 +16,11 @@ namespace EpikV2.Items
 		}
 
 		public override void SetDefaults() {
-			item.width = 170;
-			item.height = 126;
-			item.value = 10000;
-			item.rare = ItemRarityID.Green;
-			item.accessory = true;
+			Item.width = 170;
+			Item.height = 126;
+			Item.value = 10000;
+			Item.rare = ItemRarityID.Green;
+			Item.accessory = true;
 		}
         public override void UpdateAccessory(Player player, bool hideVisual) {
             player.ignoreWater = true;

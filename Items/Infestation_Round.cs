@@ -13,25 +13,25 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("Cultivate a plague.\nCan't crit");
 		}
 		public override void SetDefaults() {
-			item.damage = 20;
-			item.crit = -4;
-			item.width = 12;
-			item.height = 12;
-			item.useStyle = 0;
-			item.knockBack = 1;
-			item.value = 25000;
-			item.rare = ItemRarityID.Lime;
-			item.maxStack = 999;
-			item.UseSound = SoundID.Item1;
-			item.consumable = true;
-			item.ammo = AmmoID.Bullet;
-			item.shoot = ModContent.ProjectileType<Shroom_Shot>();
-			item.shootSpeed = 4f;
+			Item.damage = 20;
+			Item.crit = -4;
+			Item.width = 12;
+			Item.height = 12;
+			Item.useStyle = 0;
+			Item.knockBack = 1;
+			Item.value = 25000;
+			Item.rare = ItemRarityID.Lime;
+			Item.maxStack = 999;
+			Item.UseSound = SoundID.Item1;
+			Item.consumable = true;
+			Item.ammo = AmmoID.Bullet;
+			Item.shoot = ModContent.ProjectileType<Shroom_Shot>();
+			Item.shootSpeed = 4f;
 		}
 
 		public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(mod);
-			recipe = new ModRecipe(mod);
+			ModRecipe recipe = new ModRecipe(Mod);
+			recipe = new ModRecipe(Mod);
 			recipe.AddIngredient(ItemID.ShroomiteBar, 1);
 			recipe.AddIngredient(ItemID.SilverBullet, 70);
 			recipe.AddTile(TileID.Autohammer);
@@ -45,14 +45,14 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("Never run out of plague.\nCan't crit");
 		}
 		public override void SetDefaults() {
-			item.CloneDefaults(ModContent.ItemType<Infestation_Round>());
-			item.width = 26;
-			item.height = 34;
-            item.consumable = false;
+			Item.CloneDefaults(ModContent.ItemType<Infestation_Round>());
+			Item.width = 26;
+			Item.height = 34;
+            Item.consumable = false;
 		}
 
 		public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(mod);
+			ModRecipe recipe = new ModRecipe(Mod);
 			recipe.AddIngredient(ModContent.ItemType<Infestation_Round>(), 3996);
 			recipe.AddTile(TileID.Autohammer);
 			recipe.SetResult(this, 1);

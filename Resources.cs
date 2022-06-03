@@ -19,21 +19,21 @@ namespace EpikV2 {
         public static ShaderCache Shaders { get; internal set; }
         public class TextureCache {
             public TextureCache() {
-                pixelTexture = GetTexture("EpikV2/Textures/Pixel");
-                distTestTexture0 = GetTexture("EpikV2/Textures/40x40");
-                distTestTexture1 = GetTexture("EpikV2/Textures/40x40Dist");
+                pixelTexture = Request<Texture2D>("EpikV2/Textures/Pixel").Value;
+                distTestTexture0 = Request<Texture2D>("EpikV2/Textures/40x40").Value;
+                distTestTexture1 = Request<Texture2D>("EpikV2/Textures/40x40Dist").Value;
                 ExtraHeadTextures = new List<ExtraTexture> {
-                    new ExtraTexture(GetTexture("EpikV2/Items/Machiavellian_Masquerade_Head_Overlay"),
+                    new ExtraTexture(Request<Texture2D>("EpikV2/Items/Machiavellian_Masquerade_Head_Overlay").Value,
                         GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveGoldDye)),
 
-                    new ExtraTexture(GetTexture("EpikV2/Items/Machiavellian_Masquerade_Head"))
+                    new ExtraTexture(Request<Texture2D>("EpikV2/Items/Machiavellian_Masquerade_Head").Value)
                 };
                 ExtraNeckTextures = new List<ExtraTexture> {
-                    new ExtraTexture(GetTexture("EpikV2/Items/Worm_Tooth_Torc_Neck_Flame"),
+                    new ExtraTexture(Request<Texture2D>("EpikV2/Items/Worm_Tooth_Torc_Neck_Flame").Value,
                         GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Cursed_Hades_Dye>()),
                         TextureFlags.FullBright),
 
-                    new ExtraTexture(GetTexture("EpikV2/Items/Ichor_Riviere_Neck"),
+                    new ExtraTexture(Request<Texture2D>("EpikV2/Items/Ichor_Riviere_Neck").Value,
                         GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Ichor_Dye>()),
                         TextureFlags.FullBright | TextureFlags.CancelIfShaded)
                 };
@@ -46,8 +46,8 @@ namespace EpikV2 {
             public Texture2D BreakpointGlow;
             Texture2D breakpointArrowGlow;
             Texture2D moonlaceTrailTexture;
-            public Texture2D BreakpointArrowGlow => breakpointArrowGlow??(breakpointArrowGlow = GetTexture("EpikV2/Items/Breakpoint_Arrow_Glowmask"));
-            public Texture2D MoonlaceTrailTexture => moonlaceTrailTexture ?? (moonlaceTrailTexture = GetTexture("EpikV2/Dusts/Moonlight_Trail"));
+            public Texture2D BreakpointArrowGlow => breakpointArrowGlow??(breakpointArrowGlow = Request<Texture2D>("EpikV2/Items/Breakpoint_Arrow_Glowmask").Value);
+            public Texture2D MoonlaceTrailTexture => moonlaceTrailTexture ?? (moonlaceTrailTexture = Request<Texture2D>("EpikV2/Dusts/Moonlight_Trail").Value);
         }
         public struct ExtraTexture {
             public readonly Texture2D texture;
@@ -69,36 +69,36 @@ namespace EpikV2 {
             public List<InvalidArmorShader> InvalidArmorShaders { get; private set; }
             public ShaderCache() {
                 EpikV2 mod = EpikV2.instance;
-                jadeShader = mod.GetEffect("Effects/Jade");
-                blurShader = mod.GetEffect("Effects/Blur");
-                fadeShader = mod.GetEffect("Effects/Fade");
+                jadeShader = mod.Assets.Request<Effect>("Effects/Jade").Value;
+                blurShader = mod.Assets.Request<Effect>("Effects/Blur").Value;
+                fadeShader = mod.Assets.Request<Effect>("Effects/Fade").Value;
 
-                jadeDyeShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "JadeConst");
-                fireDyeShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Firewave")), "Firewave");
-                fireMiscShader = new MiscShaderData(new Ref<Effect>(mod.GetEffect("Effects/Firewave")), "Firewave");
-                starlightShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Starlight")), "Starlight");
-                dimStarlightShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "Starlight");
-                brightStarlightShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "BrightStarlight");
+                jadeDyeShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "JadeConst");
+                fireDyeShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Firewave", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "Firewave");
+                fireMiscShader = new MiscShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Firewave", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "Firewave");
+                starlightShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Starlight", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "Starlight");
+                dimStarlightShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "Starlight");
+                brightStarlightShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "BrightStarlight");
 
-                nebulaShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Nebula")), "Nebula");
-                nebulaDistortionTexture = mod.GetTexture("Textures/Starry_Noise");
+                nebulaShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Nebula", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "Nebula");
+                nebulaDistortionTexture = mod.Assets.Request<Texture2D>("Textures/Starry_Noise").Value;
                 nebulaShader.UseNonVanillaImage(nebulaDistortionTexture);
 
-                retroShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "Retro");
+                retroShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "Retro");
                 retroShader.UseOpacity(0.75f);
                 retroShader.UseSaturation(0.65f);
 
-                retroShaderRed = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "Retro");
+                retroShaderRed = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "Retro");
                 retroShaderRed.UseOpacity(-0.25f);
                 retroShaderRed.UseSaturation(-0.5f);
 
-                distortMiscShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Distort")), "Distort");
-                testDistortionTexture = mod.GetTexture("Textures/40x40Dist");
+                distortMiscShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Distort", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "Distort");
+                testDistortionTexture = mod.Assets.Request<Texture2D>("Textures/40x40Dist").Value;
                 distortMiscShader.UseNonVanillaImage(testDistortionTexture);
 
-                laserBowOverlayShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/LaserBow")), "LaserBow");
-                chimeraShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "Chimerebos");
-                opaqueChimeraShader = new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "ChimerebosOpaque");
+                laserBowOverlayShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/LaserBow", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "LaserBow");
+                chimeraShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "Chimerebos");
+                opaqueChimeraShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "ChimerebosOpaque");
 
                 GameShaders.Armor.BindShader(ItemType<Jade_Dye>(), jadeDyeShader);
                 GameShaders.Armor.BindShader(ItemType<Heatwave_Dye>(), fireDyeShader);
@@ -109,7 +109,7 @@ namespace EpikV2 {
                 GameShaders.Armor.BindShader(ItemType<Retro_Dye>(), retroShader);
                 GameShaders.Armor.BindShader(ItemType<Red_Retro_Dye>(), retroShaderRed);
 
-                GameShaders.Armor.BindShader(ItemType<GPS_Dye>(), new GPSArmorShaderData(new Ref<Effect>(EpikV2.instance.GetEffect("Effects/GPS")), "GPS"));
+                GameShaders.Armor.BindShader(ItemType<GPS_Dye>(), new GPSArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/GPS", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "GPS"));
 
                 EpikV2.starlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Starlight_Dye>());
                 EpikV2.dimStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Dim_Starlight_Dye>());
@@ -119,7 +119,7 @@ namespace EpikV2 {
                 GameShaders.Armor.BindShader(ItemType<GraphicsDebugger>(), distortMiscShader);
                 EpikV2.distortShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<GraphicsDebugger>());
 
-                EpikV2.alphaMapShader = new ArmorShaderData(new Ref<Effect>(EpikV2.instance.GetEffect("Effects/Armor")), "AlphaMap");
+                EpikV2.alphaMapShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "AlphaMap");
                 GameShaders.Armor.BindShader(ItemType<Chroma_Dummy_Dye>(), EpikV2.alphaMapShader);
                 EpikV2.alphaMapShaderID = ItemType<Chroma_Dummy_Dye>();
 
@@ -140,13 +140,13 @@ namespace EpikV2 {
                 GameShaders.Armor.BindShader(ItemType<Opaque_Chimera_Dye>(), opaqueChimeraShader);
                 EpikV2.opaqueChimeraShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Opaque_Chimera_Dye>());
 
-                GameShaders.Armor.BindShader(ItemType<Inverted_Chimera_Dye>(), new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "ChimerebosInverted"));
+                GameShaders.Armor.BindShader(ItemType<Inverted_Chimera_Dye>(), new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "ChimerebosInverted"));
                 int invertedChimeraShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Inverted_Chimera_Dye>());
 
-                GameShaders.Armor.BindShader(ItemType<Opaque_Inverted_Chimera_Dye>(), new ArmorShaderData(new Ref<Effect>(mod.GetEffect("Effects/Armor")), "ChimerebosInvertedOpaque"));
+                GameShaders.Armor.BindShader(ItemType<Opaque_Inverted_Chimera_Dye>(), new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "ChimerebosInvertedOpaque"));
                 int opaqueInvertedChimeraShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Opaque_Inverted_Chimera_Dye>());
 
-                Filters.Scene["EpikV2:LSD"] = new Filter(new ScreenShaderData(new Ref<Effect>(mod.GetEffect("Effects/LSD")), EpikClientConfig.Instance.reduceJitter ? "LessD" : "LSD"), EffectPriority.High);
+                Filters.Scene["EpikV2:LSD"] = new Filter(new ScreenShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/LSD", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), EpikClientConfig.Instance.reduceJitter ? "LessD" : "LSD"), EffectPriority.High);
 
                 InvalidArmorShaders = new List<InvalidArmorShader> {
                     new InvalidArmorShader(EpikV2.starlightShaderID, EpikV2.dimStarlightShaderID),

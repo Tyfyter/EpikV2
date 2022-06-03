@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EpikV2.Projectiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -19,23 +19,23 @@ namespace EpikV2.Items
 		public override void SetDefaults()
 		{
 			//item.name = "jfdjfrbh";
-			item.damage = 50;
-			item.ranged = true;
-			item.width = 40;
-			item.height = 40;
-			item.useStyle = 0;
-			item.knockBack = 6;
-			item.value = 25000;
-			item.rare = 2;
-			item.UseSound = SoundID.Item1;
-			item.ammo = AmmoID.Bullet;
-			item.shoot = ModContent.ProjectileType<GeometryShot>();
-			item.shootSpeed = 1.25f;
+			Item.damage = 50;
+			Item.ranged = true;
+			Item.width = 40;
+			Item.height = 40;
+			Item.useStyle = 0;
+			Item.knockBack = 6;
+			Item.value = 25000;
+			Item.rare = 2;
+			Item.UseSound = SoundID.Item1;
+			Item.ammo = AmmoID.Bullet;
+			Item.shoot = ModContent.ProjectileType<GeometryShot>();
+			Item.shootSpeed = 1.25f;
 		}
 
 		public override void AddRecipes()
 		{
-			ModRecipe recipe = new ModRecipe(mod);
+			ModRecipe recipe = new ModRecipe(Mod);
 			recipe.AddIngredient(ItemID.OrichalcumBar, 10);
 			recipe.AddIngredient(ItemID.MoonlordBullet, 70);
 			recipe.AddTile(TileID.MeteoriteBrick);

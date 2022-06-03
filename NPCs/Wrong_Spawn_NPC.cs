@@ -42,7 +42,7 @@ namespace EpikV2.NPCs {
 					}
 				} else if (Main.hardMode && (Main.rand.NextBool(2)|| tileY > Main.worldSurface)) {
 					newNPC = NPC.NewNPC(tileX * 16 + 8, tileY * 16, Herpling);
-				} else if ((Main.tile[tileX, tileY].wall > 0 && !Main.rand.NextBool(4)) || Main.rand.NextBool(8)) {
+				} else if ((Main.tile[tileX, tileY].WallType > 0 && !Main.rand.NextBool(4)) || Main.rand.NextBool(8)) {
 					newNPC = NPC.NewNPC(tileX * 16 + 8, tileY * 16, BloodCrawler);
 				} else if (Main.rand.NextBool(2)) {
 					newNPC = NPC.NewNPC(tileX * 16 + 8, tileY * 16, FaceMonster);

@@ -15,14 +15,14 @@ namespace EpikV2.Items {
             Tooltip.SetDefault("\"Sate your hunger to reveal your true self!\"");
         }
 		public override void SetDefaults(){
-			item.CloneDefaults(ItemID.CookedFish);
-            item.buffType = True_Self_Debuff.ID;
-            item.buffTime = 3600;
+			Item.CloneDefaults(ItemID.CookedFish);
+            Item.buffType = True_Self_Debuff.ID;
+            Item.buffTime = 3600;
 		}
         public override void OnConsumeItem(Player player) {
             if(player.wolfAcc) {
                 player.GetModPlayer<EpikPlayer>().reallyWolf = true;
-                player.AddBuff(BuffID.Poisoned, item.buffTime);
+                player.AddBuff(BuffID.Poisoned, Item.buffTime);
             }
         }
     }
@@ -32,7 +32,7 @@ namespace EpikV2.Items {
             texture = "EpikV2/Buffs/True_Self_Debuff";
             return true;
         }
-        public override void SetDefaults() {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("True Self");
             Description.SetDefault("You're you");
             Main.debuff[Type] = true;

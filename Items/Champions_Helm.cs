@@ -15,15 +15,15 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("25% increased melee and ranged damage\n"+
                                "10% increased melee and ranged crit chance\n"+
                                "'Rise, undefeated, and fight'");
-            ArmorID = item.headSlot;
+            ArmorID = Item.headSlot;
 		}
 		public override void SetDefaults() {
-			item.width = 20;
-			item.height = 16;
-			item.value = 5000000;
-			item.rare = ItemRarityID.Quest;
-			item.maxStack = 1;
-            item.defense = 20;
+			Item.width = 20;
+			Item.height = 16;
+			Item.value = 5000000;
+			Item.rare = ItemRarityID.Quest;
+			Item.maxStack = 1;
+            Item.defense = 20;
 		}
 		public override void UpdateEquip(Player player){
 			player.meleeDamage += 0.25f;
@@ -35,7 +35,7 @@ namespace EpikV2.Items {
         public override void ModifyTooltips(List<TooltipLine> tooltips) {
             foreach(TooltipLine line in tooltips) {
                 if(line.Name.Equals("Tooltip2")) {
-                    line.text = line.text.Replace(",", " —");
+                    line.Text = line.Text.Replace(",", " —");
                     break;
                 }
             }
@@ -49,7 +49,7 @@ namespace EpikV2.Items {
             ModRecipe recipe;
             for(int i0 = 0; i0 < helmets.Length; i0++) {
                 for(int i1 = 0; i1 < bars.Length; i1++) {
-                    recipe = new ModRecipe(mod);
+                    recipe = new ModRecipe(Mod);
                     recipe.AddIngredient(SanguineMaterial.id, 1);
                     recipe.AddIngredient(helmets[i0], 1);
                     recipe.AddIngredient(bars[i1], 5);

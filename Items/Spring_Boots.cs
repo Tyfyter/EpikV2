@@ -15,12 +15,12 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Spring Boots");
 		    Tooltip.SetDefault("'A bit ropey'");
-            ID = item.type;
+            ID = Item.type;
 		}
 		public override void SetDefaults() {
-            item.CloneDefaults(ItemID.AmethystHook);
-			item.shootSpeed = 16f;
-            item.shoot = ProjectileType<Spring_Boots_Projectile>();
+            Item.CloneDefaults(ItemID.AmethystHook);
+			Item.shootSpeed = 16f;
+            Item.shoot = ProjectileType<Spring_Boots_Projectile>();
 		}
     }
 	public class Lucky_Spring_Boots : Spring_Boots {
@@ -28,25 +28,24 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Lucky Boots");
 		    Tooltip.SetDefault("'They've never failed you'");
-            ID = item.type;
+            ID = Item.type;
 		}
 		public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(Spring_Boots.ID);
             recipe.AddIngredient(ItemID.LuckyHorseshoe);
             recipe.AddTile(TileID.TinkerersWorkbench);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
 		}
 	}
 	public class Spring_Boots_Projectile : ModProjectile {
 
         public override string Texture => "Terraria/Projectile_"+ProjectileID.Hook;
-        public override bool CloneNewInstances => true;
+        protected override bool CloneNewInstances => true;
 
         public override void SetDefaults() {
-			projectile.CloneDefaults(ProjectileID.GemHookAmethyst);
-			projectile.netImportant = true;
+			Projectile.CloneDefaults(ProjectileID.GemHookAmethyst);
+			Projectile.netImportant = true;
 		}
 
 		public override bool? CanUseGrapple(Player player) {
@@ -70,30 +69,30 @@ namespace EpikV2.Items {
 			speed = 0f;
 		}
         public override bool PreAI() {
-            Player player = Main.player[projectile.owner];
+            Player player = Main.player[Projectile.owner];
             if(player.grapCount>0)player.grappling[--player.grapCount] = -1;
             EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
             float fact = 1;
-            if(epikPlayer.yoteTimeCollide.y>0&&projectile.velocity.Y>0) {
-                projectile.velocity.Y = 0;
+            if(epikPlayer.yoteTimeCollide.y>0&&Projectile.velocity.Y>0) {
+                Projectile.velocity.Y = 0;
                 fact *= Spring_Boots.collisionMult;
-            }else if(epikPlayer.yoteTimeCollide.y<0&&projectile.velocity.Y<0) {
-                projectile.velocity.Y = 0;
+            }else if(epikPlayer.yoteTimeCollide.y<0&&Projectile.velocity.Y<0) {
+                Projectile.velocity.Y = 0;
                 fact *= Spring_Boots.collisionMult;
             }
-            if(epikPlayer.yoteTimeCollide.x>0&&projectile.velocity.X>0) {
-                projectile.velocity.X = 0;
+            if(epikPlayer.yoteTimeCollide.x>0&&Projectile.velocity.X>0) {
+                Projectile.velocity.X = 0;
                 fact *= Spring_Boots.collisionMult;
-            }else if(epikPlayer.yoteTimeCollide.x<0&&projectile.velocity.X<0) {
-                projectile.velocity.X = 0;
+            }else if(epikPlayer.yoteTimeCollide.x<0&&Projectile.velocity.X<0) {
+                Projectile.velocity.X = 0;
                 fact *= Spring_Boots.collisionMult;
             }
             epikPlayer.yoteTimeCollide = (0, 0);
-            Vector2 normProjVel = projectile.velocity.SafeNormalize(Vector2.Zero);
-            float v = projectile.velocity.Length();
+            Vector2 normProjVel = Projectile.velocity.SafeNormalize(Vector2.Zero);
+            float v = Projectile.velocity.Length();
             player.velocity = normProjVel * v * fact;
             epikPlayer.springDashCooldown = epikPlayer.springDashCooldown2 = 9;
-            projectile.Kill();
+            Projectile.Kill();
             return false;
         }
     }

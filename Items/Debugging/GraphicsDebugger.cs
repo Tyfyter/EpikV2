@@ -21,22 +21,22 @@ namespace EpikV2.Items.Debugging {
 		}
 
         public override void SetDefaults() {
-            item.damage = 60;
-            item.magic = true;
-            item.width = 24;
-            item.height = 28;
-            item.useTime = 5;
-            item.useAnimation = 5;
-            item.useStyle = 5;
-            item.noMelee = true;
-            item.knockBack = 7.5f;
-            item.value = 1000;
-            item.rare = 6;
-            item.UseSound = null;
-            item.autoReuse = true;
-            item.channel = true;
-            item.shoot = ProjectileID.HeatRay;
-            item.shootSpeed = 7.5f;
+            Item.damage = 60;
+            Item.magic = true;
+            Item.width = 24;
+            Item.height = 28;
+            Item.useTime = 5;
+            Item.useAnimation = 5;
+            Item.useStyle = 5;
+            Item.noMelee = true;
+            Item.knockBack = 7.5f;
+            Item.value = 1000;
+            Item.rare = 6;
+            Item.UseSound = null;
+            Item.autoReuse = true;
+            Item.channel = true;
+            Item.shoot = ProjectileID.HeatRay;
+            Item.shootSpeed = 7.5f;
         }
 
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {

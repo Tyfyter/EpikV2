@@ -9,7 +9,7 @@ namespace EpikV2.Buffs
 	public class ShroomInfestedDebuff : ModBuff
 	{
 		int realtime = 600;
-		public override void SetDefaults()
+		public override void SetStaticDefaults()
 		{
 			DisplayName.SetDefault("Hungering Plague");
 			Description.SetDefault("");

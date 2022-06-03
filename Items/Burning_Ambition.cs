@@ -6,7 +6,9 @@ using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Tyfyter.Utils;
@@ -22,28 +24,28 @@ namespace EpikV2.Items {
 			//customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
 		}
 		public override void SetDefaults() {
-			item.CloneDefaults(ItemID.FlowerofFire);
-			item.damage = 19;
-			item.magic = true;
-			item.mana = 20;
-			item.width = 36;
-			item.height = 76;
-			item.useStyle = 5;
-			item.useTime = 20;
-			item.useAnimation = 20;
-			item.noMelee = true;
-			item.knockBack = 6f;
-			item.value = 100000;
-			item.rare = ItemRarityID.Purple;
-			item.autoReuse = false;
-			item.channel = true;
-			item.noUseGraphic = true;
-			item.shoot = ProjectileType<Burning_Ambition_Vortex>();
-			item.shootSpeed = 6.25f;
+			Item.CloneDefaults(ItemID.FlowerofFire);
+			Item.damage = 19;
+			Item.magic = true;
+			Item.mana = 20;
+			Item.width = 36;
+			Item.height = 76;
+			Item.useStyle = 5;
+			Item.useTime = 20;
+			Item.useAnimation = 20;
+			Item.noMelee = true;
+			Item.knockBack = 6f;
+			Item.value = 100000;
+			Item.rare = ItemRarityID.Purple;
+			Item.autoReuse = false;
+			Item.channel = true;
+			Item.noUseGraphic = true;
+			Item.shoot = ProjectileType<Burning_Ambition_Vortex>();
+			Item.shootSpeed = 6.25f;
 			//item.glowMask = customGlowMask;
 		}
 		public override void AddRecipes() {
-			ModRecipe recipe = new Burning_Ambition_Recipe(mod);
+			ModRecipe recipe = new Burning_Ambition_Recipe(Mod);
 			recipe.AddIngredient(ItemID.Hellforge);
 			recipe.AddIngredient(ItemID.GoldCoin, 10);
 			recipe.AddIngredient(ItemID.GuideVoodooDoll);
@@ -62,7 +64,7 @@ namespace EpikV2.Items {
 				Projectile.NewProjectile(position, Vector2.Zero, ProjectileType<Burning_Ambition_Smelter>(), 0, 0f, player.whoAmI, Player.tileTargetX, Player.tileTargetY);
 				return false;
 			}
-			Projectile.NewProjectileDirect(position, new Vector2(speedX, speedY), item.shoot, damage, 0f, player.whoAmI, ai1:knockBack).localAI[1] = 20 - item.useTime;
+			Projectile.NewProjectileDirect(position, new Vector2(speedX, speedY), Item.shoot, damage, 0f, player.whoAmI, ai1:knockBack).localAI[1] = 20 - Item.useTime;
 			return false;
 		}
 	}
@@ -86,15 +88,15 @@ namespace EpikV2.Items {
 		public override string Texture => "EpikV2/Items/Burning_Ambition";
 		public Triangle Hitbox {
 			get {
-				Vector2 direction = Vector2.Normalize(projectile.velocity);
+				Vector2 direction = Vector2.Normalize(Projectile.velocity);
 				Vector2 side = direction.RotatedBy(MathHelper.PiOver2);
-				float zMult = (30 - projectile.ai[0]) / 30;
+				float zMult = (30 - Projectile.ai[0]) / 30;
 				if (zMult < 0.01f) {
 					zMult = 0.01f;
 				}
-				Vector2 @base = projectile.Center + direction * 196 * zMult;
+				Vector2 @base = Projectile.Center + direction * 196 * zMult;
 				side *= zMult * zMult;
-				return new Triangle(projectile.Center, @base + side * 64, @base - side * 64);
+				return new Triangle(Projectile.Center, @base + side * 64, @base - side * 64);
 			}
 		}
 		public override bool CloneNewInstances => true;
@@ -103,63 +105,63 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Burning Avaritia");
 		}
 		public override void SetDefaults() {
-			projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
-			projectile.timeLeft = 120;
-			projectile.usesLocalNPCImmunity = true;
-			projectile.width = 12;
-			projectile.height = 12;
-			projectile.localNPCHitCooldown = 20;
-			projectile.extraUpdates = 1;
-			projectile.penetrate = -1;
-			projectile.aiStyle = 0;
-			projectile.ignoreWater = true;
-			projectile.hide = true;
+			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
+			Projectile.timeLeft = 120;
+			Projectile.usesLocalNPCImmunity = true;
+			Projectile.width = 12;
+			Projectile.height = 12;
+			Projectile.localNPCHitCooldown = 20;
+			Projectile.extraUpdates = 1;
+			Projectile.penetrate = -1;
+			Projectile.aiStyle = 0;
+			Projectile.ignoreWater = true;
+			Projectile.hide = true;
 		}
 		public override void AI() {
-			Player owner = Main.player[projectile.owner];
+			Player owner = Main.player[Projectile.owner];
 			if (particles is null) {
 				particles = new List<Particle>();
 			}
-			if (projectile.owner == Main.myPlayer) {
-				projectile.velocity = Vector2.Normalize(Main.MouseWorld - owner.MountedCenter);
+			if (Projectile.owner == Main.myPlayer) {
+				Projectile.velocity = Vector2.Normalize(Main.MouseWorld - owner.MountedCenter);
 			}
-			if (projectile.timeLeft > 30) {
+			if (Projectile.timeLeft > 30) {
 				float dist = Main.rand.NextFloat(float.Epsilon, 1);
 				particles.Add(new Particle(dist * 196, new PolarVec2(Main.rand.NextFloat(32, 64) * dist, Main.rand.NextFloat(MathHelper.TwoPi))));
-			} else if (projectile.ai[0] == 0) {
-				if (!owner.channel || (projectile.timeLeft < 16 && !owner.CheckMana(owner.HeldItem, owner.HeldItem.mana / 4 + (int)(projectile.localAI[0] * 2), true))) {
-					projectile.timeLeft = 30;
-					projectile.ai[0] = 1;
+			} else if (Projectile.ai[0] == 0) {
+				if (!owner.channel || (Projectile.timeLeft < 16 && !owner.CheckMana(owner.HeldItem, owner.HeldItem.mana / 4 + (int)(Projectile.localAI[0] * 2), true))) {
+					Projectile.timeLeft = 30;
+					Projectile.ai[0] = 1;
 				} else {
-					if (projectile.timeLeft < 16) {
-						projectile.timeLeft = 30;
-						projectile.localAI[0] += 0.0125f;
+					if (Projectile.timeLeft < 16) {
+						Projectile.timeLeft = 30;
+						Projectile.localAI[0] += 0.0125f;
 					}
 				}
 			} else {
-				if (++projectile.ai[0] >= 30) {
-					Main.PlaySound(SoundID.Item45, projectile.Center);
-					Projectile.NewProjectile(projectile.Center, projectile.velocity * (6 + projectile.localAI[0] * 4), ProjectileType<Burning_Ambition_Fireball>(), (int)(projectile.damage * (1 + projectile.localAI[0])), projectile.ai[1], projectile.owner);
+				if (++Projectile.ai[0] >= 30) {
+					SoundEngine.PlaySound(SoundID.Item45, Projectile.Center);
+					Projectile.NewProjectile(Projectile.Center, Projectile.velocity * (6 + Projectile.localAI[0] * 4), ProjectileType<Burning_Ambition_Fireball>(), (int)(Projectile.damage * (1 + Projectile.localAI[0])), Projectile.ai[1], Projectile.owner);
 				}
 			}
 			owner.itemAnimation = 2;
 			owner.itemTime = 2;
-			owner.ChangeDir(projectile.velocity.X < 0 ? -1 : 1);
-			owner.itemRotation = (float)Math.Atan2(projectile.velocity.Y * owner.direction, projectile.velocity.X * owner.direction);
-			projectile.Center = Main.player[projectile.owner].MountedCenter;
-			projectile.rotation += (MathHelper.TwoPi / 60) * (projectile.localAI[0] + 1);
+			owner.ChangeDir(Projectile.velocity.X < 0 ? -1 : 1);
+			owner.itemRotation = (float)Math.Atan2(Projectile.velocity.Y * owner.direction, Projectile.velocity.X * owner.direction);
+			Projectile.Center = Main.player[Projectile.owner].MountedCenter;
+			Projectile.rotation += (MathHelper.TwoPi / 60) * (Projectile.localAI[0] + 1);
 		}
 		public override void DrawBehind(int index, List<int> drawCacheProjsBehindNPCsAndTiles, List<int> drawCacheProjsBehindNPCs, List<int> drawCacheProjsBehindProjectiles, List<int> drawCacheProjsOverWiresUI) {
 			drawCacheProjsBehindNPCs.Add(index);
 		}
 		void DrawParticles(bool back, float factor = 1f) {
-			float zMult = (30 - projectile.ai[0]) / 30;
-			Vector2 direction = Vector2.Normalize(projectile.velocity);
+			float zMult = (30 - Projectile.ai[0]) / 30;
+			Vector2 direction = Vector2.Normalize(Projectile.velocity);
 			Vector2 side = direction.RotatedBy(MathHelper.PiOver2);
-			Vector2 origin = projectile.Center - Main.screenPosition;
+			Vector2 origin = Projectile.Center - Main.screenPosition;
 			for (int i = 0; i < particles.Count; i++) {
 				Particle particle = particles[i];
-				float rot = (projectile.rotation + particle.position.Theta) % MathHelper.TwoPi;
+				float rot = (Projectile.rotation + particle.position.Theta) % MathHelper.TwoPi;
 				double sin = Math.Sin(rot);
 				if (sin > 0 == back || particle.age < factor - 1) {
 					continue;
@@ -170,13 +172,13 @@ namespace EpikV2.Items {
 				zDistAdjusted /= factor;
 				Vector2 drawPosition = origin + (direction * particle.distance * zMult) + (side * (float)(zDist * cos * zMult));
 				Main.spriteBatch.Draw(
-					Main.dustTexture,
+					TextureAssets.Dust.Value,
 					drawPosition,
 					particle.GetFrame(),
 					new Color(zDistAdjusted, zDistAdjusted, zDistAdjusted, zDistAdjusted),
 					(particle.age / 60f) + zDist,
 					new Vector2(3, 5),
-					projectile.scale * (float)(2 + zDistAdjusted * zDistAdjusted * sin * zMult) * 0.5f,
+					Projectile.scale * (float)(2 + zDistAdjusted * zDistAdjusted * sin * zMult) * 0.5f,
 					SpriteEffects.None,
 					(float)(0.5 + sin * 0.1));
 				if(factor == 1f)Lighting.AddLight(drawPosition + Main.screenPosition, new Vector3(0.5f, 0.25f, 0f) * (float)(1f - Math.Abs(sin)));
@@ -188,12 +190,12 @@ namespace EpikV2.Items {
 			Main.spriteBatch.End();
 			Main.spriteBatch.Begin(SpriteSortMode.Deferred, bs, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, Resources.Shaders.blurShader);
 			try {
-				float rot = projectile.rotation;
+				float rot = Projectile.rotation;
 				for (int i = 4; i >= 0; i--) {
-					projectile.rotation = rot - (i * (MathHelper.TwoPi / 60) * (projectile.localAI[0] + 1));
+					Projectile.rotation = rot - (i * (MathHelper.TwoPi / 60) * (Projectile.localAI[0] + 1));
 					DrawParticles(back, i + 1);
 				}
-				projectile.rotation = rot;
+				Projectile.rotation = rot;
 			} finally {
 				Main.spriteBatch.End();
 				Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer);
@@ -213,28 +215,28 @@ namespace EpikV2.Items {
 			return Hitbox.Intersects(targetHitbox);
 		}
 		public override bool? CanHitNPC(NPC target) {
-			if (projectile.localNPCImmunity[target.whoAmI] > 0 && Colliding(Rectangle.Empty, target.Hitbox) == true) {
+			if (Projectile.localNPCImmunity[target.whoAmI] > 0 && Colliding(Rectangle.Empty, target.Hitbox) == true) {
 				OnHitNPC(target, 0, 0, false);
 			}
 			return null;
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-			Player owner = Main.player[projectile.owner];
+			Player owner = Main.player[Projectile.owner];
 			int armor = Math.Max(target.defense - owner.armorPenetration, 0);
 			damage += Math.Min(armor, 10) / 2;
 		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
-			Player owner = Main.player[projectile.owner];
-			float zMult = (30 - projectile.ai[0]) / 30;
-			Vector2 direction = Vector2.Normalize(projectile.velocity);
+			Player owner = Main.player[Projectile.owner];
+			float zMult = (30 - Projectile.ai[0]) / 30;
+			Vector2 direction = Vector2.Normalize(Projectile.velocity);
 			Vector2 targetPos = owner.MountedCenter + direction * (8 + 24 * zMult + Math.Max(target.width, target.height));
-			Vector2 targetVelocity = (targetPos - target.Center).WithMaxLength(projectile.ai[1] * (projectile.localAI[0] + 1));
-			target.velocity = Vector2.Lerp(target.velocity, targetVelocity, target.knockBackResist * projectile.ai[1] * 0.16f);
+			Vector2 targetVelocity = (targetPos - target.Center).WithMaxLength(Projectile.ai[1] * (Projectile.localAI[0] + 1));
+			target.velocity = Vector2.Lerp(target.velocity, targetVelocity, target.knockBackResist * Projectile.ai[1] * 0.16f);
 			if (damage > 0) {
-				if (Main.rand.NextFloat(projectile.localAI[0] - 0.15f, projectile.localAI[0]) >= 0.15f) {
-					target.AddBuff(BuffID.Midas, (int)(projectile.localAI[0] * 100));
+				if (Main.rand.NextFloat(Projectile.localAI[0] - 0.15f, Projectile.localAI[0]) >= 0.15f) {
+					target.AddBuff(BuffID.Midas, (int)(Projectile.localAI[0] * 100));
 				}
-				projectile.localNPCImmunity[target.whoAmI] -= (int)(Math.Min((projectile.localAI[0] * 7), 13 - projectile.localAI[1]) + projectile.localAI[1]);
+				Projectile.localNPCImmunity[target.whoAmI] -= (int)(Math.Min((Projectile.localAI[0] * 7), 13 - Projectile.localAI[1]) + Projectile.localAI[1]);
 			}
 		}
 		public override void CutTiles() {
@@ -259,17 +261,17 @@ namespace EpikV2.Items {
 			for (int x = minX; x <= maxX; x++) {
 				for (int y = minY; y <= maxY; y++) {
 					tile = Framing.GetTileSafely(x, y);
-					if (tile.active() && Main.tileCut[tile.type] && Hitbox.Intersects(new Rectangle(x * 16 + 4, y * 16 + 4, 8, 8))) {
+					if (tile.HasTile && Main.tileCut[tile.TileType] && Hitbox.Intersects(new Rectangle(x * 16 + 4, y * 16 + 4, 8, 8))) {
 						WorldGen.KillTile(x, y);
 					}
 				}
 			}
 		}
 		public override void SendExtraAI(BinaryWriter writer) {
-			writer.Write(projectile.localAI[0]);
+			writer.Write(Projectile.localAI[0]);
 		}
 		public override void ReceiveExtraAI(BinaryReader reader) {
-			projectile.localAI[0] = reader.ReadSingle();
+			Projectile.localAI[0] = reader.ReadSingle();
 		}
 		internal class Particle {
 			internal float distance;
@@ -297,20 +299,20 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Burning Avaritia");
 		}
 		public override void SetDefaults() {
-			projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
-			projectile.timeLeft = 1200;
-			projectile.usesLocalNPCImmunity = true;
-			projectile.width = 12;
-			projectile.height = 12;
-			projectile.localNPCHitCooldown = 20;
-			projectile.extraUpdates = 1;
-			projectile.penetrate = -1;
-			projectile.aiStyle = 0;
-			projectile.ignoreWater = true;
-			projectile.scale = 0.75f;
+			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
+			Projectile.timeLeft = 1200;
+			Projectile.usesLocalNPCImmunity = true;
+			Projectile.width = 12;
+			Projectile.height = 12;
+			Projectile.localNPCHitCooldown = 20;
+			Projectile.extraUpdates = 1;
+			Projectile.penetrate = -1;
+			Projectile.aiStyle = 0;
+			Projectile.ignoreWater = true;
+			Projectile.scale = 0.75f;
 		}
 		public override void AI() {
-			if (projectile.ai[0] == 0) {
+			if (Projectile.ai[0] == 0) {
 				if (particles is null) {
 					particles = new Fireball_Particle[90];
 					for (int i = 0; i < 90; i++) {
@@ -343,32 +345,32 @@ namespace EpikV2.Items {
 					}
 				}
 				if(deathParticles.Count > 0){
-					projectile.timeLeft = 10;
+					Projectile.timeLeft = 10;
 				} else {
-					projectile.Kill();
+					Projectile.Kill();
 				}
 			}
 		}
 		void Break() {
-			projectile.tileCollide = false;
+			Projectile.tileCollide = false;
 			if (particles is null) {
 				AI();
 			}
-			projectile.ai[0] = 1;
-			Main.PlaySound(SoundID.Item14, projectile.Center);
-			Vector2 center = projectile.Center;
-			projectile.width *= 5;
-			projectile.height *= 5;
-			projectile.Center = center;
-			projectile.localNPCImmunity = new int[200];
-			projectile.damage *= 2;
-			projectile.Damage();
-			projectile.damage = 0;
+			Projectile.ai[0] = 1;
+			SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
+			Vector2 center = Projectile.Center;
+			Projectile.width *= 5;
+			Projectile.height *= 5;
+			Projectile.Center = center;
+			Projectile.localNPCImmunity = new int[200];
+			Projectile.damage *= 2;
+			Projectile.Damage();
+			Projectile.damage = 0;
 			deathParticles = particles.Select(
 				p => new Fireball_Particle(p.GetCartesian()) {
 					age = Main.rand.Next(0, 50),
-					xVelocity = projectile.velocity.X * Main.rand.NextFloat(0.9f, 1.1f),
-					yVelocity = projectile.velocity.Y * Main.rand.NextFloat(0.9f, 1.1f)
+					xVelocity = Projectile.velocity.X * Main.rand.NextFloat(0.9f, 1.1f),
+					yVelocity = Projectile.velocity.Y * Main.rand.NextFloat(0.9f, 1.1f)
 			}).OrderBy(p => Main.rand.Next(40)).Skip(30).OrderBy(p => -p.age).Skip(10).ToList();
 			for (int i = 0; i < 10; i++) {
 				Vector2 vel = (Vector2)new PolarVec2(Main.rand.NextFloat(2f, 4f), Main.rand.NextFloat(MathHelper.TwoPi));
@@ -376,30 +378,30 @@ namespace EpikV2.Items {
 				particle.xVelocity = vel.X;
 				particle.yVelocity = vel.Y;
 			}
-			projectile.velocity = Vector2.Zero;
+			Projectile.velocity = Vector2.Zero;
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-			Player owner = Main.player[projectile.owner];
+			Player owner = Main.player[Projectile.owner];
 			int armor = Math.Max(target.defense - owner.armorPenetration, 0);
 			damage += Math.Min(armor, 10) / 2;
 		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
-			if (projectile.ai[0] == 0 && target.life > 0) {
+			if (Projectile.ai[0] == 0 && target.life > 0) {
 				Break();
 			}
-			target.velocity = Vector2.Lerp(target.velocity, projectile.velocity * projectile.knockBack * Math.Max(1, target.knockBackResist), target.knockBackResist);
+			target.velocity = Vector2.Lerp(target.velocity, Projectile.velocity * Projectile.knockBack * Math.Max(1, target.knockBackResist), target.knockBackResist);
 		}
 		public override bool OnTileCollide(Vector2 oldVelocity) {
-			projectile.velocity = oldVelocity;
+			Projectile.velocity = oldVelocity;
 			Break();
 			return false;
 		}
 		void DrawParticles(float factor = 1f) {
-			if (projectile.ai[0] == 0) {
+			if (Projectile.ai[0] == 0) {
 				if (particles is null) {
 					return;
 				}
-				Vector2 origin = projectile.Center - Main.screenPosition;
+				Vector2 origin = Projectile.Center - Main.screenPosition;
 				float value = 1 / factor;
 				Color color = new Color(value, value, value, value);
 				for (int i = 0; i < 90; i++) {
@@ -409,19 +411,19 @@ namespace EpikV2.Items {
 					}
 					Vector3 position = particle.GetCartesian(factor);
 					Main.spriteBatch.Draw(
-						Main.dustTexture,
+						TextureAssets.Dust.Value,
 						origin + new Vector2(position.X, position.Y),
 						particle.GetFrame(),
 						color,
 						(particle.age / 60f) + position.Z,
 						new Vector2(3, 5),
-						(float)(projectile.scale * (2 + Math.Sin(position.Z)) * 0.5f / factor),
+						(float)(Projectile.scale * (2 + Math.Sin(position.Z)) * 0.5f / factor),
 						SpriteEffects.None,
 						0);
-					if(factor == 1f)Lighting.AddLight(projectile.Center + new Vector2(position.X, position.Y), new Vector3(0.5f, 0.25f, 0f) * (float)(1f - Math.Cos(particle.x)));
+					if(factor == 1f)Lighting.AddLight(Projectile.Center + new Vector2(position.X, position.Y), new Vector3(0.5f, 0.25f, 0f) * (float)(1f - Math.Cos(particle.x)));
 				}
 			} else {
-				Vector2 origin = projectile.Center - Main.screenPosition;
+				Vector2 origin = Projectile.Center - Main.screenPosition;
 				float value = 1 / factor;
 				Color color = new Color(value, value, value, value);
 				for (int i = 0; i < deathParticles.Count; i++) {
@@ -432,16 +434,16 @@ namespace EpikV2.Items {
 					Vector3 position = particle.GetPosition(factor);
 					float ageFactor = 1 - particle.age / 90;
 					Main.spriteBatch.Draw(
-						Main.dustTexture,
+						TextureAssets.Dust.Value,
 						origin + new Vector2(position.X, position.Y),
 						particle.GetFrame(),
 						color.MultiplyRGBA(new Color(new Vector4(ageFactor))),
 						(particle.age / 60f) + position.Z,
 						new Vector2(3, 5),
-						(float)(projectile.scale * (2 + Math.Sin(position.Z)) * ageFactor * 0.5f / factor),
+						(float)(Projectile.scale * (2 + Math.Sin(position.Z)) * ageFactor * 0.5f / factor),
 						SpriteEffects.None,
 						0);
-					if(factor == 1f)Lighting.AddLight(projectile.Center + new Vector2(position.X, position.Y), new Vector3(0.5f, 0.25f, 0f) * (1f - Math.Abs(position.Z / 16)));
+					if(factor == 1f)Lighting.AddLight(Projectile.Center + new Vector2(position.X, position.Y), new Vector3(0.5f, 0.25f, 0f) * (1f - Math.Abs(position.Z / 16)));
 				}
 			}
 		}
@@ -452,12 +454,12 @@ namespace EpikV2.Items {
 			Main.spriteBatch.End();
 			Main.spriteBatch.Begin(SpriteSortMode.Deferred, bs, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, Resources.Shaders.blurShader);
 			try {
-				float rot = projectile.rotation;
+				float rot = Projectile.rotation;
 				for (int i = 4; i >= 0; i--) {
-					projectile.rotation = rot - (i * (MathHelper.TwoPi / 60) * (projectile.localAI[0] + 1));
+					Projectile.rotation = rot - (i * (MathHelper.TwoPi / 60) * (Projectile.localAI[0] + 1));
 					DrawParticles(i + 1);
 				}
-				projectile.rotation = rot;
+				Projectile.rotation = rot;
 			} finally {
 				Main.spriteBatch.End();
 				Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer);
@@ -473,19 +475,19 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Burning Avaritia");
 		}
 		public override void SetDefaults() {
-			projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
-			projectile.timeLeft = 1200;
-			projectile.width = 12;
-			projectile.height = 12;
-			projectile.extraUpdates = 1;
-			projectile.penetrate = -1;
-			projectile.aiStyle = 0;
-			projectile.ignoreWater = true;
-			projectile.tileCollide = false;
-			projectile.scale = 0.85f;
+			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
+			Projectile.timeLeft = 1200;
+			Projectile.width = 12;
+			Projectile.height = 12;
+			Projectile.extraUpdates = 1;
+			Projectile.penetrate = -1;
+			Projectile.aiStyle = 0;
+			Projectile.ignoreWater = true;
+			Projectile.tileCollide = false;
+			Projectile.scale = 0.85f;
 		}
 		public override void AI() {
-			if (projectile.localAI[0] == 0) {
+			if (Projectile.localAI[0] == 0) {
 				if (particles is null) {
 					particles = new Fireball_Particle[60];
 					for (int i = 0; i < 60; i++) {
@@ -499,24 +501,24 @@ namespace EpikV2.Items {
 						};
 					}
 				}
-				Vector2 target = new Vector2(projectile.ai[0] * 16 + 8, projectile.ai[1] * 16 + 8);
-				Vector2 diff = projectile.Center - target;
+				Vector2 target = new Vector2(Projectile.ai[0] * 16 + 8, Projectile.ai[1] * 16 + 8);
+				Vector2 diff = Projectile.Center - target;
 				if (diff.LengthSquared() > 2) {
-					projectile.Center -= (diff * 0.25f).WithMaxLength(8);
+					Projectile.Center -= (diff * 0.25f).WithMaxLength(8);
 				} else {
-					projectile.Center = target;
-					projectile.localAI[0] = 1;
+					Projectile.Center = target;
+					Projectile.localAI[0] = 1;
 				}
 			} else {
-				projectile.scale -= 0.005f;
-				if (projectile.scale <= 0) {
+				Projectile.scale -= 0.005f;
+				if (Projectile.scale <= 0) {
 					try {
 						List<Recipe> recipes = EpikV2.HellforgeRecipes.Where(
 							r => {
 								Recipe currentRecipe = r;
 								return r.requiredItem.Any(
 									i => {
-										int drop = Main.tile[(int)projectile.ai[0], (int)projectile.ai[1]].GetTileDrop();
+										int drop = Main.tile[(int)Projectile.ai[0], (int)Projectile.ai[1]].GetTileDrop();
 										return drop == i.type || currentRecipe.AcceptedByItemGroups(drop, i.type);
 									}
 								);
@@ -527,7 +529,7 @@ namespace EpikV2.Items {
 							Recipe recipe = recipes[i];
 							FungibleSet<int> ingredients = recipe.ToFungibleSet();
 							HashSet<Point> usedTiles = new HashSet<Point>();
-							List<Point> tileQueue = new List<Point>() { new Point((int)projectile.ai[0], (int)projectile.ai[1]) };
+							List<Point> tileQueue = new List<Point>() { new Point((int)Projectile.ai[0], (int)Projectile.ai[1]) };
 							(int x, int y)[] directions = new (int, int)[] { (-1, 0), (0, -1), (1, 0), (0, 1) };
 							while (tileQueue.Count > 0 && ingredients.Total > 0) {
 								int curr = Main.rand.Next(tileQueue.Count);
@@ -564,10 +566,10 @@ namespace EpikV2.Items {
 							}
 							NPCLoader.blockLoot.Clear();
 							Item createItem = craft.recipe.createItem;
-							Item.NewItem(projectile.Center, createItem.type, createItem.stack, prefixGiven: -1);
+							Item.NewItem(Projectile.Center, createItem.type, createItem.stack, prefixGiven: -1);
 						}
 					} catch (Exception) {}
-					projectile.Kill();
+					Projectile.Kill();
 				}
 			}
 			for (int i = 0; i < 60; i++) {
@@ -581,7 +583,7 @@ namespace EpikV2.Items {
 			if (particles is null) {
 				return;
 			}
-			Vector2 origin = projectile.Center - Main.screenPosition;
+			Vector2 origin = Projectile.Center - Main.screenPosition;
 			float value = 1 / factor;
 			Color color = new Color(value, value, value, value);
 			for (int i = 0; i < 60; i++) {
@@ -589,9 +591,9 @@ namespace EpikV2.Items {
 				if (particle.age < factor - 1) {
 					continue;
 				}
-				Vector3 position = particle.GetCartesian(factor) * projectile.scale;
+				Vector3 position = particle.GetCartesian(factor) * Projectile.scale;
 				Main.spriteBatch.Draw(
-					Main.dustTexture,
+					TextureAssets.Dust.Value,
 					origin + new Vector2(position.X, position.Y),
 					particle.GetFrame(),
 					color,
@@ -600,7 +602,7 @@ namespace EpikV2.Items {
 					(float)((2f + Math.Sin(position.Z)) * 0.4f / factor),
 					SpriteEffects.None,
 					0);
-				if(factor == 1f)Lighting.AddLight(projectile.Center + new Vector2(position.X, position.Y), new Vector3(0.5f, 0.25f, 0f) / (1f + Math.Abs(position.Z)));
+				if(factor == 1f)Lighting.AddLight(Projectile.Center + new Vector2(position.X, position.Y), new Vector3(0.5f, 0.25f, 0f) / (1f + Math.Abs(position.Z)));
 			}
 		}
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
@@ -621,10 +623,10 @@ namespace EpikV2.Items {
 			return false;
 		}
 		public override void SendExtraAI(BinaryWriter writer) {
-			writer.Write(projectile.localAI[0]);
+			writer.Write(Projectile.localAI[0]);
 		}
 		public override void ReceiveExtraAI(BinaryReader reader) {
-			projectile.localAI[0] = reader.ReadSingle();
+			Projectile.localAI[0] = reader.ReadSingle();
 		}
 	}
 	internal class Fireball_Particle {

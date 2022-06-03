@@ -22,14 +22,14 @@ namespace EpikV2.Items {
 		    Tooltip.SetDefault("Looks rather nice, no?");
 		}
         public override void SetDefaults() {
-            item.handOnSlot = ModContent.GetInstance<Band_Of_Frost>().item.handOnSlot;
-            item.accessory = true;
-            item.useAnimation = 0;
-            item.vanity = true;
-            item.useStyle = 0;
-            item.useTime = 0;
-            item.damage = 0;
-            item.rare = ItemRarityID.Blue;
+            Item.handOnSlot = ModContent.GetInstance<Band_Of_Frost>().Item.handOnSlot;
+            Item.accessory = true;
+            Item.useAnimation = 0;
+            Item.vanity = true;
+            Item.useStyle = 0;
+            Item.useTime = 0;
+            Item.damage = 0;
+            Item.rare = ItemRarityID.Blue;
         }
     }
 }

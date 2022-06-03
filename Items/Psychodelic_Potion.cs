@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -18,14 +19,14 @@ namespace EpikV2.Items {
             Tooltip.SetDefault("You definitely shouldn't drink this...");
 		}
         public override void SetDefaults() {
-            item.CloneDefaults(ItemID.StrangeBrew);
-            item.healLife = 0;
-            item.healMana = 0;
-            item.buffType = High_Buff.ID;
-            item.buffTime = 60 * 60 * 10;
+            Item.CloneDefaults(ItemID.StrangeBrew);
+            Item.healLife = 0;
+            Item.healMana = 0;
+            Item.buffType = High_Buff.ID;
+            Item.buffTime = 60 * 60 * 10;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            ModRecipe recipe = new ModRecipe(Mod);
             recipe.AddIngredient(ItemID.StrangeBrew);
             recipe.AddIngredient(ItemID.Ale);
             recipe.AddIngredient(ItemID.ChaosFish);
@@ -34,7 +35,7 @@ namespace EpikV2.Items {
             recipe.SetResult(this);
             recipe.AddRecipe();
 
-            recipe = new ModRecipe(mod);
+            recipe = new ModRecipe(Mod);
             recipe.AddIngredient(ItemID.StrangeBrew);
             recipe.AddIngredient(ItemID.Sake);
             recipe.AddIngredient(ItemID.ChaosFish);
@@ -52,17 +53,17 @@ namespace EpikV2.Items {
             //Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.UIScaleMatrix);
 
             DrawData data = new DrawData {
-                texture = Main.itemTexture[item.type],
+                texture = TextureAssets.Item[Item.type].Value,
                 position = position,
                 color = drawColor,
                 rotation = 0f,
                 scale = new Vector2(scale),
-                shader = item.dye
+                shader = Item.dye
             };
             if (Main.GameUpdateCount % 2 == 0) {
-                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.VoidDye), Main.player[item.owner], data);
+                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.VoidDye), Main.player[Item.playerIndexTheItemIsReservedFor], data);
 			} else {
-                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.LivingRainbowDye), Main.player[item.owner], data);
+                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.LivingRainbowDye), Main.player[Item.playerIndexTheItemIsReservedFor], data);
             }
             return true;
         }
@@ -81,17 +82,17 @@ namespace EpikV2.Items {
             //Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.LocalPlayer.gravDir == 1f ? Main.GameViewMatrix.ZoomMatrix : Main.GameViewMatrix.TransformationMatrix);
 
             DrawData data = new DrawData {
-                texture = Main.itemTexture[item.type],
-                position = item.position - Main.screenPosition,
+                texture = TextureAssets.Item[Item.type].Value,
+                position = Item.position - Main.screenPosition,
                 color = lightColor,
                 rotation = rotation,
                 scale = new Vector2(scale),
-                shader = item.dye
+                shader = Item.dye
             };
             if (Main.GameUpdateCount % 2 == 0) {
-                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.VoidDye), Main.player[item.owner], data);
+                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.VoidDye), Main.player[Item.playerIndexTheItemIsReservedFor], data);
             } else {
-                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.LivingRainbowDye), Main.player[item.owner], data);
+                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.LivingRainbowDye), Main.player[Item.playerIndexTheItemIsReservedFor], data);
             }
             return true;
         }
@@ -103,7 +104,7 @@ namespace EpikV2.Items {
     }
     public class High_Buff : ModBuff {
         public static int ID { get; private set; }
-        public override void SetDefaults() {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("");
             Description.SetDefault("");
             Main.debuff[Type] = true;

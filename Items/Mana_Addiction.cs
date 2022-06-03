@@ -23,7 +23,7 @@ namespace EpikV2.Items {
 			if (player.manaRegenDelay < 5) {
 				player.manaRegenDelay = 5;
 			}
-			if (!epikPlayer.CheckFloatMana(item, player.manaCost * 0.15f, blockQuickMana:true)) {
+			if (!epikPlayer.CheckFloatMana(Item, player.manaCost * 0.15f, blockQuickMana:true)) {
 				player.AddBuff(Mana_Withdrawal_Debuff.ID, 2);
 				player.meleeDamageMult *= 0.9f;
 				player.rangedDamageMult *= 0.9f;
@@ -33,19 +33,19 @@ namespace EpikV2.Items {
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			base.ModifyTooltips(tooltips);
 			if (Main.LocalPlayer.GetModPlayer<EpikPlayer>().manaAdictionEquipped) {
-				tooltips.Add(new TooltipLine(mod, "CurseDescription0", "Consumes mana while equipped") {
-					overrideColor = tooltips[0].overrideColor
+				tooltips.Add(new TooltipLine(Mod, "CurseDescription0", "Consumes mana while equipped") {
+					OverrideColor = tooltips[0].overrideColor
 				});
-				tooltips.Add(new TooltipLine(mod, "CurseDescription1", "Consumes health and reduces damage dealt if you are out of mana") {
-					overrideColor = tooltips[0].overrideColor
+				tooltips.Add(new TooltipLine(Mod, "CurseDescription1", "Consumes health and reduces damage dealt if you are out of mana") {
+					OverrideColor = tooltips[0].overrideColor
 				});
-				tooltips.Add(new TooltipLine(mod, "CurseDescription2", "Consumes mana to unequip") {
-					overrideColor = tooltips[0].overrideColor
+				tooltips.Add(new TooltipLine(Mod, "CurseDescription2", "Consumes mana to unequip") {
+					OverrideColor = tooltips[0].overrideColor
 				});
 			}
 		}
 		public override bool CanRemove(Player player) {
-			return player.CheckMana(item, 60, pay: true);
+			return player.CheckMana(Item, 60, pay: true);
 		}
 		public override Color? GetAlpha(Color lightColor) {
 			return Color.Lerp(Color.Purple, Color.Crimson, GetColorValue(Main.mouseTextColor));

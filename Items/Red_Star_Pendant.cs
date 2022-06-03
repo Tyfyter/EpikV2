@@ -17,14 +17,14 @@ namespace EpikV2.Items {
 		    Tooltip.SetDefault("кровь для бога крови");
 		}
         public override void SetDefaults() {
-            item.accessory = true;
-            item.rare = ItemRarityID.LightPurple;
+            Item.accessory = true;
+            Item.rare = ItemRarityID.LightPurple;
         }
         public override void UpdateEquip(Player player) {
             player.GetModPlayer<EpikPlayer>().redStar = true;
         }
 		public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(mod);
+			ModRecipe recipe = new ModRecipe(Mod);
             recipe.AddIngredient(ItemID.CrossNecklace);
             recipe.AddIngredient(ItemType<Mana_Addiction>());
             recipe.AddIngredient(ItemID.PurpleSolution, 2);
@@ -35,7 +35,7 @@ namespace EpikV2.Items {
             recipe.SetResult(this);
             recipe.AddRecipe();
 
-            recipe = new ModRecipe(mod);
+            recipe = new ModRecipe(Mod);
             recipe.AddIngredient(ItemID.CrossNecklace);
             recipe.AddIngredient(ItemType<Mana_Addiction>());
             recipe.AddIngredient(ItemID.RedSolution, 2);

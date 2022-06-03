@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
@@ -36,29 +37,29 @@ namespace EpikV2.Items {
             comboEffect = ModPlayerFists.RegisterComboEffectID(ComboEffects);
         }
         public override void SetDefaults() {
-            item.melee = true;
-            item.damage = 95;
-            item.useAnimation = 16; // Combos can increase speed by 30-50% since it halves remaining attack time
-            item.knockBack = 3f;
-            item.tileBoost = 6; // For fists, we read this as the combo power
-            item.rare = ItemRarityID.Purple;
-			item.crit = 10;
-            item.UseSound = SoundID.Item19;
-            item.useStyle = 102115116;
-            item.autoReuse = true;
-            item.noUseGraphic = false;
-            item.width = 20;
-            item.height = 20;
+            Item.melee = true;
+            Item.damage = 95;
+            Item.useAnimation = 16; // Combos can increase speed by 30-50% since it halves remaining attack time
+            Item.knockBack = 3f;
+            Item.tileBoost = 6; // For fists, we read this as the combo power
+            Item.rare = ItemRarityID.Purple;
+			Item.crit = 10;
+            Item.UseSound = SoundID.Item19;
+            Item.useStyle = 102115116;
+            Item.autoReuse = true;
+            Item.noUseGraphic = false;
+            Item.width = 20;
+            Item.height = 20;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            ModRecipe recipe = new ModRecipe(Mod);
             recipe.AddIngredient(AquamarineMaterial.id);
             recipe.AddTile(TileID.DemonAltar);
             recipe.SetResult(this);
             recipe.AddRecipe();
         }
         public override void ModifyTooltips(List<TooltipLine> tooltips) {
-            ModPlayerFists.ModifyTooltips(tooltips, item);
+            ModPlayerFists.ModifyTooltips(tooltips, Item);
         }
         public override bool CanUseItem(Player player) {
             player.GetModPlayer<ModPlayerFists>().SetDashOnMovement(10, 24f, 0.992f, 0.96f, true, 0);
@@ -67,7 +68,7 @@ namespace EpikV2.Items {
         public override bool AltFunctionUse(Player player) {
             return player.GetModPlayer<ModPlayerFists>().AltFunctionCombo(player, comboEffect);
         }
-        public override void GetWeaponKnockback(Player player, ref float knockback){
+        public override void ModifyWeaponKnockback(Player player, ref float knockback){
             if(player.controlUp&&!(player.controlLeft||player.controlRight)){
                 knockback*=0.1f;
             }
@@ -112,7 +113,7 @@ namespace EpikV2.Items {
             if(EGN.jaded) {
                 target.life = 0;
                 target.checkDead();
-                Main.PlaySound(SoundID.Shatter, (int)target.Center.X, (int)target.Center.Y, pitchOffset:-0.15f);
+                SoundEngine.PlaySound(SoundID.Shatter, (int)target.Center.X, (int)target.Center.Y, pitchOffset:-0.15f);
                 Rectangle r = ModPlayerFists.UseItemGraphicbox(player, 1, 8);
                 for(int i = 9; i-->0;) {
                     Vector2 pos = target.TopLeft+new Vector2(Main.rand.Next(target.width),Main.rand.Next(target.height));
@@ -172,8 +173,8 @@ namespace EpikV2.Items {
                     break;
                 }
                 float combomult = 20f-player.GetModPlayer<ModPlayerFists>().comboCounterMaxBonus;
-                combomult/=Math.Max(0.5f, 2 - item.scale);
-                if(target.life>0&&target.life<(mpf.ComboCounter+item.tileBoost)*combomult&&!target.immortal&&!target.buffImmune[BuffID.MoonLeech]) {
+                combomult/=Math.Max(0.5f, 2 - Item.scale);
+                if(target.life>0&&target.life<(mpf.ComboCounter+Item.tileBoost)*combomult&&!target.immortal&&!target.buffImmune[BuffID.MoonLeech]) {
                     EGN.jaded = true;
                     EGN.freezeFrame = target.frame;
                     mpf.ModifyComboCounter(-mpf.ComboCounter);

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -16,23 +17,23 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("Right click to pull enemies closer with a chain");
 		}
 		public override void SetDefaults() {
-			item.damage = 98;
-			item.melee = true;
-            item.noMelee = true;
-            item.noUseGraphic = true;
-			item.width = 52;
-			item.height = 56;
-			item.useTime = 32;
-			item.useAnimation = 32;
-			item.useStyle = 5;
-			item.knockBack = 5;
-            item.shoot = ModContent.ProjectileType<Kusariken_P>();
-			item.shootSpeed = 11.5f;
-			item.value = 70707;
-            item.useTurn = false;
-			item.rare = ItemRarityID.Blue;
-			item.UseSound = SoundID.Item1;
-			item.autoReuse = true;
+			Item.damage = 98;
+			Item.melee = true;
+            Item.noMelee = true;
+            Item.noUseGraphic = true;
+			Item.width = 52;
+			Item.height = 56;
+			Item.useTime = 32;
+			Item.useAnimation = 32;
+			Item.useStyle = 5;
+			Item.knockBack = 5;
+            Item.shoot = ModContent.ProjectileType<Kusariken_P>();
+			Item.shootSpeed = 11.5f;
+			Item.value = 70707;
+            Item.useTurn = false;
+			Item.rare = ItemRarityID.Blue;
+			Item.UseSound = SoundID.Item1;
+			Item.autoReuse = true;
 		}
         public override void HoldItem(Player player) {
 			player.maxFallSpeed *= 2;
@@ -44,7 +45,7 @@ namespace EpikV2.Items {
             return true;
         }
         public override bool CanUseItem(Player player) {
-            return player.ownedProjectileCounts[player.altFunctionUse == 2 ? ModContent.ProjectileType<Kusariken_Hook>() : item.shoot]<=0;
+            return player.ownedProjectileCounts[player.altFunctionUse == 2 ? ModContent.ProjectileType<Kusariken_Hook>() : Item.shoot]<=0;
         }
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
             if (player.altFunctionUse == 2) {
@@ -72,108 +73,108 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Kusariken");
 		}
         public override void SetDefaults() {
-            projectile.CloneDefaults(ProjectileID.Spear);
-			projectile.aiStyle = 0;
-            projectile.timeLeft = 24;
-			projectile.width = 18;
-			projectile.height = 18;
+            Projectile.CloneDefaults(ProjectileID.Spear);
+			Projectile.aiStyle = 0;
+            Projectile.timeLeft = 24;
+			Projectile.width = 18;
+			Projectile.height = 18;
             //projectile.scale*=1.25f;
         }
         public float movementFactor {
-			get => projectile.ai[0];
-			set => projectile.ai[0] = value;
+			get => Projectile.ai[0];
+			set => Projectile.ai[0] = value;
 		}
 
 		public override void AI() {
-			Player projOwner = Main.player[projectile.owner];
+			Player projOwner = Main.player[Projectile.owner];
 			projOwner.itemAnimation = 4;
 			projOwner.itemTime = 4;
 			switch (aiMode) {
 				case 0: {
-					if (projOwner.controlUseTile && projectile.timeLeft > projectile.ai[1] * 0.5f) {
+					if (projOwner.controlUseTile && Projectile.timeLeft > Projectile.ai[1] * 0.5f) {
 						aiMode = 1;
-						projectile.timeLeft = 30;
-						projectile.tileCollide = true;
-						projectile.velocity *= 1.75f;
-						projectile.hide = false;
-						projectile.netUpdate = true;
+						Projectile.timeLeft = 30;
+						Projectile.tileCollide = true;
+						Projectile.velocity *= 1.75f;
+						Projectile.hide = false;
+						Projectile.netUpdate = true;
 						break;
 					}
 					Vector2 ownerMountedCenter = projOwner.RotatedRelativePoint(projOwner.MountedCenter, true);
-					projOwner.heldProj = projectile.whoAmI;
-					projectile.position.X = ownerMountedCenter.X - (projectile.width / 2);
-					projectile.position.Y = ownerMountedCenter.Y - (projectile.height / 2);
+					projOwner.heldProj = Projectile.whoAmI;
+					Projectile.position.X = ownerMountedCenter.X - (Projectile.width / 2);
+					Projectile.position.Y = ownerMountedCenter.Y - (Projectile.height / 2);
 					if (!projOwner.frozen) {
-						if (projectile.ai[0] == 0f) {
-							projectile.ai[0] = 1f;
+						if (Projectile.ai[0] == 0f) {
+							Projectile.ai[0] = 1f;
 							movementFactor = 1.25f;
-							projectile.netUpdate = true;
+							Projectile.netUpdate = true;
 						}
-						if (projectile.timeLeft < projectile.ai[1] * 0.4f) {
+						if (Projectile.timeLeft < Projectile.ai[1] * 0.4f) {
 							movementFactor -= 1.75f;
-						} else if (projectile.timeLeft > projectile.ai[1] * 0.5f) {
+						} else if (Projectile.timeLeft > Projectile.ai[1] * 0.5f) {
 							movementFactor += 1.25f;
 						}
 					}
-					projectile.position += projectile.velocity * movementFactor;
+					Projectile.position += Projectile.velocity * movementFactor;
 					if (movementFactor < 0) {
-						projectile.Kill();
-					} else if (projectile.timeLeft < 3) {
-						projectile.timeLeft = 3;
+						Projectile.Kill();
+					} else if (Projectile.timeLeft < 3) {
+						Projectile.timeLeft = 3;
 					}
-					projectile.rotation = projectile.velocity.ToRotation() + MathHelper.PiOver4;
+					Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver4;
 					break;
 				}
 				case 1: {
-					projectile.velocity.Y += 0.2f;
-					projectile.rotation = projectile.velocity.ToRotation() + MathHelper.PiOver4;
-                    if (projectile.timeLeft < 20 && PlayerInput.Triggers.JustPressed.Grapple) {
-						projectile.localAI[0] = 2;
-						projectile.timeLeft = 10;
+					Projectile.velocity.Y += 0.2f;
+					Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver4;
+                    if (Projectile.timeLeft < 20 && PlayerInput.Triggers.JustPressed.Grapple) {
+						Projectile.localAI[0] = 2;
+						Projectile.timeLeft = 10;
 						goto case 2;
                     }
-                    if (projectile.timeLeft < 2) {
+                    if (Projectile.timeLeft < 2) {
 						aiMode = 2;
-						projectile.timeLeft = 30;
-						projectile.tileCollide = false;
-						projectile.netUpdate = true;
+						Projectile.timeLeft = 30;
+						Projectile.tileCollide = false;
+						Projectile.netUpdate = true;
                     }
 					break;
 				}
 				case 2: {
-					projectile.velocity = Vector2.Lerp(projectile.velocity, Vector2.Zero, 0.05f);
-					if (projectile.localAI[0] != 2 && PlayerInput.Triggers.JustPressed.Grapple) {
-						projectile.localAI[0] = 2;
-						projectile.timeLeft = 19;
+					Projectile.velocity = Vector2.Lerp(Projectile.velocity, Vector2.Zero, 0.05f);
+					if (Projectile.localAI[0] != 2 && PlayerInput.Triggers.JustPressed.Grapple) {
+						Projectile.localAI[0] = 2;
+						Projectile.timeLeft = 19;
 					}
-                    if (projectile.timeLeft < 20) {
+                    if (Projectile.timeLeft < 20) {
 						aiMode = 3;
-						projectile.timeLeft = 180;
-						projectile.tileCollide = false;
-						projectile.netUpdate = true;
+						Projectile.timeLeft = 180;
+						Projectile.tileCollide = false;
+						Projectile.netUpdate = true;
                     }
 					break;
 				}
 				case 3: {
 					Vector2 ownerCenter = projOwner.MountedCenter;
 					if (!projOwner.frozen) {
-						if (projectile.localAI[0] == 1) {
-							projectile.localAI[0] = 0;
+						if (Projectile.localAI[0] == 1) {
+							Projectile.localAI[0] = 0;
 						}
-						projectile.tileCollide = false;
+						Projectile.tileCollide = false;
 
-						Vector2 diff = ownerCenter - projectile.Center;
-						bool grapple = projectile.localAI[0] == 2;
-						Vector2 newVel = Vector2.Lerp(projectile.velocity, Vector2.Normalize(diff) * 25f, grapple? 0.15f : 0.25f);
+						Vector2 diff = ownerCenter - Projectile.Center;
+						bool grapple = Projectile.localAI[0] == 2;
+						Vector2 newVel = Vector2.Lerp(Projectile.velocity, Vector2.Normalize(diff) * 25f, grapple? 0.15f : 0.25f);
 						if (grapple) {
 							projOwner.velocity = (projOwner.velocity - diff.WithMaxLength(4f)).WithMaxLength(16f);//(newVel - projectile.velocity)
 						}
-						projectile.velocity = newVel.WithMaxLength(grapple? diff.Length() * 0.4f: diff.Length());
-						projectile.rotation = (-diff).ToRotation() + MathHelper.PiOver4;
+						Projectile.velocity = newVel.WithMaxLength(grapple? diff.Length() * 0.4f: diff.Length());
+						Projectile.rotation = (-diff).ToRotation() + MathHelper.PiOver4;
 						//projectile.rotation = (-projectile.velocity).ToRotation() + MathHelper.PiOver4;
 					}
-					if (projectile.DistanceSQ(ownerCenter) < 576) {
-						projectile.Kill();
+					if (Projectile.DistanceSQ(ownerCenter) < 576) {
+						Projectile.Kill();
 					}
 					break;
 				}
@@ -193,38 +194,38 @@ namespace EpikV2.Items {
         public override bool OnTileCollide(Vector2 oldVelocity) {
             if (aiMode == 1) {
 				aiMode = 2;
-				projectile.timeLeft = 30;
-				projectile.position += oldVelocity;
+				Projectile.timeLeft = 30;
+				Projectile.position += oldVelocity;
             }
             return false;
         }
         public override void SendExtraAI(BinaryWriter writer) {
-			writer.Write(projectile.localAI[0]);
+			writer.Write(Projectile.localAI[0]);
 			writer.Write(aiMode);
         }
         public override void ReceiveExtraAI(BinaryReader reader) {
-			projectile.localAI[0] = reader.ReadSingle();
+			Projectile.localAI[0] = reader.ReadSingle();
 			aiMode = reader.ReadByte();
 		}
 		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
-            spriteBatch.Draw(Main.projectileTexture[projectile.type], projectile.Center - Main.screenPosition, new Rectangle(0, 0, 60, 60), lightColor, projectile.rotation, new Vector2(49, 11), projectile.scale, SpriteEffects.None, 0f);
-            Vector2 playerCenter = Main.player[projectile.owner].MountedCenter;
-			Vector2 center = projectile.Center + new Vector2(-46, 46).RotatedBy(projectile.rotation);
-			Vector2 diffToProj = playerCenter - projectile.Center;
+            spriteBatch.Draw(TextureAssets.Projectile[Projectile.type].Value, Projectile.Center - Main.screenPosition, new Rectangle(0, 0, 60, 60), lightColor, Projectile.rotation, new Vector2(49, 11), Projectile.scale, SpriteEffects.None, 0f);
+            Vector2 playerCenter = Main.player[Projectile.owner].MountedCenter;
+			Vector2 center = Projectile.Center + new Vector2(-46, 46).RotatedBy(Projectile.rotation);
+			Vector2 diffToProj = playerCenter - Projectile.Center;
 			float projRotation = diffToProj.ToRotation() - MathHelper.PiOver2;
 			float distance = diffToProj.Length();
 			while (distance > 8f && !float.IsNaN(distance)) {
 				diffToProj.Normalize();                 //get unit vector
-				diffToProj *= Main.chainTexture.Width;  //speed = 24
+				diffToProj *= TextureAssets.Chain.Value.Width;  //speed = 24
 				center += diffToProj;                   //update draw position
 				diffToProj = playerCenter - center;    //update distance
 				distance = diffToProj.Length();
 				Color drawColor = lightColor;
 
 				//Draw chain
-				spriteBatch.Draw(Main.chainTexture, new Vector2(center.X - Main.screenPosition.X, center.Y - Main.screenPosition.Y),
-					new Rectangle(0, 0, Main.chainTexture.Width, Main.chainTexture.Height), drawColor, projRotation,
-					new Vector2(Main.chainTexture.Width * 0.5f, Main.chainTexture.Height * 0.5f), 1f, SpriteEffects.None, 0f);
+				spriteBatch.Draw(TextureAssets.Chain.Value, new Vector2(center.X - Main.screenPosition.X, center.Y - Main.screenPosition.Y),
+					new Rectangle(0, 0, TextureAssets.Chain.Value.Width, TextureAssets.Chain.Value.Height), drawColor, projRotation,
+					new Vector2(TextureAssets.Chain.Value.Width * 0.5f, TextureAssets.Chain.Value.Height * 0.5f), 1f, SpriteEffects.None, 0f);
 			}
 			return false;
         }
@@ -235,47 +236,47 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Kusariken");
 		}
         public override void SetDefaults() {
-            projectile.CloneDefaults(ProjectileID.Spear);
-			projectile.aiStyle = 1;
-            projectile.timeLeft = 80;
-			projectile.width = 12;
-			projectile.height = 12;
-			projectile.tileCollide = true;
-			projectile.scale = 0.85f;
+            Projectile.CloneDefaults(ProjectileID.Spear);
+			Projectile.aiStyle = 1;
+            Projectile.timeLeft = 80;
+			Projectile.width = 12;
+			Projectile.height = 12;
+			Projectile.tileCollide = true;
+			Projectile.scale = 0.85f;
 			//projectile.extraUpdates = 1;
             //projectile.scale*=1.25f;
         }
 		public override void AI() {
-			Player projOwner = Main.player[projectile.owner];
-			projOwner.heldProj = projectile.whoAmI;
-            if (projectile.localAI[0] == 1 && PlayerInput.Triggers.JustPressed.Grapple) {
-				projectile.localAI[0] = 2;
-				projectile.timeLeft = 60;
+			Player projOwner = Main.player[Projectile.owner];
+			projOwner.heldProj = Projectile.whoAmI;
+            if (Projectile.localAI[0] == 1 && PlayerInput.Triggers.JustPressed.Grapple) {
+				Projectile.localAI[0] = 2;
+				Projectile.timeLeft = 60;
             }
-			if (projectile.timeLeft < 60) {
+			if (Projectile.timeLeft < 60) {
 				Vector2 ownerCenter = projOwner.MountedCenter;
                 if (!projOwner.frozen) {
-					if (projectile.localAI[0] == 1) {
-						projectile.localAI[0] = 0;
+					if (Projectile.localAI[0] == 1) {
+						Projectile.localAI[0] = 0;
 					}
-					projectile.tileCollide = false;
+					Projectile.tileCollide = false;
 
-					Vector2 diff = ownerCenter - projectile.Center;
-					bool grapple = projectile.localAI[0] == 2;
-					Vector2 newVel = Vector2.Lerp(projectile.velocity, Vector2.Normalize(diff) * 25f, grapple? 0.15f : 0.25f);
+					Vector2 diff = ownerCenter - Projectile.Center;
+					bool grapple = Projectile.localAI[0] == 2;
+					Vector2 newVel = Vector2.Lerp(Projectile.velocity, Vector2.Normalize(diff) * 25f, grapple? 0.15f : 0.25f);
                     if (grapple) {
 						projOwner.velocity = (projOwner.velocity - diff.WithMaxLength(4f)).WithMaxLength(16f);//(newVel - projectile.velocity)
                     }
-					projectile.velocity = newVel.WithMaxLength(grapple? diff.Length() * 0.4f: diff.Length());
-					projectile.rotation = (-diff).ToRotation() + MathHelper.PiOver4;
+					Projectile.velocity = newVel.WithMaxLength(grapple? diff.Length() * 0.4f: diff.Length());
+					Projectile.rotation = (-diff).ToRotation() + MathHelper.PiOver4;
 					//projectile.rotation = (-projectile.velocity).ToRotation() + MathHelper.PiOver4;
                 }
-                if (projectile.DistanceSQ(ownerCenter) < 576) {
-					projectile.Kill();
+                if (Projectile.DistanceSQ(ownerCenter) < 576) {
+					Projectile.Kill();
                 }
             } else {
-                if (projectile.velocity.LengthSquared()>1) {
-					projectile.rotation = projectile.velocity.ToRotation() + MathHelper.PiOver4;
+                if (Projectile.velocity.LengthSquared()>1) {
+					Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver4;
                 }
             }
 		}
@@ -288,35 +289,35 @@ namespace EpikV2.Items {
 			return true;
         }
         public override bool OnTileCollide(Vector2 oldVelocity) {
-            if (projectile.localAI[0] == 0) {
-				projectile.aiStyle = 0;
-				projectile.timeLeft = 80;
-				projectile.localAI[0] = 1;
-				projectile.position += oldVelocity;
+            if (Projectile.localAI[0] == 0) {
+				Projectile.aiStyle = 0;
+				Projectile.timeLeft = 80;
+				Projectile.localAI[0] = 1;
+				Projectile.position += oldVelocity;
             }
-			projectile.velocity = Vector2.Zero;
+			Projectile.velocity = Vector2.Zero;
             return false;
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
-            Vector2 playerCenter = Main.player[projectile.owner].MountedCenter;
-			Vector2 center = projectile.Center;
-			Vector2 diffToProj = playerCenter - projectile.Center;
+            Vector2 playerCenter = Main.player[Projectile.owner].MountedCenter;
+			Vector2 center = Projectile.Center;
+			Vector2 diffToProj = playerCenter - Projectile.Center;
 			float projRotation = diffToProj.ToRotation() - MathHelper.PiOver2;
 			float distance = diffToProj.Length();
 			while (distance > 8f && !float.IsNaN(distance)) {
 				diffToProj.Normalize();                 //get unit vector
-				diffToProj *= Main.chainTexture.Width;  //speed = 24
+				diffToProj *= TextureAssets.Chain.Value.Width;  //speed = 24
 				center += diffToProj;                   //update draw position
 				diffToProj = playerCenter - center;     //update distance
 				distance = diffToProj.Length();
 				Color drawColor = lightColor;
 
 				//Draw chain
-				spriteBatch.Draw(Main.chainTexture, new Vector2(center.X - Main.screenPosition.X, center.Y - Main.screenPosition.Y),
-					new Rectangle(0, 0, Main.chainTexture.Width, Main.chainTexture.Height), drawColor, projRotation,
-					new Vector2(Main.chainTexture.Width * 0.5f, Main.chainTexture.Height * 0.5f), 1f, SpriteEffects.None, 0f);
+				spriteBatch.Draw(TextureAssets.Chain.Value, new Vector2(center.X - Main.screenPosition.X, center.Y - Main.screenPosition.Y),
+					new Rectangle(0, 0, TextureAssets.Chain.Value.Width, TextureAssets.Chain.Value.Height), drawColor, projRotation,
+					new Vector2(TextureAssets.Chain.Value.Width * 0.5f, TextureAssets.Chain.Value.Height * 0.5f), 1f, SpriteEffects.None, 0f);
 			}
-            spriteBatch.Draw(Main.projectileTexture[projectile.type], projectile.Center - Main.screenPosition, new Rectangle(0, 0, 26, 26), lightColor, projectile.rotation, new Vector2(13, 13), projectile.scale, SpriteEffects.None, 0f);
+            spriteBatch.Draw(TextureAssets.Projectile[Projectile.type].Value, Projectile.Center - Main.screenPosition, new Rectangle(0, 0, 26, 26), lightColor, Projectile.rotation, new Vector2(13, 13), Projectile.scale, SpriteEffects.None, 0f);
 			return false;
         }
     }

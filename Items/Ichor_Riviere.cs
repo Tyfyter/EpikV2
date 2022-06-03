@@ -14,17 +14,17 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("Increases armor penetration by 4\nAttacks may reduce enemy defense");
 		}
 		public override void SetDefaults() {
-			NeckSlot = item.neckSlot;
-			item.CloneDefaults(ItemID.SharkToothNecklace);
-			item.neckSlot = NeckSlot;
-			item.width = 22;
-			item.height = 26;
-			item.value = 40000;
-			item.rare = ItemRarityID.LightRed;
-			item.maxStack = 1;
+			NeckSlot = Item.neckSlot;
+			Item.CloneDefaults(ItemID.SharkToothNecklace);
+			Item.neckSlot = NeckSlot;
+			Item.width = 22;
+			Item.height = 26;
+			Item.value = 40000;
+			Item.rare = ItemRarityID.LightRed;
+			Item.maxStack = 1;
 		}
 		public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            ModRecipe recipe = new ModRecipe(Mod);
             recipe.AddIngredient(ItemID.SharkToothNecklace);
             recipe.AddIngredient(ItemID.Vertebrae, 5);
             recipe.AddIngredient(ItemID.Ichor, 5);

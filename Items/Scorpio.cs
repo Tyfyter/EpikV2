@@ -30,26 +30,26 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Scorpio");
 		    Tooltip.SetDefault("<right> to strike with celestial claws");
-            ID = item.type;
+            ID = Item.type;
             if(Main.netMode == NetmodeID.Server)return;
-            tailSpikeTexture = mod.GetTexture("Items/Scorpio_Tail_Spike");
-            tailSegmentTexture = mod.GetTexture("Items/Scorpio_Tail_Segment");
-            tailSegmentDimTexture = mod.GetTexture("Items/Scorpio_Tail_Segment_Dim");
+            tailSpikeTexture = Mod.GetTexture("Items/Scorpio_Tail_Spike");
+            tailSegmentTexture = Mod.GetTexture("Items/Scorpio_Tail_Segment");
+            tailSegmentDimTexture = Mod.GetTexture("Items/Scorpio_Tail_Segment_Dim");
 
-            clawTexture = mod.GetTexture("Items/Scorpio_Claw");
+            clawTexture = Mod.GetTexture("Items/Scorpio_Claw");
 		}
 		public override void SetDefaults() {
-            item.CloneDefaults(ItemID.DayBreak);
-            item.damage = 95;
-            item.useTime = 10;
-            item.useAnimation = 10;
-			item.shootSpeed = 16f;
-            item.shoot = Scorpio_Tail.ID;
-            item.useStyle = 5;
-            item.UseSound = null;
+            Item.CloneDefaults(ItemID.DayBreak);
+            Item.damage = 95;
+            Item.useTime = 10;
+            Item.useAnimation = 10;
+			Item.shootSpeed = 16f;
+            Item.shoot = Scorpio_Tail.ID;
+            Item.useStyle = 5;
+            Item.UseSound = null;
 		}
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            ModRecipe recipe = new ModRecipe(Mod);
             recipe.AddIngredient(ItemID.DayBreak, 1);
             recipe.AddIngredient(ItemID.FragmentStardust, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);
@@ -61,9 +61,9 @@ namespace EpikV2.Items {
         }
         public override bool CanUseItem(Player player) {
             if(player.altFunctionUse == 2) {
-                item.shoot = Scorpio_Claw.ID;
+                Item.shoot = Scorpio_Claw.ID;
             } else {
-                item.shoot = Scorpio_Tail.ID;
+                Item.shoot = Scorpio_Tail.ID;
             }
             return true;
         }
@@ -78,24 +78,24 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Items/Scorpio_Tail_Spike";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Scorpio");
-            ID = projectile.type;
+            ID = Projectile.type;
         }
         public override void SetDefaults() {
-			projectile.CloneDefaults(ProjectileID.Daybreak);
-            projectile.tileCollide = false;
-            projectile.hide = false;
-            projectile.aiStyle = 0;
-            projectile.timeLeft = 16;
-            projectile.extraUpdates = 0;
-            projectile.usesLocalNPCImmunity = true;
-            projectile.localNPCHitCooldown = 16;
+			Projectile.CloneDefaults(ProjectileID.Daybreak);
+            Projectile.tileCollide = false;
+            Projectile.hide = false;
+            Projectile.aiStyle = 0;
+            Projectile.timeLeft = 16;
+            Projectile.extraUpdates = 0;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 16;
 		}
         public override void AI() {
-            projectile.rotation = projectile.velocity.ToRotation()+MathHelper.PiOver4;
-            if(projectile.timeLeft>12) {
-                projectile.Center = Main.player[projectile.owner].MountedCenter - projectile.velocity;
+            Projectile.rotation = Projectile.velocity.ToRotation()+MathHelper.PiOver4;
+            if(Projectile.timeLeft>12) {
+                Projectile.Center = Main.player[Projectile.owner].MountedCenter - Projectile.velocity;
             } else {
-                projectile.position = projectile.oldPosition;
+                Projectile.position = Projectile.oldPosition;
             }
         }
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
@@ -116,24 +116,24 @@ namespace EpikV2.Items {
                 globalNPC.scorpioTime = 0;
             }
             PolarVec2 targetVelocity = (PolarVec2)target.velocity;
-            PolarVec2 velocity = (PolarVec2)projectile.velocity;
+            PolarVec2 velocity = (PolarVec2)Projectile.velocity;
             AngularSmoothing(ref targetVelocity.Theta, velocity.Theta, knockBackResist * (8 / (0.5f+targetVelocity.R)));
             if(GeometryUtils.AngleDif(targetVelocity.Theta, velocity.Theta, out int _)<0.5f) {
-                targetVelocity.R = projectile.knockBack;
+                targetVelocity.R = Projectile.knockBack;
                 target.velocity = (Vector2)targetVelocity;
             } else {
                 float KB = Math.Min(knockBackResist, 1);
-                target.velocity = Vector2.Lerp(target.velocity, projectile.velocity.SafeNormalize(new Vector2(0,-1))*projectile.knockBack, KB);
+                target.velocity = Vector2.Lerp(target.velocity, Projectile.velocity.SafeNormalize(new Vector2(0,-1))*Projectile.knockBack, KB);
                 if(KB!=knockBackResist) {
                     target.velocity /= 1f / knockBackResist;
                 }
             }
         }
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
-            if(projectile.timeLeft >= 12) {
+            if(Projectile.timeLeft >= 12) {
                 Rectangle hitbox;
                 Vector2 offset = Vector2.Zero;
-                Vector2 velocity = projectile.velocity*4.5f;
+                Vector2 velocity = Projectile.velocity*4.5f;
                 for(int n = 0; n < 31; n++) {
                     offset += velocity / 18f;
                     hitbox = projHitbox;
@@ -144,25 +144,25 @@ namespace EpikV2.Items {
             return false;
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-            Vector2 position = projectile.Center - Main.screenPosition;
-            Vector2 offset = projectile.velocity*0.45f;
+            Vector2 position = Projectile.Center - Main.screenPosition;
+            Vector2 offset = Projectile.velocity*0.45f;
             DrawData data;
-            if(projectile.timeLeft >= 12) {
+            if(Projectile.timeLeft >= 12) {
                 Vector2 startPosition = position;
-                float mult = (projectile.timeLeft - 12) * 0.333f;
-                for(int i = projectile.timeLeft; i-- > 0;) {
+                float mult = (Projectile.timeLeft - 12) * 0.333f;
+                for(int i = Projectile.timeLeft; i-- > 0;) {
                     for(int n = 0; n < 5; n++) {
                         position = startPosition - (offset * mult);
                         switch(i) {
                             default:
                             //spriteBatch.Draw(Scorpio.tailSegmentTexture, position + (offset*(11-i)), null, new Color(255, 255, 255, 150), projectile.rotation, new Vector2(5, 5), 1f, SpriteEffects.None, 0);
-                            data = new DrawData((projectile.timeLeft%(i+1)==0)?Scorpio.tailSegmentTexture:Scorpio.tailSegmentDimTexture, position + (offset * (16 - i)), null, new Color(255, 255, 255, 30 * n), projectile.rotation, new Vector2(5, 5), 1f, SpriteEffects.None, 0);
+                            data = new DrawData((Projectile.timeLeft%(i+1)==0)?Scorpio.tailSegmentTexture:Scorpio.tailSegmentDimTexture, position + (offset * (16 - i)), null, new Color(255, 255, 255, 30 * n), Projectile.rotation, new Vector2(5, 5), 1f, SpriteEffects.None, 0);
                             //EpikV2.motionBlurShader.Apply(offset, data);
                             data.Draw(spriteBatch);
                             break;
                             case 0:
                             //spriteBatch.Draw(Scorpio.tailSpikeTexture, position + (offset*10), null, new Color(255, 255, 255, 150), projectile.rotation, new Vector2(5, 19), 1f, SpriteEffects.None, 0);
-                            data = new DrawData(Scorpio.tailSpikeTexture, position + (offset * 15), null, new Color(255, 255, 255, 30 * n), projectile.rotation, new Vector2(5, 19), 1f, SpriteEffects.None, 0);
+                            data = new DrawData(Scorpio.tailSpikeTexture, position + (offset * 15), null, new Color(255, 255, 255, 30 * n), Projectile.rotation, new Vector2(5, 19), 1f, SpriteEffects.None, 0);
                             //EpikV2.motionBlurShader.Apply(offset, data);
                             data.Draw(spriteBatch);
                             break;
@@ -170,16 +170,16 @@ namespace EpikV2.Items {
                     }
                 }
             } else {
-                int alpha = 54+(projectile.timeLeft*8);
-                int rgb = 183+(projectile.timeLeft*6);
+                int alpha = 54+(Projectile.timeLeft*8);
+                int rgb = 183+(Projectile.timeLeft*6);
                 Color color = new Color(rgb, rgb, rgb, alpha);
-                for(int i = projectile.timeLeft; i--> 0;) {
+                for(int i = Projectile.timeLeft; i--> 0;) {
                     switch(i) {
                         default:
-                        spriteBatch.Draw((projectile.timeLeft%(i+1)==0)?Scorpio.tailSegmentTexture:Scorpio.tailSegmentDimTexture, position + (offset * (16 - i)), null, color, projectile.rotation, new Vector2(5, 5), 1f, SpriteEffects.None, 0);
+                        spriteBatch.Draw((Projectile.timeLeft%(i+1)==0)?Scorpio.tailSegmentTexture:Scorpio.tailSegmentDimTexture, position + (offset * (16 - i)), null, color, Projectile.rotation, new Vector2(5, 5), 1f, SpriteEffects.None, 0);
                         break;
                         case 0:
-                        spriteBatch.Draw(Scorpio.tailSpikeTexture, position + (offset * 15), null, color, projectile.rotation, new Vector2(5, 19), 1f, SpriteEffects.None, 0);
+                        spriteBatch.Draw(Scorpio.tailSpikeTexture, position + (offset * 15), null, color, Projectile.rotation, new Vector2(5, 19), 1f, SpriteEffects.None, 0);
                         break;
                     }
                 }
@@ -191,26 +191,26 @@ namespace EpikV2.Items {
         public static int ID = -1;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Scorpio");
-            ID = projectile.type;
+            ID = Projectile.type;
         }
         public override void SetDefaults() {
-			projectile.CloneDefaults(ProjectileID.Daybreak);
-            projectile.tileCollide = false;
-            projectile.hide = false;
-            projectile.aiStyle = 0;
-            projectile.timeLeft = 11;
-            projectile.extraUpdates = 0;
-            projectile.width *= 2;
-            projectile.height *= 2;
-            projectile.usesLocalNPCImmunity = true;
-            projectile.localNPCHitCooldown = 16;
+			Projectile.CloneDefaults(ProjectileID.Daybreak);
+            Projectile.tileCollide = false;
+            Projectile.hide = false;
+            Projectile.aiStyle = 0;
+            Projectile.timeLeft = 11;
+            Projectile.extraUpdates = 0;
+            Projectile.width *= 2;
+            Projectile.height *= 2;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 16;
 		}
         public override void AI() {
-            projectile.rotation = projectile.velocity.ToRotation();
-            if(projectile.timeLeft>7) {
-                projectile.Center = Main.player[projectile.owner].MountedCenter - projectile.velocity;
+            Projectile.rotation = Projectile.velocity.ToRotation();
+            if(Projectile.timeLeft>7) {
+                Projectile.Center = Main.player[Projectile.owner].MountedCenter - Projectile.velocity;
             } else {
-                projectile.position = projectile.oldPosition;
+                Projectile.position = Projectile.oldPosition;
             }
         }
         public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
@@ -219,23 +219,23 @@ namespace EpikV2.Items {
                 return;
             }
             //target.velocity = Vector2.Lerp(target.velocity, Main.player[projectile.owner].velocity, Math.Min(target.knockBackResist, 1));
-            target.GetGlobalNPC<EpikGlobalNPC>().SetScorpioTime(projectile.owner);
+            target.GetGlobalNPC<EpikGlobalNPC>().SetScorpioTime(Projectile.owner);
         }
         public override void ModifyDamageHitbox(ref Rectangle hitbox) {
-            hitbox.Offset((projectile.velocity*2).ToPoint());
+            hitbox.Offset((Projectile.velocity*2).ToPoint());
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-            Vector2 position = (projectile.Center + projectile.velocity) - Main.screenPosition;
-            int alpha = 50 + (projectile.timeLeft * 10);
-            int rgb = 200+(projectile.timeLeft * 5);
+            Vector2 position = (Projectile.Center + Projectile.velocity) - Main.screenPosition;
+            int alpha = 50 + (Projectile.timeLeft * 10);
+            int rgb = 200+(Projectile.timeLeft * 5);
             float rot = 1.25f;
             Color color;
-            int min = Math.Max(projectile.timeLeft-7, 0);
-            for(int i = (projectile.timeLeft+1)/2; i-->min;) {
+            int min = Math.Max(Projectile.timeLeft-7, 0);
+            for(int i = (Projectile.timeLeft+1)/2; i-->min;) {
                 rot = 0.5f+(0.15f*i);
                 color = new Color(rgb, rgb, rgb, (int)(alpha * (5-i) *0.2f));
-                spriteBatch.Draw(Scorpio.clawTexture, position, null, color, projectile.rotation+rot, new Vector2(5-(rot*2), 9), 1.5f, SpriteEffects.None, 0f);
-                spriteBatch.Draw(Scorpio.clawTexture, position, null, color, projectile.rotation-rot, new Vector2(5-(rot*2), 9), 1.5f, SpriteEffects.FlipVertically, 0f);
+                spriteBatch.Draw(Scorpio.clawTexture, position, null, color, Projectile.rotation+rot, new Vector2(5-(rot*2), 9), 1.5f, SpriteEffects.None, 0f);
+                spriteBatch.Draw(Scorpio.clawTexture, position, null, color, Projectile.rotation-rot, new Vector2(5-(rot*2), 9), 1.5f, SpriteEffects.FlipVertically, 0f);
             }
             return false;
         }
@@ -246,7 +246,7 @@ namespace EpikV2.Items {
             texture = "EpikV2/Buffs/Hydra_Buff";
             return true;
         }
-        public override void SetDefaults() {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Celestial Flames");
             ID = Type;
         }

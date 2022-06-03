@@ -22,42 +22,42 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Ashen Glaive");
 			Tooltip.SetDefault("");
             if(Main.netMode == NetmodeID.Server)return;
-            mark1Texture = mod.GetTexture("Items/Ashen_Mark_1");
-            mark2Texture = mod.GetTexture("Items/Ashen_Mark_2");
-            mark3Texture = mod.GetTexture("Items/Ashen_Mark_3");
+            mark1Texture = Mod.GetTexture("Items/Ashen_Mark_1");
+            mark2Texture = Mod.GetTexture("Items/Ashen_Mark_2");
+            mark3Texture = Mod.GetTexture("Items/Ashen_Mark_3");
 		}
 		public override void SetDefaults() {
-            item.CloneDefaults(ItemID.ThornChakram);
-			item.damage = 133;
-            item.crit = 29;
-			item.width = 32;
-			item.height = 32;
-			item.useTime = 10;
-			item.useAnimation = 10;
+            Item.CloneDefaults(ItemID.ThornChakram);
+			Item.damage = 133;
+            Item.crit = 29;
+			Item.width = 32;
+			Item.height = 32;
+			Item.useTime = 10;
+			Item.useAnimation = 10;
 			//item.knockBack = 5;
-            item.shoot = ModContent.ProjectileType<Ashen_Glaive_P>();
-            item.shootSpeed = 20f;
-			item.value = 5000;
-			item.rare = ItemRarityID.Lime;
-			item.UseSound = SoundID.Item1;
+            Item.shoot = ModContent.ProjectileType<Ashen_Glaive_P>();
+            Item.shootSpeed = 20f;
+			Item.value = 5000;
+			Item.rare = ItemRarityID.Lime;
+			Item.UseSound = SoundID.Item1;
 		}
         public override bool AltFunctionUse(Player player) {
             return true;
         }
         public override bool CanUseItem(Player player) {
             if(player.altFunctionUse==2) {
-                item.useStyle = 5;
-                item.shoot = ProjectileID.None;
+                Item.useStyle = 5;
+                Item.shoot = ProjectileID.None;
                 player.GetModPlayer<EpikPlayer>().glaiveRecall = true;
                 return player.ownedProjectileCounts[ModContent.ProjectileType<Ashen_Glaive_P>()]>0;
             } else {
-                item.useStyle = 1;
-                item.shoot = ModContent.ProjectileType<Ashen_Glaive_P>();
+                Item.useStyle = 1;
+                Item.shoot = ModContent.ProjectileType<Ashen_Glaive_P>();
             }
-            return player.ownedProjectileCounts[item.shoot]<=2;
+            return player.ownedProjectileCounts[Item.shoot]<=2;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            ModRecipe recipe = new ModRecipe(Mod);
             recipe.AddIngredient(ItemID.MartianConduitPlating, 15);
             recipe.AddIngredient(ItemID.SoulofFright, 5);
             recipe.AddTile(TileID.MythrilAnvil);
@@ -75,38 +75,38 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Ashen Glaive");
 		}
         public override void SetDefaults() {
-            projectile.CloneDefaults(ProjectileID.ThornChakram);
-            projectile.melee = true;
-            projectile.penetrate = -1;
-			projectile.width = 32;
-			projectile.height = 32;
-            projectile.usesLocalNPCImmunity = true;
+            Projectile.CloneDefaults(ProjectileID.ThornChakram);
+            Projectile.melee = true;
+            Projectile.penetrate = -1;
+			Projectile.width = 32;
+			Projectile.height = 32;
+            Projectile.usesLocalNPCImmunity = true;
             if(marks is null)marks = new byte[200];
         }
         public override void AI() {
-            Player player = Main.player[projectile.owner];
+            Player player = Main.player[Projectile.owner];
             if(player.altFunctionUse == 2 && player.GetModPlayer<EpikPlayer>().glaiveRecall) {
-                projectile.extraUpdates = 1;
-                if(projectile.ai[0] == 0f) {
-                    projectile.velocity = -projectile.velocity;
-                    projectile.ai[0] = 1f;
+                Projectile.extraUpdates = 1;
+                if(Projectile.ai[0] == 0f) {
+                    Projectile.velocity = -Projectile.velocity;
+                    Projectile.ai[0] = 1f;
                 }
             }
         }
         public override bool CanDamage() {
-            Player player = Main.player[projectile.owner];
+            Player player = Main.player[Projectile.owner];
             NPC npc;
             bool ret = false;
             int crit = player.meleeCrit;
             for(int i = 0; i < 200; i++) {
                 npc = Main.npc[i];
-                if(!npc.active || npc.dontTakeDamage || projectile.localNPCImmunity[i] != 0 || !projectile.Hitbox.Intersects(npc.Hitbox) || !canHit(npc)) {
+                if(!npc.active || npc.dontTakeDamage || Projectile.localNPCImmunity[i] != 0 || !Projectile.Hitbox.Intersects(npc.Hitbox) || !canHit(npc)) {
                     continue;
                 }
                 marks[i]++;
                 if(marks[i] > 3) {
                     marks[i] = 3;
-                    if(projectile.ai[0] == 0f) {
+                    if(Projectile.ai[0] == 0f) {
                         /*int dmg = (projectile.damage*3)+(npc.defense/3);
                         dmg = (int)npc.StrikeNPC(dmg, projectile.knockBack, player.direction, false);
                         player.addDPS(dmg);*/
@@ -114,10 +114,10 @@ namespace EpikV2.Items {
                         return true;
                     }
                 } else if(marks[i] > 2) {
-                    return projectile.ai[0] == 0f;
+                    return Projectile.ai[0] == 0f;
                 }
                 if(Main.rand.Next(100)<crit&&marks[i]<3)marks[i]++;
-				projectile.localNPCImmunity[i] = 6;
+				Projectile.localNPCImmunity[i] = 6;
                 return true;
             }
             return false;
@@ -133,12 +133,12 @@ namespace EpikV2.Items {
             }
         }
         public override void Kill(int timeLeft) {
-            Player player = Main.player[projectile.owner];
-            if(player.ownedProjectileCounts[projectile.type]>1)return;
+            Player player = Main.player[Projectile.owner];
+            if(player.ownedProjectileCounts[Projectile.type]>1)return;
             NPC npc;
             for(int i = 0; i < 200; i++) {
                 npc = Main.npc[i];
-                int dmg = projectile.damage*marks[i];
+                int dmg = Projectile.damage*marks[i];
                 switch(marks[i]) {
                     case 1:
                     break;
@@ -151,17 +151,17 @@ namespace EpikV2.Items {
                     default:
                     continue;
                 }
-                dmg = (int)npc.StrikeNPC(dmg, projectile.knockBack, player.direction, false);
+                dmg = (int)npc.StrikeNPC(dmg, Projectile.knockBack, player.direction, false);
                 player.addDPS(dmg);
                 marks[i] = 0;
             }
         }
         public override bool OnTileCollide(Vector2 oldVelocity) {
-            if(projectile.velocity.X!=oldVelocity.X) {
-                projectile.velocity.X = -oldVelocity.X;
+            if(Projectile.velocity.X!=oldVelocity.X) {
+                Projectile.velocity.X = -oldVelocity.X;
             }
-            if(projectile.velocity.Y!=oldVelocity.Y) {
-                projectile.velocity.Y = -oldVelocity.Y;
+            if(Projectile.velocity.Y!=oldVelocity.Y) {
+                Projectile.velocity.Y = -oldVelocity.Y;
             }
             return false;
         }
@@ -171,13 +171,13 @@ namespace EpikV2.Items {
             return true;
         }
         bool canHit(NPC npc) {
-			if (!(NPCLoader.CanBeHitByProjectile(npc, projectile)??true)){
+			if (!(NPCLoader.CanBeHitByProjectile(npc, Projectile)??true)){
 				return false;
 			}
-			if (!(PlayerHooks.CanHitNPCWithProj(projectile, npc)??true)){
+			if (!(PlayerHooks.CanHitNPCWithProj(Projectile, npc)??true)){
 				return false;
 			}
-            Player player = Main.player[projectile.owner];
+            Player player = Main.player[Projectile.owner];
             if(npc.friendly) {
                 switch(npc.type) {
                     case NPCID.Guide:
@@ -191,7 +191,7 @@ namespace EpikV2.Items {
             return true;
         }
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-            if(projectile.owner!=Main.myPlayer)return true;
+            if(Projectile.owner!=Main.myPlayer)return true;
             if(drawCount>0)return true;
             drawCount++;
             Texture2D texture;

@@ -4,6 +4,7 @@ using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -28,54 +29,53 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Tempest Breaker");
 		    Tooltip.SetDefault("Right click for a heavy attack");
             if(Main.netMode == NetmodeID.Server)return;
-            blastTexture = mod.GetTexture("Items/Tempest_Breaker_Explosion");
+            blastTexture = Mod.GetTexture("Items/Tempest_Breaker_Explosion");
 		}
         public override void SetDefaults() {
-            sbyte h = item.handOnSlot;
-            item.CloneDefaults(ItemID.PhoenixBlaster);
-            item.handOnSlot = h;
-            item.damage = 235;
-			item.ranged = true;
-            item.noUseGraphic = false;
-            item.noMelee = false;
-            item.width = 32;
-            item.height = 64;
-            item.useStyle = 17;
-            item.useTime = 20;
-            item.useAnimation = 20;
-            item.knockBack = 9.5f;
-            item.value = 100000;
-            item.shoot = ProjectileID.None;
-			item.rare = ItemRarityID.Lime;
-            item.autoReuse = true;
-            item.UseSound = null;
-            item.scale = 1f;
+            sbyte h = Item.handOnSlot;
+            Item.CloneDefaults(ItemID.PhoenixBlaster);
+            Item.handOnSlot = h;
+            Item.damage = 235;
+			Item.ranged = true;
+            Item.noUseGraphic = false;
+            Item.noMelee = false;
+            Item.width = 32;
+            Item.height = 64;
+            Item.useStyle = 17;
+            Item.useTime = 20;
+            Item.useAnimation = 20;
+            Item.knockBack = 9.5f;
+            Item.value = 100000;
+            Item.shoot = ProjectileID.None;
+			Item.rare = ItemRarityID.Lime;
+            Item.autoReuse = true;
+            Item.UseSound = null;
+            Item.scale = 1f;
         }
         public override int ChoosePrefix(UnifiedRandom rand) {
-            if(item.ranged) {
-                item.ranged = false;
-                item.melee = true;
-                item.Prefix(-2);
-                item.ranged = true;
-                item.melee = false;
+            if(Item.ranged) {
+                Item.ranged = false;
+                Item.melee = true;
+                Item.Prefix(-2);
+                Item.ranged = true;
+                Item.melee = false;
             }
-            return item.prefix;
+            return Item.prefix;
         }
         public override void HoldItem(Player player) {
-            player.handon = item.handOnSlot;
+            player.handon = Item.handOnSlot;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.MartianConduitPlating, 15);
             recipe.AddIngredient(ItemID.SoulofMight, 5);
             recipe.AddTile(TileID.MythrilAnvil);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.needLava = true;
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.AddCondition(Recipe.Condition.NearLava);
+            recipe.Create();
         }
-        public override bool UseItemFrame(Player player) {
-            player.handon = item.handOnSlot;
+        public override void UseItemFrame(Player player) {
+            player.handon = Item.handOnSlot;
             Vector2 diff = (Main.MouseWorld - player.MountedCenter);
             player.direction = diff.X < 0 ?-1:1;
             player.itemLocation = Vector2.Zero;
@@ -84,17 +84,17 @@ namespace EpikV2.Items {
             if(player.itemAnimation<endlag||player.itemAnimation>startupFrame) {
                 frame = 7;
 			    player.bodyFrame.Y = player.bodyFrame.Height * 7-2;
-                return true;
+                return;
             }
             if(player.itemAnimation == startupFrame) {
                 float spd = 0;
                 bool canShoot = false;
-                dmg = item.damage;
-                kb = item.knockBack;
-                player.PickAmmo(item, ref shot, ref spd, ref canShoot, ref dmg, ref kb);
-                dmg-=item.damage;
-                kb-=item.knockBack;
-                if(canShoot)Main.PlaySound(SoundID.Item36, player.Center);
+                dmg = Item.damage;
+                kb = Item.knockBack;
+                canShoot = player.PickAmmo(Item, out shot, out spd, out dmg, out kb, out usedAmmoItemId);
+                dmg-=Item.damage;
+                kb-=Item.knockBack;
+                if(canShoot)SoundEngine.PlaySound(SoundID.Item36, player.Center);
                 float rot = diff.SafeNormalize(Vector2.Zero).Y;
                 frame = 3;
                 sbyte dir = 0;
@@ -116,19 +116,19 @@ namespace EpikV2.Items {
                 }
             }
             player.bodyFrame.Y = player.bodyFrame.Height * frame;
-            return true;
+            return;
         }
         public override bool AltFunctionUse(Player player) {
             return true;
         }
-        public override void ModifyWeaponDamage(Player player, ref float add, ref float mult, ref float flat) {
+		public override void ModifyWeaponDamage(Player player, ref float add, ref float mult, ref float flat) {
             flat+=dmg*2;
             if(player.altFunctionUse==2) {
                 flat*=2f;
                 mult*=2f;
             }
         }
-        public override void GetWeaponKnockback(Player player, ref float knockback) {
+        public override void ModifyWeaponKnockback(Player player, ref float knockback) {
             knockback+=kb;
             if(player.altFunctionUse==2) {
                 knockback*=1.5f;
@@ -155,28 +155,28 @@ namespace EpikV2.Items {
                 break;
             }
             unit.X *= player.direction;
-            hitbox = BoxOf(player.MountedCenter+unit*8, player.MountedCenter+unit*72*item.scale, frame==3?new Vector2(0,12*item.scale):new Vector2(4*item.scale));
-            item.Hitbox = hitbox;
+            hitbox = BoxOf(player.MountedCenter+unit*8, player.MountedCenter+unit*72*Item.scale, frame==3?new Vector2(0,12*Item.scale):new Vector2(4*Item.scale));
+            Item.Hitbox = hitbox;
         }
         bool recursionnt = false;
         public override bool? CanHitNPC(Player player, NPC target) {
             if(recursionnt)return null;
-            if(!item.Hitbox.Intersects(target.Hitbox))return false;
+            if(!Item.Hitbox.Intersects(target.Hitbox))return false;
             recursionnt = true;
-            bool cantBeHit = !target.CanBeHitBy(player, item, false);
+            bool cantBeHit = !target.CanBeHitBy(player, Item, false);
             recursionnt = false;
             if(cantBeHit)return false;
 
-            int totalDamage = player.GetWeaponDamage(item);
+            int totalDamage = player.GetWeaponDamage(Item);
 
 			int critChance = player.rangedCrit;
-			ItemLoader.GetWeaponCrit(item, player, ref critChance);
-			PlayerHooks.GetWeaponCrit(player, item, ref critChance);
+			ItemLoader.GetWeaponCrit(Item, player, ref critChance);
+			PlayerHooks.GetWeaponCrit(player, Item, ref critChance);
 			bool crit = (critChance >= 100 || Main.rand.Next(1, 101) <= critChance);
 
-            float knockBack = item.knockBack;
-			ItemLoader.GetWeaponKnockback(item, player, ref knockBack);
-			PlayerHooks.GetWeaponKnockback(player, item, ref knockBack);
+            float knockBack = Item.knockBack;
+			ItemLoader.GetWeaponKnockback(Item, player, ref knockBack);
+			PlayerHooks.GetWeaponKnockback(player, Item, ref knockBack);
 
 			int bannerID = Item.NPCtoBanner(target.BannerID());
 			if (bannerID >= 0 && player.NPCBannerBuff[bannerID]){
@@ -184,8 +184,8 @@ namespace EpikV2.Items {
 			}
 
 			int damage = Main.DamageVar(totalDamage);
-			NPCLoader.ModifyHitByItem(target, player, item, ref damage, ref knockBack, ref crit);
-			PlayerHooks.ModifyHitNPC(player, item, target, ref damage, ref knockBack, ref crit);
+			NPCLoader.ModifyHitByItem(target, player, Item, ref damage, ref knockBack, ref crit);
+			PlayerHooks.ModifyHitNPC(player, Item, target, ref damage, ref knockBack, ref crit);
 			player.OnHit(target.Center.X, target.Center.Y, target);
 			if (player.armorPenetration > 0){
 				damage += target.checkArmorPenetration(player.armorPenetration);
@@ -224,9 +224,9 @@ namespace EpikV2.Items {
 
 			target.immune[player.whoAmI] = player.itemAnimation;
 
-			ItemLoader.OnHitNPC(item, player, target, dmgDealt, knockBack, crit);
-			NPCLoader.OnHitByItem(target, player, item, dmgDealt, knockBack, crit);
-			PlayerHooks.OnHitNPC(player, item, target, dmgDealt, knockBack, crit);
+			ItemLoader.OnHitNPC(Item, player, target, dmgDealt, knockBack, crit);
+			NPCLoader.OnHitByItem(target, player, Item, dmgDealt, knockBack, crit);
+			PlayerLoader.OnHitNPC(player, Item, target, dmgDealt, knockBack, crit);
 
 			if (Main.netMode != NetmodeID.SinglePlayer){
 				if (crit){
@@ -270,7 +270,7 @@ namespace EpikV2.Items {
                 rot+=-MathHelper.PiOver4*drawPlayer.direction;
                 break;
             }
-            value = new DrawData(blastTexture, drawPlayer.MountedCenter-Main.screenPosition+new Vector2(16,0).RotatedBy(rot-MathHelper.PiOver2), new Rectangle(0, 66*blastFrame, 64, 64), new Color(255, 255, 255, 255), rot, new Vector2(32, 64), item.scale, drawInfo.spriteEffects, 1);
+            value = new DrawData(blastTexture, drawPlayer.MountedCenter-Main.screenPosition+new Vector2(16,0).RotatedBy(rot-MathHelper.PiOver2), new Rectangle(0, 66*blastFrame, 64, 64), new Color(255, 255, 255, 255), rot, new Vector2(32, 64), Item.scale, drawInfo.spriteEffects, 1);
             Main.playerDrawData.Add(value);
         }
     }

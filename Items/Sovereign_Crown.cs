@@ -19,12 +19,12 @@ namespace EpikV2.Items {
                                "'Heavy is the head that wears the crown'");
 		}
 		public override void SetDefaults() {
-			item.width = 20;
-			item.height = 16;
-			item.value = 5000000;
-			item.rare = ItemRarityID.Quest;
-			item.maxStack = 1;
-            item.defense = 12;
+			Item.width = 20;
+			Item.height = 16;
+			Item.value = 5000000;
+			Item.rare = ItemRarityID.Quest;
+			Item.maxStack = 1;
+            Item.defense = 12;
 		}
 		public override void UpdateEquip(Player player){
 			player.meleeDamage += 0.25f;
@@ -62,7 +62,7 @@ namespace EpikV2.Items {
             drawAltHair = true;
         }
         public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			ModRecipe recipe = new ModRecipe(Mod);
 			recipe.AddIngredient(SanguineMaterial.id, 1);
 			recipe.AddIngredient(ItemID.GoldCrown, 1);
 			recipe.AddIngredient(ItemID.HallowedBar, 5);
@@ -78,7 +78,7 @@ namespace EpikV2.Items {
             texture = "EpikV2/Buffs/Sovereign_Buff";
             return true;
         }
-        public override void SetDefaults() {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Sovereign Crown");
             Description.SetDefault("You fight for the crown");
             Main.buffNoSave[Type] = true;
@@ -98,7 +98,7 @@ namespace EpikV2.Items {
             texture = "EpikV2/Buffs/Sovereign_Debuff";
             return true;
         }
-        public override void SetDefaults() {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Sovereign Crown");
             Description.SetDefault("You fight the crown");
             Main.buffNoSave[Type] = true;

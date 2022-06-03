@@ -16,7 +16,7 @@ namespace EpikV2.Items {
 		}
 
 		public override void SetDefaults() {
-			item.accessory = true;
+			Item.accessory = true;
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			tooltips[0].overrideColor = Color.Lerp(Color.Purple, Color.Crimson, GetColorValue(Main.mouseTextColor));

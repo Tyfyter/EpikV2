@@ -19,10 +19,10 @@ namespace EpikV2.Items
 		}
 		public override void SetDefaults()
 		{
-            item.CloneDefaults(ItemID.Present);
-			item.value = 25000;
-			item.rare = ItemRarityID.Expert;
-			item.color = Color.GreenYellow;
+            Item.CloneDefaults(ItemID.Present);
+			Item.value = 25000;
+			Item.rare = ItemRarityID.Expert;
+			Item.color = Color.GreenYellow;
 		}
         public override bool CanRightClick(){
             return true;

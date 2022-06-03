@@ -14,19 +14,18 @@ namespace EpikV2.Projectiles
         float independence = 0.5f;
         float spread = 0.095f;
         bool init = true;
-        public override bool CloneNewInstances => true;
         public override void SetDefaults()
         {
-            projectile.width = 12;
-            projectile.height = 12;
-            projectile.friendly = true;
-            projectile.ranged = true;
-            projectile.tileCollide = true;
-            projectile.penetrate = -1;//20;
-            projectile.timeLeft = 200;
-            projectile.extraUpdates = 1;
-            projectile.ignoreWater = true; 
-            projectile.usesLocalNPCImmunity = true;  
+            Projectile.width = 12;
+            Projectile.height = 12;
+            Projectile.friendly = true;
+            Projectile.DamageType = DamageClass.Ranged;
+            Projectile.tileCollide = true;
+            Projectile.penetrate = -1;//20;
+            Projectile.timeLeft = 200;
+            Projectile.extraUpdates = 1;
+            Projectile.ignoreWater = true; 
+            Projectile.usesLocalNPCImmunity = true;  
         }
 		public override void SetStaticDefaults()
 		{
@@ -42,21 +41,21 @@ namespace EpikV2.Projectiles
                 }
                 init = false;
             }//*/
-            projectile.rotation = (float)Math.Atan2((double)projectile.velocity.Y, (double)projectile.velocity.X);  
+            Projectile.rotation = (float)Math.Atan2((double)Projectile.velocity.Y, (double)Projectile.velocity.X);  
             if(independence != 0){
                 Vector2 move = Vector2.Zero;
                 for (int k = 0; k < Main.projectile.Length; k++)
                 {
-                    if (Main.projectile[k].type == projectile.type)
+                    if (Main.projectile[k].type == Projectile.type)
                     {
-                        Vector2 newMove = Main.projectile[k].Center - projectile.Center;
+                        Vector2 newMove = Main.projectile[k].Center - Projectile.Center;
                         Projectile proj = Main.projectile[k];
                         float distanceTo = newMove.Length();
-                        if (distanceTo < 400 && k!=projectile.whoAmI && Main.projectile[k].active)
+                        if (distanceTo < 400 && k!=Projectile.whoAmI && Main.projectile[k].active)
                         {
                             move = newMove;
                             AdjustMagnitude(ref move);
-                            projectile.velocity = (10 * projectile.velocity + move) / 10f;
+                            Projectile.velocity = (10 * Projectile.velocity + move) / 10f;
                         }
                     }
                 }
@@ -68,18 +67,18 @@ namespace EpikV2.Projectiles
                     //AdjustMagnitude(ref projectile.velocity);
                 }//*/
             }
-            if(projectile.ai[1] >= 1){
-                Vector2 tempvect = projectile.velocity;
+            if(Projectile.ai[1] >= 1){
+                Vector2 tempvect = Projectile.velocity;
                 tempvect.Normalize();
-                projectile.velocity += tempvect / 2;
-                projectile.ai[1]--;
+                Projectile.velocity += tempvect / 2;
+                Projectile.ai[1]--;
             }
-            if(projectile.ai[1] < 1 && projectile.timeLeft % 120 == 0){
-                projectile.velocity = projectile.velocity.RotatedBy(-spread);
-                int a = Projectile.NewProjectile(projectile.position, projectile.velocity.RotatedBy(spread*2), projectile.type, projectile.damage, projectile.knockBack, projectile.owner, projectile.ai[0], 1);
-                projectile.ai[1] = 1;
+            if(Projectile.ai[1] < 1 && Projectile.timeLeft % 120 == 0){
+                Projectile.velocity = Projectile.velocity.RotatedBy(-spread);
+                int a = Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.position, Projectile.velocity.RotatedBy(spread*2), Projectile.type, Projectile.damage, Projectile.knockBack, Projectile.owner, Projectile.ai[0], 1);
+                Projectile.ai[1] = 1;
                 Main.projectile[a].ai[1] = 1;
-                Main.projectile[a].timeLeft = projectile.timeLeft;
+                Main.projectile[a].timeLeft = Projectile.timeLeft;
 
             }
         }

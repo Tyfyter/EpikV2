@@ -12,17 +12,17 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("Increases armor penetration by 7\nAttacks may inflict Cursed Inferno");
 		}
 		public override void SetDefaults() {
-			sbyte n = item.neckSlot;
-			item.CloneDefaults(ItemID.SharkToothNecklace);
-			item.neckSlot = n;
-			item.width = 28;
-			item.height = 30;
-			item.value = 35000;
-			item.rare = ItemRarityID.LightRed;
-			item.maxStack = 1;
+			sbyte n = Item.neckSlot;
+			Item.CloneDefaults(ItemID.SharkToothNecklace);
+			Item.neckSlot = n;
+			Item.width = 28;
+			Item.height = 30;
+			Item.value = 35000;
+			Item.rare = ItemRarityID.LightRed;
+			Item.maxStack = 1;
 		}
 		public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            ModRecipe recipe = new ModRecipe(Mod);
             recipe.AddIngredient(ItemID.SharkToothNecklace);
             recipe.AddIngredient(ItemID.WormTooth, 5);
             recipe.AddIngredient(ItemID.CursedFlame, 5);

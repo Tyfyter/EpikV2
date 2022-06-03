@@ -15,26 +15,26 @@ namespace EpikV2.Items {
 		    Tooltip.SetDefault("Rearranges enemy organs");
 		}
         public override void SetDefaults() {
-            item.CloneDefaults(ItemID.FrostStaff);
-            item.damage = 40;
-			item.magic = true;
-            item.noUseGraphic = false;
-            item.width = 32;
-            item.height = 32;
-            item.useStyle = 5;
-            item.useTime = 20;
-            item.useAnimation = 20;
-            item.noMelee = true;
-            item.knockBack = 0.5f;
-            item.value = 100000;
-			item.rare = ItemRarityID.Lime;
-            item.autoReuse = true;
-            item.shoot = 1;
-            item.shootSpeed = 6.5f;
-            item.mana = 15;
+            Item.CloneDefaults(ItemID.FrostStaff);
+            Item.damage = 40;
+			Item.magic = true;
+            Item.noUseGraphic = false;
+            Item.width = 32;
+            Item.height = 32;
+            Item.useStyle = 5;
+            Item.useTime = 20;
+            Item.useAnimation = 20;
+            Item.noMelee = true;
+            Item.knockBack = 0.5f;
+            Item.value = 100000;
+			Item.rare = ItemRarityID.Lime;
+            Item.autoReuse = true;
+            Item.shoot = 1;
+            Item.shootSpeed = 6.5f;
+            Item.mana = 15;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            ModRecipe recipe = new ModRecipe(Mod);
             recipe.AddIngredient(Main.versionNumber=="v1.3.5.3"?ItemID.Pumpkin:4292, 1);
             recipe.AddIngredient(ModContent.ItemType<Sacrificial_Dagger>(), 1);
             recipe.AddIngredient(ItemID.SoulofSight, 5);
@@ -47,7 +47,7 @@ namespace EpikV2.Items {
             Main.LocalPlayer.QuickSpawnItem(ModContent.ItemType<Sacrificial_Dagger>());
         }
         public override void ModifyManaCost(Player player, ref float reduce, ref float mult) {
-            if(!item.newAndShiny&&EpikPlayer.ItemChecking[player.whoAmI]) {
+            if(!Item.newAndShiny&&EpikPlayer.ItemChecking[player.whoAmI]) {
                 reduce = 0;
                 mult = 0;
             }
@@ -56,7 +56,7 @@ namespace EpikV2.Items {
             position = Main.MouseWorld;
             player.manaRegenDelay = (int)player.maxRegenDelay;
             try {
-                item.newAndShiny = true;
+                Item.newAndShiny = true;
                 #region target check
                 float distanceFromTarget = 160f;
                 Vector2 targetCenter = position;
@@ -65,7 +65,7 @@ namespace EpikV2.Items {
                 for(int i = 0; i < Main.maxPlayers; i++) {
                     if(i < Main.maxNPCs) {
                         NPC npc = Main.npc[i];
-                        if(npc.CanBeHitBy(player, item)) {
+                        if(npc.CanBeHitBy(player, Item)) {
                             float between = npc.Hitbox.Distance(position);
                             bool closest = getTargetEntity(target).Hitbox.Distance(position) > between;
                             bool inRange = npc.chaseable?between < distanceFromTarget:between==0f;
@@ -128,14 +128,14 @@ namespace EpikV2.Items {
 	                    dust = Dust.NewDustDirect(currPos, 0, 0, 235);
                         dust.velocity *= 0.2f;
                     }
-                    if(!player.CheckMana(item, pay: true)) {
+                    if(!player.CheckMana(Item, pay: true)) {
                         player.Hurt(Terraria.DataStructures.PlayerDeathReason.ByPlayer(player.whoAmI), 10+(int)(player.statDefense*(Main.expertMode?0.75f:0.5f)), 0,  true);
                         player.GetModPlayer<EpikPlayer>().organRearrangement += 25;
                         //sendOrganRearrangementPacket(-1-player.whoAmI, player.GetModPlayer<EpikPlayer>().organRearrangement);
                     }
                 }
             } finally {
-                item.newAndShiny = false;
+                Item.newAndShiny = false;
             }
 			return false;
 		}

@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using Terraria.GameContent.NetModules;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
@@ -170,7 +171,7 @@ namespace EpikV2 {
             if (!canBeHitByItem) {
                 return false;
             }
-            bool playerCanHitNPC = PlayerHooks.CanHitNPC(player, item, npc) ?? true;
+            bool playerCanHitNPC = PlayerLoader.CanHitNPC(player, item, npc) ?? true;
             if (!playerCanHitNPC) {
                 return false;
             }
@@ -194,7 +195,7 @@ namespace EpikV2 {
             if (!canBeHitByItem) {
                 return false;
             }
-            bool playerCanHitNPC = PlayerHooks.CanHitNPC(player, item, npc) ?? true;
+            bool playerCanHitNPC = PlayerLoader.CanHitNPC(player, item, npc) ?? true;
             if (!playerCanHitNPC) {
                 return false;
             }
@@ -242,19 +243,19 @@ namespace EpikV2 {
                 Main.dust[d].noGravity = true;
             }
             Gore gore;
-            gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
+            gore = Gore.NewGoreDirect(new EntitySource_Misc("Unknown"), new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
             gore.scale = 1f;
             gore.velocity.X += 1f;
             gore.velocity.Y += 1f;
-            gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
+            gore = Gore.NewGoreDirect(new EntitySource_Misc("Unknown"), new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
             gore.scale = 1f;
             gore.velocity.X -= 1f;
             gore.velocity.Y += 1f;
-            gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
+            gore = Gore.NewGoreDirect(new EntitySource_Misc("Unknown"), new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
             gore.scale = 1f;
             gore.velocity.X += 1f;
             gore.velocity.Y -= 1f;
-            gore = Gore.NewGoreDirect(new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
+            gore = Gore.NewGoreDirect(new EntitySource_Misc("Unknown"), new Vector2(rectangle.X + (rectangle.Width * 0.5f) - 24f, rectangle.Y + (rectangle.Height * 0.5f) - 24f), default(Vector2), Main.rand.Next(61, 64));
             gore.scale = 1f;
             gore.velocity.X -= 1f;
             gore.velocity.Y -= 1f;
@@ -350,7 +351,7 @@ namespace EpikV2 {
         public static string GetHerbText() {
             char[] text = "The herb which flourishes within shall never wither in the eyes of god".ToCharArray();
             string spacing = "";
-            float width = Main.fontMouseText.MeasureString(new string(text)).X;
+            float width = FontAssets.MouseText.Value.MeasureString(new string(text)).X;
             if (!(EpikClientConfig.Instance?.reduceJitter ?? false)) {
                 unchecked {
                     switch (Main.rand.Next(16)) {
@@ -368,7 +369,7 @@ namespace EpikV2 {
                         break;
                     }
                 }
-                float newWidth = Main.fontMouseText.MeasureString(new string(text)).X;
+                float newWidth = FontAssets.MouseText.Value.MeasureString(new string(text)).X;
                 //                              7    9    12   13
                 //char[] spaces = new char[] { ' ', '　', ' ', ' ' };
                 switch ((int)(newWidth - width) + 5) {
@@ -641,7 +642,7 @@ namespace EpikV2 {
             float num6 = 1f;
             float num7 = 1f;
             float num8 = 1f;
-			if (ModPrefix.GetPrefix((byte)prefix) is ModPrefix modPrefix) {
+			if (PrefixLoader.GetPrefix(prefix) is ModPrefix modPrefix) {
                 modPrefix.SetStats(ref num3, ref num4, ref num5, ref num6, ref num7, ref num8, ref crit);
                 float num2 = 1f * num3 * (2f - num5) * (2f - num8) * num6 * num4 * num7;
                 modPrefix.ModifyValue(ref num2);
@@ -683,8 +684,8 @@ namespace EpikV2 {
             switch (Main.netMode) {
                 case NetmodeID.Server:
                 Player owner = Main.player[ownerID];
-                int num = Item.NewItem((int)Position.X, (int)Position.Y, (int)HitboxSize.X, (int)HitboxSize.Y, itemType, itemStack, noBroadcast: true);
-                Main.itemLockoutTime[num] = 54000;
+                int num = Item.NewItem(owner.GetSource_FromThis(), Position, (int)HitboxSize.X, (int)HitboxSize.Y, itemType, itemStack, noBroadcast: true);
+                Main.timeItemSlotCannotBeReusedFor[num] = 54000;
                 Player other;
                 for (int i = 0; i <= Main.maxPlayers; i++) {
                     other = Main.player[i];
@@ -695,7 +696,7 @@ namespace EpikV2 {
                 Main.item[num].active = false;
                 break;
                 case NetmodeID.SinglePlayer:
-                Item.NewItem((int)Position.X, (int)Position.Y, (int)HitboxSize.X, (int)HitboxSize.Y, itemType, itemStack);
+                Item.NewItem(Main.LocalPlayer.GetSource_FromThis(), Position, (int)HitboxSize.X, (int)HitboxSize.Y, itemType, itemStack);
                 break;
             }
         }
@@ -704,8 +705,8 @@ namespace EpikV2 {
             return pLength > length * length ? Vector2.Normalize(vector) * length : vector;
         }
         public static void Restart(this SpriteBatch spriteBatch, SpriteSortMode sortMode = SpriteSortMode.Deferred, BlendState blendState = null, SamplerState samplerState = null, RasterizerState rasterizerState = null, Effect effect = null, Matrix? transformMatrix = null) {
-            Main.spriteBatch.End();
-            Main.spriteBatch.Begin(sortMode, blendState??BlendState.AlphaBlend, samplerState??SamplerState.LinearClamp, DepthStencilState.None, rasterizerState??Main.instance.Rasterizer, effect, transformMatrix??Main.GameViewMatrix.TransformationMatrix);
+            spriteBatch.End();
+            spriteBatch.Begin(sortMode, blendState??BlendState.AlphaBlend, samplerState??SamplerState.LinearClamp, DepthStencilState.None, rasterizerState??Main.Rasterizer, effect, transformMatrix??Main.GameViewMatrix.TransformationMatrix);
         }
         public static void SayNetMode() {
             switch(Main.netMode) {

@@ -21,40 +21,40 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("");
 		}
 		public override void SetDefaults(){
-			item.CloneDefaults(ItemID.MonkStaffT3);
-			item.damage = 115;
-			item.melee = true;
-			item.width = 64;
-			item.height = 64;
-			item.useAnimation = item.useTime = 30;
+			Item.CloneDefaults(ItemID.MonkStaffT3);
+			Item.damage = 115;
+			Item.melee = true;
+			Item.width = 64;
+			Item.height = 64;
+			Item.useAnimation = Item.useTime = 30;
             //item.useTime = 15;
             //item.useAnimation = 15;
             //item.useStyle = 1;
-            item.noUseGraphic = true;
-			item.knockBack = 6;
-			item.value*=10;
-            item.rare = ItemRarityID.Purple;
-			item.scale = 1f;
-			item.shoot = ModContent.ProjectileType<Jade_Reaper_Spin>();
-			item.shootSpeed = 0;
-            item.UseSound = SoundID.Item71;
-            item.channel = true;
+            Item.noUseGraphic = true;
+			Item.knockBack = 6;
+			Item.value*=10;
+            Item.rare = ItemRarityID.Purple;
+			Item.scale = 1f;
+			Item.shoot = ModContent.ProjectileType<Jade_Reaper_Spin>();
+			Item.shootSpeed = 0;
+            Item.UseSound = SoundID.Item71;
+            Item.channel = true;
 		}
 		public override bool AltFunctionUse(Player player) => true;
         public override bool CanUseItem(Player player) {
             if(player.altFunctionUse==2) {
-			    item.useAnimation = item.useTime = 12;
+			    Item.useAnimation = Item.useTime = 12;
             } else {
-			    item.useAnimation = item.useTime = 30;
+			    Item.useAnimation = Item.useTime = 30;
             }
-            item.UseSound = player.ownedProjectileCounts[spinProj]<1 ? SoundID.Item71 : null;
+            Item.UseSound = player.ownedProjectileCounts[spinProj]<1 ? SoundID.Item71 : null;
             return player.altFunctionUse==2||player.ownedProjectileCounts[spinProj]<1;
         }
         public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
             return player.ownedProjectileCounts[spinProj]<1;
         }
         public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			ModRecipe recipe = new ModRecipe(Mod);
 			recipe.AddIngredient(AquamarineMaterial.id, 1);
 			recipe.AddTile(TileID.DemonAltar);
 			recipe.SetResult(this);
@@ -65,62 +65,62 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Items/Jade_Reaper";
         public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Jade Reaper");
-            Jade_Reaper.spinProj = projectile.type;
+            Jade_Reaper.spinProj = Projectile.type;
 		}
 		public override void SetDefaults(){
-			projectile.CloneDefaults(ProjectileID.MonkStaffT3);
+			Projectile.CloneDefaults(ProjectileID.MonkStaffT3);
             //projectile.timeLeft = 25;
-			projectile.penetrate = -1;
-			projectile.light = 0;
-			projectile.aiStyle = 0;
-			projectile.usesLocalNPCImmunity = true;
-			projectile.localNPCHitCooldown = 1;
-            projectile.timeLeft = 35;
-            projectile.alpha = 100;
-            projectile.width = projectile.height = 128;
-            projectile.hide = false;
+			Projectile.penetrate = -1;
+			Projectile.light = 0;
+			Projectile.aiStyle = 0;
+			Projectile.usesLocalNPCImmunity = true;
+			Projectile.localNPCHitCooldown = 1;
+            Projectile.timeLeft = 35;
+            Projectile.alpha = 100;
+            Projectile.width = Projectile.height = 128;
+            Projectile.hide = false;
 		}
         /*public override bool PreAI() {
             projectile.type = Jade_Reaper.spinProj;
             return true;
         }*/
         public override void AI() {
-            Player player = Main.player[projectile.owner];
+            Player player = Main.player[Projectile.owner];
             //projectile.GetGlobalProjectile<EpikGlobalProjectile>().jade = !jadeTest;
-            if(projectile.localAI[0]==0) {
+            if(Projectile.localAI[0]==0) {
                 SpinAI();
-                if(player.controlUseTile&&Main.myPlayer==projectile.owner) {
-                    projectile.localAI[0] = 1;
+                if(player.controlUseTile&&Main.myPlayer==Projectile.owner) {
+                    Projectile.localAI[0] = 1;
                     //projectile.CloneDefaults(ProjectileID.PaladinsHammerFriendly);
-                    projectile.aiStyle = 3;
+                    Projectile.aiStyle = 3;
                     //projectile.netUpdate = true;
                     Vector2 velocity = Main.MouseWorld-player.Center;
                     velocity.Normalize();
                     velocity*=18.5f;
-                    projectile.velocity+=velocity;
-                    projectile.extraUpdates = 1;
-                    projectile.soundDelay = 50;
-                    Main.PlaySound(SoundID.Item71, projectile.Center);
+                    Projectile.velocity+=velocity;
+                    Projectile.extraUpdates = 1;
+                    Projectile.soundDelay = 50;
+                    SoundEngine.PlaySound(SoundID.Item71, Projectile.Center);
                     player.direction = Math.Sign(velocity.X);
                 }
             } else {
-                bool flag = projectile.extraUpdates!=4&&projectile.localAI[1]!=1;
-                projectile.timeLeft = 60;
-                if(--projectile.soundDelay<=0) {
-                    projectile.soundDelay = 50;
-                    if(flag)Main.PlaySound(SoundID.Item71, projectile.Center);
+                bool flag = Projectile.extraUpdates!=4&&Projectile.localAI[1]!=1;
+                Projectile.timeLeft = 60;
+                if(--Projectile.soundDelay<=0) {
+                    Projectile.soundDelay = 50;
+                    if(flag)SoundEngine.PlaySound(SoundID.Item71, Projectile.Center);
                 }
                 if(flag) {
-                    projectile.rotation += 0.23f * projectile.direction;
+                    Projectile.rotation += 0.23f * Projectile.direction;
                     /*if(projectile.ai[0]==1f&&projectile.velocity.Length()<12) {
                         projectile.extraUpdates = 1;
                     }*/
                 }
                 if(player.altFunctionUse==2) {
-                    if(projectile.ai[0]==1f) {
+                    if(Projectile.ai[0]==1f) {
                         //projectile.rotation = -MathHelper.PiOver4;
-                        projectile.extraUpdates = 4;
-                        projectile.localAI[1] = 1;
+                        Projectile.extraUpdates = 4;
+                        Projectile.localAI[1] = 1;
                     } else {
                         player.altFunctionUse = 0;
                     }
@@ -128,32 +128,32 @@ namespace EpikV2.Items {
             }
         }
 		public void SpinAI(){
-            Player player = Main.player[projectile.owner];
-			projectile.Center = player.MountedCenter;
-			if (Main.myPlayer == projectile.owner){
-                if (player.noItems || player.CCed || !player.controlUseItem || projectile.noEnchantments){
-					projectile.noEnchantments = true;
+            Player player = Main.player[Projectile.owner];
+			Projectile.Center = player.MountedCenter;
+			if (Main.myPlayer == Projectile.owner){
+                if (player.noItems || player.CCed || !player.controlUseItem || Projectile.noEnchantments){
+					Projectile.noEnchantments = true;
                 }
             }
             player.itemTime = 2;
             player.itemAnimation = 2;
-            if(projectile.soundDelay<=0) {
-                projectile.soundDelay = 30;
-                Main.PlaySound(SoundID.Item71, projectile.Center);
+            if(Projectile.soundDelay<=0) {
+                Projectile.soundDelay = 30;
+                SoundEngine.PlaySound(SoundID.Item71, Projectile.Center);
             }
-            if(!projectile.noEnchantments)projectile.timeLeft = 30;
-            projectile.direction = player.direction;
-            projectile.localAI[1] = projectile.direction;
-            projectile.rotation += 0.23f * projectile.direction;
+            if(!Projectile.noEnchantments)Projectile.timeLeft = 30;
+            Projectile.direction = player.direction;
+            Projectile.localAI[1] = Projectile.direction;
+            Projectile.rotation += 0.23f * Projectile.direction;
             for (int i = 0; i<Main.projectile.Length; i++){
-				Vector2 intersect = new Vector2(MathHelper.Clamp(projectile.Center.X, Main.projectile[i].Hitbox.Left, Main.projectile[i].Hitbox.Right),MathHelper.Clamp(projectile.Center.Y, Main.projectile[i].Hitbox.Top, Main.projectile[i].Hitbox.Bottom));
-				float dist = (projectile.Center-intersect).Length();
-                if (dist<64&&Main.projectile[i].type != projectile.type&&(Main.projectile[i].damage > 0 || Main.projectile[i].npcProj)&&(Main.projectile[i].owner!=projectile.owner||Main.projectile[i].npcProj||Main.projectile[i].trap||Main.projectile[i].hostile)) {
+				Vector2 intersect = new Vector2(MathHelper.Clamp(Projectile.Center.X, Main.projectile[i].Hitbox.Left, Main.projectile[i].Hitbox.Right),MathHelper.Clamp(Projectile.Center.Y, Main.projectile[i].Hitbox.Top, Main.projectile[i].Hitbox.Bottom));
+				float dist = (Projectile.Center-intersect).Length();
+                if (dist<64&&Main.projectile[i].type != Projectile.type&&(Main.projectile[i].damage > 0 || Main.projectile[i].npcProj)&&(Main.projectile[i].owner!=Projectile.owner||Main.projectile[i].npcProj||Main.projectile[i].trap||Main.projectile[i].hostile)) {
                     Projectile proj = Main.projectile[i];
 					if(proj.tileCollide){
-						proj.velocity = proj.velocity.RotatedBy(projectile.direction*0.25f);
+						proj.velocity = proj.velocity.RotatedBy(Projectile.direction*0.25f);
 					}else{
-						proj.velocity = Vector2.Lerp(proj.velocity, new Vector2(projectile.timeLeft<2?dist:640/dist,0).RotatedBy((proj.Center-projectile.Center).ToRotation()+player.direction*1.9f), 1f);
+						proj.velocity = Vector2.Lerp(proj.velocity, new Vector2(Projectile.timeLeft<2?dist:640/dist,0).RotatedBy((proj.Center-Projectile.Center).ToRotation()+player.direction*1.9f), 1f);
 					}
 					proj.friendly = true;
 					proj.hostile = false;
@@ -161,15 +161,15 @@ namespace EpikV2.Items {
             }
 		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
-			Vector2 intersect = new Vector2(MathHelper.Clamp(projectile.Center.X, target.Hitbox.Left, target.Hitbox.Right),MathHelper.Clamp(projectile.Center.Y, target.Hitbox.Top, target.Hitbox.Bottom));
-			projectile.localNPCImmunity[target.whoAmI] = (int)(projectile.Distance(intersect)/8)+5+(projectile.localAI[0]==1?3:0);
-            projectile.type = Jade_Reaper.spinProj;
+			Vector2 intersect = new Vector2(MathHelper.Clamp(Projectile.Center.X, target.Hitbox.Left, target.Hitbox.Right),MathHelper.Clamp(Projectile.Center.Y, target.Hitbox.Top, target.Hitbox.Bottom));
+			Projectile.localNPCImmunity[target.whoAmI] = (int)(Projectile.Distance(intersect)/8)+5+(Projectile.localAI[0]==1?3:0);
+            Projectile.type = Jade_Reaper.spinProj;
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox){
-			Vector2 intersect = new Vector2(MathHelper.Clamp(projectile.Center.X, targetHitbox.Left, targetHitbox.Right),MathHelper.Clamp(projectile.Center.Y, targetHitbox.Top, targetHitbox.Bottom));
-			float dist = (projectile.Center-intersect).Length();
+			Vector2 intersect = new Vector2(MathHelper.Clamp(Projectile.Center.X, targetHitbox.Left, targetHitbox.Right),MathHelper.Clamp(Projectile.Center.Y, targetHitbox.Top, targetHitbox.Bottom));
+			float dist = (Projectile.Center-intersect).Length();
             if(dist<64) {
-                projectile.type = ProjectileID.PaladinsHammerFriendly;
+                Projectile.type = ProjectileID.PaladinsHammerFriendly;
                 return true;//&&Main.rand.NextBool((int)(dist * dist));
             }
             return false;
@@ -177,9 +177,9 @@ namespace EpikV2.Items {
         public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
 			//spriteBatch.End();
 			//spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.jadeDyeShader.Shader, Main.GameViewMatrix.ZoomMatrix);
-            Texture2D texture = ModContent.GetTexture(projectile.localAI[1]==1?"EpikV2/Items/Jade_Reaper":"EpikV2/Items/Jade_Reaper_M");
-            Terraria.DataStructures.DrawData data = new Terraria.DataStructures.DrawData(texture, projectile.Center - Main.screenPosition, new Rectangle(0,0,64,64), new Color(255,255,255,200), projectile.rotation, new Vector2(32,32), 2f, SpriteEffects.None, 0);
-            Shaders.jadeDyeShader.Apply(projectile, data);
+            Texture2D texture = ModContent.GetTexture(Projectile.localAI[1]==1?"EpikV2/Items/Jade_Reaper":"EpikV2/Items/Jade_Reaper_M");
+            Terraria.DataStructures.DrawData data = new Terraria.DataStructures.DrawData(texture, Projectile.Center - Main.screenPosition, new Rectangle(0,0,64,64), new Color(255,255,255,200), Projectile.rotation, new Vector2(32,32), 2f, SpriteEffects.None, 0);
+            Shaders.jadeDyeShader.Apply(Projectile, data);
             data.Draw(spriteBatch);
             //spriteBatch.Draw(texture, projectile.Center - Main.screenPosition, new Rectangle(0,0,64,64), default, projectile.rotation, new Vector2(32,32), 2f, SpriteEffects.None, 0f);
 
@@ -190,12 +190,12 @@ namespace EpikV2.Items {
             //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
         }
         public override void SendExtraAI(BinaryWriter writer) {
-            writer.Write(projectile.localAI[0]);
-            writer.Write(projectile.localAI[1]);
+            writer.Write(Projectile.localAI[0]);
+            writer.Write(Projectile.localAI[1]);
         }
         public override void ReceiveExtraAI(BinaryReader reader) {
-            projectile.localAI[0] = reader.ReadSingle();
-            projectile.localAI[1] = reader.ReadSingle();
+            Projectile.localAI[0] = reader.ReadSingle();
+            Projectile.localAI[1] = reader.ReadSingle();
         }
     }
 	/*public class Jade_Reaper_Throw : ModProjectile{

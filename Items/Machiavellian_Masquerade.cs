@@ -19,12 +19,12 @@ namespace EpikV2.Items {
                                "Should not the death of a liar be itself a lie?");
 		}
 		public override void SetDefaults() {
-			item.width = 20;
-			item.height = 16;
-			item.value = 5000000;
-			item.rare = ItemRarityID.Quest;
-			item.maxStack = 1;
-            item.defense = 6;
+			Item.width = 20;
+			Item.height = 16;
+			Item.value = 5000000;
+			Item.rare = ItemRarityID.Quest;
+			Item.maxStack = 1;
+            Item.defense = 6;
 		}
 		public override void UpdateEquip(Player player){
 			player.rangedDamage += 0.15f;
@@ -39,7 +39,7 @@ namespace EpikV2.Items {
             player.GetModPlayer<EpikPlayer>().extraHeadTexture = 0;
         }
         public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(mod);
+			ModRecipe recipe = new ModRecipe(Mod);
 			recipe.AddIngredient(SanguineMaterial.id, 1);
 			recipe.AddIngredient(ItemID.MimeMask, 1);
 			recipe.AddIngredient(ItemID.HallowedBar, 5);

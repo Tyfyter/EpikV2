@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static EpikV2.EpikExtensions;
@@ -15,19 +16,19 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Orion Boots");
 		    Tooltip.SetDefault("I'm sure this is safe");
-            ID = item.type;
+            ID = Item.type;
 		}
 		public override void SetDefaults() {
-            item.CloneDefaults(ItemID.AmethystHook);
-			item.shootSpeed = 20f;
-            item.shoot = ProjectileType<Orion_Boots_Projectile>();
-            item.useAmmo = Orion_Boot_Charge.ID;
-            item.rare = ItemRarityID.Cyan;
+            Item.CloneDefaults(ItemID.AmethystHook);
+			Item.shootSpeed = 20f;
+            Item.shoot = ProjectileType<Orion_Boots_Projectile>();
+            Item.useAmmo = Orion_Boot_Charge.ID;
+            Item.rare = ItemRarityID.Cyan;
 		}
 
 
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            ModRecipe recipe = new ModRecipe(Mod);
             recipe.AddIngredient(ItemID.RocketBoots, 1);
             recipe.AddIngredient(ItemID.FragmentSolar, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);
@@ -40,14 +41,14 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Uranium Capsule");
 		    Tooltip.SetDefault("");
-            ID = item.type;
+            ID = Item.type;
 		}
 		public override void SetDefaults() {
-            item.CloneDefaults(ItemID.Emerald);
-            item.createTile = -1;
-            item.consumable = true;
-            item.ammo = item.type;
-            item.rare = ItemRarityID.Cyan;
+            Item.CloneDefaults(ItemID.Emerald);
+            Item.createTile = -1;
+            Item.consumable = true;
+            Item.ammo = Item.type;
+            Item.rare = ItemRarityID.Cyan;
 		}
 
     }
@@ -57,8 +58,8 @@ namespace EpikV2.Items {
         public override bool CloneNewInstances => true;
 
         public override void SetDefaults() {
-			projectile.CloneDefaults(ProjectileID.GemHookAmethyst);
-			projectile.netImportant = true;
+			Projectile.CloneDefaults(ProjectileID.GemHookAmethyst);
+			Projectile.netImportant = true;
 		}
 
 		public override bool? CanUseGrapple(Player player) {
@@ -91,7 +92,7 @@ namespace EpikV2.Items {
 			speed = 0f;
 		}
         public override bool PreAI() {
-            Player player = Main.player[projectile.owner];
+            Player player = Main.player[Projectile.owner];
             if(player.grapCount>0)player.grappling[--player.grapCount] = -1;
             EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
             float fact = 1;
@@ -103,34 +104,34 @@ namespace EpikV2.Items {
                 explosion.width*=8;
                 explosion.Center = exPos;
                 explosion.melee = false;
-                Main.PlaySound(SoundID.Item14, exPos);
+                SoundEngine.PlaySound(SoundID.Item14, exPos);
             } else {
-                if(epikPlayer.yoteTimeCollide.y>0&&projectile.velocity.Y>0) {
-                    projectile.velocity.Y = 0;
+                if(epikPlayer.yoteTimeCollide.y>0&&Projectile.velocity.Y>0) {
+                    Projectile.velocity.Y = 0;
                     fact *= Orion_Boots.collisionMult;
-                }else if(epikPlayer.yoteTimeCollide.y<0&&projectile.velocity.Y<0) {
-                    projectile.velocity.Y = 0;
+                }else if(epikPlayer.yoteTimeCollide.y<0&&Projectile.velocity.Y<0) {
+                    Projectile.velocity.Y = 0;
                     fact *= Orion_Boots.collisionMult;
                 }
-                if(epikPlayer.yoteTimeCollide.x>0&&projectile.velocity.X>0) {
-                    projectile.velocity.X = 0;
+                if(epikPlayer.yoteTimeCollide.x>0&&Projectile.velocity.X>0) {
+                    Projectile.velocity.X = 0;
                     fact *= Orion_Boots.collisionMult;
-                }else if(epikPlayer.yoteTimeCollide.x<0&&projectile.velocity.X<0) {
-                    projectile.velocity.X = 0;
+                }else if(epikPlayer.yoteTimeCollide.x<0&&Projectile.velocity.X<0) {
+                    Projectile.velocity.X = 0;
                     fact *= Orion_Boots.collisionMult;
                 }
             }
             epikPlayer.yoteTimeCollide = (0, 0);
-            Vector2 normProjVel = projectile.velocity.SafeNormalize(Vector2.Zero);
+            Vector2 normProjVel = Projectile.velocity.SafeNormalize(Vector2.Zero);
             Vector2 d = player.velocity.SafeNormalize(Vector2.Zero)*normProjVel;
-            float v = projectile.velocity.Length();
+            float v = Projectile.velocity.Length();
             float pv = player.velocity.Length();
             v -= (float)Math.Max(Math.Min((v-pv)*Math.Pow(d.X+d.Y,3f), v), 0);
             if((d.X+d.Y)>0&&pv>16) {
                 v = Math.Max(v-pv/1.25f,0);
             }
             player.velocity += normProjVel*v*fact;
-            projectile.Kill();
+            Projectile.Kill();
             return false;
         }
     }

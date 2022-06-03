@@ -62,13 +62,13 @@ namespace EpikV2.Items {
 				}
 			}
 		}
-		public override void Load(Item item, TagCompound tag) {
+		public override void LoadData(Item item, TagCompound tag) {
 			if (tag.ContainsKey("nOwO")) {
 				nOwO = tag.GetBool("nOwO");
 			}
 			RefreshCatgirlMeme(item);
 		}
-		public override TagCompound Save(Item item) {
+		public override TagCompound SaveData(Item item) {
 			return new TagCompound() {
 				{ "nOwO", nOwO.Value }
 			};
@@ -78,8 +78,8 @@ namespace EpikV2.Items {
 		}
 		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
 			if (nOwO ?? false) {
-				tooltips.Add(new TooltipLine(mod, "plank", EpikExtensions.GetHerbText()) {
-					overrideColor = new Color(0, 0, 0, 0f)
+				tooltips.Add(new TooltipLine(Mod, "plank", EpikExtensions.GetHerbText()) {
+					OverrideColor = new Color(0, 0, 0, 0f)
 				});
 			}
 		}
@@ -88,7 +88,7 @@ namespace EpikV2.Items {
                 if(!Main.projectileLoaded[type]) {
                     Projectile.NewProjectile(Vector2.Zero, Vector2.Zero, type, 0, 0);
                 }
-                damage += (damage-Main.player[weapon.owner].GetWeaponDamage(weapon))*5;
+                damage += (damage-Main.player[weapon.playerIndexTheItemIsReservedFor].GetWeaponDamage(weapon))*5;
             }
         }
 		public override void OpenVanillaBag(string context, Player player, int arg) {

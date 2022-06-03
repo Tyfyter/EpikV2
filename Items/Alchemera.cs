@@ -5,7 +5,9 @@ using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
@@ -21,27 +23,27 @@ namespace EpikV2.Items {
 		    Tooltip.SetDefault("");
         }
         public override void SetDefaults() {
-            item.CloneDefaults(ItemID.ToxicFlask);
-            item.damage = 60;
-            item.magic = true;
-            item.mana = 25;
-            item.width = 32;
-            item.height = 64;
-            item.useStyle = 5;
-            item.useTime = 27;
-            item.useAnimation = 27;
-            item.noMelee = true;
-            item.knockBack = 5f;
-            item.value = 150000;
-            item.rare = ItemRarityID.Purple;
-            item.autoReuse = true;
-            item.shoot = ProjectileType<Alchemera_Flask>();
-            item.shootSpeed = 16f;
-			item.scale = 0.85f;
-            item.UseSound = null;
+            Item.CloneDefaults(ItemID.ToxicFlask);
+            Item.damage = 60;
+            Item.DamageType = DamageClass.Magic;
+            Item.mana = 25;
+            Item.width = 32;
+            Item.height = 64;
+            Item.useStyle = 5;
+            Item.useTime = 27;
+            Item.useAnimation = 27;
+            Item.noMelee = true;
+            Item.knockBack = 5f;
+            Item.value = 150000;
+            Item.rare = ItemRarityID.Purple;
+            Item.autoReuse = true;
+            Item.shoot = ProjectileType<Alchemera_Flask>();
+            Item.shootSpeed = 16f;
+			Item.scale = 0.85f;
+            Item.UseSound = null;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.ToxicFlask);
             recipe.AddIngredient(ItemID.FragmentNebula, 9);
 
@@ -66,14 +68,13 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.FlaskofCursedFlames);
             recipe.AddIngredient(ItemID.FlaskofIchor);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
 		public override bool AltFunctionUse(Player player) {
 			return true;
 		}
 
-		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
             int aiValue = (Main.rand.Next(3)) |
                 (Main.rand.Next(3) << 2) |
                 (Main.rand.Next(4) << 4);
@@ -81,8 +82,10 @@ namespace EpikV2.Items {
 			for (int i = Main.rand.Next(4); i < 4; i++) {
                 aiValue |= (1 << Main.rand.Next(4)) << 6;
             }
-            Projectile.NewProjectile(position, 
-                new Vector2(speedX, speedY), 
+            Projectile.NewProjectile(
+                source,
+                position,
+                velocity, 
                 type, 
                 damage, 
                 knockBack, 
@@ -100,7 +103,7 @@ namespace EpikV2.Items {
             Tooltip.SetDefault("Will certainly do something");
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.StrangeBrew);
             recipe.AddIngredient(ItemID.InfernoPotion);
             recipe.AddIngredient(ItemID.MagicPowerPotion);
@@ -108,8 +111,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.TeleportationPotion);
             recipe.AddIngredient(ItemID.GenderChangePotion);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
             Main.spriteBatch.Restart(
@@ -118,14 +120,14 @@ namespace EpikV2.Items {
             );
 
             DrawData data = new DrawData {
-                texture = Main.itemTexture[item.type],
+                texture = TextureAssets.Item[Item.type].Value,
                 position = position,
                 color = drawColor,
                 rotation = 0f,
                 scale = new Vector2(scale),
-                shader = item.dye
+                shader = Item.dye
             };
-            GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.LivingRainbowDye), Main.player[item.owner], data);
+            GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.LivingRainbowDye), Main.player[Item.playerIndexTheItemIsReservedFor], data);
             return true;
         }
         public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
@@ -139,14 +141,14 @@ namespace EpikV2.Items {
             );
             
             DrawData data = new DrawData {
-                texture = Main.itemTexture[item.type],
-                position = item.position - Main.screenPosition,
+                texture = TextureAssets.Item[Item.type].Value,
+                position = Item.position - Main.screenPosition,
                 color = lightColor,
                 rotation = rotation,
                 scale = new Vector2(scale),
-                shader = item.dye
+                shader = Item.dye
             };
-            GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.LivingRainbowDye), Main.player[item.owner], data);
+            GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.LivingRainbowDye), Main.player[Item.playerIndexTheItemIsReservedFor], data);
             return true;
         }
         public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI) {
@@ -164,10 +166,10 @@ namespace EpikV2.Items {
 	public class Alchemera_Flask : ModProjectile {
         public int FlaskType {
             get {
-                return (ushort)projectile.ai[0];
+                return (ushort)Projectile.ai[0];
             }
             set {
-                projectile.ai[0] = value;
+                Projectile.ai[0] = value;
             }
         }
         /// <summary>
@@ -223,41 +225,41 @@ namespace EpikV2.Items {
         public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Alchemera");
             if (Main.netMode == NetmodeID.Server) return;
-            LiquidTexture = mod.GetTexture("Items/Alchemera_Flask_Liquid");
+            LiquidTexture = Mod.Assets.Request<Texture2D>("Items/Alchemera_Flask_Liquid").Value;
         }
         public override void SetDefaults() {
-			projectile.CloneDefaults(ProjectileID.ToxicFlask);
-            projectile.usesLocalNPCImmunity = true;
-            projectile.localNPCHitCooldown = 10;
+			Projectile.CloneDefaults(ProjectileID.ToxicFlask);
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = 10;
             //projectile.extraUpdates = 0;
-            projectile.penetrate = 1;
-			projectile.aiStyle = 0;
+            Projectile.penetrate = 1;
+			Projectile.aiStyle = 0;
         }
         public override void AI() {
-            Player owner = Main.player[projectile.owner];
+            Player owner = Main.player[Projectile.owner];
             //projectile.rotation -= (Math.Abs(projectile.velocity.X) + Math.Abs(projectile.velocity.Y)) * 0.03f * projectile.direction;
-            projectile.rotation += Math.Abs(projectile.velocity.X) * 0.04f * projectile.direction;
+            Projectile.rotation += Math.Abs(Projectile.velocity.X) * 0.04f * Projectile.direction;
 			//projectile.rotation = projectile.velocity.ToRotation() + MathHelper.Pi / 2;
 
 			if (FlightType != 2) {
-                projectile.velocity.Y += (FlightType == 1) ? 0.05f : 0.15f;
+                Projectile.velocity.Y += (FlightType == 1) ? 0.05f : 0.15f;
 			}
 			if (HomingType != 0) {
 				if (HomingType == 2) {
-                    if (projectile.timeLeft < 3570) {
+                    if (Projectile.timeLeft < 3570) {
                         bool foundTarget = false;
                         (Vector2 topLeft, Vector2 bottomRight) target = default;
                         float targetDist = 320 * 320;
 
-                        if (projectile.ai[1] == 2) {
+                        if (Projectile.ai[1] == 2) {
                             Player targetPlayer;
                             for (int i = 0; i < Main.maxPlayers; i++) {
-                                if (i == projectile.owner) {
+                                if (i == Projectile.owner) {
                                     continue;
                                 }
                                 targetPlayer = Main.player[i];
                                 if (targetPlayer.active && (targetPlayer.team == owner.team)) {
-                                    float dist = targetPlayer.DistanceSQ(projectile.Center);
+                                    float dist = targetPlayer.DistanceSQ(Projectile.Center);
                                     if (dist < targetDist) {
                                         foundTarget = true;
                                         target = (targetPlayer.TopLeft, targetPlayer.BottomRight);
@@ -265,7 +267,7 @@ namespace EpikV2.Items {
                                     }
                                 }
                             }
-							if (Main.netMode == NetmodeID.SinglePlayer && projectile.timeLeft < 3540) {
+							if (Main.netMode == NetmodeID.SinglePlayer && Projectile.timeLeft < 3540) {
                                 foundTarget = true;
                                 target = (owner.TopLeft, owner.BottomRight);
                             }
@@ -274,7 +276,7 @@ namespace EpikV2.Items {
                             for (int i = 0; i < Main.maxNPCs; i++) {
                                 targetNPC = Main.npc[i];
                                 if (targetNPC.active && targetNPC.CanBeChasedBy()) {
-                                    float dist = targetNPC.DistanceSQ(projectile.Center);
+                                    float dist = targetNPC.DistanceSQ(Projectile.Center);
                                     if (dist < targetDist) {
                                         foundTarget = true;
                                         target = (targetNPC.TopLeft, targetNPC.BottomRight);
@@ -285,25 +287,25 @@ namespace EpikV2.Items {
                         }
                         if (foundTarget) {
                             HomingType = 1;
-                            Main.TeleportEffect(projectile.Hitbox, 3, dustCountMult: 0.3f);
-                            projectile.Center = Vector2.Clamp(projectile.Center, target.topLeft, target.bottomRight) - projectile.velocity * 12;
-                            projectile.velocity *= 1.5f;
-                            Main.TeleportEffect(projectile.Hitbox, 3, dustCountMult: 0.3f);
+                            Main.TeleportEffect(Projectile.Hitbox, 3, dustCountMult: 0.3f);
+                            Projectile.Center = Vector2.Clamp(Projectile.Center, target.topLeft, target.bottomRight) - Projectile.velocity * 12;
+                            Projectile.velocity *= 1.5f;
+                            Main.TeleportEffect(Projectile.Hitbox, 3, dustCountMult: 0.3f);
                         }
                     }
 				} else {
                     bool foundTarget = false;
                     Vector2 target = default;
                     float targetDist = 320 * 320;
-					if (projectile.ai[1] == 2) {
+					if (Projectile.ai[1] == 2) {
                         Player targetPlayer;
                         for (int i = 0; i < Main.maxPlayers; i++) {
-                            if (i == projectile.owner && (projectile.timeLeft > 3540 || Main.netMode != NetmodeID.SinglePlayer)) {
+                            if (i == Projectile.owner && (Projectile.timeLeft > 3540 || Main.netMode != NetmodeID.SinglePlayer)) {
                                 continue;
 							}
                             targetPlayer = Main.player[i];
                             if (targetPlayer.active && (targetPlayer.team == owner.team)) {
-                                float dist = targetPlayer.DistanceSQ(projectile.Center);
+                                float dist = targetPlayer.DistanceSQ(Projectile.Center);
                                 if (dist < targetDist) {
                                     foundTarget = true;
                                     target = targetPlayer.Center + targetPlayer.velocity;
@@ -311,7 +313,7 @@ namespace EpikV2.Items {
                                 }
                             }
                         }
-                        if (Main.netMode == NetmodeID.SinglePlayer && projectile.timeLeft < 3540) {
+                        if (Main.netMode == NetmodeID.SinglePlayer && Projectile.timeLeft < 3540) {
                             foundTarget = true;
                             target = owner.Center + owner.velocity;
                         }
@@ -320,7 +322,7 @@ namespace EpikV2.Items {
                         for (int i = 0; i < Main.maxNPCs; i++) {
                             targetNPC = Main.npc[i];
                             if (targetNPC.active && targetNPC.CanBeChasedBy()) {
-                                float dist = targetNPC.DistanceSQ(projectile.Center);
+                                float dist = targetNPC.DistanceSQ(Projectile.Center);
                                 if (dist < targetDist) {
                                     foundTarget = true;
                                     target = targetNPC.Center + targetNPC.velocity;
@@ -330,25 +332,25 @@ namespace EpikV2.Items {
                         }
                     }
                     if (foundTarget) {
-                        Vector2 currentAngle = projectile.velocity.SafeNormalize(default);
-                        Vector2 targetAngle = (target - projectile.Center).SafeNormalize(default);
+                        Vector2 currentAngle = Projectile.velocity.SafeNormalize(default);
+                        Vector2 targetAngle = (target - Projectile.Center).SafeNormalize(default);
                         float dot = Vector2.Dot(currentAngle, targetAngle);
-                        projectile.velocity = ((projectile.velocity * (1 + dot)) + (targetAngle * 3 * (1 - dot))).WithMaxLength(16f);
+                        Projectile.velocity = ((Projectile.velocity * (1 + dot)) + (targetAngle * 3 * (1 - dot))).WithMaxLength(16f);
 					}
                 }
             }
-			if (projectile.timeLeft < 3590) {
+			if (Projectile.timeLeft < 3590) {
                 Player targetPlayer;
                 for (int i = 0; i < Main.maxPlayers; i++) {
                     targetPlayer = Main.player[i];
-                    if (targetPlayer.active && (targetPlayer.team == owner.team) && targetPlayer.Hitbox.Intersects(projectile.Hitbox)) {
-                        projectile.Kill();
+                    if (targetPlayer.active && (targetPlayer.team == owner.team) && targetPlayer.Hitbox.Intersects(Projectile.Hitbox)) {
+                        Projectile.Kill();
                         return;
                     }
                 }
             }
             bool isChaos = HitType == FlaskHitType.Chaos;
-            if (projectile.timeLeft % (isChaos ? 10 : 30) == 0 || lastColor == default) {
+            if (Projectile.timeLeft % (isChaos ? 10 : 30) == 0 || lastColor == default) {
                 lastColor = nextColor;
                 nextColor = (HSVColor)GetNextColor();
                 //lastColor = new HSVColor(80, 1, 1);
@@ -402,7 +404,7 @@ namespace EpikV2.Items {
                             Main.projectile[i].Kill();
                         }
                     }
-                    target.Spawn();
+                    target.Spawn(PlayerSpawnContext.RecallFromItem);
                     for (int i = 0; i < 70; i++) {
                         Dust.NewDustDirect(target.position, target.width, target.height, DustID.MagicMirror, 0f, 0f, 150, Color.Cyan, 1.2f).velocity *= 0.5f;
                     }
@@ -475,20 +477,20 @@ namespace EpikV2.Items {
             return Color.Green;
 		}
 		public override void Kill(int timeLeft) {
-            Main.PlaySound(SoundID.Item107, projectile.position);
-            Gore.NewGore(projectile.Center, -projectile.oldVelocity * 0.2f, 704);
-            Gore.NewGore(projectile.Center, -projectile.oldVelocity * 0.2f, 705);
+            SoundEngine.PlaySound(SoundID.Item107, Projectile.position);
+            Gore.NewGore(Projectile.GetSource_FromThis(), Projectile.Center, -Projectile.oldVelocity * 0.2f, 704);
+            Gore.NewGore(Projectile.GetSource_FromThis(), Projectile.Center, -Projectile.oldVelocity * 0.2f, 705);
             if (HitType.HasFlag(FlaskHitType.Fireball)) {
-                Projectile.NewProjectile(projectile.Center, default, Fireball.ID, projectile.damage, projectile.knockBack, projectile.owner, 0, 1.25f);
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, default, Fireball.ID, Projectile.damage, Projectile.knockBack, Projectile.owner, 0, 1.25f);
             }
             if (HitType.HasFlag(FlaskHitType.Magic)) {
                 Vector2 direction = new Vector2(8, 0);
                 const float curve_amount = 1.75f;
                 for (int i = 0; i < 4; i++) {
                     Vector2 curve = direction.RotatedBy(curve_amount);
-                    Projectile.NewProjectile(projectile.Center, direction, Shadowflame_Arc.ID, projectile.damage, projectile.knockBack, projectile.owner, curve.X, curve.Y);
+                    Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, direction, Shadowflame_Arc.ID, Projectile.damage, Projectile.knockBack, Projectile.owner, curve.X, curve.Y);
                     curve = direction.RotatedBy(-curve_amount);
-                    Projectile.NewProjectile(projectile.Center, direction, Shadowflame_Arc.ID, projectile.damage, projectile.knockBack, projectile.owner, curve.X, curve.Y);
+                    Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, direction, Shadowflame_Arc.ID, Projectile.damage, Projectile.knockBack, Projectile.owner, curve.X, curve.Y);
                     direction = new Vector2(-direction.Y, direction.X);
 				}
             }
@@ -496,46 +498,46 @@ namespace EpikV2.Items {
                 Vector2 direction = new Vector2(8, 0);
                 const int flare_count = 16;
                 for (int i = 0; i < flare_count; i++) {
-                    Projectile.NewProjectile(projectile.Center, direction, Cursed_Flame.ID, projectile.damage / 2, projectile.knockBack, projectile.owner);
+                    Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, direction, Cursed_Flame.ID, Projectile.damage / 2, Projectile.knockBack, Projectile.owner);
                     direction = direction.RotatedBy(MathHelper.TwoPi / flare_count);
                 }
             }
             if (HitType.HasFlag(FlaskHitType.Ichor)) {
                 const int splash_count = 4;
                 for (int i = 0; i < splash_count; i++) {
-                    Projectile.NewProjectile(projectile.Center, projectile.velocity.RotatedByRandom(1), Ichor_Splash.ID, projectile.damage, projectile.knockBack, projectile.owner);
+                    Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity.RotatedByRandom(1), Ichor_Splash.ID, Projectile.damage, Projectile.knockBack, Projectile.owner);
                 }
             }
-            Player owner = Main.player[projectile.owner];
+            Player owner = Main.player[Projectile.owner];
             Player targetPlayer;
-            Vector2 oldCenter = projectile.Center;
-            projectile.width *= 3;
-            projectile.height *= 3;
-            projectile.Center = oldCenter;
+            Vector2 oldCenter = Projectile.Center;
+            Projectile.width *= 3;
+            Projectile.height *= 3;
+            Projectile.Center = oldCenter;
             for (int i = 0; i < Main.maxPlayers; i++) {
                 targetPlayer = Main.player[i];
-                if (targetPlayer.active && (targetPlayer.team == owner.team) && targetPlayer.Hitbox.Intersects(projectile.Hitbox)) {
+                if (targetPlayer.active && (targetPlayer.team == owner.team) && targetPlayer.Hitbox.Intersects(Projectile.Hitbox)) {
                     OnHitAlly(targetPlayer);
                 }
             }
         }
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-            spriteBatch.Restart(sortMode: SpriteSortMode.Immediate);
+		public override bool PreDraw(ref Color lightColor) {
+            Main.spriteBatch.Restart(sortMode: SpriteSortMode.Immediate);
             float shiftRate = (HitType == FlaskHitType.Chaos ? 10 : 30);
             DrawData data = new DrawData(
                 LiquidTexture,
-                projectile.Center - Main.screenPosition,
+                Projectile.Center - Main.screenPosition,
                 null,
-                (Color)HSVColor.Lerp(lastColor, nextColor, 1f - (projectile.timeLeft % shiftRate) / shiftRate),
-                projectile.rotation,
+                (Color)HSVColor.Lerp(lastColor, nextColor, 1f - (Projectile.timeLeft % shiftRate) / shiftRate),
+                Projectile.rotation,
                 new Vector2(9),
-                projectile.scale,
+                Projectile.scale,
                 SpriteEffects.None,
             0);
             //Shaders.opaqueChimeraShader.Apply(projectile, data);
-            data.Draw(spriteBatch);
+            Main.EntitySpriteDraw(data);
             //spriteBatch.Draw(LiquidTexture, projectile.Center, null, lightColor, projectile.rotation, new Vector2(9), projectile.scale, SpriteEffects.None, 0);
-            spriteBatch.Restart(sortMode: SpriteSortMode.Deferred);
+            Main.spriteBatch.Restart(sortMode: SpriteSortMode.Deferred);
 			return true;
 		}
     }
@@ -544,18 +546,18 @@ namespace EpikV2.Items {
         public override string Texture => "Terraria/Projectile_" + ProjectileID.SolarWhipSwordExplosion;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Fireball");
-            ID = projectile.type;
+            ID = Projectile.type;
             Main.projFrames[ID] = Main.projFrames[ProjectileID.SolarWhipSwordExplosion];
         }
         public override void SetDefaults() {
-            projectile.CloneDefaults(ProjectileID.SolarWhipSwordExplosion);
-            aiType = ProjectileID.SolarWhipSwordExplosion;
+            Projectile.CloneDefaults(ProjectileID.SolarWhipSwordExplosion);
+            AIType = ProjectileID.SolarWhipSwordExplosion;
         }
 		public override void AI() {
-            int ownerTeam = Main.player[projectile.owner].team;
+            int ownerTeam = Main.player[Projectile.owner].team;
             for (int i = 0; i < Main.maxPlayers; i++) {
                 Player target = Main.player[i];
-                if (target.team == ownerTeam && target.Hitbox.Intersects(projectile.Hitbox)) {
+                if (target.team == ownerTeam && target.Hitbox.Intersects(Projectile.Hitbox)) {
                     target.AddBuff(Fire_Imbue.ID, 900);
                 }
             }
@@ -569,53 +571,53 @@ namespace EpikV2.Items {
 		public override string Texture => "Terraria/Projectile_" + ProjectileID.ShadowFlame;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Shadowflame Arc");
-            ID = projectile.type;
+            ID = Projectile.type;
 		}
 		public override void SetDefaults() {
-            projectile.CloneDefaults(ProjectileID.ShadowFlame);
-            projectile.tileCollide = false;
-            projectile.aiStyle = ProjectileID.ShadowFlame;
-            projectile.penetrate = -1;
-            projectile.extraUpdates = 1;
+            Projectile.CloneDefaults(ProjectileID.ShadowFlame);
+            Projectile.tileCollide = false;
+            Projectile.aiStyle = ProjectileID.ShadowFlame;
+            Projectile.penetrate = -1;
+            Projectile.extraUpdates = 1;
         }
 		public override void AI() {
-            Vector2 center2 = projectile.Center;
+            Vector2 center2 = Projectile.Center;
 
-            projectile.scale = 0.5f - projectile.localAI[0];
-            projectile.height = projectile.width = (int)(20f * projectile.scale);
+            Projectile.scale = 0.5f - Projectile.localAI[0];
+            Projectile.height = Projectile.width = (int)(20f * Projectile.scale);
 
-            projectile.position.X = center2.X - (projectile.width / 2);
-            projectile.position.Y = center2.Y - (projectile.height / 2);
+            Projectile.position.X = center2.X - (Projectile.width / 2);
+            Projectile.position.Y = center2.Y - (Projectile.height / 2);
 
-            if (projectile.localAI[0] < 0.1) {
-                projectile.localAI[0] += 0.01f;
+            if (Projectile.localAI[0] < 0.1) {
+                Projectile.localAI[0] += 0.01f;
             } else {
-                projectile.localAI[0] += 0.1f;
+                Projectile.localAI[0] += 0.1f;
             }
-            if (projectile.localAI[0] >= 0.5f) {
-                projectile.Kill();
+            if (Projectile.localAI[0] >= 0.5f) {
+                Projectile.Kill();
             }
 
-            projectile.velocity.X += projectile.ai[0] * 0.5f;
-            projectile.velocity.Y += projectile.ai[1] * 0.5f;
+            Projectile.velocity.X += Projectile.ai[0] * 0.5f;
+            Projectile.velocity.Y += Projectile.ai[1] * 0.5f;
 
-            projectile.velocity = projectile.velocity.WithMaxLength(12f);
+            Projectile.velocity = Projectile.velocity.WithMaxLength(12f);
 
-            projectile.ai[0] *= 1.05f;
-            projectile.ai[1] *= 1.05f;
-            for (int i = 0; i < projectile.scale * 10f; i++) {
-                Dust dust = Dust.NewDustDirect(new Vector2(projectile.position.X, projectile.position.Y), projectile.width, projectile.height, DustID.Shadowflame, projectile.velocity.X, projectile.velocity.Y, 100, default(Color), 1.1f);
-                dust.position = (dust.position + projectile.Center) / 2f;
+            Projectile.ai[0] *= 1.05f;
+            Projectile.ai[1] *= 1.05f;
+            for (int i = 0; i < Projectile.scale * 10f; i++) {
+                Dust dust = Dust.NewDustDirect(new Vector2(Projectile.position.X, Projectile.position.Y), Projectile.width, Projectile.height, DustID.Shadowflame, Projectile.velocity.X, Projectile.velocity.Y, 100, default(Color), 1.1f);
+                dust.position = (dust.position + Projectile.Center) / 2f;
                 dust.noGravity = true;
                 dust.velocity *= 0.1f;
-                dust.velocity -= projectile.velocity * (0.9f - projectile.scale);
-                dust.fadeIn = 100 + projectile.owner;
-                dust.scale += projectile.scale * 1.5f;
+                dust.velocity -= Projectile.velocity * (0.9f - Projectile.scale);
+                dust.fadeIn = 100 + Projectile.owner;
+                dust.scale += Projectile.scale * 1.5f;
             }
-            int ownerTeam = Main.player[projectile.owner].team;
+            int ownerTeam = Main.player[Projectile.owner].team;
             for (int i = 0; i < Main.maxPlayers; i++) {
                 Player target = Main.player[i];
-				if (target.team == ownerTeam && target.Hitbox.Intersects(projectile.Hitbox)) {
+				if (target.team == ownerTeam && target.Hitbox.Intersects(Projectile.Hitbox)) {
                     target.AddBuff(Shadowflame_Imbue.ID, 900);
 				}
 			}
@@ -629,18 +631,18 @@ namespace EpikV2.Items {
         public override string Texture => "Terraria/Projectile_" + ProjectileID.CursedDartFlame;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Cursed Flame");
-            ID = projectile.type;
+            ID = Projectile.type;
         }
         public override void SetDefaults() {
-            projectile.CloneDefaults(ProjectileID.CursedDartFlame);
-            aiType = ProjectileID.CursedDartFlame;
-            projectile.timeLeft = Main.rand.Next(60, 90);
+            Projectile.CloneDefaults(ProjectileID.CursedDartFlame);
+            AIType = ProjectileID.CursedDartFlame;
+            Projectile.timeLeft = Main.rand.Next(60, 90);
         }
         public override void AI() {
-            int ownerTeam = Main.player[projectile.owner].team;
+            int ownerTeam = Main.player[Projectile.owner].team;
             for (int i = 0; i < Main.maxPlayers; i++) {
                 Player target = Main.player[i];
-                if (target.team == ownerTeam && target.Hitbox.Intersects(projectile.Hitbox)) {
+                if (target.team == ownerTeam && target.Hitbox.Intersects(Projectile.Hitbox)) {
                     target.AddBuff(Cursed_Flames_Imbue.ID, 300);
                 }
             }
@@ -654,17 +656,17 @@ namespace EpikV2.Items {
         public override string Texture => "Terraria/Projectile_" + ProjectileID.IchorSplash;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Ichor Splash");
-            ID = projectile.type;
+            ID = Projectile.type;
         }
         public override void SetDefaults() {
-            projectile.CloneDefaults(ProjectileID.IchorSplash);
-            aiType = ProjectileID.IchorSplash;
+            Projectile.CloneDefaults(ProjectileID.IchorSplash);
+            AIType = ProjectileID.IchorSplash;
         }
         public override void AI() {
-            int ownerTeam = Main.player[projectile.owner].team;
+            int ownerTeam = Main.player[Projectile.owner].team;
             for (int i = 0; i < Main.maxPlayers; i++) {
                 Player target = Main.player[i];
-                if (target.team == ownerTeam && target.Hitbox.Intersects(projectile.Hitbox)) {
+                if (target.team == ownerTeam && target.Hitbox.Intersects(Projectile.Hitbox)) {
                     target.AddBuff(Ichor_Imbue.ID, 900);
                 }
             }
@@ -674,12 +676,9 @@ namespace EpikV2.Items {
         }
     }
     public class Fire_Imbue : ModBuff {
-        public static int ID { get; private set; }
-        public override bool Autoload(ref string name, ref string texture) {
-            texture = "EpikV2/Buffs/Fire_Imbue";
-            return true;
-        }
-        public override void SetDefaults() {
+		public override string Texture => "EpikV2/Buffs/Fire_Imbue";
+		public static int ID { get; private set; }
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Flame Imbuement");
             Description.SetDefault("Your attacks inflict Celestial Flames");
             ID = Type;
@@ -689,12 +688,9 @@ namespace EpikV2.Items {
 		}
 	}
     public class Shadowflame_Imbue : ModBuff {
+        public override string Texture => "EpikV2/Buffs/Shadowflame_Imbue";
         public static int ID { get; private set; }
-        public override bool Autoload(ref string name, ref string texture) {
-            texture = "EpikV2/Buffs/Shadowflame_Imbue";
-            return true;
-        }
-        public override void SetDefaults() {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Shadowflame Imbuement");
             Description.SetDefault("Your attacks inflict Shadowflame");
             ID = Type;
@@ -704,12 +700,9 @@ namespace EpikV2.Items {
         }
     }
     public class Cursed_Flames_Imbue : ModBuff {
+        public override string Texture => "EpikV2/Buffs/Cursed_Flames_Imbue";
         public static int ID { get; private set; }
-        public override bool Autoload(ref string name, ref string texture) {
-            texture = "EpikV2/Buffs/Cursed_Flames_Imbue";
-            return true;
-        }
-        public override void SetDefaults() {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Cursed Inferno Imbuement");
             Description.SetDefault("Your attacks inflict Cursed Inferno");
             ID = Type;
@@ -719,12 +712,9 @@ namespace EpikV2.Items {
         }
     }
     public class Ichor_Imbue : ModBuff {
+        public override string Texture => "EpikV2/Buffs/Ichor_Imbue";
         public static int ID { get; private set; }
-        public override bool Autoload(ref string name, ref string texture) {
-            texture = "EpikV2/Buffs/Ichor_Imbue";
-            return true;
-        }
-        public override void SetDefaults() {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Ichor Imbuement");
             Description.SetDefault("Your attacks inflict Ichor");
             ID = Type;
@@ -734,12 +724,9 @@ namespace EpikV2.Items {
         }
     }
     public class Regeneration_Buff : ModBuff {
+        public override string Texture => "EpikV2/Buffs/Regeneration_Buff";
         public static int ID { get; private set; }
-        public override bool Autoload(ref string name, ref string texture) {
-            texture = "EpikV2/Buffs/Regeneration_Buff";
-            return true;
-        }
-        public override void SetDefaults() {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Rejuvenation");
             Description.SetDefault("Increases health and mana regeneration");
             ID = Type;
@@ -750,12 +737,9 @@ namespace EpikV2.Items {
         }
     }
     public class Shield_Buff : ModBuff {
+        public override string Texture => "Terraria/Images/Buff_" + BuffID.IceBarrier;
         public static int ID { get; private set; }
-        public override bool Autoload(ref string name, ref string texture) {
-            texture = "Terraria/Buff_"+BuffID.IceBarrier;
-            return true;
-        }
-        public override void SetDefaults() {
+        public override void SetStaticDefaults() {
             DisplayName.SetDefault("Shielded");
             Description.SetDefault("Halves the damage of the next hit you take");
             ID = Type;

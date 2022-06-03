@@ -1,3 +1,4 @@
+using Terraria.GameContent;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -29,6 +30,7 @@ using EpikV2.Items.Debugging;
 using MonoMod.Cil;
 using System.Linq;
 using Terraria.UI.Chat;
+using ReLogic.Content;
 
 #pragma warning disable 672
 namespace EpikV2 {
@@ -68,20 +70,8 @@ namespace EpikV2 {
 			}
 			return null;
 		}
-		public EpikV2() {
-			Properties = new ModProperties() {
-				Autoload = true,
-				AutoloadGores = true,
-				AutoloadSounds = true
-			};
-		}
 		public override void Load() {
 			instance = this;
-			Properties = new ModProperties() {
-				Autoload = true,
-				AutoloadGores = true,
-				AutoloadSounds = true
-			};
 			EpikWorld.sacrifices = new List<int>() {};
 			EpikPlayer.ItemChecking = new BitsBytes(32);
 			Logging.IgnoreExceptionContents("at EpikV2.Items.Burning_Ambition_Smelter.AI() in EpikV2\\Items\\Burning_Ambition.cs:line 472");
@@ -146,7 +136,7 @@ namespace EpikV2 {
 					}
 				}
 				for (int j = 0; j < player.armor.Length; j++) {
-					if (item.IsTheSameAs(player.armor[j])) {
+					if (item.type == player.armor[j].type) {
 						accSlotCount = j - 3;
 					}
 					if (j < 10 && item.wingSlot > 0 && player.armor[j].wingSlot > 0) {
@@ -155,7 +145,7 @@ namespace EpikV2 {
 				}
 				for (int l = 0; l < totalAccSlots; l++) {
 					int index = 3 + (accSlotCount + totalAccSlots) % totalAccSlots;
-					if (ItemLoader.CanEquipAccessory(item, index)) {
+					if (ItemLoader.CanEquipAccessory(item, index, item.type >= ItemID.Count)) {
 						accSlotCount = index - 3;
 						break;
 					}
@@ -168,13 +158,13 @@ namespace EpikV2 {
 				}
 				int num3 = 3 + accSlotCount;
 				for (int k = 0; k < player.armor.Length; k++) {
-					if (item.IsTheSameAs(player.armor[k])) {
+					if (item.type == player.armor[k].type) {
 						num3 = k;
 					}
 				}
 				targetSlot = num3;
 			}
-			if (player.armor[targetSlot].modItem is Parasitic_Accessory paras && (player.GetModPlayer<EpikPlayer>().timeSinceRespawn > 300 && !paras.CanRemove(Main.LocalPlayer))) {
+			if (player.armor[targetSlot].ModItem is Parasitic_Accessory paras && (player.GetModPlayer<EpikPlayer>().timeSinceRespawn > 300 && !paras.CanRemove(Main.LocalPlayer))) {
 				return item;
 			}
 			return orig(item, out success);
@@ -189,7 +179,7 @@ namespace EpikV2 {
 				case ItemSlot.Context.EquipMount:
 				case ItemSlot.Context.EquipPet:
 				case ItemSlot.Context.EquipGrapple: {
-					if (Main.LocalPlayer.armor[slot].modItem is Parasitic_Accessory paras && (Main.LocalPlayer.GetModPlayer<EpikPlayer>().timeSinceRespawn > 300 && !paras.CanRemove(Main.LocalPlayer))) {
+					if (Main.LocalPlayer.armor[slot].ModItem is Parasitic_Accessory paras && (Main.LocalPlayer.GetModPlayer<EpikPlayer>().timeSinceRespawn > 300 && !paras.CanRemove(Main.LocalPlayer))) {
 						return -1;
 					}
 				}
@@ -327,14 +317,6 @@ public static float ShimmerCalc(float val) {
 			public const byte topHatCard = 4;
 		}
 
-		public override void HotKeyPressed(string name) {
-			if(PlayerInput.Triggers.JustPressed.KeyStatus[GetTriggerName(name)]) {
-				if(name.Equals(ReadTooltipsVar.Name)) {
-					//jadeDyeShader.Shader.Parameters["uCenter"].SetValue(new Vector2(0.5f,0.5f));
-					//ReadTooltips();
-				}
-			}
-		}
 		public override void AddRecipes() {
 			for (int i = 1; i < ItemID.Count; i++) {
 				RegItems.Add(i);
@@ -349,12 +331,12 @@ public static float ShimmerCalc(float val) {
 		}
 		public static short SetStaticDefaultsGlowMask(ModItem modItem) {
 			if (Main.netMode!=NetmodeID.Server) {
-				Texture2D[] glowMasks = new Texture2D[Main.glowMaskTexture.Length + 1];
-				for (int i = 0; i < Main.glowMaskTexture.Length; i++) {
-					glowMasks[i] = Main.glowMaskTexture[i];
+				Asset<Texture2D>[] glowMasks = new Asset<Texture2D>[TextureAssets.GlowMask.Length + 1];
+				for (int i = 0; i < TextureAssets.GlowMask.Length; i++) {
+					glowMasks[i] = TextureAssets.GlowMask[i].Value;
 				}
-				glowMasks[glowMasks.Length - 1] = ModContent.GetTexture(modItem.Texture+"_Glow");
-				Main.glowMaskTexture = glowMasks;
+				glowMasks[glowMasks.Length - 1] = ModContent.Request<Texture2D>(modItem.Texture+"_Glow");
+				TextureAssets.GlowMask = glowMasks;
 				return (short)(glowMasks.Length - 1);
 			} else return 0;
 		}
@@ -408,7 +390,7 @@ public static float ShimmerCalc(float val) {
 		[ReloadRequired]
 		public bool reduceJitter = true;
 	}
-	public class EpikWorld : ModWorld {
+	public class EpikWorld : ModSystem {
 		//public static int GolemTime = 0;
 		public static List<int> sacrifices;
 		public static bool raining;
@@ -432,10 +414,10 @@ public static float ShimmerCalc(float val) {
 				(ENQUEUE, ModContent.ItemType<Frost_Band_Vanity>())
 			);
 		}
-		public override TagCompound Save() {
-			return new TagCompound() { {"sacrifices", sacrifices} };
+		public override void SaveWorldData(TagCompound tag) {
+			tag.Add("sacrifices", sacrifices);
 		}
-		public override void Load(TagCompound tag) {
+		public override void LoadWorldData(TagCompound tag) {
 			if(!tag.ContainsKey("sacrifices")) {
 				sacrifices = new List<int>() {};
 				return;
