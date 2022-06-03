@@ -92,6 +92,10 @@ namespace EpikV2 {
         public int timeSinceRespawn = 0;
         public bool drugPotion = false;
         public bool shieldBuff = false;
+        public bool imbueDaybreak = false;
+        public bool imbueShadowflame = false;
+        public bool imbueCursedInferno = false;
+        public bool imbueIchor = false;
 
         public static BitsBytes ItemChecking;
 
@@ -150,6 +154,10 @@ namespace EpikV2 {
             manaWithdrawal = false;
             drugPotion = false;
             shieldBuff = false;
+            imbueDaybreak = false;
+            imbueShadowflame = false;
+            imbueCursedInferno = false;
+            imbueIchor = false;
             if (marionetteDeathTime>0) {
                 player.statLife = 0;
                 player.breath = player.breathMax;
@@ -690,6 +698,18 @@ namespace EpikV2 {
             }
             if(championsHelm && (melee||ranged) && target.type!=NPCID.TargetDummy) {
                 AddChampionsHelmDamage(target, (int)(melee?(damage * 1.5f):(damage + 20)));
+            }
+            if (imbueDaybreak) {
+                target.AddBuff(BuffID.Daybreak, Main.rand.Next(60, 90));
+            }
+            if (imbueShadowflame) {
+                target.AddBuff(BuffID.ShadowFlame, Main.rand.Next(480, 600));
+            }
+            if (imbueCursedInferno) {
+                target.AddBuff(BuffID.CursedInferno, Main.rand.Next(180, 360));
+            }
+            if (imbueIchor) {
+                target.AddBuff(BuffID.Ichor, Main.rand.Next(480, 600));
             }
         }
         public void AddMagiciansHatDamage(NPC target, int damage) {

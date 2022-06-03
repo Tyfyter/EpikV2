@@ -14,8 +14,12 @@ float2 uImageSize0;
 float2 uImageSize1;
 float2 uOffset;
 float uScale;
+float2 uTargetPosition;
+float4 uLegacyArmorSourceRectand;
+float2 uLegacyArmorSheetSize;
 /*float2 uMin;
 float2 uMax;*/
+
 float4 Div(float4 val, float2 div){
 	return float4(val.x/div.x, val.y/div.y, val.z/div.x, val.w/div.y);
 }

@@ -14,8 +14,7 @@ using Terraria.Utilities;
 using Terraria.Graphics.Shaders;
 using Tyfyter.Utils;
 
-namespace EpikV2.Items
-{
+namespace EpikV2.Items {
     public class Alchemera : ModItem {
         public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Alchemera");
@@ -221,12 +220,12 @@ namespace EpikV2.Items
         internal static void Unload() {
             LiquidTexture = null;
         }
-        public override void SetStaticDefaults(){
+        public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Alchemera");
             if (Main.netMode == NetmodeID.Server) return;
             LiquidTexture = mod.GetTexture("Items/Alchemera_Flask_Liquid");
         }
-        public override void SetDefaults(){
+        public override void SetDefaults() {
 			projectile.CloneDefaults(ProjectileID.ToxicFlask);
             projectile.usesLocalNPCImmunity = true;
             projectile.localNPCHitCooldown = 10;
@@ -557,12 +556,12 @@ namespace EpikV2.Items
             for (int i = 0; i < Main.maxPlayers; i++) {
                 Player target = Main.player[i];
                 if (target.team == ownerTeam && target.Hitbox.Intersects(projectile.Hitbox)) {
-                    target.AddBuff(Fire_Imbue.ID, 600);
+                    target.AddBuff(Fire_Imbue.ID, 900);
                 }
             }
         }
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
-            target.AddBuff(BuffID.Daybreak, Main.rand.Next(240, 480));
+            target.AddBuff(BuffID.Daybreak, Main.rand.Next(120, 240));
         }
     }
     public class Shadowflame_Arc : ModProjectile {
@@ -617,7 +616,7 @@ namespace EpikV2.Items
             for (int i = 0; i < Main.maxPlayers; i++) {
                 Player target = Main.player[i];
 				if (target.team == ownerTeam && target.Hitbox.Intersects(projectile.Hitbox)) {
-                    target.AddBuff(Shadowflame_Imbue.ID, 600);
+                    target.AddBuff(Shadowflame_Imbue.ID, 900);
 				}
 			}
         }
@@ -642,7 +641,7 @@ namespace EpikV2.Items
             for (int i = 0; i < Main.maxPlayers; i++) {
                 Player target = Main.player[i];
                 if (target.team == ownerTeam && target.Hitbox.Intersects(projectile.Hitbox)) {
-                    target.AddBuff(Cursed_Flames_Imbue.ID, 600);
+                    target.AddBuff(Cursed_Flames_Imbue.ID, 300);
                 }
             }
         }
@@ -666,7 +665,7 @@ namespace EpikV2.Items
             for (int i = 0; i < Main.maxPlayers; i++) {
                 Player target = Main.player[i];
                 if (target.team == ownerTeam && target.Hitbox.Intersects(projectile.Hitbox)) {
-                    target.AddBuff(Ichor_Imbue.ID, 600);
+                    target.AddBuff(Ichor_Imbue.ID, 900);
                 }
             }
         }
@@ -682,9 +681,13 @@ namespace EpikV2.Items
         }
         public override void SetDefaults() {
             DisplayName.SetDefault("Flame Imbuement");
+            Description.SetDefault("Your attacks inflict Celestial Flames");
             ID = Type;
         }
-    }
+		public override void Update(Player player, ref int buffIndex) {
+			player.GetModPlayer<EpikPlayer>().imbueDaybreak = true;
+		}
+	}
     public class Shadowflame_Imbue : ModBuff {
         public static int ID { get; private set; }
         public override bool Autoload(ref string name, ref string texture) {
@@ -693,7 +696,11 @@ namespace EpikV2.Items
         }
         public override void SetDefaults() {
             DisplayName.SetDefault("Shadowflame Imbuement");
+            Description.SetDefault("Your attacks inflict Shadowflame");
             ID = Type;
+        }
+        public override void Update(Player player, ref int buffIndex) {
+            player.GetModPlayer<EpikPlayer>().imbueShadowflame = true;
         }
     }
     public class Cursed_Flames_Imbue : ModBuff {
@@ -704,7 +711,11 @@ namespace EpikV2.Items
         }
         public override void SetDefaults() {
             DisplayName.SetDefault("Cursed Inferno Imbuement");
+            Description.SetDefault("Your attacks inflict Cursed Inferno");
             ID = Type;
+        }
+        public override void Update(Player player, ref int buffIndex) {
+            player.GetModPlayer<EpikPlayer>().imbueCursedInferno = true;
         }
     }
     public class Ichor_Imbue : ModBuff {
@@ -715,7 +726,11 @@ namespace EpikV2.Items
         }
         public override void SetDefaults() {
             DisplayName.SetDefault("Ichor Imbuement");
+            Description.SetDefault("Your attacks inflict Ichor");
             ID = Type;
+        }
+        public override void Update(Player player, ref int buffIndex) {
+            player.GetModPlayer<EpikPlayer>().imbueIchor = true;
         }
     }
     public class Regeneration_Buff : ModBuff {
@@ -726,6 +741,7 @@ namespace EpikV2.Items
         }
         public override void SetDefaults() {
             DisplayName.SetDefault("Rejuvenation");
+            Description.SetDefault("Increases health and mana regeneration");
             ID = Type;
         }
 		public override void Update(Player player, ref int buffIndex) {
@@ -741,6 +757,7 @@ namespace EpikV2.Items
         }
         public override void SetDefaults() {
             DisplayName.SetDefault("Shielded");
+            Description.SetDefault("Halves the damage of the next hit you take");
             ID = Type;
         }
         public override void Update(Player player, ref int buffIndex) {

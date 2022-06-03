@@ -15,6 +15,9 @@ float2 uImageSize0;
 float2 uImageSize1;
 float2 uOffset;
 float uScale;
+float2 uTargetPosition;
+float4 uLegacyArmorSourceRectand;
+float2 uLegacyArmorSheetSize;
 
 float Epsilon = 1e-10;
 float3 HUEtoRGB(in float H)

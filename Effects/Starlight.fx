@@ -14,8 +14,12 @@ float2 uImageSize0;
 float2 uImageSize1;
 float2 uOffset;
 float uScale;
+float2 uTargetPosition;
+float4 uLegacyArmorSourceRectand;
+float2 uLegacyArmorSheetSize;
 /*float2 uMin;
 float2 uMax;*/
+
 float4 Starlight(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 {
 	float4 color = tex2D(uImage0, coords);
