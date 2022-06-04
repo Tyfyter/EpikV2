@@ -41,7 +41,7 @@ namespace EpikV2 {
         public const int Slain_2 = 255;
     }
     public interface ICustomDrawItem {
-        void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin);
+        void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Color lightColor, Vector2 drawOrigin);
     }
     public interface IScrollableItem {
         void Scroll(int direction);

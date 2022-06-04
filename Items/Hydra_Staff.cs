@@ -80,7 +80,7 @@ namespace EpikV2.Items {
         public static Texture2D topJawTexture { get; private set; }
         public static Texture2D bottomJawTexture { get; private set; }
         public static Texture2D neckTexture { get; private set; }
-        internal static void Unload() {
+        public override void Unload() {
             topJawTexture = null;
             bottomJawTexture = null;
             neckTexture = null;

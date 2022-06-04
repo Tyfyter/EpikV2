@@ -20,7 +20,7 @@ namespace EpikV2.Items
         public static Texture2D GlowTexture { get; private set; }
         float shotDelay = 30f;
         float nextShotTime = 0f;
-        internal static void Unload() {
+        public override void Unload() {
             UseTexture = null;
             GlowTexture = null;
         }
@@ -35,8 +35,7 @@ namespace EpikV2.Items
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.WoodenBow);
             Item.damage = 60;
-            Item.ranged = true;
-            Item.magic = true;
+            Item.DamageType = Damage_Classes.Ranged_Magic;
             Item.mana = 25;
             Item.width = 32;
             Item.height = 64;
@@ -66,8 +65,7 @@ namespace EpikV2.Items
             if (Item.noUseGraphic) {
                 Item.DamageType = rand.NextBool() ? DamageClass.Ranged : DamageClass.Magic;
                 Item.Prefix(-2);
-                Item.ranged = true;
-                Item.magic = true;
+                Item.DamageType = Damage_Classes.Ranged_Magic;
                 return Item.prefix;
             }
             return -1;
@@ -96,14 +94,14 @@ namespace EpikV2.Items
             }
             return false;
         }
-        public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin) {
+        public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Color lightColor, Vector2 drawOrigin) {
             Player drawPlayer = drawInfo.drawPlayer;
             float itemRotation = drawPlayer.itemRotation;
             DrawData value;
 
             Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
 
-            value = new DrawData(UseTexture, pos, null, Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
+            value = new DrawData(UseTexture, pos, null, Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
             drawInfo.DrawDataCache.Add(value);
 
 			value = new DrawData(GlowTexture, pos, null, Color.White, itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0) {
@@ -120,7 +118,7 @@ namespace EpikV2.Items
 		}
 		public override void SetDefaults(){
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
-            Projectile.magic = true;
+            Projectile.DamageType = Damage_Classes.Ranged_Magic;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 10;
             Projectile.extraUpdates = 2;
@@ -154,5 +152,5 @@ namespace EpikV2.Items
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
             //damage+=target.defense/2;
         }
-	}
+    }
 }

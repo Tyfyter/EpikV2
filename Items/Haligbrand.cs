@@ -139,7 +139,7 @@ namespace EpikV2.Items {
 		public static int ID { get; internal set; } = -1;
 		public const int trail_length = 20;
 		public static Texture2D TrailTexture { get; private set; }
-		internal static void Unload() {
+		public override void Unload() {
 			TrailTexture = null;
 		}
 		public Triangle Hitbox {

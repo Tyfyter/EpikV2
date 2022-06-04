@@ -761,122 +761,26 @@ namespace EpikV2 {
                 }
             }
         }
-        public override void ModifyDrawLayers(List<PlayerLayer> layers) {
-            if(extraHeadTexture>-1) {
-                PlayerLayer layer = new PlayerLayer("EpikV2", "ExtraHeadLayer", null, DrawExtraHelmetLayer(extraHeadTexture));
-                layers.Insert(layers.IndexOf(PlayerLayer.Head)+1, layer);
-                //layers[layers.IndexOf(PlayerLayer.Head)] = layer;
-                layer.visible = true;
-            } else if(machiavellianMasquerade) {
-                PlayerLayer layer = new PlayerLayer("EpikV2", "ExtraHeadLayer1", null, DrawExtraHelmetLayer(1));
-                layers.Insert(layers.IndexOf(PlayerLayer.Head), layer);
-                layer.visible = true;
-                layer = new PlayerLayer("EpikV2", "ExtraHeadLayer2", null, DrawExtraHelmetLayer(0));
-                layers.Insert(layers.IndexOf(PlayerLayer.Head), layer);
-                layer.visible = true;
+		public override void HideDrawLayers(PlayerDrawSet drawInfo) {
+            //if (Player.itemAnimation == 0 || Player.HeldItem.ModItem is not ICustomDrawItem) PlayerDrawLayers.HeldItem.Hide();
+            if (dracoDash != 0) {
+				foreach (var layer in PlayerDrawLayerLoader.Layers) {
+                    layer.Hide();
+				}
             }
-             if(extraNeckTexture>-1) {
-                PlayerLayer layer = new PlayerLayer("EpikV2", "ExtraNeckLayer", null, DrawExtraNeckLayer(extraNeckTexture));
-                layers.Insert(layers.IndexOf(PlayerLayer.NeckAcc)+1, layer);
-                //layers[layers.IndexOf(PlayerLayer.Head)] = layer;
-                layer.visible = true;
-            }
-            if(Player.head == Magicians_Top_Hat.ArmorID) {
-                PlayerLayer layer = new PlayerLayer("EpikV2", "LightHatLayer", null, LightHatLayer(hatOffset));
-                layers[layers.IndexOf(PlayerLayer.Head)] = layer;
-                layer.visible = true;
-            }
+            /*
             if(marionetteDeathTime>0) {
                 PlayerLayer layer = MarionetteStringLayer(marionetteDeathTime);
                 layers.Add(layer);
                 layer.visible = true;
             }
-            if(Player.itemAnimation != 0 && Player.HeldItem.ModItem is ICustomDrawItem) {
-                switch(Player.HeldItem.useStyle) {
-                    case 1:
-                    case 2:
-                    case 3:
-                    case 4:
-                    break;
-
-                    default:
-                    case 5:
-                    //if(player.controlSmart&&player.name.Equals("OriginTest"))foreach(PlayerLayer layer in layers)layer.visible = false;
-                    layers[layers.IndexOf(PlayerLayer.HeldItem)] = ShootWrenchLayer;
-                    ShootWrenchLayer.visible = true;
-                    break;
-                    /*default:
-                    layers[layers.IndexOf(PlayerLayer.HeldItem)] = SlashWrenchLayer;
-                    SlashWrenchLayer.visible = true;
-                    break;*/
-                }
-            }
-            if(dracoDash!=0) {
-                foreach(PlayerLayer layer in layers)layer.visible = false;
-            }
+             */
             renderedOldVelocity = Player.velocity;
         }
-        internal void rearrangeOrgans(float rearrangement) {
+		internal void rearrangeOrgans(float rearrangement) {
             organRearrangement = Math.Max(organRearrangement, rearrangement);
         }
-        internal static PlayerLayer ShootWrenchLayer => new PlayerLayer("EpikV2", "FiberglassBowLayer", null, delegate (PlayerDrawInfo drawInfo) {
-            Player drawPlayer = drawInfo.drawPlayer;
-            Item item = drawPlayer.HeldItem;
-            Texture2D itemTexture = TextureAssets.Item[item.type].Value;
-            ICustomDrawItem aItem = (ICustomDrawItem)item.ModItem;
-            int drawXPos = 0;
-            Vector2 itemCenter = new Vector2(itemTexture.Width / 2, itemTexture.Height / 2);
-            Vector2 drawItemPos = DrawPlayerItemPos(drawPlayer.gravDir, item.type);
-            drawXPos = (int)drawItemPos.X;
-            itemCenter.Y = drawItemPos.Y;
-            Vector2 drawOrigin = new Vector2(drawXPos, itemTexture.Height / 2);
-            if(drawPlayer.direction == -1) {
-                drawOrigin = new Vector2(itemTexture.Width + drawXPos, itemTexture.Height / 2);
-            }
-            drawOrigin.X-=drawPlayer.width/2;
-            Vector4 lightColor = drawInfo.faceColor.ToVector4()/drawPlayer.skinColor.ToVector4();
-            aItem.DrawInHand(itemTexture, drawInfo, itemCenter, lightColor, drawOrigin);
-        });
-        internal static Action<PlayerDrawInfo> DrawExtraHelmetLayer(int extraTextureIndex) => (PlayerDrawInfo drawInfo) => {
-            Player drawPlayer = drawInfo.drawPlayer;
-            var texture = Textures.ExtraHeadTextures[extraTextureIndex];
-			if (drawInfo.headArmorShader != 0 && (texture.textureFlags&TextureFlags.CancelIfShaded) != 0) {
-                return;
-			}
-			DrawData data = new DrawData(
-                texture.texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.headPosition + drawInfo.headOrigin,
-                drawPlayer.bodyFrame,
-                (texture.textureFlags&TextureFlags.FullBright) != 0 ? Color.White : drawInfo.upperArmorColor,
-                drawPlayer.headRotation,
-                drawInfo.headOrigin,
-                1f,
-                drawInfo.spriteEffects,
-                0) {
-				shader = drawInfo.headArmorShader == 0 ? texture.shader : drawInfo.headArmorShader
-			};
-			Main.playerDrawData.Add(data);
-        };
-        internal static Action<PlayerDrawInfo> DrawExtraNeckLayer(int extraTextureIndex) => (PlayerDrawInfo drawInfo) => {
-            Player drawPlayer = drawInfo.drawPlayer;
-            var texture = Textures.ExtraNeckTextures[extraTextureIndex];
-			if (drawInfo.neckShader != 0 && (texture.textureFlags&TextureFlags.CancelIfShaded) != 0) {
-                return;
-			}
-			DrawData data = new DrawData(
-                texture.texture,
-                new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.bodyPosition + new Vector2(drawPlayer.bodyFrame.Width / 2, drawPlayer.bodyFrame.Height / 2),
-                drawPlayer.bodyFrame,
-                (texture.textureFlags&TextureFlags.FullBright) != 0 ? Color.White : drawInfo.middleArmorColor,
-                drawPlayer.bodyRotation,
-                drawInfo.bodyOrigin,
-                1f,
-                drawInfo.spriteEffects,
-                0) {
-				shader = drawInfo.neckShader == 0 ? texture.shader : drawInfo.neckShader
-			};
-			Main.playerDrawData.Add(data);
-        };
-        internal static PlayerLayer MarionetteStringLayer(int marionetteDeathTime) => new PlayerLayer("EpikV2", "MarionetteStringLayer", null, delegate (PlayerDrawInfo drawInfo) {
+        /*internal static PlayerLayer MarionetteStringLayer(int marionetteDeathTime) => new PlayerLayer("EpikV2", "MarionetteStringLayer", null, delegate (PlayerDrawInfo drawInfo) {
             Vector2 size = drawInfo.drawPlayer.Size;
             Vector2 position = drawInfo.position;
             Vector2 handPos = GetOnHandPos(drawInfo.drawPlayer.bodyFrame);
@@ -907,17 +811,7 @@ namespace EpikV2 {
             data = new DrawData(Textures.pixelTexture, new Rectangle(X, Y, 2, (int)stringLength), null, fadeColor, -drawInfo.drawPlayer.fullRotation, new Vector2(0.5f, 1f), SpriteEffects.None, 0);
             data.shader = shaderID;
             Main.playerDrawData.Insert(0, data);
-        });
-        internal static Action<PlayerDrawInfo> LightHatLayer(Vector2 hatOffset) => (PlayerDrawInfo drawInfo) => {
-            Player drawPlayer = drawInfo.drawPlayer;
-            Texture2D texture = Main.armorHeadTexture[drawPlayer.head];
-            Vector2 velocity = hatOffset;//drawPlayer.velocity-(oldVelocity/2f);
-            float rotationOffset = MathHelper.Clamp((float)Math.Pow(velocity.X / 4f, 5), -0.1f, 0.1f);
-            float heightOffset = MathHelper.Clamp((float)Math.Pow(Math.Abs(velocity.Y / 4f), 0.9f)*Math.Sign(velocity.Y), -1, 8);
-            DrawData data = new DrawData(texture, new Vector2((int)(drawInfo.position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f - heightOffset)) + drawPlayer.headPosition + drawInfo.headOrigin, drawPlayer.bodyFrame, drawInfo.upperArmorColor, drawPlayer.headRotation-rotationOffset, drawInfo.headOrigin, 1f, drawInfo.spriteEffects, 0);
-            data.shader = drawInfo.headArmorShader;
-            Main.playerDrawData.Add(data);
-        };
+        });*/
         /*public override void PostHurt(bool pvp, bool quiet, double damage, int hitDirection, bool crit) {
             damage_taken = (int)damage;
         }*/

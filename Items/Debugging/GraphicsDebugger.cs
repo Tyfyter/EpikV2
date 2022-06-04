@@ -22,7 +22,6 @@ namespace EpikV2.Items.Debugging {
 
         public override void SetDefaults() {
             Item.damage = 60;
-            Item.magic = true;
             Item.width = 24;
             Item.height = 28;
             Item.useTime = 5;
@@ -46,7 +45,7 @@ namespace EpikV2.Items.Debugging {
             }
             return false;
 		}
-        public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin) {
+        public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Color lightColor, Vector2 drawOrigin) {
             DrawData value = new DrawData(Textures.distTestTexture0, Main.MouseScreen, null, Color.White, 0, new Vector2(20, 20), 2f, SpriteEffects.None, 0);
             Shaders.distortMiscShader.Shader.Parameters["uOffset"].SetValue(new Vector2(0.5f));
             Shaders.distortMiscShader.UseColor(new Vector3((float)(Math.Sin(f)*0.5) + 0.5f, (float)(Math.Cos(f) * 0.5) + 0.5f, 1f));//

@@ -18,7 +18,7 @@ namespace EpikV2.Items {
         public static Texture2D[] CoinsTextures { get; private set; }
         public static Texture2D FrontTexture { get; private set; }
         public static Texture2D BackTexture { get; private set; }
-        internal static void Unload() {
+        public override void Unload() {
             CoinsTextures = null;
             FrontTexture = null;
             BackTexture = null;
@@ -251,23 +251,23 @@ namespace EpikV2.Items {
             if(!CheckCoins(player, false))player.itemAnimation = 0;
             return false;
 		}
-        public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin) {
+        public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Color lightColor, Vector2 drawOrigin) {
             Player drawPlayer = drawInfo.drawPlayer;
             float itemRotation = drawPlayer.itemRotation;
             DrawData value;
 
             Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
 
-            value = new DrawData(BackTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
+            value = new DrawData(BackTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
             drawInfo.DrawDataCache.Add(value);
 
             if(totalCoins>=Price) {
                 int offset = Math.Max((16-(totalCoins / Price))/2,0)*drawPlayer.direction*-2;
-                value = new DrawData(CoinsTextures[mode], pos+(Vector2.UnitX.RotatedBy(itemRotation)*offset), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
+                value = new DrawData(CoinsTextures[mode], pos+(Vector2.UnitX.RotatedBy(itemRotation)*offset), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
                 //value.shader = 84;
                 drawInfo.DrawDataCache.Add(value);
             }
-            value = new DrawData(FrontTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
+            value = new DrawData(FrontTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
             //value.shader = 84;
             drawInfo.DrawDataCache.Add(value);
         }

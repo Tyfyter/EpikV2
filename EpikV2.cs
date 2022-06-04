@@ -225,13 +225,6 @@ public static float ShimmerCalc(float val) {
 			Textures = null;
 			Shaders = null;
 			drawAfterNPCs = null;
-			Orion_Bow.Unload();
-			Hydra_Nebula.Unload();
-			Suppressor.Unload();
-			Ashen_Glaive.Unload();
-			Lucre_Launcher.Unload();
-			Scorpio.Unload();
-			Haligbrand_P.Unload();
 			EpikWorld.Sacrifices = null;
 			HellforgeRecipes = null;
 			//filterMapQueue.Clear();

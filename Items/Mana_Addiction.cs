@@ -26,6 +26,9 @@ namespace EpikV2.Items {
 			if (!epikPlayer.CheckFloatMana(Item, player.manaCost * 0.15f, blockQuickMana:true)) {
 				player.AddBuff(Mana_Withdrawal_Debuff.ID, 2);
 				player.GetDamage(DamageClass.Generic) *= 0.9f;
+				player.GetAttackSpeed(DamageClass.Generic) *= 0.9f;
+			} else {
+				player.GetAttackSpeed(DamageClass.Magic) *= 1.1f;
 			}
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {

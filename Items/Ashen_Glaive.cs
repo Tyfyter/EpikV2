@@ -12,7 +12,7 @@ namespace EpikV2.Items {
         public static Texture2D mark1Texture { get; private set; }
         public static Texture2D mark2Texture { get; private set; }
         public static Texture2D mark3Texture { get; private set; }
-        internal static void Unload() {
+        public override void Unload() {
             mark1Texture = null;
             mark2Texture = null;
             mark3Texture = null;

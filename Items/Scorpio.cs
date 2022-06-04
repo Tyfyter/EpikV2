@@ -20,7 +20,7 @@ namespace EpikV2.Items {
         public static Texture2D tailSegmentDimTexture { get; private set; }
 
         public static Texture2D clawTexture { get; private set; }
-        internal static void Unload() {
+        public override void Unload() {
             tailSpikeTexture = null;
             tailSegmentTexture = null;
             tailSegmentDimTexture = null;

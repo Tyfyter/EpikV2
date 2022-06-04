@@ -17,7 +17,7 @@ namespace EpikV2.Items {
         public static Texture2D centerTexture { get; private set; }
         public static Texture2D bottomTexture { get; private set; }
         public static Texture2D topTexture { get; private set; }
-        internal static void Unload() {
+        public override void Unload() {
             handleTexture = null;
             centerTexture = null;
             bottomTexture = null;
@@ -39,8 +39,7 @@ namespace EpikV2.Items {
 
         public override void SetDefaults() {
             Item.damage = 60;
-            Item.magic = true;
-			Item.ranged = true;
+            Item.DamageType = Damage_Classes.Ranged_Magic;
             Item.width = 24;
             Item.height = 28;
             Item.useTime = 5;
@@ -134,7 +133,7 @@ namespace EpikV2.Items {
 			Projectile.NewProjectile(source, position, perturbedSpeed, ModContent.ProjectileType<SuppressorShot>(), damage, knockBack, player.whoAmI, ARCool?1:0);
             return false;
 		}
-        public void DrawInHand(Texture2D itemTexture, PlayerDrawInfo drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin) {
+        public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Color lightColor, Vector2 drawOrigin) {
             Player drawPlayer = drawInfo.drawPlayer;
             //DrawData value = new DrawData(itemTexture, new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y)), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), drawPlayer.itemRotation, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
             //Main.playerDrawData.Add(value);
@@ -147,25 +146,25 @@ namespace EpikV2.Items {
             Vector2 splitShake = unit*((split - splitValue) / 15f);
             float splitBack = ARCool?1.5f:0;//drawPlayer.altFunctionUse == 2?0:1.5f;
 
-            Vector2 pos = new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
+            Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
             //pos+=unit*4;
 
-            value = new DrawData(handleTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.spriteEffects, 0);
+            value = new DrawData(handleTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
             value.shader = 84;
-            Main.playerDrawData.Add(value);
+            drawInfo.DrawDataCache.Add(value);
 
             pos+=(unit * splitValue * splitMult) - (splitShake * splitBack);
-            value = new DrawData(centerTexture, pos+splitShake.RotatedByRandom(Math.PI), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.spriteEffects, 0);
+            value = new DrawData(centerTexture, pos+splitShake.RotatedByRandom(Math.PI), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
             value.shader = 84;
-            Main.playerDrawData.Add(value);
+            drawInfo.DrawDataCache.Add(value);
 
-            value = new DrawData(bottomTexture, pos-(splitShake*splitBack)+(unit.RotatedBy(1f*drawPlayer.direction)*splitValue*splitMult+splitShake.RotatedByRandom(Math.PI)), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.spriteEffects, 0);
+            value = new DrawData(bottomTexture, pos-(splitShake*splitBack)+(unit.RotatedBy(1f*drawPlayer.direction)*splitValue*splitMult+splitShake.RotatedByRandom(Math.PI)), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
             value.shader = 84;
-            Main.playerDrawData.Add(value);
+            drawInfo.DrawDataCache.Add(value);
 
-            value = new DrawData(topTexture, pos-(splitShake*splitBack)+(unit.RotatedBy(-1f*drawPlayer.direction)*splitValue*splitMult+splitShake.RotatedByRandom(Math.PI)), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.spriteEffects, 0);
+            value = new DrawData(topTexture, pos-(splitShake*splitBack)+(unit.RotatedBy(-1f*drawPlayer.direction)*splitValue*splitMult+splitShake.RotatedByRandom(Math.PI)), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
             value.shader = 84;
-            Main.playerDrawData.Add(value);
+            drawInfo.DrawDataCache.Add(value);
         }
     }
 	public class SuppressorShot : ModProjectile {
@@ -175,7 +174,8 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults(){
 			Projectile.CloneDefaults(ProjectileID.HeatRay);
-			Projectile.penetrate = 1;
+            Projectile.DamageType = Damage_Classes.Ranged_Magic;
+            Projectile.penetrate = 1;
 			AIType = ProjectileID.HeatRay;
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
