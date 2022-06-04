@@ -16,12 +16,12 @@ namespace EpikV2.Items {
 
         public override void SetDefaults(){
             Item.damage = 80;
-            Item.magic = true;
+            Item.DamageType = DamageClass.Magic;
             Item.mana = 6;
             Item.shoot = ProjectileType<Solweaver_Beam>();
             Item.shootSpeed = 0f;
             Item.useTime = Item.useAnimation = 40;
-            Item.useStyle = 5;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.noUseGraphic = true;
             Item.width = 12;
             Item.height = 10;
@@ -31,11 +31,10 @@ namespace EpikV2.Items {
             Item.UseSound = SoundID.Item20;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(SunstoneMaterial.id);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Solweaver");
@@ -70,7 +69,7 @@ namespace EpikV2.Items {
             Projectile.friendly = true;
             Projectile.penetrate = -1;
             Projectile.tileCollide = false;
-            Projectile.magic = true;
+            Projectile.DamageType = DamageClass.Magic;
             Projectile.timeLeft = 25;
             //projectile.hide = true;
         }
@@ -78,16 +77,16 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Solweaver");
 		}
 
-        public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough) {
+		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) {
             width = 1;
             height = 1;
-			return false;
+            return false;
         }
 
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+		public override bool PreDraw(ref Color lightColor) {
             Vector2 unit = _targetPos - Projectile.Center;
             unit.Normalize();
-            DrawLaser(spriteBatch, TextureAssets.Projectile[Projectile.type].Value, Projectile.Center, unit, 1, new Vector2(1f,0.55f), maxDist:(_targetPos-Projectile.Center).Length());
+            DrawLaser(Main.spriteBatch, TextureAssets.Projectile[Projectile.type].Value, Projectile.Center, unit, 1, new Vector2(1f,0.55f), maxDist:(_targetPos-Projectile.Center).Length());
             return false;
 
         }
@@ -220,7 +219,7 @@ namespace EpikV2.Items {
             }
 
             if (Projectile.soundDelay <= 0){
-                SoundEngine.PlaySound(SoundID.Item, (int)Projectile.Center.X, (int)Projectile.Center.Y, 20);
+                SoundEngine.PlaySound(SoundID.Item20, Projectile.Center);
                 Projectile.soundDelay = 30;
             }
 
@@ -308,7 +307,7 @@ namespace EpikV2.Items {
         const float range_growth = 10f;
         public override void SetDefaults() {
             Projectile.width = Projectile.height = 1;
-            Projectile.magic = true;
+            Projectile.DamageType = DamageClass.Magic;
             Projectile.friendly = true;
             Projectile.hostile = false;
             Projectile.tileCollide = false;
@@ -355,7 +354,7 @@ namespace EpikV2.Items {
             float dist = duration*range_growth;
             damage = (int)(damage/(Math.Max((pos-Projectile.Center).Length(),1)/dist));
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
+        public override bool PreDraw(ref Color lightColor){
             return false;
         }
     }

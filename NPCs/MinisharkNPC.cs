@@ -8,6 +8,7 @@ using Terraria.Audio;
 using Terraria.ModLoader;
 using Terraria.ID;
 using Microsoft.Xna.Framework;
+using Terraria.GameContent.ItemDropRules;
 
 namespace EpikV2.NPCs {
     public class MinisharkNPC : ModNPC {
@@ -23,16 +24,16 @@ namespace EpikV2.NPCs {
             NPC.knockBackResist = 2f;
         }
         public override float SpawnChance(NPCSpawnInfo spawnInfo) {
-            if(spawnInfo.sky||spawnInfo.playerInTown||spawnInfo.lihzahrd){
+            if(spawnInfo.Sky||spawnInfo.PlayerInTown||spawnInfo.Lihzahrd){
                 return 0f;
             }
-            if(spawnInfo.spawnTileX>Main.maxTilesX/4&&spawnInfo.spawnTileX<Main.maxTilesX*0.75&&!spawnInfo.player.ZoneJungle) {
+            if(spawnInfo.SpawnTileX>Main.maxTilesX/4&&spawnInfo.SpawnTileX<Main.maxTilesX*0.75&&!spawnInfo.Player.ZoneJungle) {
                 return 0f;
             }
-            if(spawnInfo.spawnTileY>Main.worldSurface+20) {
+            if(spawnInfo.SpawnTileY>Main.worldSurface+20) {
                 return 0f;
             }
-            return spawnInfo.water?0.1f:0f;
+            return spawnInfo.Water?0.1f:0f;
         }
         public override void AI() {
 			if (NPC.direction == 0){
@@ -113,7 +114,7 @@ namespace EpikV2.NPCs {
                     targetVelocity *= 12;
                     EpikExtensions.LinearSmoothing(ref NPC.velocity.X, targetVelocity.X, 0.6f);
                     EpikExtensions.LinearSmoothing(ref NPC.velocity.Y, targetVelocity.Y, 0.6f);
-                    float minY = (Framing.GetTileSafely(i, j - 1).liquid < 16)?0:-5;
+                    float minY = (Framing.GetTileSafely(i, j - 1).LiquidAmount < 16)?0:-5;
 					if (NPC.velocity.Y > 5){
                         EpikExtensions.LinearSmoothing(ref NPC.velocity.Y, 5, 0.6f);
 					}
@@ -139,7 +140,7 @@ namespace EpikV2.NPCs {
 					}
 					int i = (int)(NPC.Center.X / 16);
 					int j = (int)(NPC.Center.Y / 16);
-					if (Framing.GetTileSafely(i, j - 1).liquid > 128){
+					if (Framing.GetTileSafely(i, j - 1).LiquidAmount > 128){
 						if (Framing.GetTileSafely(i, j + 1).HasTile){
 							NPC.ai[0] = -1f;
 						}else if (Framing.GetTileSafely(i, j + 2).HasTile){
@@ -191,13 +192,13 @@ namespace EpikV2.NPCs {
             NPC.spriteDirection = 1;
             if(Main.SmartCursorIsUsed)NPC.velocity = Vector2.Zero;
         }
-        public override void OnKill() {
-            Item.NewItem(NPC.Center, ItemID.Minishark, prefixGiven:-1);
-        }
+		public override void ModifyNPCLoot(NPCLoot npcLoot) {
+            npcLoot.Add(ItemDropRule.Common(ItemID.Minishark));
+		}
         void Shoot() {
             Vector2 vel = new Vector2(12,0).RotatedBy(Main.rand.NextFloat(NPC.rotation-0.1f,NPC.rotation+0.1f));
             SoundEngine.PlaySound(SoundID.Item11, NPC.Center+vel*2);
-            int p = Projectile.NewProjectile(NPC.Center+vel.RotatedByRandom(0.2), vel, ProjectileID.Bullet, 20, 3);
+            int p = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center+vel.RotatedByRandom(0.2), vel, ProjectileID.Bullet, 20, 3);
             Main.projectile[p].ignoreWater = true;
             Main.projectile[p].friendly = false;
             Main.projectile[p].hostile = true;

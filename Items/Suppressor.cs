@@ -45,7 +45,7 @@ namespace EpikV2.Items {
             Item.height = 28;
             Item.useTime = 5;
             Item.useAnimation = 5;
-            Item.useStyle = 5;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.noMelee = true;
             Item.knockBack = 7.5f;
             Item.value = 1000;

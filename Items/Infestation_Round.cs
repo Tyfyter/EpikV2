@@ -17,7 +17,7 @@ namespace EpikV2.Items {
 			Item.crit = -4;
 			Item.width = 12;
 			Item.height = 12;
-			Item.useStyle = 0;
+			Item.useStyle = ItemUseStyleID.None;
 			Item.knockBack = 1;
 			Item.value = 25000;
 			Item.rare = ItemRarityID.Lime;
@@ -30,13 +30,11 @@ namespace EpikV2.Items {
 		}
 
 		public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(Mod);
-			recipe = new ModRecipe(Mod);
+			Recipe recipe = Mod.CreateRecipe(Type, 70);
 			recipe.AddIngredient(ItemID.ShroomiteBar, 1);
 			recipe.AddIngredient(ItemID.SilverBullet, 70);
 			recipe.AddTile(TileID.Autohammer);
-			recipe.SetResult(this, 70);
-			recipe.AddRecipe();
+			recipe.Create();
 		}
 	}
 	public class Infestation_Round_Pouch : ModItem {
@@ -52,11 +50,10 @@ namespace EpikV2.Items {
 		}
 
 		public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(Mod);
+			Recipe recipe = Mod.CreateRecipe(Type);
 			recipe.AddIngredient(ModContent.ItemType<Infestation_Round>(), 3996);
 			recipe.AddTile(TileID.Autohammer);
-			recipe.SetResult(this, 1);
-			recipe.AddRecipe();
+			recipe.Create();
 		}
 	}
 }

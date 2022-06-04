@@ -115,9 +115,9 @@ namespace EpikV2 {
             moonlightThreads = 0;
             if(sacrifice>0) {
                 sacrifice--;
-                if(sacrifice==0&&Main.rand.NextBool(5)&&EpikWorld.sacrifices.Count>0) {
-                    int i = Main.rand.Next(EpikWorld.sacrifices.Count);
-                    EpikWorld.sacrifices.RemoveAt(i);
+                if(sacrifice==0&&Main.rand.NextBool(5)&&EpikWorld.Sacrifices.Count>0) {
+                    int i = Main.rand.Next(EpikWorld.Sacrifices.Count);
+                    EpikWorld.Sacrifices.RemoveAt(i);
                     for(i = 0; i < 4; i++)Dust.NewDust(Player.position,Player.width, Player.height, DustID.Cloud, Alpha:100, newColor:new Color(255,150,150));
                 }
             }
@@ -231,16 +231,6 @@ namespace EpikV2 {
         }
 		public override void OnRespawn(Player player) {
             timeSinceRespawn = 0;
-        }
-        public override void UpdateBiomes() {
-			if (drugPotion) {
-                bool corrupt = Player.ZoneCorrupt;
-                Player.ZoneCorrupt = Player.ZoneCrimson;
-                Player.ZoneCrimson = corrupt;
-            }
-        }
-        public override void UpdateBiomeVisuals() {
-            Player.ManageSpecialBiomeVisuals("EpikV2:LSD", drugPotion);
         }
         public override bool CanBeHitByNPC(NPC npc, ref int cooldownSlot) {
             return npcImmuneFrames[npc.whoAmI] == 0;
@@ -589,7 +579,7 @@ namespace EpikV2 {
                 bool wet = Player.wet;
                 Vector2 dist;
                 Rain rain;
-                if(Main.netMode!=NetmodeID.SinglePlayer||EpikWorld.raining)for(int i = 0; i < Main.maxRain&&!wet; i++) {
+                if(Main.netMode!=NetmodeID.SinglePlayer||EpikWorld.Raining)for(int i = 0; i < Main.maxRain&&!wet; i++) {
                     rain = Main.rain[i];
                     if(rain.active) {
                         dist = new Vector2(2, 40).RotatedBy(rain.rotation);
@@ -735,39 +725,39 @@ namespace EpikV2 {
             Player.lifeRegenTime += damage * 2;
             Player.lifeRegenCount += damage;
         }
-        public override void ModifyDrawInfo(ref PlayerDrawInfo drawInfo) {
+		public override void ModifyDrawInfo(ref PlayerDrawSet drawInfo) {
             if(Player.whoAmI == Main.myPlayer)Ashen_Glaive_P.drawCount = 0;
             if(Player.head == Champions_Helm.ArmorID) {
-                drawInfo.eyeColor = Color.Red;
-                if(drawInfo.headArmorShader == 0) {
-                    drawInfo.headArmorShader = 84;
+                drawInfo.colorEyes = Color.Red;
+                if(drawInfo.cHead == 0) {
+                    drawInfo.cHead = 84;
                 }
             }
 			for (int i = 0; i< Shaders.InvalidArmorShaders.Count; i++) {
                 InvalidArmorShader invalidShader = Shaders.InvalidArmorShaders[i];
-                if (drawInfo.hairShader == invalidShader.shader)
-                    drawInfo.hairShader = invalidShader.fallbackShader;
-                if (drawInfo.headArmorShader == invalidShader.shader && !(drawInfo.drawHair || drawInfo.drawAltHair))
-                    drawInfo.headArmorShader = invalidShader.fallbackShader;
-                if (drawInfo.bodyArmorShader == invalidShader.shader)
-                    drawInfo.bodyArmorShader = invalidShader.fallbackShader;
-                if (drawInfo.legArmorShader == invalidShader.shader)
-                    drawInfo.legArmorShader = invalidShader.fallbackShader;
+                if (drawInfo.hairDyePacked == invalidShader.shader)
+                    drawInfo.hairDyePacked = invalidShader.fallbackShader;
+                if (drawInfo.cHead == invalidShader.shader && !(drawInfo.fullHair || drawInfo.hatHair))
+                    drawInfo.cHead = invalidShader.fallbackShader;
+                if (drawInfo.cBody == invalidShader.shader)
+                    drawInfo.cBody = invalidShader.fallbackShader;
+                if (drawInfo.cLegs == invalidShader.shader)
+                    drawInfo.cLegs = invalidShader.fallbackShader;
             }
 
             if(marionetteDeathTime > 0) {
                 float fadeTime = (255-(marionetteDeathTime * 10f))/255f;
                 Color fadeColor = new Color(fadeTime,fadeTime,fadeTime,fadeTime);
-                drawInfo.hairColor = drawInfo.hairColor.MultiplyRGBA(fadeColor);
-                drawInfo.faceColor = drawInfo.faceColor.MultiplyRGBA(fadeColor);
-                drawInfo.eyeColor = drawInfo.eyeColor.MultiplyRGBA(fadeColor);
-                drawInfo.eyeWhiteColor = drawInfo.eyeWhiteColor.MultiplyRGBA(fadeColor);
-                drawInfo.bodyColor = drawInfo.bodyColor.MultiplyRGBA(fadeColor);
-                drawInfo.legColor = drawInfo.legColor.MultiplyRGBA(fadeColor);
+                drawInfo.colorHair = drawInfo.colorHair.MultiplyRGBA(fadeColor);
+                drawInfo.colorBodySkin = drawInfo.colorBodySkin.MultiplyRGBA(fadeColor);
+                drawInfo.colorEyes = drawInfo.colorEyes.MultiplyRGBA(fadeColor);
+                drawInfo.colorEyeWhites = drawInfo.colorEyeWhites.MultiplyRGBA(fadeColor);
+                drawInfo.colorArmorBody = drawInfo.colorArmorBody.MultiplyRGBA(fadeColor);
+                drawInfo.colorArmorLegs = drawInfo.colorArmorLegs.MultiplyRGBA(fadeColor);
                 int marionettePullTime = marionetteDeathTime-(marionetteDeathTimeMax-20);
                 if(marionettePullTime>0) {
-                    drawInfo.position.Y -= (float)Math.Pow(2, marionettePullTime-10);
-                    drawInfo.position.Y += marionettePullTime;
+                    drawInfo.Position.Y -= (float)Math.Pow(2, marionettePullTime-10);
+                    drawInfo.Position.Y += marionettePullTime;
                 }
             }
         }

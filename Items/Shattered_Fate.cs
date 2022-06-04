@@ -1,4 +1,30 @@
-﻿using System;
+﻿using Terraria.ID;
+using Terraria.ModLoader;
+
+namespace EpikV2.Items {
+    public class Shattered_Fate : ModItem {
+        public override void SetStaticDefaults() {
+            DisplayName.SetDefault("Shattered Fate");
+            Tooltip.SetDefault("WeaponOut is currently unavailable for this version\nthis item will be reimplemented when that changes, but for now it's just a placeholder");
+        }
+        public override void SetDefaults() {
+            Item.DamageType = DamageClass.Melee;
+            Item.damage = 95;
+            Item.useAnimation = 16; // Combos can increase speed by 30-50% since it halves remaining attack time
+            Item.knockBack = 3f;
+            Item.tileBoost = 6; // For fists, we read this as the combo power
+            Item.rare = ItemRarityID.Purple;
+            Item.crit = 10;
+            Item.UseSound = SoundID.Item19;
+            Item.useStyle = 102115116;
+            Item.autoReuse = true;
+            Item.noUseGraphic = false;
+            Item.width = 20;
+            Item.height = 20;
+        }
+    }
+}
+/*using System;
 using System.Reflection;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
@@ -26,9 +52,7 @@ namespace EpikV2.Items {
             return Fists_Enabled;
         }
         static int comboEffect = 0;
-		public override bool CloneNewInstances{
-			get { return true; }
-		}
+		public override bool CloneNewInstances => true;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Shattered Fate");
             Tooltip.SetDefault(
@@ -37,7 +61,7 @@ namespace EpikV2.Items {
             comboEffect = ModPlayerFists.RegisterComboEffectID(ComboEffects);
         }
         public override void SetDefaults() {
-            Item.melee = true;
+            Item.DamageType = DamageClass.Melee;
             Item.damage = 95;
             Item.useAnimation = 16; // Combos can increase speed by 30-50% since it halves remaining attack time
             Item.knockBack = 3f;
@@ -89,7 +113,7 @@ namespace EpikV2.Items {
 				Color color = new Color(255, 0, 0);
                 // Charge effect
                 for (int i = 0; i < 3; i++) {
-                    Dust d = Main.dust[Dust.NewDust(r.TopLeft(), 16, 16, 267, 0, 0, 0, new Color(0, 255, 100), 0.7f)];
+                    Dust d = Main.dust[Dust.NewDust(r.TopLeft(), 16, 16, DustID.RainbowMk2, 0, 0, 0, new Color(0, 255, 100), 0.7f)];
                     d.fadeIn = 1.2f;
                     d.position -= d.velocity * 20f;
                     d.velocity *= 1.5f;
@@ -197,3 +221,4 @@ namespace EpikV2.Items {
         }
     }
 }
+//*/

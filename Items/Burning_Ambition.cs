@@ -26,11 +26,11 @@ namespace EpikV2.Items {
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.FlowerofFire);
 			Item.damage = 19;
-			Item.magic = true;
+			Item.DamageType = DamageClass.Magic;
 			Item.mana = 20;
 			Item.width = 36;
 			Item.height = 76;
-			Item.useStyle = 5;
+			Item.useStyle = ItemUseStyleID.Shoot;
 			Item.useTime = 20;
 			Item.useAnimation = 20;
 			Item.noMelee = true;
@@ -45,13 +45,26 @@ namespace EpikV2.Items {
 			//item.glowMask = customGlowMask;
 		}
 		public override void AddRecipes() {
-			ModRecipe recipe = new Burning_Ambition_Recipe(Mod);
+			Recipe recipe = Mod.CreateRecipe(Type);
 			recipe.AddIngredient(ItemID.Hellforge);
 			recipe.AddIngredient(ItemID.GoldCoin, 10);
 			recipe.AddIngredient(ItemID.GuideVoodooDoll);
 			recipe.AddTile(TileID.TinkerersWorkbench);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.AddCondition(new Recipe.Condition(
+				Terraria.Localization.NetworkText.FromLiteral("This kills the Guide"),
+				(r) => NPC.AnyNPCs(NPCID.Guide)
+			));
+			recipe.AddOnCraftCallback((r, item) => {
+				NPC guide = Main.npc[NPC.FindFirstNPC(NPCID.Guide)];
+				guide.life = 0;
+				guide.DeathSound = SoundID.Item104;
+				guide.checkDead();
+				EpikExtensions.PoofOfSmoke(guide.Hitbox);
+				for (int i = 0; i < 16; i++) {
+					Dust.NewDust(guide.position, guide.width, guide.height, DustID.Torch, 0, -6);
+				}
+			});
+			recipe.Create();
 		}
 		public override bool AltFunctionUse(Player player) {
 			return true;
@@ -59,29 +72,13 @@ namespace EpikV2.Items {
 		public override float UseTimeMultiplier(Player player) {
 			return player.altFunctionUse == 0 ? 1f : 0.85f;
 		}
-		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
 			if (player.altFunctionUse == 2) {
-				Projectile.NewProjectile(position, Vector2.Zero, ProjectileType<Burning_Ambition_Smelter>(), 0, 0f, player.whoAmI, Player.tileTargetX, Player.tileTargetY);
+				Projectile.NewProjectile(source, position, Vector2.Zero, ProjectileType<Burning_Ambition_Smelter>(), 0, 0f, player.whoAmI, Player.tileTargetX, Player.tileTargetY);
 				return false;
 			}
-			Projectile.NewProjectileDirect(position, new Vector2(speedX, speedY), Item.shoot, damage, 0f, player.whoAmI, ai1:knockBack).localAI[1] = 20 - Item.useTime;
+			Projectile.NewProjectileDirect(source, position, velocity, Item.shoot, damage, 0f, player.whoAmI, ai1:knockBack).localAI[1] = 20 - Item.useTime;
 			return false;
-		}
-	}
-	public class Burning_Ambition_Recipe : ModRecipe {
-		public Burning_Ambition_Recipe(Mod mod) : base(mod) { }
-		public override bool RecipeAvailable() {
-			return NPC.AnyNPCs(NPCID.Guide);
-		}
-		public override void OnCraft(Item item) {
-			NPC guide = Main.npc[NPC.FindFirstNPC(NPCID.Guide)];
-			guide.life = 0;
-			guide.DeathSound = SoundID.Item104;
-			guide.checkDead();
-			EpikExtensions.PoofOfSmoke(guide.Hitbox);
-			for (int i = 0; i < 16; i++) {
-				Dust.NewDust(guide.position, guide.width, guide.height, DustID.Fire, 0, -6);
-			}
 		}
 	}
 	public class Burning_Ambition_Vortex : ModProjectile, IDrawAfterNPCs {
@@ -99,7 +96,7 @@ namespace EpikV2.Items {
 				return new Triangle(Projectile.Center, @base + side * 64, @base - side * 64);
 			}
 		}
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 		internal List<Particle> particles;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Burning Avaritia");
@@ -141,7 +138,7 @@ namespace EpikV2.Items {
 			} else {
 				if (++Projectile.ai[0] >= 30) {
 					SoundEngine.PlaySound(SoundID.Item45, Projectile.Center);
-					Projectile.NewProjectile(Projectile.Center, Projectile.velocity * (6 + Projectile.localAI[0] * 4), ProjectileType<Burning_Ambition_Fireball>(), (int)(Projectile.damage * (1 + Projectile.localAI[0])), Projectile.ai[1], Projectile.owner);
+					Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity * (6 + Projectile.localAI[0] * 4), ProjectileType<Burning_Ambition_Fireball>(), (int)(Projectile.damage * (1 + Projectile.localAI[0])), Projectile.ai[1], Projectile.owner);
 				}
 			}
 			owner.itemAnimation = 2;
@@ -151,8 +148,8 @@ namespace EpikV2.Items {
 			Projectile.Center = Main.player[Projectile.owner].MountedCenter;
 			Projectile.rotation += (MathHelper.TwoPi / 60) * (Projectile.localAI[0] + 1);
 		}
-		public override void DrawBehind(int index, List<int> drawCacheProjsBehindNPCsAndTiles, List<int> drawCacheProjsBehindNPCs, List<int> drawCacheProjsBehindProjectiles, List<int> drawCacheProjsOverWiresUI) {
-			drawCacheProjsBehindNPCs.Add(index);
+		public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI) {
+			behindNPCsAndTiles.Add(index);
 		}
 		void DrawParticles(bool back, float factor = 1f) {
 			float zMult = (30 - Projectile.ai[0]) / 30;
@@ -187,8 +184,7 @@ namespace EpikV2.Items {
 		void DrawAllParticles(bool back) {
 			BlendState bs = new BlendState();
 			bs.ColorDestinationBlend = Blend.One;
-			Main.spriteBatch.End();
-			Main.spriteBatch.Begin(SpriteSortMode.Deferred, bs, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, Resources.Shaders.blurShader);
+			Main.spriteBatch.Restart(SpriteSortMode.Deferred, effect: Resources.Shaders.blurShader);
 			try {
 				float rot = Projectile.rotation;
 				for (int i = 4; i >= 0; i--) {
@@ -197,11 +193,10 @@ namespace EpikV2.Items {
 				}
 				Projectile.rotation = rot;
 			} finally {
-				Main.spriteBatch.End();
-				Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer);
+				Main.spriteBatch.Restart();
 			}
 		}
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+		public override bool PreDraw(ref Color lightColor) {
 			DrawAllParticles(true);
 			if (!this.AddToAfterNPCQueue()) {
 				DrawPostNPCLayer();
@@ -222,8 +217,8 @@ namespace EpikV2.Items {
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
 			Player owner = Main.player[Projectile.owner];
-			int armor = Math.Max(target.defense - owner.armorPenetration, 0);
-			damage += Math.Min(armor, 10) / 2;
+			float armor = Math.Max(target.defense - owner.GetArmorPenetration(DamageClass.Magic), 0);
+			damage += (int)(Math.Min(armor, 10) / 2);
 		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			Player owner = Main.player[Projectile.owner];
@@ -292,7 +287,7 @@ namespace EpikV2.Items {
 	}
 	public class Burning_Ambition_Fireball : ModProjectile {
 		public override string Texture => "EpikV2/Items/Burning_Ambition";
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 		internal Fireball_Particle[] particles;
 		internal List<Fireball_Particle> deathParticles;
 		public override void SetStaticDefaults() {
@@ -382,8 +377,8 @@ namespace EpikV2.Items {
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
 			Player owner = Main.player[Projectile.owner];
-			int armor = Math.Max(target.defense - owner.armorPenetration, 0);
-			damage += Math.Min(armor, 10) / 2;
+			float armor = Math.Max(target.defense - owner.GetArmorPenetration(DamageClass.Magic), 0);
+			damage += (int)(Math.Min(armor, 10) / 2);
 		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			if (Projectile.ai[0] == 0 && target.life > 0) {
@@ -447,12 +442,11 @@ namespace EpikV2.Items {
 				}
 			}
 		}
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+		public override bool PreDraw(ref Color lightColor) {
 			BlendState bs = new BlendState();
 			bs.ColorSourceBlend = Blend.SourceAlpha;
 			bs.ColorDestinationBlend = Blend.One;
-			Main.spriteBatch.End();
-			Main.spriteBatch.Begin(SpriteSortMode.Deferred, bs, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, Resources.Shaders.blurShader);
+			Main.spriteBatch.Restart(SpriteSortMode.Deferred, effect: Resources.Shaders.blurShader);
 			try {
 				float rot = Projectile.rotation;
 				for (int i = 4; i >= 0; i--) {
@@ -461,15 +455,14 @@ namespace EpikV2.Items {
 				}
 				Projectile.rotation = rot;
 			} finally {
-				Main.spriteBatch.End();
-				Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer);
+				Main.spriteBatch.Restart();
 			}
 			return false;
 		}
 	}
 	public class Burning_Ambition_Smelter : ModProjectile {
 		public override string Texture => "EpikV2/Items/Burning_Ambition";
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 		internal Fireball_Particle[] particles;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Burning Avaritia");
@@ -566,7 +559,7 @@ namespace EpikV2.Items {
 							}
 							NPCLoader.blockLoot.Clear();
 							Item createItem = craft.recipe.createItem;
-							Item.NewItem(Projectile.Center, createItem.type, createItem.stack, prefixGiven: -1);
+							Item.NewItem(Projectile.GetSource_DropAsItem(), Projectile.Center, createItem.type, createItem.stack, prefixGiven: -1);
 						}
 					} catch (Exception) {}
 					Projectile.Kill();
@@ -592,7 +585,7 @@ namespace EpikV2.Items {
 					continue;
 				}
 				Vector3 position = particle.GetCartesian(factor) * Projectile.scale;
-				Main.spriteBatch.Draw(
+				Main.EntitySpriteDraw(
 					TextureAssets.Dust.Value,
 					origin + new Vector2(position.X, position.Y),
 					particle.GetFrame(),
@@ -605,20 +598,18 @@ namespace EpikV2.Items {
 				if(factor == 1f)Lighting.AddLight(Projectile.Center + new Vector2(position.X, position.Y), new Vector3(0.5f, 0.25f, 0f) / (1f + Math.Abs(position.Z)));
 			}
 		}
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+		public override bool PreDraw(ref Color lightColor) {
 			BlendState bs = new BlendState {
 				ColorSourceBlend = Blend.SourceAlpha,
 				ColorDestinationBlend = Blend.One
 			};
-			Main.spriteBatch.End();
-			Main.spriteBatch.Begin(SpriteSortMode.Deferred, bs, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, Resources.Shaders.blurShader, Main.Transform);
+			Main.spriteBatch.Restart(SpriteSortMode.Deferred, effect: Resources.Shaders.blurShader);
 			try {
 				for (int i = 4; i >= 0; i--) {
 					DrawParticles(i + 1);
 				}
 			} finally {
-				Main.spriteBatch.End();
-				Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
+				Main.spriteBatch.Restart();
 			}
 			return false;
 		}

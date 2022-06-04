@@ -22,19 +22,19 @@ namespace EpikV2.Items {
 			Item.maxStack = 1;
 		}
 		public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
-            recipe.AddIngredient(ItemID.SharkToothNecklace);
+			Recipe recipe = Mod.CreateRecipe(Type);
+			recipe.AddIngredient(ItemID.SharkToothNecklace);
             recipe.AddIngredient(ItemID.WormTooth, 5);
             recipe.AddIngredient(ItemID.CursedFlame, 5);
             recipe.AddTile(TileID.MythrilAnvil);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
 		}
 		public override void UpdateEquip(Player player) {
-			player.armorPenetration += 7;
+			player.GetArmorPenetration(DamageClass.Default) += 7;
+			player.GetArmorPenetration(DamageClass.Generic) += 7;
 			player.GetModPlayer<EpikPlayer>().wormToothNecklace = true;
 		}
-        public override void UpdateVanity(Player player, EquipType type) {
+        public override void UpdateVanity(Player player) {
             player.GetModPlayer<EpikPlayer>().extraNeckTexture = 0;
         }
 	}

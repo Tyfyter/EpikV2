@@ -4,6 +4,7 @@ using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
@@ -17,11 +18,11 @@ namespace EpikV2.Items {
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.FrostStaff);
             Item.damage = 40;
-			Item.magic = true;
+			Item.DamageType = DamageClass.Magic;
             Item.noUseGraphic = false;
             Item.width = 32;
             Item.height = 32;
-            Item.useStyle = 5;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.useTime = 20;
             Item.useAnimation = 20;
             Item.noMelee = true;
@@ -29,22 +30,24 @@ namespace EpikV2.Items {
             Item.value = 100000;
 			Item.rare = ItemRarityID.Lime;
             Item.autoReuse = true;
-            Item.shoot = 1;
+            Item.shoot = ProjectileID.WoodenArrowFriendly;
             Item.shootSpeed = 6.5f;
             Item.mana = 15;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
-            recipe.AddIngredient(Main.versionNumber=="v1.3.5.3"?ItemID.Pumpkin:4292, 1);
-            recipe.AddIngredient(ModContent.ItemType<Sacrificial_Dagger>(), 1);
+            Recipe recipe = Mod.CreateRecipe(Type);
+            recipe.AddIngredient(ItemID.Mango);
+            recipe.AddIngredient(ModContent.ItemType<Sacrificial_Dagger>());
             recipe.AddIngredient(ItemID.SoulofSight, 5);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.needLava = true;
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.AddCondition(Recipe.Condition.NearLava);
+            recipe.AddConsumeItemCallback(DontConsumeDaggerCallback);
+            recipe.Create();
         }
-        public override void OnCraft(Recipe recipe) {
-            Main.LocalPlayer.QuickSpawnItem(ModContent.ItemType<Sacrificial_Dagger>());
+        static void DontConsumeDaggerCallback(Recipe recipe, int type, ref int count) {
+			if (type == ModContent.ItemType<Sacrificial_Dagger>()) {
+                count = 0;
+			}
         }
         public override void ModifyManaCost(Player player, ref float reduce, ref float mult) {
             if(!Item.newAndShiny&&EpikPlayer.ItemChecking[player.whoAmI]) {
@@ -52,7 +55,7 @@ namespace EpikV2.Items {
                 mult = 0;
             }
         }
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
             position = Main.MouseWorld;
             player.manaRegenDelay = (int)player.maxRegenDelay;
             try {
@@ -108,12 +111,12 @@ namespace EpikV2.Items {
                         if(targetNPC.life > targetNPC.lifeMax)targetNPC.life = targetNPC.lifeMax;
                         globalNPC.organRearrangement += 10*(damage/40f);
                         //sendOrganRearrangementPacket(target, globalNPC.organRearrangement);
-                        tryGhostHeal(target, player.whoAmI, dmg);
+                        TryOnHitEffects(target, player.whoAmI, dmg);
                         targetNPC.netUpdate = true;
                     } else {
                         //Player targetPlayer = Main.player[-1-target];
                         Player targetPlayer = (Player)targetEntity;
-                        targetPlayer.Hurt(Terraria.DataStructures.PlayerDeathReason.ByPlayer(player.whoAmI), damage+(int)(player.statDefense*(Main.expertMode?0.75f:0.5f)), 0,  true);
+                        targetPlayer.Hurt(PlayerDeathReason.ByPlayer(player.whoAmI), damage+(int)(player.statDefense*(Main.expertMode?0.75f:0.5f)), 0,  true);
                         targetPlayer.GetModPlayer<EpikPlayer>().organRearrangement += 15;
                         //sendOrganRearrangementPacket(target, targetPlayer.GetModPlayer<EpikPlayer>().organRearrangement);
                     }
@@ -125,11 +128,11 @@ namespace EpikV2.Items {
                     Dust dust;
                     for(int i = 0; i<dusts;i++) {
                         currPos += diff;
-	                    dust = Dust.NewDustDirect(currPos, 0, 0, 235);
+	                    dust = Dust.NewDustDirect(currPos, 0, 0, DustID.LifeDrain);
                         dust.velocity *= 0.2f;
                     }
                     if(!player.CheckMana(Item, pay: true)) {
-                        player.Hurt(Terraria.DataStructures.PlayerDeathReason.ByPlayer(player.whoAmI), 10+(int)(player.statDefense*(Main.expertMode?0.75f:0.5f)), 0,  true);
+                        player.Hurt(PlayerDeathReason.ByPlayer(player.whoAmI), 10+(int)(player.statDefense*(Main.expertMode?0.75f:0.5f)), 0,  true);
                         player.GetModPlayer<EpikPlayer>().organRearrangement += 25;
                         //sendOrganRearrangementPacket(-1-player.whoAmI, player.GetModPlayer<EpikPlayer>().organRearrangement);
                     }
@@ -140,25 +143,25 @@ namespace EpikV2.Items {
 			return false;
 		}
         internal static Entity getTargetEntity(int id) {
-            return id >= 0 ?(Entity)Main.npc[id]:(Entity)Main.player[-1-id];
+            return id >= 0 ? Main.npc[id] : Main.player[-1-id];
         }
-        internal static void tryGhostHeal(int i, int owner, int value) {
+        internal void TryOnHitEffects(int i, int owner, int value) {
             if (Main.npc[i].canGhostHeal){
                 Projectile proj = new Projectile();
                 proj.damage = value;
-                proj.magic = true;
+                proj.DamageType = DamageClass.Magic;
                 proj.owner = owner;
                 proj.position = Main.npc[i].Center;
 				if (Main.player[owner].ghostHeal && !Main.player[owner].moonLeech){
-					proj.ghostHeal(value, Main.npc[i].Center);
+					proj.ghostHeal(value, Main.npc[i].Center, Main.npc[i]);
 				}
 				if (Main.player[owner].ghostHurt){
-					proj.ghostHurt(value, Main.npc[i].Center);
+					proj.ghostHurt(value, Main.npc[i].Center, Main.npc[i]);
 				}
-				if (Main.player[owner].setNebula && Main.player[owner].nebulaCD == 0 && Main.rand.Next(3) == 0){
+				if (Main.player[owner].setNebula && Main.player[owner].nebulaCD == 0 && Main.rand.NextBool(3)){
 					Main.player[owner].nebulaCD = 30;
 					int num24 = Utils.SelectRandom(Main.rand, 3453, 3454, 3455);
-					int num25 = Item.NewItem((int)Main.npc[i].position.X, (int)Main.npc[i].position.Y, Main.npc[i].width, Main.npc[i].height, num24);
+					int num25 = Item.NewItem(Item.GetSource_OnHit(Main.npc[i], "SetBonus_Nebula"), (int)Main.npc[i].position.X, (int)Main.npc[i].position.Y, Main.npc[i].width, Main.npc[i].height, num24);
 					Main.item[num25].velocity.Y = Main.rand.Next(-20, 1) * 0.2f;
 					Main.item[num25].velocity.X = Main.rand.Next(10, 31) * 0.2f * Main.player[owner].direction;
 					if (Main.netMode == NetmodeID.MultiplayerClient){

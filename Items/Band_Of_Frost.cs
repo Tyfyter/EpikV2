@@ -4,6 +4,7 @@ using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -24,7 +25,7 @@ namespace EpikV2.Items {
             Item.CloneDefaults(ItemID.FrostStaff);
             Item.handOnSlot = h;
             Item.damage = 135;
-			Item.magic = true;
+			Item.DamageType = DamageClass.Magic;
             Item.noUseGraphic = true;
             Item.width = 32;
             Item.height = 64;
@@ -43,26 +44,23 @@ namespace EpikV2.Items {
         public override void HoldItem(Player player) {
             player.handon = Item.handOnSlot;
         }
-        public override bool UseItemFrame(Player player) {
+        public override void UseItemFrame(Player player) {
             player.handon = Item.handOnSlot;
             player.bodyFrame.Y = player.altFunctionUse == 2 ? 112 : 224 ;
-            return true;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ModContent.ItemType<Frost_Band_Vanity>());
             recipe.AddIngredient(ItemID.FrozenKey);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
         public override bool AltFunctionUse(Player player) {
             return true;
         }
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
-            speedX = Item.shootSpeed * player.direction;
-            speedY = (player.altFunctionUse == 2?-Item.shootSpeed:Item.shootSpeed)*player.gravDir;
-			return true;
-		}
+		public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
+            velocity.X = Item.shootSpeed * player.direction;
+            velocity.Y = (player.altFunctionUse == 2 ? -Item.shootSpeed : Item.shootSpeed) * player.gravDir;
+        }
     }
 	public class Frost_Band_Shot : ModProjectile {
         public override string Texture => "Terraria/Star_2";
@@ -73,6 +71,7 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
+            Projectile.DamageType = DamageClass.Magic;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 10;
             Projectile.extraUpdates = 1;
@@ -90,7 +89,7 @@ namespace EpikV2.Items {
                 if(Projectile.timeLeft < 30)Projectile.friendly = true;
                 if(onGround && ++Projectile.localAI[1]>2f) {
                     Projectile.localAI[1]-=1.5f;
-                    Projectile.NewProjectileDirect(Projectile.Center + new Vector2(Projectile.velocity.X * Projectile.localAI[1] * -2, 12), Vector2.Zero, ModContent.ProjectileType<Frost_Spike>(), Projectile.damage, Projectile.knockBack, Projectile.owner, 12).scale = 1f;
+                    Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center + new Vector2(Projectile.velocity.X * Projectile.localAI[1] * -2, 12), Vector2.Zero, ModContent.ProjectileType<Frost_Spike>(), Projectile.damage, Projectile.knockBack, Projectile.owner, 12).scale = 1f;
                 }
                 if(onGround && Projectile.penetrate<2) {
                     Projectile.position.Y-=(Projectile.position.Y%16)+6;
@@ -110,14 +109,14 @@ namespace EpikV2.Items {
             if(Projectile.localAI[0] == -1) {
                 Projectile proj;
                 for(int i = 4; i > -4; i--) {
-			        proj = Projectile.NewProjectileDirect(Projectile.Center, new Vector2(0, 12.5f).RotatedBy(0.1f*i), ProjectileID.FrostShard, Projectile.damage, Projectile.knockBack, Projectile.owner);
+			        proj = Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, new Vector2(0, 12.5f).RotatedBy(0.1f*i), ProjectileID.FrostShard, Projectile.damage, Projectile.knockBack, Projectile.owner);
                     proj.friendly = true;
                     proj.hostile = false;
                     proj.usesLocalNPCImmunity = true;
                     proj.localNPCHitCooldown = 10;
                 }
             } else {
-			    Projectile.NewProjectileDirect(Projectile.Center + new Vector2(0,22), Vector2.Zero, ModContent.ProjectileType<Frost_Spike>(), Projectile.damage * 3, Projectile.knockBack*3, Projectile.owner, 16);
+			    Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center + new Vector2(0,22), Vector2.Zero, ModContent.ProjectileType<Frost_Spike>(), Projectile.damage * 3, Projectile.knockBack*3, Projectile.owner, 16);
             }
         }
         public override bool OnTileCollide(Vector2 oldVelocity) {
@@ -135,6 +134,7 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
+            Projectile.DamageType = DamageClass.Magic;
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 12;
             Projectile.tileCollide = false;
@@ -171,11 +171,11 @@ namespace EpikV2.Items {
             knockback *= Projectile.scale;
             hitDirection = Math.Sign(Projectile.velocity.X);
         }
-        public override void DrawBehind(int index, List<int> drawCacheProjsBehindNPCsAndTiles, List<int> drawCacheProjsBehindNPCs, List<int> drawCacheProjsBehindProjectiles, List<int> drawCacheProjsOverWiresUI) {
-            drawCacheProjsBehindNPCsAndTiles.Add(index);
+        public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI) {
+            behindNPCsAndTiles.Add(index);
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-            spriteBatch.Draw(TextureAssets.Projectile[Projectile.type].Value, Projectile.Center - Main.screenPosition, new Rectangle(0, 0, 16, Projectile.frame*2), lightColor, 0, new Vector2(9, Projectile.frame*2), Projectile.scale, Projectile.direction==1?SpriteEffects.None:SpriteEffects.FlipHorizontally, 0f);
+        public override bool PreDraw(ref Color lightColor) {
+            Main.EntitySpriteDraw(TextureAssets.Projectile[Projectile.type].Value, Projectile.Center - Main.screenPosition, new Rectangle(0, 0, 16, Projectile.frame*2), lightColor, 0, new Vector2(9, Projectile.frame*2), Projectile.scale, Projectile.direction==1?SpriteEffects.None:SpriteEffects.FlipHorizontally, 0);
             return false;
         }
     }

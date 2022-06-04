@@ -10,7 +10,7 @@ using static EpikV2.Resources;
 using static Terraria.ModLoader.ModContent;
 using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
-using Origins.Projectiles;
+//using Origins.Projectiles;
 using System.IO;
 
 #pragma warning disable 672
@@ -39,12 +39,11 @@ namespace EpikV2.Items {
             Item.autoReuse = EpikConfig.Instance.ConstellationDraco;
 		}
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.NebulaBlaze, 1);
             recipe.AddIngredient(ItemID.FragmentSolar, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
         public override void HoldItem(Player player) {
             if(player.itemAnimation != 0 && player.heldProj != -1) {
@@ -92,17 +91,20 @@ namespace EpikV2.Items {
                 charge = 0;
             }
         }
-#pragma warning disable 619
-        public override void GetWeaponDamage(Player player, ref int damage) {
-            damage += (int)((damage - 75) * 2.5f);
+		public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
+            damage = new StatModifier(
+                ((damage.Additive - 1) * 2.5f) + 1,
+                ((damage.Multiplicative - 1) * 2.5f) + 1,
+                (damage.Flat * 2.5f),
+                (damage.Base * 2.5f)
+            );
         }
-#pragma warning restore 619
         public override void ModifyManaCost(Player player, ref float reduce, ref float mult) {
             mult *= 0.09f;
         }
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
-            if(player.heldProj != -1)return false;
-            Projectile.NewProjectile(position, Vector2.Zero, Draco_Blaze.ID, damage, knockBack, player.whoAmI, ai1:Item.mana);
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
+            if (player.heldProj != -1)return false;
+            Projectile.NewProjectile(source, position, Vector2.Zero, Draco_Blaze.ID, damage, knockBack, player.whoAmI, ai1:Item.mana);
             return false;
         }
     }
@@ -110,7 +112,7 @@ namespace EpikV2.Items {
         public static int ID = -1;
         public bool Fired => Projectile.velocity.Length() > 0;
         public override string Texture => "Terraria/Projectile_" + ProjectileID.NebulaBlaze2;
-        public override bool CloneNewInstances => true;
+        protected override bool CloneNewInstances => true;
 
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Draco");
@@ -125,7 +127,7 @@ namespace EpikV2.Items {
             Projectile.timeLeft = 3600;
             Projectile.light = 0;
             Projectile.alpha = 100;
-            drawHeldProjInFrontOfHeldItemAndArms = true;
+            DrawHeldProjInFrontOfHeldItemAndArms = true;
             if(EpikIntegration.EnabledMods.Origins) OriginsIntegration();
         }
 
@@ -233,15 +235,13 @@ namespace EpikV2.Items {
             if((Projectile.Center - targetPos).Length()>Projectile.width/2f) return false;
             return Fired;
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+        public override bool PreDraw(ref Color lightColor) {
             Projectile.type = ProjectileID.NebulaBlaze2;
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, Shaders.starlightShader.Shader, Main.GameViewMatrix.ZoomMatrix);
+            Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.starlightShader.Shader);
             return true;
         }
-        public override void PostDraw(SpriteBatch spriteBatch, Color lightColor) {
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
+        public override void PostDraw(Color lightColor) {
+            Main.spriteBatch.Restart(SpriteSortMode.Immediate);
             Projectile.type = ID;
         }
         public override void SendExtraAI(BinaryWriter writer) {
@@ -251,7 +251,7 @@ namespace EpikV2.Items {
             //projectile.localAI[0] = reader.ReadSingle();
         }
         private void OriginsIntegration() {
-            OriginGlobalProj.explosiveOverrideNext = true;
+            //OriginGlobalProj.explosiveOverrideNext = true;
         }
     }
 }

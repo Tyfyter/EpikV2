@@ -25,12 +25,11 @@ namespace EpikV2.Items {
 
 
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
-            recipe.AddIngredient(ItemID.Hook, 1);
+			Recipe recipe = Mod.CreateRecipe(Type);
+			recipe.AddIngredient(ItemID.Hook, 1);
             recipe.AddIngredient(ItemID.RopeCoil, 1);
             recipe.AddTile(TileID.WorkBenches);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
 
         public override bool CanUseItem(Player player){
@@ -42,7 +41,7 @@ namespace EpikV2.Items {
         public const float rope_range = 450f;
 
         public override string Texture => "Terraria/Projectile_"+ProjectileID.Hook;
-        public override bool CloneNewInstances => true;
+        protected override bool CloneNewInstances => true;
 
         public float distance = rope_range;
 
@@ -88,7 +87,7 @@ namespace EpikV2.Items {
 			speed = 0f;
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+		public override bool PreDraw(ref Color lightColor) {
             Player owner = Main.player[Projectile.owner];
 			Vector2 playerCenter = owner.MountedCenter;
 			Vector2 center = Projectile.Center;
@@ -98,7 +97,7 @@ namespace EpikV2.Items {
 			distToProj.Normalize();
 			distToProj *= 8f;
             DrawData data;
-            Texture2D texture = Mod.GetTexture("Items/Rope_Hook_Chain");
+            Texture2D texture = Mod.RequestTexture("Items/Rope_Hook_Chain");
 			while (distance > 8f && !float.IsNaN(distance)) {
 				center += distToProj;
 				distance = (playerCenter - center).Length();
@@ -108,7 +107,7 @@ namespace EpikV2.Items {
 					new Rectangle(0, 0, TextureAssets.Chain30.Value.Width, TextureAssets.Chain30.Value.Height), drawColor, projRotation,
 					new Vector2(TextureAssets.Chain30.Value.Width * 0.5f, TextureAssets.Chain30.Value.Height * 0.5f), new Vector2(0.75f,1), SpriteEffects.None, 0);
                 data.shader = owner.cGrapple;
-                data.Draw(spriteBatch);
+				Main.EntitySpriteDraw(data);
             }
 			return true;
 		}

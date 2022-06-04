@@ -29,7 +29,7 @@ namespace EpikV2.Items {
             Item.mana = 25;
             Item.width = 32;
             Item.height = 64;
-            Item.useStyle = 5;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.useTime = 27;
             Item.useAnimation = 27;
             Item.noMelee = true;

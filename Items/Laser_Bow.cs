@@ -28,8 +28,8 @@ namespace EpikV2.Items
 		    DisplayName.SetDefault("Chimerebos");//portmanteau & bastardization of "chimera" and "rebus", which I just now realize doesn't include any indication as to what it's a combination of
 		    Tooltip.SetDefault("It's glowing, so it's futuristic");
             if (Main.netMode == NetmodeID.Server) return;
-            UseTexture = Mod.GetTexture("Items/Laser_Bow_Use");
-            GlowTexture = Mod.GetTexture("Items/Laser_Bow_Glow");
+            UseTexture = Mod.RequestTexture("Items/Laser_Bow_Use");
+            GlowTexture = Mod.RequestTexture("Items/Laser_Bow_Glow");
             //customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
         }
         public override void SetDefaults() {
@@ -40,7 +40,7 @@ namespace EpikV2.Items
             Item.mana = 25;
             Item.width = 32;
             Item.height = 64;
-            Item.useStyle = 5;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.useTime = 100;
             Item.useAnimation = 100;
             Item.noMelee = true;
@@ -55,23 +55,16 @@ namespace EpikV2.Items
             Item.UseSound = null;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ModContent.ItemType<Aquamarine>());
             recipe.AddIngredient(ItemID.Phantasm);
             recipe.AddIngredient(ItemID.FragmentNebula, 9);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
         public override int ChoosePrefix(UnifiedRandom rand) {
             if (Item.noUseGraphic) {
-                Item.ranged = false;
-                Item.magic = false;
-				if (rand.NextBool()) {
-                    Item.ranged = true;
-                } else {
-                    Item.magic = true;
-                }
+                Item.DamageType = rand.NextBool() ? DamageClass.Ranged : DamageClass.Magic;
                 Item.Prefix(-2);
                 Item.ranged = true;
                 Item.magic = true;
@@ -80,15 +73,15 @@ namespace EpikV2.Items
             return -1;
         }
 
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
             if (player.controlUseItem) {
                 player.itemTime = 1;
                 player.itemAnimation = 2;
                 nextShotTime += 1f;
                 if (nextShotTime >= shotDelay) {
                     nextShotTime -= shotDelay;
-                    Vector2 perturbedSpeed = new Vector2(speedX, speedY).RotatedByRandom((shotDelay - 3) / 60f);
-                    Projectile.NewProjectileDirect(position, perturbedSpeed, ProjectileType<Laser_Arrow>(), damage, knockBack, player.whoAmI, 0, 0);
+                    Vector2 perturbedSpeed = velocity.RotatedByRandom((shotDelay - 3) / 60f);
+                    Projectile.NewProjectileDirect(source, position, perturbedSpeed, ProjectileType<Laser_Arrow>(), damage, knockBack, player.whoAmI, 0, 0);
                     SoundEngine.PlaySound(SoundID.Item5, position);
                     SoundEngine.PlaySound(SoundID.Item75, position);
                 }
@@ -103,22 +96,22 @@ namespace EpikV2.Items
             }
             return false;
         }
-        public void DrawInHand(Texture2D itemTexture, PlayerDrawInfo drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin) {
+        public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin) {
             Player drawPlayer = drawInfo.drawPlayer;
             float itemRotation = drawPlayer.itemRotation;
             DrawData value;
 
-            Vector2 pos = new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
+            Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
 
-            value = new DrawData(UseTexture, pos, null, Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.spriteEffects, 0);
-            Main.playerDrawData.Add(value);
+            value = new DrawData(UseTexture, pos, null, Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
+            drawInfo.DrawDataCache.Add(value);
 
-			value = new DrawData(GlowTexture, pos, null, Color.White, itemRotation, drawOrigin, Item.scale, drawInfo.spriteEffects, 0) {
+			value = new DrawData(GlowTexture, pos, null, Color.White, itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0) {
 				shader = EpikV2.laserBowShaderID
 			};
             Shaders.laserBowOverlayShader.UseSaturation(nextShotTime / shotDelay);
             //Shaders.laserBowOverlayShader.Apply(value);
-            Main.playerDrawData.Add(value);
+            drawInfo.DrawDataCache.Add(value);
         }
     }
 	public class Laser_Arrow : ModProjectile {

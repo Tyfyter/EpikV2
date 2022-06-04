@@ -111,6 +111,7 @@ namespace EpikV2 {
 
                 GameShaders.Armor.BindShader(ItemType<GPS_Dye>(), new GPSArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/GPS", ReLogic.Content.AssetRequestMode.ImmediateLoad).Value), "GPS"));
 
+                EpikV2.jadeShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Jade_Dye>());
                 EpikV2.starlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Starlight_Dye>());
                 EpikV2.dimStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Dim_Starlight_Dye>());
                 EpikV2.brightStarlightShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Bright_Starlight_Dye>());

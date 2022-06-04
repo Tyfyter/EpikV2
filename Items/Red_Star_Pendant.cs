@@ -24,7 +24,7 @@ namespace EpikV2.Items {
             player.GetModPlayer<EpikPlayer>().redStar = true;
         }
 		public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.CrossNecklace);
             recipe.AddIngredient(ItemType<Mana_Addiction>());
             recipe.AddIngredient(ItemID.PurpleSolution, 2);
@@ -32,10 +32,9 @@ namespace EpikV2.Items {
             recipe.AddTile(TileID.Tables);
             recipe.AddTile(TileID.Chairs);
             recipe.AddTile(TileID.CrystalBall);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
 
-            recipe = new ModRecipe(Mod);
+            recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.CrossNecklace);
             recipe.AddIngredient(ItemType<Mana_Addiction>());
             recipe.AddIngredient(ItemID.RedSolution, 2);
@@ -43,8 +42,7 @@ namespace EpikV2.Items {
             recipe.AddTile(TileID.Tables);
             recipe.AddTile(TileID.Chairs);
             recipe.AddTile(TileID.CrystalBall);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
 	}
 }

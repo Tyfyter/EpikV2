@@ -28,12 +28,11 @@ namespace EpikV2.Items {
 
 
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.RocketBoots, 1);
             recipe.AddIngredient(ItemID.FragmentSolar, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }
 	public class Orion_Boot_Charge : ModItem {
@@ -55,7 +54,7 @@ namespace EpikV2.Items {
 	public class Orion_Boots_Projectile : ModProjectile {
 
         public override string Texture => "Terraria/Projectile_"+ProjectileID.Hook;
-        public override bool CloneNewInstances => true;
+        protected override bool CloneNewInstances => true;
 
         public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.GemHookAmethyst);
@@ -67,13 +66,10 @@ namespace EpikV2.Items {
 			if(epikPlayer.yoteTimeCollide.y>0||epikPlayer.yoteTimeCollide.x!=0)return true;
             Item item = new Item();
             item.SetDefaults(Orion_Boots.ID);
-            bool cs = false;
             if(epikPlayer.orionDash == 0) {
-                float f = 0;
-                int i = 0;
-                player.PickAmmo(item, ref i, ref f, ref cs, ref i, ref f);
+                return player.PickAmmo(item, out _, out _, out _, out _, out _);
             }
-            return cs;
+            return false;
 		}
 
 		public override float GrappleRange() {
@@ -98,12 +94,12 @@ namespace EpikV2.Items {
             float fact = 1;
             if(epikPlayer.yoteTimeCollide==(0,0)) {
                 epikPlayer.orionDash = 20;
-                Projectile explosion = Projectile.NewProjectileDirect(player.Bottom, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 80, 12.5f, player.whoAmI, 1, 1);
+                Projectile explosion = Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), player.Bottom, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 80, 12.5f, player.whoAmI, 1, 1);
                 Vector2 exPos = explosion.Center;
                 explosion.height*=8;
                 explosion.width*=8;
                 explosion.Center = exPos;
-                explosion.melee = false;
+                explosion.DamageType = DamageClass.Default;
                 SoundEngine.PlaySound(SoundID.Item14, exPos);
             } else {
                 if(epikPlayer.yoteTimeCollide.y>0&&Projectile.velocity.Y>0) {

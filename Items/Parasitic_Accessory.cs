@@ -19,7 +19,7 @@ namespace EpikV2.Items {
 			Item.accessory = true;
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
-			tooltips[0].overrideColor = Color.Lerp(Color.Purple, Color.Crimson, GetColorValue(Main.mouseTextColor));
+			tooltips[0].OverrideColor = Color.Lerp(Color.Purple, Color.Crimson, GetColorValue(Main.mouseTextColor));
 			//Terraria.UI.ItemSlot.Context
 			if (Main.cursorOverride == 7) {
 				Main.cursorOverride = -1;

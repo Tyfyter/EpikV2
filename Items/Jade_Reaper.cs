@@ -7,13 +7,14 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static EpikV2.Resources;
 
 namespace EpikV2.Items {
 	public class Jade_Reaper : ModItem {
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
         internal static int spinProj = 0;
         //static int throwProj = -1;
 		public override void SetStaticDefaults(){
@@ -23,7 +24,7 @@ namespace EpikV2.Items {
 		public override void SetDefaults(){
 			Item.CloneDefaults(ItemID.MonkStaffT3);
 			Item.damage = 115;
-			Item.melee = true;
+			Item.DamageType = DamageClass.Melee;
 			Item.width = 64;
 			Item.height = 64;
 			Item.useAnimation = Item.useTime = 30;
@@ -50,16 +51,16 @@ namespace EpikV2.Items {
             Item.UseSound = player.ownedProjectileCounts[spinProj]<1 ? SoundID.Item71 : null;
             return player.altFunctionUse==2||player.ownedProjectileCounts[spinProj]<1;
         }
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
-            return player.ownedProjectileCounts[spinProj]<1;
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
+            return player.ownedProjectileCounts[spinProj] < 1;
+
         }
-        public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(Mod);
-			recipe.AddIngredient(AquamarineMaterial.id, 1);
+		public override void AddRecipes() {
+            Recipe recipe = Mod.CreateRecipe(Type);
+            recipe.AddIngredient(AquamarineMaterial.id, 1);
 			recipe.AddTile(TileID.DemonAltar);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
-		}
+            recipe.Create();
+        }
 	}
 	public class Jade_Reaper_Spin : ModProjectile {
         public override string Texture => "EpikV2/Items/Jade_Reaper";
@@ -174,20 +175,17 @@ namespace EpikV2.Items {
             }
             return false;
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
+        public override bool PreDraw(ref Color lightColor){
 			//spriteBatch.End();
 			//spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, EpikV2.jadeDyeShader.Shader, Main.GameViewMatrix.ZoomMatrix);
-            Texture2D texture = ModContent.GetTexture(Projectile.localAI[1]==1?"EpikV2/Items/Jade_Reaper":"EpikV2/Items/Jade_Reaper_M");
-            Terraria.DataStructures.DrawData data = new Terraria.DataStructures.DrawData(texture, Projectile.Center - Main.screenPosition, new Rectangle(0,0,64,64), new Color(255,255,255,200), Projectile.rotation, new Vector2(32,32), 2f, SpriteEffects.None, 0);
-            Shaders.jadeDyeShader.Apply(Projectile, data);
-            data.Draw(spriteBatch);
+            Texture2D texture = ModContent.Request<Texture2D>(Projectile.localAI[1]==1?"EpikV2/Items/Jade_Reaper":"EpikV2/Items/Jade_Reaper_M").Value;
+            DrawData data = new DrawData(texture, Projectile.Center - Main.screenPosition, new Rectangle(0,0,64,64), new Color(255,255,255,200), Projectile.rotation, new Vector2(32,32), 2f, SpriteEffects.None, 0);
+            //Shaders.jadeDyeShader.Apply(Projectile, data);
+            Main.CurrentDrawnEntityShader = EpikV2.jadeShaderID;
+            Main.EntitySpriteDraw(data);
             //spriteBatch.Draw(texture, projectile.Center - Main.screenPosition, new Rectangle(0,0,64,64), default, projectile.rotation, new Vector2(32,32), 2f, SpriteEffects.None, 0f);
 
             return false;
-        }
-        public override void PostDraw(SpriteBatch spriteBatch, Color drawColor) {
-            //spriteBatch.End();
-            //spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
         }
         public override void SendExtraAI(BinaryWriter writer) {
             writer.Write(Projectile.localAI[0]);

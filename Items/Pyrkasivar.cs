@@ -22,7 +22,7 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("");
 		}
 		public override void SetDefaults() {
-			Item.summon = true;
+			Item.DamageType = DamageClass.Summon;
 			Item.noMelee = true;
 			Item.noUseGraphic = true;
 			Item.autoReuse = true;
@@ -38,7 +38,7 @@ namespace EpikV2.Items {
 			Item.shootSpeed = 16f;
 			Item.value = 5000;
 			Item.useStyle = 777;
-			Item.holdStyle = ItemHoldStyleID.HoldingUp;
+			Item.holdStyle = ItemHoldStyleID.HoldUp;
 			Item.rare = ItemRarityID.Yellow;
 			Item.UseSound = SoundID.Item1;
 		}
@@ -51,7 +51,7 @@ namespace EpikV2.Items {
 			for (int i = 0; i < 7; i++) {
 				if (epikPlayer.pyrkasivars[i] == -1) {
 					int direction = Math.Sign(player.Center.X - Main.MouseWorld.X);
-					Projectile proj = Projectile.NewProjectileDirect(player.MountedCenter - new Vector2(direction * 32, 12), Vector2.Zero, Item.shoot, Item.damage, Item.knockBack, Main.myPlayer);
+					Projectile proj = Projectile.NewProjectileDirect(player.GetSource_ItemUse(Item), player.MountedCenter - new Vector2(direction * 32, 12), Vector2.Zero, Item.shoot, Item.damage, Item.knockBack, Main.myPlayer);
 					epikPlayer.pyrkasivars[i] = proj.whoAmI;
 				}
 				Main.projectile[epikPlayer.pyrkasivars[i]].timeLeft = 6;
@@ -67,15 +67,15 @@ namespace EpikV2.Items {
 				return i > -1 && Main.projectile[i].ai[0] <= 0;
 			});
 		}
-		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			
-			float add = 1f;
+			/*float add = 1f;
 			float mult = 1f;
 			float flat = 0;
 			CombinedHooks.ModifyWeaponDamage(player, Item, ref add, ref mult, ref flat);
 			damage = (int)(Item.damage * add * mult + 5E-06f + flat);
-			CombinedHooks.GetWeaponDamage(player, Item, ref damage);
+			CombinedHooks.GetWeaponDamage(player, Item, ref damage);*/
 
 			float baseShotCooldown = player.itemAnimation * 0.4f;
 			float baseShotDelay = 0;
@@ -93,6 +93,7 @@ namespace EpikV2.Items {
 					continue;
 				}
 				projectile.damage = damage;
+				projectile.originalDamage = Item.damage;
 				projectile.ai[0] = baseShotCooldown + (shotCooldownProgression * i);
 				projectile.ai[1] = baseShotDelay + (shotDelayProgression * i);
 				projectile.localAI[0] = 1;
@@ -103,12 +104,12 @@ namespace EpikV2.Items {
 			return false;
 		}
 		public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(Mod);
+			Recipe recipe = Mod.CreateRecipe(Type);
 			recipe.AddIngredient(ItemID.PaladinsShield, 1);
 			recipe.AddIngredient(ItemID.BrokenHeroSword, 1);
 			recipe.AddTile(TileID.MythrilAnvil);
-			recipe.needLava = true;
-			recipe.SetResult(this);
+			recipe.AddCondition(Recipe.Condition.NearLava);
+			//recipe.Create();
 			//recipe.AddRecipe();
 		}
 	}
@@ -167,7 +168,7 @@ namespace EpikV2.Items {
 			} else if (Projectile.ai[0] > 0) {
 				if (Projectile.localAI[0] > 0) {
 					Projectile.localAI[0]--;
-					Projectile.NewProjectile(Projectile.Center, (Vector2)new PolarVec2(8, Projectile.rotation), Pyrkasivar_Shot.ID, Projectile.damage, Projectile.knockBack, Projectile.owner);
+					Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, (Vector2)new PolarVec2(8, Projectile.rotation), Pyrkasivar_Shot.ID, Projectile.damage, Projectile.knockBack, Projectile.owner);
 					SoundEngine.PlaySound(SoundID.Item36, Projectile.Center);
 					persist = true;
 				}
@@ -183,11 +184,8 @@ namespace EpikV2.Items {
 			Lighting.AddLight(Projectile.Center + new Vector2(0, 45 * Projectile.scale).RotatedBy(Projectile.rotation), glowColor);
 		}
 
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-			if (EnabledMods.GraphicsLib) try {
-				//HandleGraphicsLibIntegration();
-			} catch (Exception) { }
-			spriteBatch.Draw(
+		public override bool PreDraw(ref Color lightColor) {
+			Main.EntitySpriteDraw(
 				TextureAssets.Projectile[Projectile.type].Value,
 				Projectile.Center - Main.screenPosition,
 				null,
@@ -199,94 +197,6 @@ namespace EpikV2.Items {
 				0
 			);
 			return false;
-		}
-		public void HandleGraphicsLibIntegration() {
-			Vector2[] positions = new Vector2[Projectile.oldPos.Length + 1];
-			Projectile.oldPos.CopyTo(positions, 1);
-			positions[0] = Projectile.position;
-
-			float[] rotations = new float[Projectile.oldRot.Length + 1];
-			Projectile.oldRot.CopyTo(rotations, 1);
-			rotations[0] = Projectile.rotation;
-
-			Vector2 centerOffset = new Vector2(Projectile.width, Projectile.height) * 0.5f - Main.screenPosition;
-			Vector2[] vertices = new Vector2[trail_length * 2];
-			Vector2[] texCoords = new Vector2[trail_length * 2];
-			Color[] colors = new Color[trail_length * 2];
-			List<int> indices = new List<int>();
-			for (int i = 0; i < trail_length; i++) {
-				float fact = 1f;//(20 - i) / 40f;
-				vertices[i] = positions[i] + centerOffset;
-				texCoords[i] = new Vector2(i / (float)trail_length, 0);
-				colors[i] = new Color(fact, fact, fact, 0f);
-
-				vertices[i + trail_length] = positions[i] + centerOffset + new Vector2(0, 45 * Projectile.scale).RotatedBy(rotations[i]);
-				texCoords[i + trail_length] = new Vector2(i / (float)trail_length, 1);
-				colors[i + trail_length] = new Color(fact, fact, fact, 0f);
-			}
-			for (int i = 0; i < trail_length; i++) {
-				if (i > 0) {
-					indices.Add(i);
-					Vector2 vert0 = vertices[i];
-					Vector2 vert1 = vertices[i + trail_length - 1];
-					Vector2 vert2 = vertices[i + trail_length];
-					float dir2 = (vert1 - vert0).ToRotation();
-					float dir3 = (vert2 - vert0).ToRotation();
-					if (dir2 < 0)
-						dir2 += MathHelper.TwoPi;
-					if (dir3 < 0)
-						dir3 += MathHelper.TwoPi;
-
-					if (dir3 > 3 * MathHelper.PiOver2 && dir2 < MathHelper.PiOver2)
-						dir2 += MathHelper.TwoPi;
-					if (dir2 > 3 * MathHelper.PiOver2 && dir3 < MathHelper.PiOver2)
-						dir3 += MathHelper.TwoPi;
-
-					if (dir2 > dir3) {
-						indices.Add(i + trail_length);
-						indices.Add(i + trail_length - 1);
-					} else {
-						indices.Add(i + trail_length - 1);
-						indices.Add(i + trail_length);
-					}
-				}
-				if (i < trail_length - 1) {
-					indices.Add(i);
-					Vector2 vert0 = vertices[i];
-					Vector2 vert1 = vertices[i + 1];
-					Vector2 vert2 = vertices[i + trail_length];
-					float dir2 = (vert1 - vert0).ToRotation();
-					float dir3 = (vert2 - vert0).ToRotation();
-
-					if (dir2 < 0)
-						dir2 += MathHelper.TwoPi;
-					if (dir3 < 0)
-						dir3 += MathHelper.TwoPi;
-
-					if (dir3 > 3 * MathHelper.PiOver2 && dir2 < MathHelper.PiOver2)
-						dir2 += MathHelper.TwoPi;
-					if (dir2 > 3 * MathHelper.PiOver2 && dir3 < MathHelper.PiOver2)
-						dir3 += MathHelper.TwoPi;
-
-					if (dir2 > dir3) {
-						indices.Add(i + trail_length);
-						indices.Add(i + 1);
-					} else {
-						indices.Add(i + 1);
-						indices.Add(i + trail_length);
-					}
-				}
-			}
-			EpikExtensions.RemoveInvalidIndices(indices, vertices);
-			if (indices.Count == 0) return;
-			Resources.Shaders.fadeShader.Parameters["uColor"].SetValue(Vector3.One);
-			Resources.Shaders.fadeShader.Parameters["uSecondaryColor"].SetValue(Vector3.Zero);
-			Resources.Shaders.fadeShader.Parameters["uOpacity"].SetValue(0);
-			Resources.Shaders.fadeShader.Parameters["uSaturation"].SetValue(0);
-			try {
-				GraphicsLib.Meshes.Mesh mesh = new GraphicsLib.Meshes.Mesh(TrailTexture, vertices, texCoords, colors, indices.ToArray(), Resources.Shaders.fadeShader);
-				mesh.Draw();
-			} catch (Exception) {}
 		}
 		public override void SendExtraAI(BinaryWriter writer) {
 			writer.Write(Projectile.localAI[0]);
@@ -305,12 +215,12 @@ namespace EpikV2.Items {
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.HeatRay);
 			Projectile.penetrate = 1;
-			aiType = ProjectileID.HeatRay;
+			AIType = ProjectileID.HeatRay;
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-			Player player = Main.player[Projectile.owner];
-			float dmgMult = player.allDamageMult * player.minionDamageMult;
-			damage = (int)(damage * (player.allDamage + player.minionDamage - 1) * dmgMult);
+			//Player player = Main.player[Projectile.owner];
+			//float dmgMult = player.allDamageMult * player.minionDamageMult;
+			//damage = (int)(damage * (player.allDamage + player.minionDamage - 1) * dmgMult);
 		}
 	}
 }

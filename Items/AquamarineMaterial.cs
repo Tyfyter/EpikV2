@@ -11,7 +11,7 @@ using static Microsoft.Xna.Framework.MathHelper;
 namespace EpikV2.Items {
 	public class AquamarineMaterial : ModItem {
 		public override string Texture => "Terraria/Item_"+ItemID.LargeEmerald;
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 		public static int id = 0;
 		public int time = 3600;
 		public override void SetStaticDefaults() {
@@ -25,16 +25,15 @@ namespace EpikV2.Items {
 			Item.rare = ItemRarityID.Purple;
 		}
 		public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(Mod);
+			Recipe recipe = Mod.CreateRecipe(Type);
 			recipe.AddIngredient(ItemID.LargeEmerald);
 			recipe.AddIngredient(ItemType<GolemDeath>());
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Create();
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			for(int i = 1; i < tooltips.Count; i++) {
 				if(tooltips[i].Name=="Tooltip1") {
-					tooltips[i].text = $"{time/60} seconds left";
+					tooltips[i].Text = $"{time/60} seconds left";
 					break;
 				}
 			}
@@ -50,7 +49,7 @@ namespace EpikV2.Items {
 	}
 	public class SunstoneMaterial : ModItem {
 		public override string Texture => "Terraria/Item_"+ItemID.LargeAmber;
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 		public static int id = 0;
 		public const int hitpoints = 300;
 		public int hp = hitpoints;
@@ -65,16 +64,15 @@ namespace EpikV2.Items {
 			Item.rare = ItemRarityID.Purple;
 		}
 		public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(Mod);
+			Recipe recipe = Mod.CreateRecipe(Type);
 			recipe.AddIngredient(ItemID.LargeAmber);
 			recipe.AddIngredient(ItemType<GolemDeath>());
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Create();
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			for(int i = 1; i < tooltips.Count; i++) {
 				if(tooltips[i].Name=="Tooltip1") {
-					tooltips[i].text = $"{(hp*100)/hitpoints}% charge left";
+					tooltips[i].Text = $"{(hp*100)/hitpoints}% charge left";
 					break;
 				}
 			}
@@ -111,7 +109,7 @@ namespace EpikV2.Items {
 	}
 	public class SanguineMaterialPartial : ModItem {
 		public override string Texture => "Terraria/Item_"+ItemID.LargeRuby;
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 		public static int id = 0;
 		public int charge = 1;
 		public override void SetStaticDefaults() {
@@ -127,7 +125,7 @@ namespace EpikV2.Items {
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			for(int i = 1; i < tooltips.Count; i++) {
 				if(tooltips[i].Name=="Tooltip1") {
-					tooltips[i].text = $"{charge*33}% filled";
+					tooltips[i].Text = $"{charge*33}% filled";
 					break;
 				}
 			}
@@ -146,7 +144,7 @@ namespace EpikV2.Items {
 	}
 	public class MoonlaceMaterial : ModItem {
 		public override string Texture => "Terraria/Item_"+ItemID.LargeDiamond;
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 		public static int id = 0;
 		public int time = 0;
 		public override void SetStaticDefaults() {
@@ -192,7 +190,7 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.PsychoKnife);
-			Item.melee = false;
+			Item.DamageType = DamageClass.Default;
 			Item.useTime = 15;
 			Item.useAnimation = 15;
 			Item.damage = 150;
@@ -206,7 +204,7 @@ namespace EpikV2.Items {
 			if(target.life<1&&(target.townNPC||target.type==NPCID.CultistDevote||target.type==NPCID.CultistArcherBlue||target.type==NPCID.CultistArcherWhite)) {
 				player.GetModPlayer<EpikPlayer>().sacrifice = 3;
 				if(!target.townNPC)return;
-				EpikWorld.sacrifices.Add(target.type);
+				EpikWorld.Sacrifices.Add(target.type);
 				Main.townNPCCanSpawn[target.type] = false;
 			}
 		}

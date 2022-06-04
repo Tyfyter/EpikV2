@@ -63,7 +63,8 @@ namespace EpikV2.Tiles {
 			if (currentAim != newAim) {
 				SetAim(baseX, baseY, newAim);
 			} else {
-				Projectile proj = Projectile.NewProjectileDirect(Main.LocalPlayer.GetSource_TileInteraction(i, j),
+				Projectile proj = Projectile.NewProjectileDirect(
+					Main.LocalPlayer.GetSource_TileInteraction(i, j),
 					new Vector2(baseX * 16 + 32, baseY * 16 + 32),
 					new Vector2(16, 0).RotatedBy((Math.Abs(currentAim) - 1) * MathHelper.PiOver4 * -0.5f) * (currentAim > 0 ? Vector2.One : new Vector2(-1, 1)),
 					Telescope_View_P.ID,
@@ -76,7 +77,7 @@ namespace EpikV2.Tiles {
 			}
 			return true;
 		}
-		public void SetAim(int i, int j, int angle) {
+		public static void SetAim(int i, int j, int angle) {
 			bool right = angle > 0;
 			angle = Math.Abs(angle);
 			for (int i2 = 0; i2 < 4; i2++) {
@@ -90,7 +91,7 @@ namespace EpikV2.Tiles {
 				}
 			}
 		}
-		public int GetAim(int i, int j) {
+		public static int GetAim(int i, int j) {
 			Tile tile = Main.tile[i, j];
 			int val = (tile.TileFrameY / 54) + 1;
 			if (tile.TileFrameX > 70) {

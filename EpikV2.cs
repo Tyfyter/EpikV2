@@ -42,6 +42,7 @@ namespace EpikV2 {
 		List<int> RegItems = new List<int> {};
 		List<int> ModItems = new List<int> {};
 		//public static MiscShaderData jadeShader;
+		public static int jadeShaderID;
 		public static int starlightShaderID;
 		public static int dimStarlightShaderID;
 		public static int brightStarlightShaderID;
@@ -72,7 +73,7 @@ namespace EpikV2 {
 		}
 		public override void Load() {
 			instance = this;
-			EpikWorld.sacrifices = new List<int>() {};
+			EpikWorld.Sacrifices = new List<int>() {};
 			EpikPlayer.ItemChecking = new BitsBytes(32);
 			Logging.IgnoreExceptionContents("at EpikV2.Items.Burning_Ambition_Smelter.AI() in EpikV2\\Items\\Burning_Ambition.cs:line 472");
 			Logging.IgnoreExceptionContents("at EpikV2.Items.Haligbrand_P.HandleGraphicsLibIntegration()");
@@ -231,7 +232,7 @@ public static float ShimmerCalc(float val) {
 			Lucre_Launcher.Unload();
 			Scorpio.Unload();
 			Haligbrand_P.Unload();
-			EpikWorld.sacrifices = null;
+			EpikWorld.Sacrifices = null;
 			HellforgeRecipes = null;
 			//filterMapQueue.Clear();
 			//filterMapQueue = null;
@@ -333,17 +334,12 @@ public static float ShimmerCalc(float val) {
 			if (Main.netMode!=NetmodeID.Server) {
 				Asset<Texture2D>[] glowMasks = new Asset<Texture2D>[TextureAssets.GlowMask.Length + 1];
 				for (int i = 0; i < TextureAssets.GlowMask.Length; i++) {
-					glowMasks[i] = TextureAssets.GlowMask[i].Value;
+					glowMasks[i] = TextureAssets.GlowMask[i];
 				}
 				glowMasks[glowMasks.Length - 1] = ModContent.Request<Texture2D>(modItem.Texture+"_Glow");
 				TextureAssets.GlowMask = glowMasks;
 				return (short)(glowMasks.Length - 1);
 			} else return 0;
-		}
-		public override void MidUpdateTimeWorld() {
-			for(int i = 0; i < EpikWorld.sacrifices.Count; i++) {
-				Main.townNPCCanSpawn[EpikWorld.sacrifices[i]] = false;
-			}
 		}
 		public override void PostAddRecipes() {
 			EpikIntegration.EnabledMods.CheckEnabled();
@@ -392,15 +388,23 @@ public static float ShimmerCalc(float val) {
 	}
 	public class EpikWorld : ModSystem {
 		//public static int GolemTime = 0;
-		public static List<int> sacrifices;
-		public static bool raining;
-		public override void PostUpdate() {
+		private static List<int> sacrifices;
+		private static bool raining;
+		public static List<int> Sacrifices { get => sacrifices; set => sacrifices = value; }
+		public static bool Raining { get => raining; set => raining = value; }
+
+		public override void PostUpdateTime() {
+			for (int i = 0; i < Sacrifices.Count; i++) {
+				Main.townNPCCanSpawn[Sacrifices[i]] = false;
+			}
+		}
+		public override void PostUpdateWorld() {
 			//if(GolemTime>0)GolemTime--;
-			if(Main.netMode==NetmodeID.SinglePlayer)if(raining||Main.raining) {
-				raining = false;
+			if(Main.netMode==NetmodeID.SinglePlayer)if(Raining||Main.raining) {
+				Raining = false;
 				for(int i = 0; i < Main.maxRain; i++) {
 					if(Main.rain[i].active) {
-						raining = true;
+						Raining = true;
 						break;
 					}
 				}
@@ -415,18 +419,31 @@ public static float ShimmerCalc(float val) {
 			);
 		}
 		public override void SaveWorldData(TagCompound tag) {
-			tag.Add("sacrifices", sacrifices);
+			tag.Add("sacrifices", Sacrifices);
 		}
 		public override void LoadWorldData(TagCompound tag) {
 			if(!tag.ContainsKey("sacrifices")) {
-				sacrifices = new List<int>() {};
+				Sacrifices = new List<int>() {};
 				return;
 			}
 			try {
-				sacrifices = tag.Get<List<int>>("sacrifices");
+				Sacrifices = tag.Get<List<int>>("sacrifices");
 			} catch(Exception) {
-				sacrifices = new List<int>() {};
+				Sacrifices = new List<int>() {};
 			}
+		}
+	}
+	public class BiomeUpdates : ModBiome {
+		public override bool IsBiomeActive(Player player) {
+			if (player.GetModPlayer<EpikPlayer>().drugPotion) {
+				bool corrupt = player.ZoneCorrupt;
+				player.ZoneCorrupt = player.ZoneCrimson;
+				player.ZoneCrimson = corrupt;
+			}
+			return false;
+		}
+		public override void SpecialVisuals(Player player) {
+			player.ManageSpecialBiomeVisuals("EpikV2:LSD", player.GetModPlayer<EpikPlayer>().drugPotion);
 		}
 	}
 }

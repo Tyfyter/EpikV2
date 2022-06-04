@@ -13,7 +13,7 @@ using System.Diagnostics;
 namespace EpikV2.Items {
     public partial class EpikGlobalItem : GlobalItem {
 		public override bool InstancePerEntity => true;
-		public override bool CloneNewInstances => true;
+		protected override bool CloneNewInstances => true;
 		bool? nOwO = null;
 		public override void SetDefaults(Item item) {
 			if (item.type == ItemID.CatEars && nOwO is null) {
@@ -32,9 +32,11 @@ namespace EpikV2.Items {
 			}
 			return false;
 		}
+		[Obsolete]
 		public bool IsWeaponOutFistSetDefault() {
-			bool isWO = new StackTrace().GetFrames()[5].GetMethod().DeclaringType == typeof(WeaponOut.ModPlayerFists);
-			return isWO;
+			//bool isWO = new StackTrace().GetFrames()[5].GetMethod().DeclaringType == typeof(WeaponOut.ModPlayerFists);
+			//return isWO;
+			return false;
 		}
 		public void RefreshCatgirlMeme(Item item) {
 			if (nOwO ?? false) {
@@ -44,7 +46,7 @@ namespace EpikV2.Items {
 		}
 		public override void UpdateEquip(Item item, Player player) {
 			if (nOwO??false) {
-                player.magicDamageMult *= 1.5f;
+                player.GetDamage(DamageClass.Magic) *= 1.5f;
                 player.ghostHeal = true;
                 player.ghostHurt = true;
 				if (player.nebulaCD > 0) {
@@ -68,13 +70,8 @@ namespace EpikV2.Items {
 			}
 			RefreshCatgirlMeme(item);
 		}
-		public override TagCompound SaveData(Item item) {
-			return new TagCompound() {
-				{ "nOwO", nOwO.Value }
-			};
-		}
-		public override bool NeedsSaving(Item item) {
-			return nOwO.HasValue;
+		public override void SaveData(Item item, TagCompound tag) {
+			if(nOwO is not null) tag.Add("nOwO", nOwO.Value);
 		}
 		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
 			if (nOwO ?? false) {
@@ -83,17 +80,19 @@ namespace EpikV2.Items {
 				});
 			}
 		}
-		public override void PickAmmo(Item weapon, Item ammo, Player player, ref int type, ref float speed, ref int damage, ref float knockback) {
+		public override void PickAmmo(Item weapon, Item ammo, Player player, ref int type, ref float speed, ref StatModifier damage, ref float knockback) {
             if(weapon.type == Orion_Bow.ID) {
-                if(!Main.projectileLoaded[type]) {
+				/*
+				if(!Main.loaded[type]) {
                     Projectile.NewProjectile(Vector2.Zero, Vector2.Zero, type, 0, 0);
                 }
-                damage += (damage-Main.player[weapon.playerIndexTheItemIsReservedFor].GetWeaponDamage(weapon))*5;
+                 */
+				damage.Base += (damage.Base - Main.player[weapon.playerIndexTheItemIsReservedFor].GetWeaponDamage(weapon))*5;
             }
         }
 		public override void OpenVanillaBag(string context, Player player, int arg) {
             if(context=="goodieBag"&&Main.rand.NextBool(10)) {
-                player.QuickSpawnItem(ModContent.ItemType<Chocolate_Bar>());
+                player.QuickSpawnItem(player.GetSource_OpenItem(arg, context), ModContent.ItemType<Chocolate_Bar>());
             }
 		}
     }

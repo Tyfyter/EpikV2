@@ -19,11 +19,10 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("Jade Dye");
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type, 9);
             recipe.AddIngredient(AquamarineMaterial.id);
             recipe.AddTile(TileID.DyeVat);
-            recipe.SetResult(this, 9);
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }
 
@@ -34,11 +33,10 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("Heatwave Dye");
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type, 9);
             recipe.AddIngredient(SunstoneMaterial.id);
             recipe.AddTile(TileID.DyeVat);
-            recipe.SetResult(this, 9);
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }
 
@@ -47,12 +45,11 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("Starlight Dye");
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type, 9);
             recipe.AddIngredient(ItemID.FragmentStardust, 5);
             recipe.AddIngredient(ItemID.FragmentSolar, 5);
             recipe.AddTile(TileID.DyeVat);
-            recipe.SetResult(this, 9);
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }
 
@@ -62,18 +59,17 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("Dim Starlight Dye");
         }
 		public override void SetDefaults() {
-			byte dye = Item.dye;
+			int dye = Item.dye;
 			Item.CloneDefaults(ItemID.RedandBlackDye);
 			Item.dye = dye;
             Item.color = Colors.CoinSilver;
 		}
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type, 9);
             recipe.AddIngredient(ItemID.FragmentStardust, 5);
             recipe.AddIngredient(ItemID.FragmentSolar, 5);
             recipe.AddTile(TileID.DyeVat);
-            recipe.SetResult(this, 9);
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }
 
@@ -83,18 +79,17 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("Bright Starlight Dye");
         }
 		public override void SetDefaults() {
-			byte dye = Item.dye;
+			int dye = Item.dye;
 			Item.CloneDefaults(ItemID.RedandBlackDye);
 			Item.dye = dye;
             Item.color = new Color(255, 255, 255, 100);
 		}
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type, 9);
             recipe.AddIngredient(ItemID.FragmentStardust, 5);
             recipe.AddIngredient(ItemID.FragmentSolar, 5);
             recipe.AddTile(TileID.DyeVat);
-            recipe.SetResult(this, 9);
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }
 
@@ -117,7 +112,7 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("GPS Dye");
         }
 		public override void SetDefaults() {
-			byte dye = Item.dye;
+			int dye = Item.dye;
 			Item.CloneDefaults(ItemID.RedandBlackDye);
 			Item.dye = dye;
 		}
@@ -129,7 +124,7 @@ namespace EpikV2.Items {
             base.Apply(entity, drawData);
         }
 
-        protected override void Apply() {
+        public override void Apply() {
             Shader.Parameters["uWorldSize"].SetValue(new Vector2(Main.maxTilesX*16f, Main.maxTilesY*16f));
             base.Apply();
         }
@@ -142,7 +137,7 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("Chroma_Dummy_Dye");
         }
 		public override void SetDefaults() {
-			byte dye = Item.dye;
+			int dye = Item.dye;
 			Item.CloneDefaults(ItemID.RedandBlackDye);
 			Item.dye = dye;
             Item.color = Color.Black;
@@ -160,11 +155,11 @@ namespace EpikV2.Items {
 			item.dye = dye;
 		}
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.Diamond);
             recipe.AddTile(TileID.DyeVat);
             recipe.SetResult(this, 3);
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }*/
     public class Cursed_Hades_Dye : Dye_Item {
@@ -172,12 +167,11 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("Cursed Hades Dye");
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type, 3);
             recipe.AddIngredient(ItemID.HadesDye, 3);
             recipe.AddIngredient(ItemID.CursedFlame);
             recipe.AddTile(TileID.DyeVat);
-            recipe.SetResult(this, 3);
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }
     public class Ichor_Dye : Dye_Item {
@@ -185,12 +179,11 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("Ichor Dye");
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type, 3);
             recipe.AddIngredient(ItemID.PurpleOozeDye, 3);
             recipe.AddIngredient(ItemID.Ichor);
             recipe.AddTile(TileID.DyeVat);
-            recipe.SetResult(this, 3);
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }
     public class Golden_Flame_Dye : Dye_Item {
@@ -198,12 +191,11 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("Golden Flame Dye");
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type, 3);
             recipe.AddIngredient(ItemID.HadesDye, 3);
             recipe.AddIngredient(ItemID.GoldDust);
             recipe.AddTile(TileID.DyeVat);
-            recipe.SetResult(this, 3);
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }
     public class Chimera_Dye : Dye_Item {
@@ -213,12 +205,11 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("Chimera's Blood");
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type, 9);
             recipe.AddIngredient(ItemID.FragmentVortex, 5);
             recipe.AddIngredient(ItemID.FragmentNebula, 5);
             recipe.AddTile(TileID.DyeVat);
-            recipe.SetResult(this, 9);
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }
     public class Opaque_Chimera_Dye : Dye_Item {
@@ -228,12 +219,11 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("Blackened Chimera's Blood");
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type, 2);
             recipe.AddIngredient(ItemType<Chimera_Dye>(), 1);
             recipe.AddIngredient(ItemID.BlackInk, 1);
             recipe.AddTile(TileID.DyeVat);
-            recipe.SetResult(this, 2);
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }
     public class Inverted_Chimera_Dye : Dye_Item {
@@ -243,15 +233,13 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("Chimera's Blood (Inverted)");
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemType<Chimera_Dye>());
-            recipe.SetResult(this, 1);
-            recipe.AddRecipe();
+            recipe.Create();
 
-            recipe = new ModRecipe(Mod);
+            recipe = Mod.CreateRecipe(ItemType<Chimera_Dye>());
             recipe.AddIngredient(this, 1);
-            recipe.SetResult(ItemType<Chimera_Dye>());
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }
     public class Opaque_Inverted_Chimera_Dye : Dye_Item {
@@ -261,15 +249,13 @@ namespace EpikV2.Items {
             DisplayName.SetDefault("Blackened Chimera's Blood (Inverted)");
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemType<Opaque_Chimera_Dye>());
-            recipe.SetResult(this, 1);
-            recipe.AddRecipe();
+            recipe.Create();
 
-            recipe = new ModRecipe(Mod);
+            recipe = Mod.CreateRecipe(ItemType<Opaque_Chimera_Dye>());
             recipe.AddIngredient(this, 1);
-            recipe.SetResult(ItemType<Opaque_Chimera_Dye>());
-            recipe.AddRecipe();
+            recipe.Create();
         }
     }
     public class MotionArmorShaderData : ArmorShaderData {
@@ -287,7 +273,7 @@ namespace EpikV2.Items {
     public abstract class Dye_Item : ModItem {
         public virtual bool UseShaderOnSelf => false;
         public override void SetDefaults() {
-            byte dye = Item.dye;
+            int dye = Item.dye;
             Item.CloneDefaults(ItemID.RedandBlackDye);
             Item.dye = dye;
         }
@@ -295,8 +281,7 @@ namespace EpikV2.Items {
 			if (!UseShaderOnSelf) {
                 return true;
             }
-            Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.UIScaleMatrix);
+            Main.spriteBatch.Restart(SpriteSortMode.Immediate);
             
             DrawData data = new DrawData{
                 texture = TextureAssets.Item[Item.type].Value,
@@ -310,15 +295,13 @@ namespace EpikV2.Items {
             return true;
         }
 		public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-            Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.UIScaleMatrix);
+            Main.spriteBatch.Restart(transformMatrix:Main.UIScaleMatrix);
         }
 		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI) {
             if (!UseShaderOnSelf) {
                 return true;
             }
-            Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.LocalPlayer.gravDir == 1f ? Main.GameViewMatrix.ZoomMatrix : Main.GameViewMatrix.TransformationMatrix);
+            Main.spriteBatch.Restart(SpriteSortMode.Immediate, samplerState:SamplerState.PointClamp, transformMatrix: Main.LocalPlayer.gravDir == 1f ? Main.GameViewMatrix.ZoomMatrix : Main.GameViewMatrix.TransformationMatrix);
 
             DrawData data = new DrawData {
                 texture = TextureAssets.Item[Item.type].Value,
@@ -332,8 +315,7 @@ namespace EpikV2.Items {
             return true;
         }
 		public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI) {
-            Main.spriteBatch.End();
-            Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
+            Main.spriteBatch.Restart();
         }
 	}
 }

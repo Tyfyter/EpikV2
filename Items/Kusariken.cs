@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameInput;
 using Terraria.ID;
@@ -18,14 +19,14 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults() {
 			Item.damage = 98;
-			Item.melee = true;
+			Item.DamageType = DamageClass.Melee;
             Item.noMelee = true;
             Item.noUseGraphic = true;
 			Item.width = 52;
 			Item.height = 56;
 			Item.useTime = 32;
 			Item.useAnimation = 32;
-			Item.useStyle = 5;
+			Item.useStyle = ItemUseStyleID.Shoot;
 			Item.knockBack = 5;
             Item.shoot = ModContent.ProjectileType<Kusariken_P>();
 			Item.shootSpeed = 11.5f;
@@ -38,7 +39,7 @@ namespace EpikV2.Items {
         public override void HoldItem(Player player) {
 			player.maxFallSpeed *= 2;
         }
-        public override void HoldStyle(Player player) {
+        public override void HoldStyle(Player player, Rectangle heldItemFrame) {
 			if(comboTimer>0)if(--comboTimer <= 0)combo = 0;
         }
         public override bool AltFunctionUse(Player player) {
@@ -47,12 +48,12 @@ namespace EpikV2.Items {
         public override bool CanUseItem(Player player) {
             return player.ownedProjectileCounts[player.altFunctionUse == 2 ? ModContent.ProjectileType<Kusariken_Hook>() : Item.shoot]<=0;
         }
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
-            if (player.altFunctionUse == 2) {
-				Projectile.NewProjectile(position, new Vector2(speedX, speedY) * 3f, ModContent.ProjectileType<Kusariken_Hook>(), damage, knockBack, player.whoAmI);
+
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
+			if (player.altFunctionUse == 2) {
+				Projectile.NewProjectile(source, position, velocity * 3f, ModContent.ProjectileType<Kusariken_Hook>(), damage, knockBack, player.whoAmI);
             } else {
 				int useLength = (player.itemAnimationMax * 2) / 3;
-				Vector2 velocity = new Vector2(speedX, speedY);
 				comboTimer = 30;
                 if (++combo > 2) {
 					useLength = (int)(useLength * 1.3f);
@@ -61,7 +62,7 @@ namespace EpikV2.Items {
 					combo = 0;
 					comboTimer = 0;
                 }
-				Projectile.NewProjectileDirect(position, velocity, type, damage, knockBack, player.whoAmI, ai1:useLength).timeLeft = useLength;
+				Projectile.NewProjectileDirect(source, position, velocity, type, damage, knockBack, player.whoAmI, ai1:useLength).timeLeft = useLength;
             }
             return false;
         }
@@ -186,12 +187,12 @@ namespace EpikV2.Items {
         public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
             
         }
-        public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough) {
+		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) {
 			width = 2;
 			height = 2;
 			return true;
-        }
-        public override bool OnTileCollide(Vector2 oldVelocity) {
+		}
+		public override bool OnTileCollide(Vector2 oldVelocity) {
             if (aiMode == 1) {
 				aiMode = 2;
 				Projectile.timeLeft = 30;
@@ -207,8 +208,8 @@ namespace EpikV2.Items {
 			Projectile.localAI[0] = reader.ReadSingle();
 			aiMode = reader.ReadByte();
 		}
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
-            spriteBatch.Draw(TextureAssets.Projectile[Projectile.type].Value, Projectile.Center - Main.screenPosition, new Rectangle(0, 0, 60, 60), lightColor, Projectile.rotation, new Vector2(49, 11), Projectile.scale, SpriteEffects.None, 0f);
+		public override bool PreDraw(ref Color lightColor){
+            Main.EntitySpriteDraw(TextureAssets.Projectile[Projectile.type].Value, Projectile.Center - Main.screenPosition, new Rectangle(0, 0, 60, 60), lightColor, Projectile.rotation, new Vector2(49, 11), Projectile.scale, SpriteEffects.None, 0);
             Vector2 playerCenter = Main.player[Projectile.owner].MountedCenter;
 			Vector2 center = Projectile.Center + new Vector2(-46, 46).RotatedBy(Projectile.rotation);
 			Vector2 diffToProj = playerCenter - Projectile.Center;
@@ -223,9 +224,9 @@ namespace EpikV2.Items {
 				Color drawColor = lightColor;
 
 				//Draw chain
-				spriteBatch.Draw(TextureAssets.Chain.Value, new Vector2(center.X - Main.screenPosition.X, center.Y - Main.screenPosition.Y),
+				Main.EntitySpriteDraw(TextureAssets.Chain.Value, new Vector2(center.X - Main.screenPosition.X, center.Y - Main.screenPosition.Y),
 					new Rectangle(0, 0, TextureAssets.Chain.Value.Width, TextureAssets.Chain.Value.Height), drawColor, projRotation,
-					new Vector2(TextureAssets.Chain.Value.Width * 0.5f, TextureAssets.Chain.Value.Height * 0.5f), 1f, SpriteEffects.None, 0f);
+					new Vector2(TextureAssets.Chain.Value.Width * 0.5f, TextureAssets.Chain.Value.Height * 0.5f), 1f, SpriteEffects.None, 0);
 			}
 			return false;
         }
@@ -281,14 +282,14 @@ namespace EpikV2.Items {
             }
 		}
         public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
-            
-        }
-        public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough) {
+
+		}
+		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) {
 			width = 2;
 			height = 2;
 			return true;
-        }
-        public override bool OnTileCollide(Vector2 oldVelocity) {
+		}
+		public override bool OnTileCollide(Vector2 oldVelocity) {
             if (Projectile.localAI[0] == 0) {
 				Projectile.aiStyle = 0;
 				Projectile.timeLeft = 80;
@@ -298,7 +299,7 @@ namespace EpikV2.Items {
 			Projectile.velocity = Vector2.Zero;
             return false;
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor){
+        public override bool PreDraw(ref Color lightColor){
             Vector2 playerCenter = Main.player[Projectile.owner].MountedCenter;
 			Vector2 center = Projectile.Center;
 			Vector2 diffToProj = playerCenter - Projectile.Center;
@@ -313,11 +314,11 @@ namespace EpikV2.Items {
 				Color drawColor = lightColor;
 
 				//Draw chain
-				spriteBatch.Draw(TextureAssets.Chain.Value, new Vector2(center.X - Main.screenPosition.X, center.Y - Main.screenPosition.Y),
+				Main.EntitySpriteDraw(TextureAssets.Chain.Value, new Vector2(center.X - Main.screenPosition.X, center.Y - Main.screenPosition.Y),
 					new Rectangle(0, 0, TextureAssets.Chain.Value.Width, TextureAssets.Chain.Value.Height), drawColor, projRotation,
-					new Vector2(TextureAssets.Chain.Value.Width * 0.5f, TextureAssets.Chain.Value.Height * 0.5f), 1f, SpriteEffects.None, 0f);
+					new Vector2(TextureAssets.Chain.Value.Width * 0.5f, TextureAssets.Chain.Value.Height * 0.5f), 1f, SpriteEffects.None, 0);
 			}
-            spriteBatch.Draw(TextureAssets.Projectile[Projectile.type].Value, Projectile.Center - Main.screenPosition, new Rectangle(0, 0, 26, 26), lightColor, Projectile.rotation, new Vector2(13, 13), Projectile.scale, SpriteEffects.None, 0f);
+			Main.EntitySpriteDraw(TextureAssets.Projectile[Projectile.type].Value, Projectile.Center - Main.screenPosition, new Rectangle(0, 0, 26, 26), lightColor, Projectile.rotation, new Vector2(13, 13), Projectile.scale, SpriteEffects.None, 0);
 			return false;
         }
     }

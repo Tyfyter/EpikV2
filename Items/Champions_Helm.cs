@@ -26,10 +26,10 @@ namespace EpikV2.Items {
             Item.defense = 20;
 		}
 		public override void UpdateEquip(Player player){
-			player.meleeDamage += 0.25f;
-			player.rangedDamage += 0.25f;
-			player.meleeCrit += 10;
-			player.rangedCrit += 10;
+			player.GetDamage(DamageClass.Melee) += 0.25f;
+			player.GetDamage(DamageClass.Ranged) += 0.25f;
+			player.GetCritChance(DamageClass.Melee) += 10;
+			player.GetCritChance(DamageClass.Ranged) += 10;
             player.GetModPlayer<EpikPlayer>().championsHelm = true;
 		}
         public override void ModifyTooltips(List<TooltipLine> tooltips) {
@@ -40,22 +40,21 @@ namespace EpikV2.Items {
                 }
             }
         }
-        public override void UpdateVanity(Player player, EquipType type) {
+        public override void UpdateVanity(Player player) {
             Lighting.AddLight(player.Center+new Vector2(3*player.direction,-6), new Vector3(0.1f, 0, 0));
         }
         public override void AddRecipes(){
             int[] helmets = { ItemID.HallowedMask, ItemID.HallowedHelmet };
             int[] bars = { ItemID.TitaniumBar, ItemID.AdamantiteBar };
-            ModRecipe recipe;
+            Recipe recipe;
             for(int i0 = 0; i0 < helmets.Length; i0++) {
                 for(int i1 = 0; i1 < bars.Length; i1++) {
-                    recipe = new ModRecipe(Mod);
+                    recipe = Mod.CreateRecipe(Type);
                     recipe.AddIngredient(SanguineMaterial.id, 1);
                     recipe.AddIngredient(helmets[i0], 1);
                     recipe.AddIngredient(bars[i1], 5);
                     recipe.AddTile(TileID.MythrilAnvil);
-                    recipe.SetResult(this);
-                    recipe.AddRecipe();
+                    recipe.Create();
                 }
             }
 		}

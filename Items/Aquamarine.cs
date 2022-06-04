@@ -4,27 +4,25 @@ using System.IO;
 using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
 
-namespace EpikV2.Items
-{
-    public class Aquamarine : ModItem
-    {
-		public override void SetStaticDefaults(){
+namespace EpikV2.Items {
+    public class Aquamarine : ModItem {
+		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Aquamarine");
 		    Tooltip.SetDefault("\"Make waves\"");//Theta waves to be specific
             //customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
 		}
-        public override void SetDefaults()
-        {
+        public override void SetDefaults() {
             Item.CloneDefaults(ItemID.WoodenBow);
             Item.damage = 60;
-			Item.ranged = true;
+			Item.DamageType = DamageClass.Ranged;
             Item.width = 32;
             Item.height = 64;
-            Item.useStyle = 5;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.useTime = 25;
             Item.useAnimation = 25;
             Item.noMelee = true;
@@ -38,29 +36,27 @@ namespace EpikV2.Items
 			Item.useAmmo = AmmoID.Arrow;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(AquamarineMaterial.id);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
 
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack)
-        {
-			Vector2 perturbedSpeed = new Vector2(speedX, speedY).RotatedBy(-player.direction/18d);
-			(Projectile.NewProjectileDirect(position, perturbedSpeed, ProjectileType<AquamarineShot>(), damage, knockBack, player.whoAmI, 0, 0).ModProjectile as AquamarineShot)?.init(player.direction, damage);
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
+			Vector2 perturbedSpeed = velocity.RotatedBy(-player.direction/18d);
+			(Projectile.NewProjectileDirect(source, position, perturbedSpeed, ProjectileType<AquamarineShot>(), damage, knockBack, player.whoAmI, 0, 0).ModProjectile as AquamarineShot)?.init(player.direction, damage);
 			return false;
 		}
     }
 	public class AquamarineShot : ModProjectile {
-        public override bool CloneNewInstances => true;
+        protected override bool CloneNewInstances => true;
         int arrows = 0;
         int damage = 0;
         Vector2 speed;
-        public override void SetStaticDefaults(){
+        public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Aquamarine");
 		}
-		public override void SetDefaults(){
+		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
             Projectile.usesLocalNPCImmunity = true;
             Projectile.localNPCHitCooldown = 10;
@@ -82,18 +78,18 @@ namespace EpikV2.Items
             speed.X = reader.ReadSingle();
             speed.Y = reader.ReadSingle();
         }
-        public override void AI(){
+        public override void AI() {
             //projectile.aiStyle = projectile.wet?0:1;
             //if(!projectile.wet)projectile.velocity += new Vector2(0, 0.04f);
             Projectile.rotation = Projectile.velocity.ToRotation()+MathHelper.Pi/2;
-            if(Projectile.timeLeft>7&&Projectile.timeLeft%7==0 && arrows>0){
+            if(Projectile.timeLeft>7&&Projectile.timeLeft%7==0 && arrows>0) {
                 arrows--;
-				if(arrows==0){
+				if(arrows==0) {
                     Projectile.Center-=Projectile.velocity;
 					Projectile.velocity = speed;
                     Projectile.damage = damage;
-				}else{
-					Projectile.NewProjectileDirect(Projectile.Center-Projectile.velocity, speed, ProjectileType<AquamarineShot>(), damage, Projectile.knockBack, Projectile.owner, 0, 0);
+				} else {
+					Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center-Projectile.velocity, speed, ProjectileType<AquamarineShot>(), damage, Projectile.knockBack, Projectile.owner, 0, 0);
                     Projectile.damage-=damage;
                 }
 			}

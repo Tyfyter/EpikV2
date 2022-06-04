@@ -22,7 +22,7 @@ namespace EpikV2.Buffs
 			npc.buffTime[buffIndex]++;
 			npc.lifeRegenCount -= npc.buffTime[buffIndex] * 5;
 			npc.defense--;
-			Dust.NewDust(npc.position, npc.width, npc.height, 29, 0, 0, 0, new Color(0, 0, 255));
+			Dust.NewDust(npc.position, npc.width, npc.height, DustID.WaterCandle, 0, 0, 0, new Color(0, 0, 255));
 			for(int i = 0; i < npc.immune.Length; i++){
 				npc.immune[i] = Math.Max(npc.immune[i] - npc.buffTime[buffIndex], 0);
 				//npc.immune[i] = 0;

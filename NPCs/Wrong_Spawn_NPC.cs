@@ -14,7 +14,7 @@ namespace EpikV2.NPCs {
 		public override string Texture => "Terraria/Item_"+ItemID.StrangeBrew;
 		public override int SpawnNPC(int tileX, int tileY) {
 			if (Main.rand.NextBool(1000)) {
-				return NPC.NewNPC(tileX * 16 + 8, tileY * 16, Derpling);
+				return NPC.NewNPC(Terraria.Entity.GetSource_NaturalSpawn(), tileX * 16 + 8, tileY * 16, Derpling);
 			}
 			int newNPC = -1;
 			int targetPlayer = 0;
@@ -30,42 +30,42 @@ namespace EpikV2.NPCs {
 			}
 			if (Main.player[targetPlayer].ZoneCrimson) {
 				if (Main.hardMode && tileY >= Main.rockLayer && Main.rand.NextBool(5)) {
-					newNPC = NPC.NewNPC(tileX * 16 + 8, tileY * 16, FloatyGross);
+					newNPC = NPC.NewNPC(Terraria.Entity.GetSource_NaturalSpawn(), tileX * 16 + 8, tileY * 16, FloatyGross);
 				} else if (Main.hardMode && tileY >= Main.rockLayer && Main.rand.NextBool(2)) {
-					newNPC = NPC.NewNPC(tileX * 16 + 8, tileY * 16, IchorSticker);
+					newNPC = NPC.NewNPC(Terraria.Entity.GetSource_NaturalSpawn(), tileX * 16 + 8, tileY * 16, IchorSticker);
 				} else if (Main.hardMode && Main.rand.NextBool(3)) {
-					newNPC = NPC.NewNPC(tileX * 16 + 8, tileY * 16, Crimslime);
+					newNPC = NPC.NewNPC(Terraria.Entity.GetSource_NaturalSpawn(), tileX * 16 + 8, tileY * 16, Crimslime);
 					if (Main.rand.NextBool(3)) {
 						Main.npc[newNPC].SetDefaults(LittleCrimslime);
 					} else if (Main.rand.NextBool(3)) {
 						Main.npc[newNPC].SetDefaults(BigCrimslime);
 					}
 				} else if (Main.hardMode && (Main.rand.NextBool(2)|| tileY > Main.worldSurface)) {
-					newNPC = NPC.NewNPC(tileX * 16 + 8, tileY * 16, Herpling);
+					newNPC = NPC.NewNPC(Terraria.Entity.GetSource_NaturalSpawn(), tileX * 16 + 8, tileY * 16, Herpling);
 				} else if ((Main.tile[tileX, tileY].WallType > 0 && !Main.rand.NextBool(4)) || Main.rand.NextBool(8)) {
-					newNPC = NPC.NewNPC(tileX * 16 + 8, tileY * 16, BloodCrawler);
+					newNPC = NPC.NewNPC(Terraria.Entity.GetSource_NaturalSpawn(), tileX * 16 + 8, tileY * 16, BloodCrawler);
 				} else if (Main.rand.NextBool(2)) {
-					newNPC = NPC.NewNPC(tileX * 16 + 8, tileY * 16, FaceMonster);
+					newNPC = NPC.NewNPC(Terraria.Entity.GetSource_NaturalSpawn(), tileX * 16 + 8, tileY * 16, FaceMonster);
 				}
 			} else if (Main.player[targetPlayer].ZoneCorrupt && Main.hardMode) {
 				if (tileY >= Main.rockLayer && Main.rand.NextBool(3)) {
-					newNPC = NPC.NewNPC(tileX * 16 + 8, tileY * 16, Clinger);
+					newNPC = NPC.NewNPC(Terraria.Entity.GetSource_NaturalSpawn(), tileX * 16 + 8, tileY * 16, Clinger);
 					Main.npc[newNPC].ai[0] = tileX;
 					Main.npc[newNPC].ai[1] = tileY;
 					Main.npc[newNPC].netUpdate = true;
 				} else if (Main.rand.NextBool(3)) {
 					if (Main.rand.NextBool(3)) {
-						newNPC = NPC.NewNPC(tileX * 16 + 8, tileY * 16, Slimer);
+						newNPC = NPC.NewNPC(Terraria.Entity.GetSource_NaturalSpawn(), tileX * 16 + 8, tileY * 16, Slimer);
 					} else {
-						newNPC = NPC.NewNPC(tileX * 16 + 8, tileY * 16, CorruptSlime);
+						newNPC = NPC.NewNPC(Terraria.Entity.GetSource_NaturalSpawn(), tileX * 16 + 8, tileY * 16, CorruptSlime);
 					}
 				} else if (Main.rand.NextBool(2) || tileY > Main.rockLayer) {
-					newNPC = NPC.NewNPC(tileX * 16 + 8, tileY * 16, Corruptor);
+					newNPC = NPC.NewNPC(Terraria.Entity.GetSource_NaturalSpawn(), tileX * 16 + 8, tileY * 16, Corruptor);
 				}
 			}
 			if (newNPC == -1) {
 				//Main.NewText("something went wrong");
-				return NPC.NewNPC(tileX * 16 + 8, tileY * 16, Derpling);
+				return NPC.NewNPC(Terraria.Entity.GetSource_NaturalSpawn(), tileX * 16 + 8, tileY * 16, Derpling);
 			}
 			return newNPC;
 		}

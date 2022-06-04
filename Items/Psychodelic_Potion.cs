@@ -26,23 +26,21 @@ namespace EpikV2.Items {
             Item.buffTime = 60 * 60 * 10;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.StrangeBrew);
             recipe.AddIngredient(ItemID.Ale);
             recipe.AddIngredient(ItemID.ChaosFish);
             recipe.AddIngredient(ItemID.PinkGel);
             recipe.AddTile(TileID.AlchemyTable);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
 
-            recipe = new ModRecipe(Mod);
+            recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.StrangeBrew);
             recipe.AddIngredient(ItemID.Sake);
             recipe.AddIngredient(ItemID.ChaosFish);
             recipe.AddIngredient(ItemID.PinkGel);
             recipe.AddTile(TileID.AlchemyTable);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
             Main.spriteBatch.Restart(
@@ -103,17 +101,14 @@ namespace EpikV2.Items {
         }
     }
     public class High_Buff : ModBuff {
-        public static int ID { get; private set; }
+		public override string Texture => "Terraria/Buff_160";
+		public static int ID { get; private set; }
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("");
             Description.SetDefault("");
             Main.debuff[Type] = true;
             Main.buffNoTimeDisplay[Type] = true;
             ID = Type;
-        }
-        public override bool Autoload(ref string name, ref string texture) {
-            texture = "Terraria/Buff_160";
-            return true;
         }
         public override void Update(Player player, ref int buffIndex) {
             player.GetModPlayer<EpikPlayer>().drugPotion = true;

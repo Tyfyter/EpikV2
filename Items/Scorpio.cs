@@ -32,11 +32,11 @@ namespace EpikV2.Items {
 		    Tooltip.SetDefault("<right> to strike with celestial claws");
             ID = Item.type;
             if(Main.netMode == NetmodeID.Server)return;
-            tailSpikeTexture = Mod.GetTexture("Items/Scorpio_Tail_Spike");
-            tailSegmentTexture = Mod.GetTexture("Items/Scorpio_Tail_Segment");
-            tailSegmentDimTexture = Mod.GetTexture("Items/Scorpio_Tail_Segment_Dim");
+            tailSpikeTexture = Mod.RequestTexture("Items/Scorpio_Tail_Spike");
+            tailSegmentTexture = Mod.RequestTexture("Items/Scorpio_Tail_Segment");
+            tailSegmentDimTexture = Mod.RequestTexture("Items/Scorpio_Tail_Segment_Dim");
 
-            clawTexture = Mod.GetTexture("Items/Scorpio_Claw");
+            clawTexture = Mod.RequestTexture("Items/Scorpio_Claw");
 		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.DayBreak);
@@ -45,16 +45,15 @@ namespace EpikV2.Items {
             Item.useAnimation = 10;
 			Item.shootSpeed = 16f;
             Item.shoot = Scorpio_Tail.ID;
-            Item.useStyle = 5;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.UseSound = null;
 		}
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.DayBreak, 1);
             recipe.AddIngredient(ItemID.FragmentStardust, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
         public override bool AltFunctionUse(Player player) {
             return true;
@@ -67,11 +66,14 @@ namespace EpikV2.Items {
             }
             return true;
         }
-#pragma warning disable 619
-        public override void GetWeaponDamage(Player player, ref int damage) {
-            damage += (int)((damage - 95) * 2.5f);
+        public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
+            damage = new StatModifier(
+                ((damage.Additive - 1) * 2.5f) + 1,
+                ((damage.Multiplicative - 1) * 2.5f) + 1,
+                (damage.Flat * 2.5f),
+                (damage.Base * 2.5f)
+            );
         }
-#pragma warning restore 619
     }
 	public class Scorpio_Tail : ModProjectile {
         public static int ID = -1;
@@ -143,7 +145,7 @@ namespace EpikV2.Items {
             }
             return false;
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+        public override bool PreDraw(ref Color lightColor) {
             Vector2 position = Projectile.Center - Main.screenPosition;
             Vector2 offset = Projectile.velocity*0.45f;
             DrawData data;
@@ -158,13 +160,13 @@ namespace EpikV2.Items {
                             //spriteBatch.Draw(Scorpio.tailSegmentTexture, position + (offset*(11-i)), null, new Color(255, 255, 255, 150), projectile.rotation, new Vector2(5, 5), 1f, SpriteEffects.None, 0);
                             data = new DrawData((Projectile.timeLeft%(i+1)==0)?Scorpio.tailSegmentTexture:Scorpio.tailSegmentDimTexture, position + (offset * (16 - i)), null, new Color(255, 255, 255, 30 * n), Projectile.rotation, new Vector2(5, 5), 1f, SpriteEffects.None, 0);
                             //EpikV2.motionBlurShader.Apply(offset, data);
-                            data.Draw(spriteBatch);
+                            Main.EntitySpriteDraw(data);
                             break;
                             case 0:
                             //spriteBatch.Draw(Scorpio.tailSpikeTexture, position + (offset*10), null, new Color(255, 255, 255, 150), projectile.rotation, new Vector2(5, 19), 1f, SpriteEffects.None, 0);
                             data = new DrawData(Scorpio.tailSpikeTexture, position + (offset * 15), null, new Color(255, 255, 255, 30 * n), Projectile.rotation, new Vector2(5, 19), 1f, SpriteEffects.None, 0);
                             //EpikV2.motionBlurShader.Apply(offset, data);
-                            data.Draw(spriteBatch);
+                            Main.EntitySpriteDraw(data);
                             break;
                         }
                     }
@@ -176,10 +178,10 @@ namespace EpikV2.Items {
                 for(int i = Projectile.timeLeft; i--> 0;) {
                     switch(i) {
                         default:
-                        spriteBatch.Draw((Projectile.timeLeft%(i+1)==0)?Scorpio.tailSegmentTexture:Scorpio.tailSegmentDimTexture, position + (offset * (16 - i)), null, color, Projectile.rotation, new Vector2(5, 5), 1f, SpriteEffects.None, 0);
+                        Main.EntitySpriteDraw((Projectile.timeLeft%(i+1)==0)?Scorpio.tailSegmentTexture:Scorpio.tailSegmentDimTexture, position + (offset * (16 - i)), null, color, Projectile.rotation, new Vector2(5, 5), 1f, SpriteEffects.None, 0);
                         break;
                         case 0:
-                        spriteBatch.Draw(Scorpio.tailSpikeTexture, position + (offset * 15), null, color, Projectile.rotation, new Vector2(5, 19), 1f, SpriteEffects.None, 0);
+                        Main.EntitySpriteDraw(Scorpio.tailSpikeTexture, position + (offset * 15), null, color, Projectile.rotation, new Vector2(5, 19), 1f, SpriteEffects.None, 0);
                         break;
                     }
                 }
@@ -224,7 +226,7 @@ namespace EpikV2.Items {
         public override void ModifyDamageHitbox(ref Rectangle hitbox) {
             hitbox.Offset((Projectile.velocity*2).ToPoint());
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+        public override bool PreDraw(ref Color lightColor) {
             Vector2 position = (Projectile.Center + Projectile.velocity) - Main.screenPosition;
             int alpha = 50 + (Projectile.timeLeft * 10);
             int rgb = 200+(Projectile.timeLeft * 5);
@@ -234,18 +236,15 @@ namespace EpikV2.Items {
             for(int i = (Projectile.timeLeft+1)/2; i-->min;) {
                 rot = 0.5f+(0.15f*i);
                 color = new Color(rgb, rgb, rgb, (int)(alpha * (5-i) *0.2f));
-                spriteBatch.Draw(Scorpio.clawTexture, position, null, color, Projectile.rotation+rot, new Vector2(5-(rot*2), 9), 1.5f, SpriteEffects.None, 0f);
-                spriteBatch.Draw(Scorpio.clawTexture, position, null, color, Projectile.rotation-rot, new Vector2(5-(rot*2), 9), 1.5f, SpriteEffects.FlipVertically, 0f);
+                Main.EntitySpriteDraw(Scorpio.clawTexture, position, null, color, Projectile.rotation+rot, new Vector2(5-(rot*2), 9), 1.5f, SpriteEffects.None, 0);
+                Main.EntitySpriteDraw(Scorpio.clawTexture, position, null, color, Projectile.rotation-rot, new Vector2(5-(rot*2), 9), 1.5f, SpriteEffects.FlipVertically, 0);
             }
             return false;
         }
     }
     public class Scorpio_Debuff : ModBuff {
-        public static int ID { get; internal set; } = -1;
-        public override bool Autoload(ref string name, ref string texture) {
-            texture = "EpikV2/Buffs/Hydra_Buff";
-            return true;
-        }
+		public override string Texture => "EpikV2/Buffs/Hydra_Buff";
+		public static int ID { get; internal set; } = -1;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Celestial Flames");
             ID = Type;

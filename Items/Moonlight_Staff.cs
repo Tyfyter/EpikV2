@@ -8,7 +8,7 @@ using static EpikV2.EpikExtensions;
 using static Terraria.ModLoader.ModContent;
 using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
-using Origins.Projectiles;
+//using Origins.Projectiles;
 using System.Collections.Generic;
 using static Tyfyter.Utils.MiscUtils;
 using System.Diagnostics;
@@ -30,7 +30,7 @@ namespace EpikV2.Items {
             ID = Item.type;
 		}
 		public override void SetDefaults() {
-            byte dye = Item.dye;
+            int dye = Item.dye;
             Item.CloneDefaults(ItemID.StardustDragonStaff);
             Item.dye = dye;
             Item.damage = 80;
@@ -38,19 +38,16 @@ namespace EpikV2.Items {
             Item.shoot = Moonlace_Proj.ID;
             Item.buffType = Moonlace_Buff.ID;
 		}
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
             player.AddBuff(Item.buffType, 2);
             position = Main.MouseWorld;
-            Projectile.NewProjectile(position, Vector2.Zero, Moonlace_Proj.ID, damage, knockBack, player.whoAmI);
+            Projectile.NewProjectile(source, position, Vector2.Zero, Moonlace_Proj.ID, damage, knockBack, player.whoAmI);
             return false;
         }
     }
     public class Moonlace_Buff : ModBuff {
-        public static int ID { get; internal set; } = -1;
-        public override bool Autoload(ref string name, ref string texture) {
-            texture = "EpikV2/Buffs/Moonlace_Buff";
-            return true;
-        }
+		public override string Texture => "EpikV2/Buffs/Moonlace_Buff";
+		public static int ID { get; internal set; } = -1;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Moonlight Thread");
             Description.SetDefault("A curious strand of moonlight will fight for you");
@@ -78,7 +75,7 @@ namespace EpikV2.Items {
         float boredom;
 
         public override string Texture => "Terraria/Projectile_" + ProjectileID.NebulaBlaze2;
-        public override bool CloneNewInstances => true;
+        protected override bool CloneNewInstances => true;
 
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Moonlace");
@@ -91,8 +88,7 @@ namespace EpikV2.Items {
         }
         public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.NebulaBlaze2);
-            Projectile.magic = false;
-            Projectile.minion = true;
+            Projectile.DamageType = DamageClass.Summon;
             Projectile.minionSlots = 1;
             Projectile.penetrate = -1;
             Projectile.extraUpdates = 1;
@@ -315,13 +311,7 @@ namespace EpikV2.Items {
             }
             return 1f;
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-            /*if (EnabledMods.GraphicsLib) try {
-                HandleGraphicsLibIntegration();
-                return false;
-            } catch (Exception e) {
-                
-            }*/
+        public override bool PreDraw(ref Color lightColor) {
             /* Dust.NewDustPerfect(projectile.Center+new Vector2(10,10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.White).scale = 0.25f;
              Dust.NewDustPerfect(projectile.Center+new Vector2(10,-10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.Red).scale = 0.25f;
              Dust.NewDustPerfect(projectile.Center-new Vector2(10,10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.Green).scale = 0.25f;
@@ -336,92 +326,6 @@ namespace EpikV2.Items {
         public override void ReceiveExtraAI(BinaryReader reader) {
             Projectile.localAI[0] = reader.ReadSingle();
             Projectile.localAI[1] = reader.ReadSingle();
-        }
-        public void HandleGraphicsLibIntegration() {
-            Vector2[] positions = new Vector2[Projectile.oldPos.Length + 1];
-            Projectile.oldPos.CopyTo(positions, 1);
-            positions[0] = Projectile.position;
-
-            Vector2[] vertices = new Vector2[20];
-            Vector2[] texCoords = new Vector2[20];
-            Color[] colors = new Color[20];
-            List<int> indices = new List<int>();
-            for (int i = 0; i < 10; i++) {
-                float fact = 1f;//(20 - i) / 40f;
-
-                Vector2 off = new Vector2(0, 4 * Projectile.scale).RotatedBy((positions[i + 1] - positions[i]).ToRotation());
-
-                vertices[i] = positions[i + 1] - Main.screenPosition - off;
-                texCoords[i] = new Vector2(i / 20f, 0);
-                colors[i] = new Color(fact, fact, fact, 0f);
-
-                vertices[i + 10] = positions[i + 1] - Main.screenPosition + off;
-                texCoords[i + 10] = new Vector2(i / 20f, 1);
-                colors[i + 10] = new Color(fact, fact, fact, 0f);
-            }
-            for (int i = 0; i < 10; i++) {
-                if (i > 0) {
-                    indices.Add(i);
-                    Vector2 vert0 = vertices[i];
-                    Vector2 vert1 = vertices[i + 9];
-                    Vector2 vert2 = vertices[i + 10];
-                    float dir2 = (vert1 - vert0).ToRotation();
-                    float dir3 = (vert2 - vert0).ToRotation();
-                    if (dir2 < 0)
-                        dir2 += MathHelper.TwoPi;
-                    if (dir3 < 0)
-                        dir3 += MathHelper.TwoPi;
-
-                    if (dir3 > 3 * MathHelper.PiOver2 && dir2 < MathHelper.PiOver2)
-                        dir2 += MathHelper.TwoPi;
-                    if (dir2 > 3 * MathHelper.PiOver2 && dir3 < MathHelper.PiOver2)
-                        dir3 += MathHelper.TwoPi;
-
-                    if (dir2 > dir3) {
-                        indices.Add(i + 10);
-                        indices.Add(i + 9);
-                    } else {
-                        indices.Add(i + 9);
-                        indices.Add(i + 10);
-                    }
-                }
-                if (i < 19) {
-                    indices.Add(i);
-                    Vector2 vert0 = vertices[i];
-                    Vector2 vert1 = vertices[i + 1];
-                    Vector2 vert2 = vertices[i + 10];
-                    float dir2 = (vert1 - vert0).ToRotation();
-                    float dir3 = (vert2 - vert0).ToRotation();
-
-                    if (dir2 < 0)
-                        dir2 += MathHelper.TwoPi;
-                    if (dir3 < 0)
-                        dir3 += MathHelper.TwoPi;
-
-                    if (dir3 > 3 * MathHelper.PiOver2 && dir2 < MathHelper.PiOver2)
-                        dir2 += MathHelper.TwoPi;
-                    if (dir2 > 3 * MathHelper.PiOver2 && dir3 < MathHelper.PiOver2)
-                        dir3 += MathHelper.TwoPi;
-
-                    if (dir2 > dir3) {
-                        indices.Add(i + 10);
-                        indices.Add(i + 1);
-                    } else {
-                        indices.Add(i + 1);
-                        indices.Add(i + 10);
-                    }
-                }
-            }
-            EpikExtensions.RemoveInvalidIndices(indices, vertices);
-            if (indices.Count == 0) return;
-            Resources.Shaders.fadeShader.Parameters["uColor"].SetValue(Vector3.One);
-            Resources.Shaders.fadeShader.Parameters["uSecondaryColor"].SetValue(Vector3.Zero);
-            Resources.Shaders.fadeShader.Parameters["uOpacity"].SetValue(1);
-            Resources.Shaders.fadeShader.Parameters["uSaturation"].SetValue(0);
-            try {
-                GraphicsLib.Meshes.Mesh mesh = new GraphicsLib.Meshes.Mesh(Resources.Textures.MoonlaceTrailTexture, vertices, texCoords, colors, indices.ToArray(), Resources.Shaders.fadeShader);
-                mesh.Draw();
-            } catch (Exception) { }
         }
         enum Quirk {
             Circle,

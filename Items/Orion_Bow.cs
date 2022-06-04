@@ -9,10 +9,9 @@ using static EpikV2.EpikExtensions;
 using static Terraria.ModLoader.ModContent;
 using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
-using Origins.Projectiles;
+//using Origins.Projectiles;
 using static EpikV2.Resources;
 
-#pragma warning disable 672
 namespace EpikV2.Items {
     public class Orion_Bow : ModItem, ICustomDrawItem {
         public static int ID = -1;
@@ -36,10 +35,10 @@ namespace EpikV2.Items {
 		    Tooltip.SetDefault("Shoot for the stars");
             ID = Item.type;
             if(Main.netMode == NetmodeID.Server)return;
-            goldTexture = Mod.GetTexture("Items/Orion_Bow_Limb_Gold");
-            skyTexture = Mod.GetTexture("Items/Orion_Bow_Limb_Sky");
+            goldTexture = Mod.RequestTexture("Items/Orion_Bow_Limb_Gold");
+            skyTexture = Mod.RequestTexture("Items/Orion_Bow_Limb_Sky");
             //starTexture = mod.GetTexture("Items/Orion_Bow_Limb_Stars");
-            stringTexture = Mod.GetTexture("Items/Orion_Bow_String");
+            stringTexture = Mod.RequestTexture("Items/Orion_Bow_String");
 		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.Phantasm);
@@ -51,14 +50,13 @@ namespace EpikV2.Items {
             Item.UseSound = null;
 		}
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.Phantasm, 1);
             recipe.AddIngredient(ItemID.FragmentStardust, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
-        public override bool ConsumeAmmo(Player player) {
+        public override bool CanConsumeAmmo(Item ammo, Player player) {
             return player.heldProj>-1;
         }
         public override void HoldItem(Player player) {
@@ -83,7 +81,7 @@ namespace EpikV2.Items {
                     charge += 33 - Item.useTime;
                     if(charge >= maxCharge) {
                         charge = maxCharge;
-                        SoundEngine.PlaySound(SoundID.Item37, projectile.Center).Pitch = 1;//MaxMana
+                        SoundEngine.PlaySound(SoundID.Item37.WithPitchRange(1f, 1f), projectile.Center);//MaxMana
                     }
                 }
                 if(player.controlUseItem) {
@@ -121,18 +119,21 @@ namespace EpikV2.Items {
                 charge = 0;
             }
         }
-#pragma warning disable 619
-        public override void GetWeaponDamage(Player player, ref int damage) {
-            damage += (int)((damage - 75) * 2.5f);
+        public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
+            damage = new StatModifier(
+                ((damage.Additive - 1) * 2.5f) + 1,
+                ((damage.Multiplicative - 1) * 2.5f) + 1,
+                (damage.Flat * 2.5f),
+                (damage.Base * 2.5f)
+            );
         }
-#pragma warning restore 619
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
-            if(player.heldProj != -1)return false;
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
+            if (player.heldProj != -1)return false;
             Orion_Arrow.t = type;
-            Projectile.NewProjectile(position, Vector2.Zero, Orion_Arrow.ID, damage, knockBack, player.whoAmI);
+            Projectile.NewProjectile(source, position, Vector2.Zero, Orion_Arrow.ID, damage, knockBack, player.whoAmI);
             return false;
         }
-        public void DrawInHand(Texture2D itemTexture, PlayerDrawInfo drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin) {
+        public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin) {
             Player drawPlayer = drawInfo.drawPlayer;
             //DrawData value = new DrawData(itemTexture, new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y)), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), drawPlayer.itemRotation, drawOrigin, item.scale, drawInfo.spriteEffects, 0);
             //Main.playerDrawData.Add(value);
@@ -140,7 +141,7 @@ namespace EpikV2.Items {
             float itemRotation = drawPlayer.itemRotation - drawPlayer.fullRotation;
             DrawData value;
 
-            Vector2 pos = new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
+            Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
 
             //string
             int stringLength = (int)(25 * (1 + ChargePercent / 8));
@@ -160,9 +161,9 @@ namespace EpikV2.Items {
                 2,
                 stringLength);
 
-            value = new DrawData(stringTexture, drawRect, null, Item.GetAlpha(Color.White), stringRotation-stringSpread+Pi, stringOrigin, drawInfo.spriteEffects, 0);
+            value = new DrawData(stringTexture, drawRect, null, Item.GetAlpha(Color.White), stringRotation-stringSpread+Pi, stringOrigin, drawInfo.itemEffect, 0);
             value.shader = fireArrow?112:115;
-            Main.playerDrawData.Add(value);
+            drawInfo.DrawDataCache.Add(value);
 
             limbOffset.Y = -limbOffset.Y;
             limbOffset2 = limbOffset.RotatedBy(stringRotation - (drawPlayer.direction/6f) + drawPlayer.fullRotation);//drawSpread
@@ -173,35 +174,35 @@ namespace EpikV2.Items {
                 2,
                 stringLength);
 
-            value = new DrawData(stringTexture, drawRect, null, Item.GetAlpha(Color.White), stringRotation+stringSpread, stringOrigin, drawInfo.spriteEffects, 0);
+            value = new DrawData(stringTexture, drawRect, null, Item.GetAlpha(Color.White), stringRotation+stringSpread, stringOrigin, drawInfo.itemEffect, 0);
             value.shader = fireArrow?112:115;
-            Main.playerDrawData.Add(value);
+            drawInfo.DrawDataCache.Add(value);
 
             //sky
-            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation-drawSpread, drawOrigin, Item.scale, drawInfo.spriteEffects, 0);
+            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation-drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
             value.shader = fireArrow?112:115;
-            Main.playerDrawData.Add(value);
-            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation+drawSpread, drawOrigin, Item.scale, drawInfo.spriteEffects^SpriteEffects.FlipVertically, 0);
+            drawInfo.DrawDataCache.Add(value);
+            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation+drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect ^ SpriteEffects.FlipVertically, 0);
             value.shader = fireArrow?112:115;//115, 112, 106
-            Main.playerDrawData.Add(value);
+            drawInfo.DrawDataCache.Add(value);
 
             //gold
             //new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y))
-            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation-drawSpread, drawOrigin, Item.scale, drawInfo.spriteEffects, 0);
+            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation-drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
             value.shader = 80;
-            Main.playerDrawData.Add(value);
-            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation+drawSpread, drawOrigin, Item.scale, drawInfo.spriteEffects^SpriteEffects.FlipVertically, 0);
+            drawInfo.DrawDataCache.Add(value);
+            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation+drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect ^ SpriteEffects.FlipVertically, 0);
             value.shader = 80;
-            Main.playerDrawData.Add(value);
+            drawInfo.DrawDataCache.Add(value);
         }
     }
 	public class Orion_Arrow : ModProjectile {
-        public static int ID = -1;
+        public static int ID { get; private set; } = -1;
         internal static int t = -1;
         public int type { get; private set; } = -1;
         public bool Fired => Projectile.velocity.Length() > 0;
         public override string Texture => "Terraria/Projectile_"+ProjectileID.JestersArrow;
-        public override bool CloneNewInstances => true;
+        protected override bool CloneNewInstances => true;
 
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Orion's Bow");
@@ -215,8 +216,8 @@ namespace EpikV2.Items {
             Projectile.aiStyle = 0;
             Projectile.timeLeft = 3600;
             Projectile.light = 0;
-            drawHeldProjInFrontOfHeldItemAndArms = true;
-            if(EpikIntegration.EnabledMods.Origins) OriginsIntegration();
+            DrawHeldProjInFrontOfHeldItemAndArms = true;
+            //if(EpikIntegration.EnabledMods.Origins) OriginsIntegration();
 		}
 
         public override void AI() {
@@ -232,7 +233,7 @@ namespace EpikV2.Items {
                 if(Projectile.Center.Y+Projectile.velocity.Y<Main.offLimitBorderTiles * 16) {
                     Projectile.Kill();
                     Orion_Star.t = type;
-			        for(int i = 0; i < 3; i++)Projectile.NewProjectile(Projectile.Center.X+Main.rand.NextFloat(-8,8)*16, Main.offLimitBorderTiles * 16, Main.rand.NextFloat(-5,5), 25, Orion_Star.ID, 250, 10f, Projectile.owner);
+			        for(int i = 0; i < 3; i++)Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center.X+Main.rand.NextFloat(-8,8)*16, Main.offLimitBorderTiles * 16, Main.rand.NextFloat(-5,5), 25, Orion_Star.ID, 250, 10f, Projectile.owner);
                 }
             } else {
                 Main.player[Projectile.owner].GetModPlayer<EpikPlayer>().nextHeldProj = Projectile.whoAmI;
@@ -247,7 +248,7 @@ namespace EpikV2.Items {
                 switch(type) {
                     case ProjectileID.HolyArrow:
                     case ProjectileID.HellfireArrow:
-                    Projectile.NewProjectileDirect(Projectile.Center, Vector2.Zero, type, Projectile.damage, Projectile.knockBack, Projectile.owner).Kill();
+                    Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, type, Projectile.damage, Projectile.knockBack, Projectile.owner).Kill();
                     break;
                 }
             } else {
@@ -260,7 +261,7 @@ namespace EpikV2.Items {
             }
             if(Projectile.aiStyle == 0) {
                 crit = true;
-                float crt = Main.player[Projectile.owner].rangedCrit/100f;
+                float crt = Main.player[Projectile.owner].GetCritChance(DamageClass.Ranged)/100f;
                 damage+=(int)(damage * crt);
             }
         }
@@ -282,31 +283,29 @@ namespace EpikV2.Items {
         public override bool CanHitPlayer(Player target) {
             return Fired;
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+        public override bool PreDraw(ref Color lightColor) {
             Projectile.type = type;
-            spriteBatch.End();
-			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, Shaders.starlightShader.Shader, Main.Transform);
+            Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.starlightShader.Shader);
             if(type > ProjectileID.Count) {
-                return ProjectileLoader.GetProjectile(type)?.PreDraw(spriteBatch, lightColor)??true;
+                return ProjectileLoader.GetProjectile(type)?.PreDraw(ref lightColor)??true;
             }
             return true;
         }
-        public override void PostDraw(SpriteBatch spriteBatch, Color lightColor) {
+        public override void PostDraw(Color lightColor) {
             if(type > ProjectileID.Count) {
-                ProjectileLoader.GetProjectile(type)?.PreDraw(spriteBatch, lightColor);
+                ProjectileLoader.GetProjectile(type)?.PostDraw(lightColor);
             }
             Projectile.type = ID;
-			spriteBatch.End();
-			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
-        }
-        private void OriginsIntegration() {
+			Main.spriteBatch.Restart();
+		}
+        /*private void OriginsIntegration() {
             if(type>-1 && Origins.Origins.ExplosiveProjectiles[type]) {
                 OriginGlobalProj.explosiveOverrideNext = true;
             }
-        }
+        }*/
     }
     public class Orion_Star : ModProjectile {
-        public static int ID = -1;
+        public static int ID { get; private set; } = -1;
         internal static int t = -1;
         public int type { get; private set; } = -1;
         public override string Texture => "Terraria/Projectile_"+ProjectileID.FallingStar;
@@ -316,9 +315,11 @@ namespace EpikV2.Items {
         }
         public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.FallingStar);
-            aiType = ProjectileID.FallingStar;
+            AIType = ProjectileID.FallingStar;
             if(t>-1)type = t;
-            if(EpikIntegration.EnabledMods.Origins) OriginsIntegration();
+            ProjectileID.Sets.TrailCacheLength[Type] = ProjectileID.Sets.TrailCacheLength[ProjectileID.FallingStar];
+            ProjectileID.Sets.TrailingMode[Type] = ProjectileID.Sets.TrailCacheLength[ProjectileID.FallingStar];
+            //if(EpikIntegration.EnabledMods.Origins) OriginsIntegration();
         }
         public override void AI() {
             Projectile.rotation = Projectile.velocity.ToRotation()+MathHelper.PiOver2;
@@ -338,7 +339,7 @@ namespace EpikV2.Items {
                 switch(type) {
                     case ProjectileID.HolyArrow:
                     case ProjectileID.HellfireArrow:
-                    Projectile.NewProjectileDirect(Projectile.Center, Vector2.Zero, type, Projectile.damage, Projectile.knockBack, Projectile.owner).Kill();
+                    Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, type, Projectile.damage, Projectile.knockBack, Projectile.owner).Kill();
                     break;
                 }
             } else {
@@ -362,19 +363,19 @@ namespace EpikV2.Items {
                 ProjectileLoader.GetProjectile(type)?.Kill(timeLeft);
             }
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
-            spriteBatch.End();
-			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, Shaders.starlightShader.Shader, Main.Transform);
+        public override bool PreDraw(ref Color lightColor) {
+            Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.starlightShader.Shader);
+            Projectile.type = ProjectileID.FallingStar;
             return true;
         }
-        public override void PostDraw(SpriteBatch spriteBatch, Color lightColor) {
-			spriteBatch.End();
-			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
+        public override void PostDraw(Color lightColor) {
+            Projectile.type = ID;
+            Main.spriteBatch.Restart();
         }
-        private void OriginsIntegration() {
+        /*private void OriginsIntegration() {
             if(type>-1 && Origins.Origins.ExplosiveProjectiles[type]) {
                 OriginGlobalProj.explosiveOverrideNext = true;
             }
-        }
+        }*/
     }
 }

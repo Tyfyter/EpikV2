@@ -96,7 +96,7 @@ namespace EpikV2.Items {
                 if(LoadCoins(player, false)) {
                     mode--;
                     if(addCoins)totalCoins += Price;
-                    player.QuickSpawnItem(CoinType, 99);
+                    player.QuickSpawnItem(player.GetSource_DropAsItem(), CoinType, 99);
                     return true;
                 }
                 mode--;
@@ -107,13 +107,13 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Lucre Launcher");
 		    Tooltip.SetDefault("It's pay to win\nScroll while holding<Torch> to change coin type\nRight click to load in coins");
             if(Main.netMode == NetmodeID.Server)return;
-            FrontTexture = Mod.GetTexture("Items/Lucre_Launcher_Front");
-            BackTexture = Mod.GetTexture("Items/Lucre_Launcher_Back");
+            FrontTexture = Mod.RequestTexture("Items/Lucre_Launcher_Front");
+            BackTexture = Mod.RequestTexture("Items/Lucre_Launcher_Back");
             CoinsTextures = new Texture2D[]{
-                Mod.GetTexture("Items/Lucre_Launcher_Copper"),
-                Mod.GetTexture("Items/Lucre_Launcher_Silver"),
-                Mod.GetTexture("Items/Lucre_Launcher_Gold"),
-                Mod.GetTexture("Items/Lucre_Launcher_Platinum")
+                Mod.RequestTexture("Items/Lucre_Launcher_Copper"),
+                Mod.RequestTexture("Items/Lucre_Launcher_Silver"),
+                Mod.RequestTexture("Items/Lucre_Launcher_Gold"),
+                Mod.RequestTexture("Items/Lucre_Launcher_Platinum")
             };
 		}
         public override void SetDefaults() {
@@ -134,7 +134,7 @@ namespace EpikV2.Items {
             SoundEngine.PlaySound(mode<this.mode?SoundID.Coins:SoundID.CoinPickup, Main.LocalPlayer.Center);
             this.mode = mode;
             #region defaults
-            byte prefix = Item.prefix;
+            int prefix = Item.prefix;
             bool mat = Item.material;
             Item.CloneDefaults(ItemID.CoinGun);
             Item.width = 52;
@@ -178,20 +178,18 @@ namespace EpikV2.Items {
             return true;
         }
         public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(Mod);
-			recipe = new ModRecipe(Mod);
-			recipe.AddIngredient(ItemID.CoinGun, 1);
+            Recipe recipe = Mod.CreateRecipe(Type);
+            recipe.AddIngredient(ItemID.CoinGun, 1);
 			recipe.AddIngredient(ItemID.MartianConduitPlating, 10);
 			recipe.AddIngredient(ItemID.FragmentVortex, 5);
 			recipe.AddTile(TileID.PiggyBank);
-			recipe.SetResult(this, 1);
-			recipe.AddRecipe();
+            recipe.Create();
 		}
         public void Scroll(int direction) {
             SetMode((mode - direction) % 4);
         }
-        public override TagCompound SaveData() {
-            return new TagCompound { {"coins", totalCoins} };
+        public override void SaveData(TagCompound tag) {
+            tag.Add("coins", totalCoins);
         }
         public override void LoadData(TagCompound tag) {
             if(tag.ContainsKey("coins")) {
@@ -233,46 +231,45 @@ namespace EpikV2.Items {
             return CheckCoins(player, false)||player.HasItem(CoinType);
         }
 
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
-            Vector2 velocity = new Vector2(speedX, speedY);
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
             SoundEngine.PlaySound(SoundID.Item11, position);
             switch(mode) {
                 case 0:
-                if(CheckCoins(player))Projectile.NewProjectile(position, velocity.RotatedByRandom(0.1), Item.shoot, damage, knockBack, player.whoAmI);
-			    if(CheckCoins(player))Projectile.NewProjectile(position, velocity.RotatedByRandom(0.1), Item.shoot, damage, knockBack, player.whoAmI);
+                if(CheckCoins(player))Projectile.NewProjectile(source, position, velocity.RotatedByRandom(0.1), Item.shoot, damage, knockBack, player.whoAmI);
+			    if(CheckCoins(player))Projectile.NewProjectile(source, position, velocity.RotatedByRandom(0.1), Item.shoot, damage, knockBack, player.whoAmI);
                 break;
                 case 1:
-                if(CheckCoins(player))Projectile.NewProjectile(position, velocity, Item.shoot, damage, knockBack, player.whoAmI);
-			    if(CheckCoins(player))Projectile.NewProjectile(position, velocity, Item.shoot, damage, knockBack, player.whoAmI);
-			    if(CheckCoins(player))Projectile.NewProjectile(position, velocity, Item.shoot, damage, knockBack, player.whoAmI);
+                if(CheckCoins(player))Projectile.NewProjectile(source, position, velocity, Item.shoot, damage, knockBack, player.whoAmI);
+			    if(CheckCoins(player))Projectile.NewProjectile(source, position, velocity, Item.shoot, damage, knockBack, player.whoAmI);
+			    if(CheckCoins(player))Projectile.NewProjectile(source, position, velocity, Item.shoot, damage, knockBack, player.whoAmI);
                 break;
                 case 2:
                 case 3:
-                if(CheckCoins(player))Projectile.NewProjectile(position, velocity, Item.shoot, damage, knockBack, player.whoAmI);
+                if(CheckCoins(player))Projectile.NewProjectile(source, position, velocity, Item.shoot, damage, knockBack, player.whoAmI);
                 break;
             }
             if(!CheckCoins(player, false))player.itemAnimation = 0;
             return false;
 		}
-        public void DrawInHand(Texture2D itemTexture, PlayerDrawInfo drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin) {
+        public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin) {
             Player drawPlayer = drawInfo.drawPlayer;
             float itemRotation = drawPlayer.itemRotation;
             DrawData value;
 
-            Vector2 pos = new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
+            Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
 
-            value = new DrawData(BackTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.spriteEffects, 0);
-            Main.playerDrawData.Add(value);
+            value = new DrawData(BackTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
+            drawInfo.DrawDataCache.Add(value);
 
             if(totalCoins>=Price) {
                 int offset = Math.Max((16-(totalCoins / Price))/2,0)*drawPlayer.direction*-2;
-                value = new DrawData(CoinsTextures[mode], pos+(Vector2.UnitX.RotatedBy(itemRotation)*offset), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.spriteEffects, 0);
+                value = new DrawData(CoinsTextures[mode], pos+(Vector2.UnitX.RotatedBy(itemRotation)*offset), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
                 //value.shader = 84;
-                Main.playerDrawData.Add(value);
+                drawInfo.DrawDataCache.Add(value);
             }
-            value = new DrawData(FrontTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.spriteEffects, 0);
+            value = new DrawData(FrontTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(new Color(lightColor.X, lightColor.Y, lightColor.Z, lightColor.W)), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
             //value.shader = 84;
-            Main.playerDrawData.Add(value);
+            drawInfo.DrawDataCache.Add(value);
         }
         public override void HoldItem(Player player) {
             held = true;
@@ -298,7 +295,7 @@ namespace EpikV2.Items {
 			    Projectile.frame = 0;
 		    }
         }
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+		public override bool PreDraw(ref Color lightColor) {
 			SpriteEffects spriteEffects = SpriteEffects.None;
 			if (Projectile.spriteDirection == -1) {
 				spriteEffects = SpriteEffects.FlipHorizontally;

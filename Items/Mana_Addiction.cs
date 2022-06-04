@@ -19,28 +19,26 @@ namespace EpikV2.Items {
 		public override void UpdateEquip(Player player) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			epikPlayer.manaAdictionEquipped = true;
-			player.magicDamage += 0.3f;
+			player.GetDamage(DamageClass.Magic) += 0.3f;
 			if (player.manaRegenDelay < 5) {
 				player.manaRegenDelay = 5;
 			}
 			if (!epikPlayer.CheckFloatMana(Item, player.manaCost * 0.15f, blockQuickMana:true)) {
 				player.AddBuff(Mana_Withdrawal_Debuff.ID, 2);
-				player.meleeDamageMult *= 0.9f;
-				player.rangedDamageMult *= 0.9f;
-				player.minionDamageMult *= 0.9f;
+				player.GetDamage(DamageClass.Generic) *= 0.9f;
 			}
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			base.ModifyTooltips(tooltips);
 			if (Main.LocalPlayer.GetModPlayer<EpikPlayer>().manaAdictionEquipped) {
 				tooltips.Add(new TooltipLine(Mod, "CurseDescription0", "Consumes mana while equipped") {
-					OverrideColor = tooltips[0].overrideColor
+					OverrideColor = tooltips[0].OverrideColor
 				});
 				tooltips.Add(new TooltipLine(Mod, "CurseDescription1", "Consumes health and reduces damage dealt if you are out of mana") {
-					OverrideColor = tooltips[0].overrideColor
+					OverrideColor = tooltips[0].OverrideColor
 				});
 				tooltips.Add(new TooltipLine(Mod, "CurseDescription2", "Consumes mana to unequip") {
-					OverrideColor = tooltips[0].overrideColor
+					OverrideColor = tooltips[0].OverrideColor
 				});
 			}
 		}

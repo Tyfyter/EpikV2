@@ -27,11 +27,11 @@ namespace EpikV2.Items.Debugging {
             Item.height = 28;
             Item.useTime = 5;
             Item.useAnimation = 5;
-            Item.useStyle = 5;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.noMelee = true;
             Item.knockBack = 7.5f;
             Item.value = 1000;
-            Item.rare = 6;
+            Item.rare = ItemRarityID.LightPurple;
             Item.UseSound = null;
             Item.autoReuse = true;
             Item.channel = true;
@@ -39,14 +39,14 @@ namespace EpikV2.Items.Debugging {
             Item.shootSpeed = 7.5f;
         }
 
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
-            player.itemTime = 0;
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
+		    player.itemTime = 0;
             if (player.controlUseItem) {
                 player.itemAnimation = 8;
             }
             return false;
 		}
-        public void DrawInHand(Texture2D itemTexture, PlayerDrawInfo drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin) {
+        public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin) {
             DrawData value = new DrawData(Textures.distTestTexture0, Main.MouseScreen, null, Color.White, 0, new Vector2(20, 20), 2f, SpriteEffects.None, 0);
             Shaders.distortMiscShader.Shader.Parameters["uOffset"].SetValue(new Vector2(0.5f));
             Shaders.distortMiscShader.UseColor(new Vector3((float)(Math.Sin(f)*0.5) + 0.5f, (float)(Math.Cos(f) * 0.5) + 0.5f, 1f));//
@@ -55,7 +55,7 @@ namespace EpikV2.Items.Debugging {
                 h = Math.Sin(f);
             }
             value.shader = EpikV2.distortShaderID;
-            Main.playerDrawData.Add(value);
+            drawInfo.DrawDataCache.Add(value);
         }
     }
 }

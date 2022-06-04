@@ -17,6 +17,7 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("15% increased ranged and magic damage\n"+
                                "15% increased ranged and magic use speed\n"+
                                "Should not the death of a liar be itself a lie?");
+			ArmorIDs.Head.Sets.DrawFullHair[Type] = true;
 		}
 		public override void SetDefaults() {
 			Item.width = 20;
@@ -27,26 +28,22 @@ namespace EpikV2.Items {
             Item.defense = 6;
 		}
 		public override void UpdateEquip(Player player){
-			player.rangedDamage += 0.15f;
-			player.magicDamage += 0.15f;
+			player.GetDamage(DamageClass.Ranged) += 0.15f;
+			player.GetDamage(DamageClass.Magic) += 0.15f;
             //player.aggro -= 1000;
             player.GetModPlayer<EpikPlayer>().machiavellianMasquerade = true;
 		}
-        public override void DrawHair(ref bool drawHair, ref bool drawAltHair) {
-            drawHair = true;
-        }
-        public override void UpdateVanity(Player player, EquipType type) {
+        public override void UpdateVanity(Player player) {
             player.GetModPlayer<EpikPlayer>().extraHeadTexture = 0;
         }
-        public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(Mod);
+        public override void AddRecipes() {
+			Recipe recipe = Mod.CreateRecipe(Type);
 			recipe.AddIngredient(SanguineMaterial.id, 1);
 			recipe.AddIngredient(ItemID.MimeMask, 1);
 			recipe.AddIngredient(ItemID.HallowedBar, 5);
 			recipe.AddTile(TileID.MythrilAnvil);
 			//recipe.AddTile(TileID.Relic);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Create();
 		}
 	}
 }

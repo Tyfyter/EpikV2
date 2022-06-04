@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
@@ -19,6 +20,7 @@ namespace EpikV2.Items {
                                "Increases your max number of minions by 1\n"+
                                "'A magician never reveals <pro> secrets'");
             ArmorID = Item.headSlot;
+            ArmorIDs.Head.Sets.DrawHatHair[Type] = true;
 		}
 		public override void SetDefaults() {
 			Item.width = 20;
@@ -29,14 +31,11 @@ namespace EpikV2.Items {
             Item.defense = 2;
 		}
 		public override void UpdateEquip(Player player){
-			player.magicDamage += 0.25f;
-			player.minionDamage += 0.25f;
+			player.GetDamage(DamageClass.Magic) += 0.25f;
+			player.GetDamage(DamageClass.Summon) += 0.25f;
             player.maxMinions += 1;
             player.GetModPlayer<EpikPlayer>().magiciansHat = true;
 		}
-        public override void DrawHair(ref bool drawHair, ref bool drawAltHair) {
-            drawAltHair = true;
-        }
         public override void ModifyTooltips(List<TooltipLine> tooltips) {
             foreach(TooltipLine line in tooltips) {
                 if(line.Text.Contains("<pro>")) {//line.Name.Equals("Tooltip2")
@@ -45,27 +44,26 @@ namespace EpikV2.Items {
                 }
             }
         }
-        public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(Mod);
-			recipe.AddIngredient(SanguineMaterial.id, 1);
+        public override void AddRecipes() {
+            Recipe recipe = Mod.CreateRecipe(Type);
+            recipe.AddIngredient(SanguineMaterial.id, 1);
 			recipe.AddIngredient(ItemID.TopHat, 1);
 			recipe.AddIngredient(ItemID.BlackFairyDust, 1);
 			recipe.AddTile(TileID.Loom);
-			//recipe.AddTile(TileID.Relic);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+            //recipe.AddTile(TileID.Relic);
+            recipe.Create();
             ArmorID = Item.headSlot;
 		}
         public abstract class Ace : ModItem {
-            public override bool Autoload(ref string name) {
+            public override bool IsLoadingEnabled(Mod mod) {
                 return false;
             }
             public override void SetDefaults() {
-                Item.magic = true;
+                Item.DamageType = DamageClass.MagicSummonHybrid;
                 Item.noUseGraphic = true;
                 Item.noMelee = true;
                 Item.damage = 75;
-                Item.useStyle = 5;
+                Item.useStyle = ItemUseStyleID.Shoot;
                 Item.UseSound = SoundID.Item19;
                 Item.shootSpeed = 12.5f;
                 Item.useTime = 10;
@@ -85,7 +83,7 @@ namespace EpikV2.Items {
                     Item.UseSound = null;
                     return true;
                 }
-                Item.useStyle = 5;
+                Item.useStyle = ItemUseStyleID.Shoot;
                 Item.useTime = Item.useAnimation;
                 Item.UseSound = SoundID.Item19;
                 return true;
@@ -99,8 +97,8 @@ namespace EpikV2.Items {
                 }
                 return true;
             }
-            public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
-                if(player.altFunctionUse == 2) {
+            public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
+                if (player.altFunctionUse == 2) {
                     if(player.itemAnimation<3) {
                         if(player.controlUseTile) {
                             int target = -1;
@@ -119,8 +117,7 @@ namespace EpikV2.Items {
                                     }
                                 }
                             }
-                            Vector2 velocity = new Vector2(speedX, speedY);
-                            Projectile.NewProjectile(position, velocity, type, damage, knockBack, player.whoAmI, target);
+                            Projectile.NewProjectile(source, position, velocity, type, damage, knockBack, player.whoAmI, target);
                             SoundEngine.PlaySound(SoundID.Item1, position);
                         } else {
                             if(PickupEffect(player)) {
@@ -133,7 +130,7 @@ namespace EpikV2.Items {
                     }
                     return false;
                 }
-                Projectile.NewProjectile(position, new Vector2(speedX, speedY), type, damage, knockBack, player.whoAmI, -1);
+                Projectile.NewProjectile(source, position, velocity, type, damage, knockBack, player.whoAmI, -1);
                 return false;
             }
             public override void GrabRange(Player player, ref int grabRange) {
@@ -185,7 +182,7 @@ namespace EpikV2.Items {
                 Main.projFrames[Projectile.type] = 4;
             }
             public override void SetDefaults() {
-                Projectile.magic = true;
+                Projectile.DamageType = DamageClass.MagicSummonHybrid;
                 Projectile.width = 18;
                 Projectile.height = 18;
                 Projectile.ai[0] = -1;
@@ -224,11 +221,11 @@ namespace EpikV2.Items {
         }
 	}
     public class Ace_Heart : Ace {
-        public override bool Autoload(ref string name) {
-            Mod.AddItem("Ace_Heart", new Ace_Heart());
-            Mod.AddItem("Ace_Diamond", new Ace_Diamond());
-            Mod.AddItem("Ace_Spade", new Ace_Spade());
-            Mod.AddItem("Ace_Club", new Ace_Club());
+        public override bool IsLoadingEnabled(Mod mod) {
+            Mod.AddContent(new Ace_Heart());//"Ace_Heart"
+            Mod.AddContent(new Ace_Diamond());//"Ace_Diamond"
+            Mod.AddContent(new Ace_Spade());//"Ace_Spade"
+            Mod.AddContent(new Ace_Club());//"Ace_Club"
             return false;
         }
         public override void SetStaticDefaults() {

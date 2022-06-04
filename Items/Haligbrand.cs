@@ -21,7 +21,7 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("");
 		}
 		public override void SetDefaults() {
-			Item.summon = true;
+			Item.DamageType = DamageClass.Summon;
 			Item.noMelee = true;
 			Item.noUseGraphic = true;
 			Item.autoReuse = true;
@@ -37,7 +37,7 @@ namespace EpikV2.Items {
 			Item.shootSpeed = 16f;
 			Item.value = 5000;
 			Item.useStyle = 777;
-			Item.holdStyle = ItemHoldStyleID.HoldingUp;
+			Item.holdStyle = ItemHoldStyleID.HoldUp;
 			Item.rare = ItemRarityID.Yellow;
 			Item.UseSound = SoundID.Item1;
 		}
@@ -48,7 +48,7 @@ namespace EpikV2.Items {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			if (epikPlayer.haligbrand == -1) {
 				int direction = Math.Sign(player.Center.X - Main.MouseWorld.X);
-				Projectile proj = Projectile.NewProjectileDirect(player.MountedCenter - new Vector2(direction * 32, 12), Vector2.Zero, Item.shoot, Item.damage, Item.knockBack, Main.myPlayer);
+				Projectile proj = Projectile.NewProjectileDirect(player.GetSource_ItemUse(Item), player.MountedCenter - new Vector2(direction * 32, 12), Vector2.Zero, Item.shoot, Item.damage, Item.knockBack, Main.myPlayer);
 				epikPlayer.haligbrand = proj.whoAmI;
 				for (int i = 0; i < proj.oldPos.Length; i++) {
 					proj.oldPos[i] = proj.position;
@@ -74,20 +74,15 @@ namespace EpikV2.Items {
 				mult *= player.controlDown ? 8 : 4;
 			}
 		}
-		public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			if (epikPlayer.haligbrand == -1) {
 				return false;
 			}
 			Projectile projectile = Main.projectile[epikPlayer.haligbrand];
 
-			float add = 1f;
-			float mult = 1f;
-			float flat = 0;
-			CombinedHooks.ModifyWeaponDamage(player, Item, ref add, ref mult, ref flat);
-			damage = (int)(Item.damage * add * mult + 5E-06f + flat);
-			CombinedHooks.GetWeaponDamage(player, Item, ref damage);
 			projectile.damage = damage;
+			projectile.originalDamage = Item.damage;
 
 			if (player.altFunctionUse != 2) {
 				int npcTarget = -1;
@@ -132,13 +127,12 @@ namespace EpikV2.Items {
 			return false;
 		}
 		public override void AddRecipes() {
-			ModRecipe recipe = new ModRecipe(Mod);
+			Recipe recipe = Mod.CreateRecipe(Type);
 			recipe.AddIngredient(ItemID.PaladinsShield, 1);
 			recipe.AddIngredient(ItemID.BrokenHeroSword, 1);
 			recipe.AddTile(TileID.MythrilAnvil);
-			recipe.needLava = true;
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.AddCondition(Recipe.Condition.NearLava);
+			recipe.Create();
 		}
 	}
 	public class Haligbrand_P : ModProjectile {
@@ -163,7 +157,7 @@ namespace EpikV2.Items {
 			ProjectileID.Sets.TrailCacheLength[Projectile.type] = trail_length - 1;
 			ID = Projectile.type;
 			if (Main.netMode == NetmodeID.Server) return;
-			TrailTexture = Mod.GetTexture("Items/Haligbrand_P_Trail");
+			TrailTexture = Mod.Assets.Request<Texture2D>("Items/Haligbrand_P_Trail").Value;
 		}
 		public override void SetDefaults() {
 			Projectile.minion = true;
@@ -306,6 +300,7 @@ namespace EpikV2.Items {
 							}
 							SoundEngine.PlaySound(SoundID.Item45, player.Center);
 							Projectile.NewProjectileDirect(
+								Projectile.GetSource_FromThis(),
 								player.Center,
 								Vector2.Zero,
 								Haligbrand_Guard.ID,
@@ -345,9 +340,11 @@ namespace EpikV2.Items {
 				case 8: {
 					Projectile.position = Projectile.oldPosition;
 					if (Projectile.frame == 0) {
-						SoundEngine.PlaySound(42, (int)Projectile.Center.X, (int)Projectile.Center.Y, 186, 0.75f, 1f);
+						//SoundEngine.PlaySound(42, (int)Projectile.Center.X, (int)Projectile.Center.Y, 186, 0.75f, 1f);
 						Projectile.velocity.Y += 20;
-						Projectile.NewProjectile(Projectile.Center,
+						Projectile.NewProjectile(
+							Projectile.GetSource_FromThis(),
+							Projectile.Center,
 							Vector2.Zero,
 							Haligbrand_Guard.ID,
 							Projectile.damage / 2,
@@ -384,19 +381,21 @@ namespace EpikV2.Items {
 
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
 			Player player = Main.player[Projectile.owner];
-			float dmgMult = player.allDamageMult * player.minionDamageMult;
+			//float dmgMult = player.allDamageMult * player.minionDamageMult;
 			switch ((int)Projectile.ai[1]) {
 				case 0:
-				dmgMult *= 0.35f;
+				//dmgMult *= 0.35f;
+				damage = (int)(damage * 0.35f);
 				break;
 				case 1:
 				case 2:
 				if (Projectile.frame <= 0) {
-					dmgMult *= 0.35f;
+					//dmgMult *= 0.35f;
+					damage = (int)(damage * 0.35f);
 				}
 				break;
 			}
-			damage = (int)(damage * (player.allDamage + player.minionDamage - 1) * dmgMult);
+			//damage = (int)(damage * (player.allDamage + player.minionDamage - 1) * dmgMult);
 		}
 
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
@@ -438,11 +437,11 @@ namespace EpikV2.Items {
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			return Hitbox.Intersects(targetHitbox);
 		}
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+		public override bool PreDraw(ref Color lightColor) {
 			if (EnabledMods.GraphicsLib) try {
 				HandleGraphicsLibIntegration();
 			} catch (Exception) { }
-			spriteBatch.Draw(
+			Main.EntitySpriteDraw(
 				TextureAssets.Projectile[Projectile.type].Value,
 				Projectile.Center - Main.screenPosition,
 				null,
@@ -455,6 +454,7 @@ namespace EpikV2.Items {
 			);
 			return false;
 		}
+		[Obsolete]
 		public void HandleGraphicsLibIntegration() {
 			Vector2[] positions = new Vector2[Projectile.oldPos.Length + 1];
 			Projectile.oldPos.CopyTo(positions, 1);
@@ -539,8 +539,8 @@ namespace EpikV2.Items {
 			Resources.Shaders.fadeShader.Parameters["uOpacity"].SetValue(0);
 			Resources.Shaders.fadeShader.Parameters["uSaturation"].SetValue(0);
 			try {
-				GraphicsLib.Meshes.Mesh mesh = new GraphicsLib.Meshes.Mesh(TrailTexture, vertices, texCoords, colors, indices.ToArray(), Resources.Shaders.fadeShader);
-				mesh.Draw();
+				//GraphicsLib.Meshes.Mesh mesh = new GraphicsLib.Meshes.Mesh(TrailTexture, vertices, texCoords, colors, indices.ToArray(), Resources.Shaders.fadeShader);
+				//mesh.Draw();
 			} catch (Exception) {}
 		}
 		public static void SetAIMode(Projectile projectile, int mode, float ai0 = -1, Vector2? targetPos = null) {
@@ -620,7 +620,7 @@ namespace EpikV2.Items {
 							hitAny = true;
 							if (weakenStrong && GeometryUtils.AngleDif(velocity.Theta, diff.Theta) > 1.5f) {
 								target.damage -= (int)damage;
-								Dust.NewDust(target.position, target.width, target.height, DustID.DungeonWater_Old);
+								Dust.NewDust(target.position, target.width, target.height, DustID.WaterCandle);
 							}
 						} else if (weakenStrong) {
 							target.damage -= (int)damage;
@@ -631,7 +631,7 @@ namespace EpikV2.Items {
 			}
 			return hitAny;
 		}
-		public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+		public override bool PreDraw(ref Color lightColor) {
 			for (int i = 72; i-->0;) {
 				Vector2 diff = (Vector2)new PolarVec2(ScaleFactor, (i / 72f) * MathHelper.TwoPi);
 				Vector2 position = Projectile.Center + diff;

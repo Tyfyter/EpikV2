@@ -9,7 +9,7 @@ using static EpikV2.EpikExtensions;
 using static Terraria.ModLoader.ModContent;
 using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
-using Origins.Projectiles;
+//using Origins.Projectiles;
 using static EpikV2.Resources;
 
 #pragma warning disable 672
@@ -24,7 +24,7 @@ namespace EpikV2.Items {
             ID = Item.type;
 		}
 		public override void SetDefaults() {
-            byte dye = Item.dye;
+            int dye = Item.dye;
             Item.CloneDefaults(ItemID.StardustDragonStaff);
             Item.dye = dye;
             Item.damage = 80;
@@ -33,31 +33,30 @@ namespace EpikV2.Items {
             Item.buffType = Hydra_Buff.ID;
 		}
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.StardustDragonStaff, 1);
             recipe.AddIngredient(ItemID.FragmentNebula, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
-#pragma warning disable 619
-        public override void GetWeaponDamage(Player player, ref int damage) {
-            damage += (int)((damage - 80) * 2.5f);
+        public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
+            damage = new StatModifier(
+                ((damage.Additive - 1) * 2.5f) + 1,
+                ((damage.Multiplicative - 1) * 2.5f) + 1,
+                (damage.Flat * 2.5f),
+                (damage.Base * 2.5f)
+            );
         }
-#pragma warning restore 619
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
             player.AddBuff(Item.buffType, 2);
             position = Main.MouseWorld;
-            Projectile.NewProjectile(position, Vector2.Zero, Hydra_Nebula.ID, damage, knockBack, player.whoAmI, ai1:player.itemAnimationMax);
+            Projectile.NewProjectile(source, position, Vector2.Zero, Hydra_Nebula.ID, damage, knockBack, player.whoAmI, ai1:player.itemAnimationMax);
             return false;
         }
     }
     public class Hydra_Buff : ModBuff {
-        public static int ID { get; internal set; } = -1;
-        public override bool Autoload(ref string name, ref string texture) {
-            texture = "EpikV2/Buffs/Hydra_Buff";
-            return true;
-        }
+		public override string Texture => "EpikV2/Buffs/Hydra_Buff";
+		public static int ID { get; internal set; } = -1;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Hydra");
             Description.SetDefault("The Hydra will fight for you");
@@ -93,7 +92,7 @@ namespace EpikV2.Items {
 
         public bool Fired => Projectile.velocity.Length() > 0;
         public override string Texture => "Terraria/Projectile_" + ProjectileID.NebulaBlaze2;
-        public override bool CloneNewInstances => true;
+        protected override bool CloneNewInstances => true;
 
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Hydra");
@@ -103,13 +102,13 @@ namespace EpikV2.Items {
 			ProjectileID.Sets.CultistIsResistantTo[Projectile.type] = true;
             ID = Projectile.type;
             if(Main.netMode == NetmodeID.Server)return;
-            topJawTexture = Mod.GetTexture("Items/Hydra_Nebula_Top");
-            bottomJawTexture = Mod.GetTexture("Items/Hydra_Nebula_Bottom");
-            neckTexture = Mod.GetTexture("Items/Hydra_Nebula_Neck");
+            topJawTexture = Mod.RequestTexture("Items/Hydra_Nebula_Top");
+            bottomJawTexture = Mod.RequestTexture("Items/Hydra_Nebula_Bottom");
+            neckTexture = Mod.RequestTexture("Items/Hydra_Nebula_Neck");
         }
         public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.NebulaBlaze2);
-            Projectile.magic = false;
+            Projectile.DamageType = DamageClass.Summon;
             Projectile.minion = true;
             Projectile.minionSlots = 1;
             Projectile.penetrate = -1;
@@ -270,7 +269,7 @@ namespace EpikV2.Items {
             for(int i = 0; i < 27; i++) {
                 d = Dust.NewDustPerfect(Projectile.Center, Utils.SelectRandom(Main.rand, 242, 59, 88), new Vector2(Main.rand.NextFloat(2,5)+i%3,0).RotatedBy(rot*i+Main.rand.NextFloat(-0.1f,0.1f)), 0, default, 1.2f);
 			    d.noGravity = true;
-			    if (Main.rand.Next(2) == 0) {
+			    if (Main.rand.NextBool(2)) {
 				    d.fadeIn = 1.4f;
 			    }
                 d.shader = Shaders.starlightShader;
@@ -290,7 +289,7 @@ namespace EpikV2.Items {
 			Projectile.position.Y -= Projectile.height / 2;
             SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+        public override bool PreDraw(ref Color lightColor) {
             Player player = Main.player[Projectile.owner];
             float j = -jawOpen;
             float rotation = Projectile.rotation;
@@ -302,9 +301,8 @@ namespace EpikV2.Items {
                 off = new Vector2(0,6).RotatedBy(rotation);
                 spriteEffects ^= SpriteEffects.FlipHorizontally;
             }
-			spriteBatch.End();
-			spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointWrap, DepthStencilState.Default, RasterizerState.CullNone, Shaders.nebulaShader.Shader, Main.GameViewMatrix.ZoomMatrix);
-			Main.graphics.GraphicsDevice.Textures[1] = Shaders.nebulaDistortionTexture;
+            Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.nebulaShader.Shader);
+            Main.graphics.GraphicsDevice.Textures[1] = Shaders.nebulaDistortionTexture;
             EffectParameterCollection parameters = Shaders.nebulaShader.Shader.Parameters;
             parameters["uImageSize1"].SetValue(new Vector2(300));
             parameters["uImageSize0"].SetValue(new Vector2(16,16));
@@ -318,7 +316,7 @@ namespace EpikV2.Items {
             for(int i = 16; i > 0; i--) {
                 data = new DrawData(neckTexture, drawPos - Main.screenPosition, new Rectangle(0, 0, 16, 16), color, rotation, new Vector2(8, 8), Projectile.scale, SpriteEffects.None, 0);
                 parameters["uWorldPosition"].SetValue(drawPos);
-                data.Draw(spriteBatch);
+                Main.EntitySpriteDraw(data);
                 drawVel = (bendTarg - drawPos).WithMaxLength(8).RotatedBy((player.direction*0.5f*MathHelper.Clamp((Projectile.Center-startPos).Y, -1, 1))+0.05f);
                 drawPos += drawVel;
                 if((bendTarg - drawPos).Length()<4) break;
@@ -333,7 +331,7 @@ namespace EpikV2.Items {
             while((Projectile.Center - drawPos).Length()>4){
                 data = new DrawData(neckTexture, drawPos - Main.screenPosition, new Rectangle(0, 0, 16, 16), color, 0, new Vector2(8, 8), Projectile.scale, SpriteEffects.None, 0);
                 parameters["uWorldPosition"].SetValue(drawPos);
-                data.Draw(spriteBatch);
+                Main.EntitySpriteDraw(data);
                 diff = (Projectile.Center - drawPos);
                 drawVel = Vector2.Lerp(drawVel, diff.SafeNormalize(Vector2.Zero)*8, 0.5f);
                 if(drawVel.Length()>diff.Length()) {
@@ -354,13 +352,12 @@ namespace EpikV2.Items {
 
             data = new DrawData(topJawTexture, Projectile.Center - Main.screenPosition+off, new Rectangle(0, 0, 62, 28), color, rotation-j, new Vector2(32,20), new Vector2(Projectile.scale), spriteEffects, 0);
             //data.shader = 87;
-            data.Draw(spriteBatch);
+            Main.EntitySpriteDraw(data);
             data = new DrawData(bottomJawTexture, Projectile.Center - Main.screenPosition+off, new Rectangle(0, 0, 62, 28), color, rotation + j, new Vector2(32, 20), Projectile.scale, spriteEffects, 0);
             //data.shader = EpikV2.nebulaShaderID;
-            data.Draw(spriteBatch);
+            Main.EntitySpriteDraw(data);
 
-			spriteBatch.End();
-			spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
+            Main.spriteBatch.Restart();
             //spriteBatch.Draw(topJawTexture, projectile.Center-Main.screenPosition, new Rectangle(0, 0, 62, 28), Color.White, rotation-j, new Vector2(32,20), projectile.scale, spriteEffects, 0f);
             //spriteBatch.Draw(bottomJawTexture, projectile.Center-Main.screenPosition, new Rectangle(0, 0, 62, 28), Color.White, rotation+j, new Vector2(32,20), projectile.scale, spriteEffects, 0f);
             return false;

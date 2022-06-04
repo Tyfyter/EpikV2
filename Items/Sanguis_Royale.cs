@@ -21,13 +21,13 @@ namespace EpikV2.Items {
 		}
         public override void SetDefaults(){
             Item.damage = 78;
-            Item.magic = true;
+            Item.DamageType = DamageClass.Magic;
             Item.noMelee = true;
             Item.mana = 18;
             Item.shoot = ProjectileType<Sanguis_Royale_P>();
             Item.shootSpeed = 0f;
             Item.useTime = Item.useAnimation = 18;
-            Item.useStyle = 5;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.width = 12;
             Item.height = 10;
             Item.value = 10000;
@@ -36,11 +36,10 @@ namespace EpikV2.Items {
             Item.UseSound = SoundID.Item8;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(SanguineMaterial.id);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
         public override bool AltFunctionUse(Player player) {
             return true;
@@ -68,7 +67,7 @@ namespace EpikV2.Items {
             Projectile.width = 10;       //projectile width
             Projectile.height = 10;  //projectile height
             Projectile.friendly = true;      //make that the projectile will not damage you
-            Projectile.magic = true;         //
+            Projectile.DamageType = DamageClass.Magic;         //
             Projectile.tileCollide = true;
             Projectile.penetrate = -1;      //how many npc will penetrate
             Projectile.timeLeft = 150;
@@ -98,12 +97,12 @@ namespace EpikV2.Items {
                 Dust.NewDustPerfect(Projectile.Center+(Projectile.velocity.SafeNormalize(default)*(i*2)), DustID.Blood);
             }
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+        public override bool PreDraw(ref Color lightColor) {
             return false;
         }
     }
     public class Sanguis_Royale_Grab : ModProjectile {
-        public override bool CloneNewInstances => true;
+        protected override bool CloneNewInstances => true;
         public override string Texture => "Terraria/Item_178";
         int targetNPC = -1;
         public override void SetStaticDefaults(){
@@ -114,7 +113,7 @@ namespace EpikV2.Items {
             Projectile.width = 10;       //projectile width
             Projectile.height = 10;  //projectile height
             Projectile.friendly = true;      //make that the projectile will not damage you
-            Projectile.magic = true;         //
+            Projectile.DamageType = DamageClass.Magic;         //
             Projectile.tileCollide = false;
             Projectile.penetrate = -1;      //how many npc will penetrate
             Projectile.timeLeft = 15;
@@ -174,7 +173,7 @@ namespace EpikV2.Items {
                 targetNPC = target.whoAmI;
             }
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+        public override bool PreDraw(ref Color lightColor) {
             return false;
         }
     }

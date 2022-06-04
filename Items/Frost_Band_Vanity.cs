@@ -26,7 +26,7 @@ namespace EpikV2.Items {
             Item.accessory = true;
             Item.useAnimation = 0;
             Item.vanity = true;
-            Item.useStyle = 0;
+            Item.useStyle = ItemUseStyleID.None;
             Item.useTime = 0;
             Item.damage = 0;
             Item.rare = ItemRarityID.Blue;

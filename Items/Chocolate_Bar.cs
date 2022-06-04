@@ -27,24 +27,21 @@ namespace EpikV2.Items {
         }
     }
     public class True_Self_Debuff : ModBuff {
-        public static int ID { get; internal set; } = -1;
-        public override bool Autoload(ref string name, ref string texture) {
-            texture = "EpikV2/Buffs/True_Self_Debuff";
-            return true;
-        }
+		public override string Texture => "EpikV2/Buffs/True_Self_Debuff";
+		public static int ID { get; internal set; } = -1;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("True Self");
             Description.SetDefault("You're you");
             Main.debuff[Type] = true;
-            canBeCleared = false;
+            BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
             ID = Type;
         }
         public override void Update(Player player, ref int buffIndex) {
             if(player.HasBuff(BuffID.Werewolf)) {
 				player.lifeRegen--;
-				player.meleeCrit -= 2;
-				player.meleeDamage -= 0.051f;
-				player.meleeSpeed -= 0.051f;
+				player.GetCritChance(DamageClass.Melee) -= 2;
+				player.GetDamage(DamageClass.Melee) -= 0.051f;
+				player.GetAttackSpeed(DamageClass.Melee) -= 0.051f;
 				player.statDefense -= 3;
 				player.moveSpeed -= 0.05f;
             }

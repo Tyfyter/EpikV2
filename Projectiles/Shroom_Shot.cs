@@ -48,7 +48,7 @@ namespace EpikV2.Projectiles {
                     }
                 }
                 if (target) {
-                    AdjustMagnitude(ref move);
+					AdjustMagnitude(ref move);
                     if(Projectile.timeLeft == 75) {
                         Projectile.velocity = move;
                     } else {
@@ -103,7 +103,7 @@ namespace EpikV2.Projectiles {
             return false;
         }
 
-		private void AdjustMagnitude(ref Vector2 vector) {
+		private static void AdjustMagnitude(ref Vector2 vector) {
 			float magnitude = (float)Math.Sqrt(vector.X * vector.X + vector.Y * vector.Y);
 			if (magnitude > 6f) {
 				vector *= 6f / magnitude;

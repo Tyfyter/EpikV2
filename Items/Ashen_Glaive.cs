@@ -22,9 +22,9 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Ashen Glaive");
 			Tooltip.SetDefault("");
             if(Main.netMode == NetmodeID.Server)return;
-            mark1Texture = Mod.GetTexture("Items/Ashen_Mark_1");
-            mark2Texture = Mod.GetTexture("Items/Ashen_Mark_2");
-            mark3Texture = Mod.GetTexture("Items/Ashen_Mark_3");
+            mark1Texture = Mod.Assets.Request<Texture2D>("Items/Ashen_Mark_1").Value;
+            mark2Texture = Mod.Assets.Request<Texture2D>("Items/Ashen_Mark_2").Value;
+            mark3Texture = Mod.Assets.Request<Texture2D>("Items/Ashen_Mark_3").Value;
 		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.ThornChakram);
@@ -46,25 +46,24 @@ namespace EpikV2.Items {
         }
         public override bool CanUseItem(Player player) {
             if(player.altFunctionUse==2) {
-                Item.useStyle = 5;
+                Item.useStyle = ItemUseStyleID.Shoot;
                 Item.shoot = ProjectileID.None;
                 player.GetModPlayer<EpikPlayer>().glaiveRecall = true;
                 return player.ownedProjectileCounts[ModContent.ProjectileType<Ashen_Glaive_P>()]>0;
             } else {
-                Item.useStyle = 1;
+                Item.useStyle = ItemUseStyleID.Swing;
                 Item.shoot = ModContent.ProjectileType<Ashen_Glaive_P>();
             }
             return player.ownedProjectileCounts[Item.shoot]<=2;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.MartianConduitPlating, 15);
             recipe.AddIngredient(ItemID.SoulofFright, 5);
             recipe.AddTile(TileID.MythrilAnvil);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.needLava = true;
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.AddCondition(Recipe.Condition.NearLava);
+            recipe.Create();
         }
     }
     public class Ashen_Glaive_P : ModProjectile {
@@ -76,7 +75,7 @@ namespace EpikV2.Items {
 		}
         public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.ThornChakram);
-            Projectile.melee = true;
+            Projectile.DamageType = DamageClass.Melee;
             Projectile.penetrate = -1;
 			Projectile.width = 32;
 			Projectile.height = 32;
@@ -93,11 +92,11 @@ namespace EpikV2.Items {
                 }
             }
         }
-        public override bool CanDamage() {
+        public override bool? CanDamage() {
             Player player = Main.player[Projectile.owner];
             NPC npc;
             bool ret = false;
-            int crit = player.meleeCrit;
+            float crit = player.GetTotalCritChance(DamageClass.Melee);
             for(int i = 0; i < 200; i++) {
                 npc = Main.npc[i];
                 if(!npc.active || npc.dontTakeDamage || Projectile.localNPCImmunity[i] != 0 || !Projectile.Hitbox.Intersects(npc.Hitbox) || !canHit(npc)) {
@@ -111,14 +110,14 @@ namespace EpikV2.Items {
                         dmg = (int)npc.StrikeNPC(dmg, projectile.knockBack, player.direction, false);
                         player.addDPS(dmg);*/
                         marks[i] = 0;
-                        return true;
+                        return null;
                     }
                 } else if(marks[i] > 2) {
                     return Projectile.ai[0] == 0f;
                 }
                 if(Main.rand.Next(100)<crit&&marks[i]<3)marks[i]++;
 				Projectile.localNPCImmunity[i] = 6;
-                return true;
+                return null;
             }
             return false;
         }
@@ -165,7 +164,7 @@ namespace EpikV2.Items {
             }
             return false;
         }
-        public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough) {
+        public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) {
             width = 18;
             height = 18;
             return true;
@@ -174,7 +173,7 @@ namespace EpikV2.Items {
 			if (!(NPCLoader.CanBeHitByProjectile(npc, Projectile)??true)){
 				return false;
 			}
-			if (!(PlayerHooks.CanHitNPCWithProj(Projectile, npc)??true)){
+			if (!(PlayerLoader.CanHitNPCWithProj(Projectile, npc)??true)){
 				return false;
 			}
             Player player = Main.player[Projectile.owner];
@@ -190,7 +189,7 @@ namespace EpikV2.Items {
             }
             return true;
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+        public override bool PreDraw(ref Color lightColor) {
             if(Projectile.owner!=Main.myPlayer)return true;
             if(drawCount>0)return true;
             drawCount++;
@@ -210,7 +209,7 @@ namespace EpikV2.Items {
                     default:
                     continue;
                 }
-                spriteBatch.Draw(texture, Main.npc[i].Top+offset, new Color(255, 255, 255, 0));
+                Main.EntitySpriteDraw(texture, Main.npc[i].Top+offset, null, new Color(255, 255, 255, 0), 0, default, 1, SpriteEffects.None, 0);
             }
             return true;
         }

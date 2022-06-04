@@ -17,6 +17,7 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("25% increased melee and minion damage\n"+
                                "Increases your max number of minions by 1\n"+
                                "'Heavy is the head that wears the crown'");
+            ArmorIDs.Head.Sets.DrawHatHair[Type] = true;
 		}
 		public override void SetDefaults() {
 			Item.width = 20;
@@ -27,8 +28,8 @@ namespace EpikV2.Items {
             Item.defense = 12;
 		}
 		public override void UpdateEquip(Player player){
-			player.meleeDamage += 0.25f;
-			player.minionDamage += 0.25f;
+			player.GetDamage(DamageClass.Melee) += 0.25f;
+			player.GetDamage(DamageClass.Summon) += 0.25f;
             player.maxMinions += 1;
             if(Main.netMode != NetmodeID.SinglePlayer) {
 			    if (player.whoAmI != Main.myPlayer) {
@@ -58,26 +59,19 @@ namespace EpikV2.Items {
                 }
             }
 		}
-        public override void DrawHair(ref bool drawHair, ref bool drawAltHair) {
-            drawAltHair = true;
-        }
-        public override void AddRecipes(){
-			ModRecipe recipe = new ModRecipe(Mod);
-			recipe.AddIngredient(SanguineMaterial.id, 1);
+        public override void AddRecipes() {
+            Recipe recipe = Mod.CreateRecipe(Type);
+            recipe.AddIngredient(SanguineMaterial.id, 1);
 			recipe.AddIngredient(ItemID.GoldCrown, 1);
 			recipe.AddIngredient(ItemID.HallowedBar, 5);
 			recipe.AddTile(TileID.MythrilAnvil);
 			//recipe.AddTile(TileID.Relic);
-			recipe.SetResult(this);
-			recipe.AddRecipe();
+			recipe.Create();
 		}
 	}
     public class Sovereign_Buff : ModBuff {
-        public static int ID { get; internal set; } = -1;
-        public override bool Autoload(ref string name, ref string texture) {
-            texture = "EpikV2/Buffs/Sovereign_Buff";
-            return true;
-        }
+		public override string Texture => "EpikV2/Buffs/Sovereign_Buff";
+		public static int ID { get; internal set; } = -1;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Sovereign Crown");
             Description.SetDefault("You fight for the crown");
@@ -86,18 +80,15 @@ namespace EpikV2.Items {
             ID = Type;
         }
         public override void Update(Player player, ref int buffIndex) {
-			player.meleeDamage += 0.25f;
-			player.rangedDamage += 0.25f;
-			player.magicDamage += 0.25f;
+			player.GetDamage(DamageClass.Melee) += 0.25f;
+			player.GetDamage(DamageClass.Ranged) += 0.25f;
+			player.GetDamage(DamageClass.Magic) += 0.25f;
 			player.statDefense += 12;
         }
     }
     public class Sovereign_Debuff : ModBuff {
-        public static int ID { get; internal set; } = -1;
-        public override bool Autoload(ref string name, ref string texture) {
-            texture = "EpikV2/Buffs/Sovereign_Debuff";
-            return true;
-        }
+		public override string Texture => "EpikV2/Buffs/Sovereign_Debuff";
+		public static int ID { get; internal set; } = -1;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Sovereign Crown");
             Description.SetDefault("You fight the crown");
@@ -106,11 +97,9 @@ namespace EpikV2.Items {
             ID = Type;
         }
         public override void Update(Player player, ref int buffIndex) {
-			player.meleeDamage -= 0.15f;
-			player.rangedDamage -= 0.15f;
-			player.magicDamage -= 0.15f;
-			player.minionDamage -= 0.15f;
-			player.statDefense -= 12;
+			player.GetDamage(DamageClass.Default) -= 0.15f;
+            player.GetDamage(DamageClass.Generic) -= 0.15f;
+            player.statDefense -= 12;
             player.velocity *= 0.97f;
             player.lifeRegen -= 2;
         }

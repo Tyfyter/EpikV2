@@ -8,6 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameContent.NetModules;
@@ -40,7 +41,7 @@ namespace EpikV2 {
         public const int Slain_2 = 255;
     }
     public interface ICustomDrawItem {
-        void DrawInHand(Texture2D itemTexture, PlayerDrawInfo drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin);
+        void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Vector4 lightColor, Vector2 drawOrigin);
     }
     public interface IScrollableItem {
         void Scroll(int direction);
@@ -82,6 +83,23 @@ namespace EpikV2 {
         }
     }*/
     public static class EpikExtensions {
+        public static Texture2D RequestTexture(this Mod mod, string name) => mod.Assets.Request<Texture2D>("name").Value;
+        public static SoundStyle WithPitch(this SoundStyle soundStyle, float pitch) {
+            soundStyle.Pitch = pitch;
+            return soundStyle;
+        }
+        public static SoundStyle WithPitchVarience(this SoundStyle soundStyle, float pitchVarience) {
+            soundStyle.PitchVariance = pitchVarience;
+            return soundStyle;
+        }
+        public static SoundStyle WithPitchRange(this SoundStyle soundStyle, float min, float max) {
+            soundStyle.PitchRange = (min, max);
+            return soundStyle;
+        }
+        public static SoundStyle WithVolume(this SoundStyle soundStyle, float volume) {
+            soundStyle.Volume = volume;
+            return soundStyle;
+        }
         public static Func<float, int, Vector2> DrawPlayerItemPos { get; internal set; }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Vec4FromVec2x2(Vector2 xy, Vector2 wh) {

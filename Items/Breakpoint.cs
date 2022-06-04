@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.Audio;
+using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -23,10 +24,10 @@ namespace EpikV2.Items {
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.WoodenBow);
             Item.damage = 147;
-			Item.ranged = true;
+			Item.DamageType = DamageClass.Ranged;
             Item.width = 36;
             Item.height = 76;
-            Item.useStyle = 5;
+            Item.useStyle = ItemUseStyleID.Shoot;
             Item.useTime = 35;
             Item.useAnimation = 35;
             Item.noMelee = true;
@@ -41,15 +42,14 @@ namespace EpikV2.Items {
             Item.glowMask = customGlowMask;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.HallowedBar, 10);
             recipe.AddIngredient(ItemID.PulseBow);
             recipe.AddIngredient(ItemID.EyeoftheGolem);
             recipe.AddTile(TileID.LihzahrdAltar);
             recipe.AddTile(TileID.AdamantiteForge);
             recipe.AddTile(TileID.Autohammer);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
         public override Vector2? HoldoutOffset() {
             return new Vector2(-10, 0);
@@ -60,13 +60,13 @@ namespace EpikV2.Items {
         public override float UseTimeMultiplier(Player player) {
             return player.altFunctionUse == 0 ? 1f : 0.85f;
         }
-        public override bool Shoot(Player player, ref Vector2 position, ref float speedX, ref float speedY, ref int type, ref int damage, ref float knockBack) {
-            Projectile.NewProjectile(position, new Vector2(speedX, speedY), Item.shoot, damage, knockBack, player.whoAmI, ai1:player.altFunctionUse);
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
+            Projectile.NewProjectile(source, position, velocity, Item.shoot, damage, knockBack, player.whoAmI, ai1:player.altFunctionUse);
 			return false;
 		}
     }
 	public class Breakpoint_Arrow : ModProjectile {
-        public override bool CloneNewInstances => true;
+        protected override bool CloneNewInstances => true;
         PolarVec2 embedPos;
         float embedRotation;
         int EmbedDuration { get => (Projectile.ai[1]==0) ? 45 : 50; }
@@ -152,7 +152,7 @@ namespace EpikV2.Items {
             bool altFire = Projectile.ai[1] != 0;
             for (int i = Main.rand.Next(5,8); i-->0;) {
                 Vector2 blastDirection = altFire? (Vector2)(new PolarVec2(8 * Main.rand.NextFloat(1f, 1.5f), Projectile.rotation - MathHelper.PiOver2 + Main.rand.NextFloat(-0.5f, 0.5f))) : (Main.rand.NextVector2CircularEdge(6, 6) * Main.rand.NextFloat(1f, 1.5f));
-                Projectile.NewProjectile(Projectile.Center, Projectile.velocity + blastDirection, ProjectileID.StyngerShrapnel, Projectile.damage/4, Projectile.knockBack/4, Projectile.owner);
+                Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity + blastDirection, ProjectileID.StyngerShrapnel, Projectile.damage/4, Projectile.knockBack/4, Projectile.owner);
             }
         }
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
@@ -163,10 +163,10 @@ namespace EpikV2.Items {
                 damage += target.defense / 3;
             }
         }
-        public override void DrawBehind(int index, List<int> drawCacheProjsBehindNPCsAndTiles, List<int> drawCacheProjsBehindNPCs, List<int> drawCacheProjsBehindProjectiles, List<int> drawCacheProjsOverWiresUI) {
-            drawCacheProjsBehindNPCsAndTiles.Add(index);
+		public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI) {
+            behindNPCsAndTiles.Add(index);
         }
-        public override bool OnTileCollide(Vector2 oldVelocity) {
+		public override bool OnTileCollide(Vector2 oldVelocity) {
             Projectile.aiStyle = 0;
             Projectile.velocity = Vector2.Zero;
             Projectile.timeLeft = EmbedDuration;
@@ -180,7 +180,7 @@ namespace EpikV2.Items {
             }
             return null;
         }
-        public override bool PreDraw(SpriteBatch spriteBatch, Color lightColor) {
+        public override bool PreDraw(ref Color lightColor) {
             float embedGlowMultiplier = 1f;
             if (Projectile.aiStyle == 0) {
                 if (EmbedTime > 0) {//embedded in enemy
@@ -189,8 +189,8 @@ namespace EpikV2.Items {
                     embedGlowMultiplier = Projectile.timeLeft / (float)EmbedDuration;
                 }
             }
-            spriteBatch.Draw(TextureAssets.Projectile[Projectile.type].Value, Projectile.Center - Main.screenPosition, null, lightColor, Projectile.rotation, new Vector2(11, 12), Projectile.scale, SpriteEffects.None, 0);
-            spriteBatch.Draw(Resources.Textures.BreakpointArrowGlow, Projectile.Center - Main.screenPosition, null, new Color(1f, 0.85f * embedGlowMultiplier, 1f, 0f), Projectile.rotation, new Vector2(11, 12), Projectile.scale, SpriteEffects.None, 0);
+            Main.EntitySpriteDraw(TextureAssets.Projectile[Projectile.type].Value, Projectile.Center - Main.screenPosition, null, lightColor, Projectile.rotation, new Vector2(11, 12), Projectile.scale, SpriteEffects.None, 0);
+            Main.EntitySpriteDraw(Resources.Textures.BreakpointArrowGlow, Projectile.Center - Main.screenPosition, null, new Color(1f, 0.85f * embedGlowMultiplier, 1f, 0f), Projectile.rotation, new Vector2(11, 12), Projectile.scale, SpriteEffects.None, 0);
             return false;
         }
         public override void SendExtraAI(BinaryWriter writer) {
