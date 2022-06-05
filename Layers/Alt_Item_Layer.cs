@@ -13,7 +13,7 @@ using Terraria.ModLoader;
 namespace EpikV2.Layers {
 	public class Alt_Item_Layer : PlayerDrawLayer {
 		public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) {
-			return drawInfo.heldItem.ModItem is ICustomDrawItem;
+			return drawInfo.drawPlayer.ItemAnimationActive && drawInfo.heldItem.ModItem is ICustomDrawItem;
 		}
 		public override Position GetDefaultPosition() => new Between(PlayerDrawLayers.HeldItem, PlayerDrawLayers.ArmOverItem);
 		protected override void Draw(ref PlayerDrawSet drawInfo) {
@@ -23,7 +23,7 @@ namespace EpikV2.Layers {
             ICustomDrawItem aItem = (ICustomDrawItem)item.ModItem;
             int drawXPos = 0;
             Vector2 itemCenter = new Vector2(itemTexture.Width / 2, itemTexture.Height / 2);
-            Vector2 drawItemPos = EpikExtensions.DrawPlayerItemPos(drawPlayer.gravDir, item.type);
+            Vector2 drawItemPos = Main.DrawPlayerItemPos(drawPlayer.gravDir, item.type);
             drawXPos = (int)drawItemPos.X;
             itemCenter.Y = drawItemPos.Y;
             Vector2 drawOrigin = new Vector2(drawXPos, itemTexture.Height / 2);
@@ -31,7 +31,7 @@ namespace EpikV2.Layers {
                 drawOrigin = new Vector2(itemTexture.Width + drawXPos, itemTexture.Height / 2);
             }
             drawOrigin.X -= drawPlayer.width / 2;
-            Color lightColor = new Color(Lighting.GetSubLight(itemCenter));//drawInfo.colorBodySkin.ToVector4() / drawPlayer.skinColor.ToVector4();
+            Color lightColor = Lighting.GetColor((int)(drawInfo.Position.X + drawInfo.drawPlayer.width * 0.5) / 16, (int)((drawInfo.Position.Y + drawInfo.drawPlayer.height * 0.5) / 16.0)); ;//drawInfo.colorBodySkin.ToVector4() / drawPlayer.skinColor.ToVector4();
             aItem.DrawInHand(itemTexture, ref drawInfo, itemCenter, lightColor, drawOrigin);
         }
 	}

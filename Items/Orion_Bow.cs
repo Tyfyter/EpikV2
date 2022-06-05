@@ -15,10 +15,10 @@ using static EpikV2.Resources;
 namespace EpikV2.Items {
     public class Orion_Bow : ModItem, ICustomDrawItem {
         public static int ID = -1;
-        public static Texture2D goldTexture { get; private set; }
-        public static Texture2D skyTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> goldTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> skyTexture { get; private set; }
         //public static Texture2D starTexture { get; private set; }
-        public static Texture2D stringTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> stringTexture { get; private set; }
         public override void Unload() {
             goldTexture = null;
             skyTexture = null;
@@ -201,7 +201,7 @@ namespace EpikV2.Items {
         internal static int t = -1;
         public int type { get; private set; } = -1;
         public bool Fired => Projectile.velocity.Length() > 0;
-        public override string Texture => "Terraria/Projectile_"+ProjectileID.JestersArrow;
+        public override string Texture => "Terraria/Images/Projectile_"+ProjectileID.JestersArrow;
         protected override bool CloneNewInstances => true;
 
         public override void SetStaticDefaults() {
@@ -308,7 +308,7 @@ namespace EpikV2.Items {
         public static int ID { get; private set; } = -1;
         internal static int t = -1;
         public int type { get; private set; } = -1;
-        public override string Texture => "Terraria/Projectile_"+ProjectileID.FallingStar;
+        public override string Texture => "Terraria/Images/Projectile_"+ProjectileID.FallingStar;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Orion's Bow");
             ID = Projectile.type;

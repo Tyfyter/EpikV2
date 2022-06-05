@@ -23,7 +23,7 @@ namespace EpikV2.Items {
         public override void SetDefaults(){
             Item.CloneDefaults(ItemID.Handgun);
             Item.damage = 165;
-			Item.ranged = true;
+			Item.DamageType = DamageClass.Ranged;
             Item.mana = 8;
             Item.width = 56;
             Item.height = 24;
@@ -42,11 +42,10 @@ namespace EpikV2.Items {
 			Item.useAmmo = AmmoID.None;
         }
         public override void AddRecipes() {
-            ModRecipe recipe = new ModRecipe(Mod);
+            Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(AquamarineMaterial.id);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.SetResult(this);
-            recipe.AddRecipe();
+            recipe.Create();
         }
         public override bool AltFunctionUse(Player player) {
             return player.GetModPlayer<EpikPlayer>().light_shots>0;
@@ -64,9 +63,9 @@ namespace EpikV2.Items {
         public override Vector2? HoldoutOffset(){
 			return new Vector2(4, -4);
 		}
-        public override void ModifyWeaponDamage(Player player, ref float add, ref float mult, ref float flat) {
+        /*public override void ModifyWeaponDamage(Player player, ref float add, ref float mult, ref float flat) {
             mult*=player.bulletDamage;
-        }
+        }*/
         public override void HoldItem(Player player) {
             for (int i = 3; i < 8 + player.extraAccessorySlots; i++){
                 if(player.armor[i].type==ItemID.RifleScope||player.armor[i].type==ItemID.SniperScope) {
@@ -75,12 +74,12 @@ namespace EpikV2.Items {
                 }
 	        }
         }
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 Velocity, int type, int damage, float knockBack) {
+        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
             if (player.altFunctionUse==2)return false;
-            Vector2 offset = Velocity.SafeNormalize(Vector2.Zero);
+            Vector2 offset = velocity.SafeNormalize(Vector2.Zero);
             position+=(offset*32)+(offset.RotatedBy(PiOver2*player.direction)*-10);
             if(player.controlUseTile&&player.CheckMana(Item, 16, true)) {
-                Projectile p = Projectile.NewProjectileDirect(source, position, new Vector2(speedX, speedY), ProjectileType<Straylight_Drifter_P>(), damage, knockBack*8, player.whoAmI, 0, 2);
+                Projectile p = Projectile.NewProjectileDirect(source, position, velocity, ProjectileType<Straylight_Drifter_P>(), damage, knockBack*8, player.whoAmI, 0, 2);
                 p.extraUpdates+=2;
                 p.penetrate = 5;
                 SoundEngine.PlaySound(SoundID.Item38, position);
@@ -89,7 +88,7 @@ namespace EpikV2.Items {
             int target = player.MinionAttackTargetNPC;
             player.MinionNPCTargetAim(true);
             if(player.MinionAttackTargetNPC == -1)player.MinionAttackTargetNPC = target;
-            Projectile.NewProjectile(source, position, Velocity, ProjectileType<Straylight_Drifter_P>(), damage, knockBack, player.whoAmI, (float)Math.Sqrt(speedX*speedX+speedY*speedY));
+            Projectile.NewProjectile(source, position, velocity, ProjectileType<Straylight_Drifter_P>(), damage, knockBack, player.whoAmI, velocity.Length());
 			return false;
 		}
     }
@@ -135,7 +134,7 @@ namespace EpikV2.Items {
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
             if(Projectile.ai[1]<1)crit = this.crit;
             if(crit) {
-                mult*=1+(Main.player[Projectile.owner].rangedCrit/200f);
+                mult*=1+(Main.player[Projectile.owner].GetCritChance(DamageClass.Ranged)/200f);
             }
             damage = (int)(damage*mult);
         }

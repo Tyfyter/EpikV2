@@ -17,7 +17,7 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("15% increased ranged and magic damage\n"+
                                "15% increased ranged and magic use speed\n"+
                                "Should not the death of a liar be itself a lie?");
-			ArmorIDs.Head.Sets.DrawFullHair[Type] = true;
+			ArmorIDs.Head.Sets.DrawFullHair[Item.headSlot] = true;
 		}
 		public override void SetDefaults() {
 			Item.width = 20;

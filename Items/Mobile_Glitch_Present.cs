@@ -8,7 +8,7 @@ using Terraria.ModLoader;
 
 namespace EpikV2.Items {
 	public class Mobile_Glitch_Present : ModItem {
-        public override string Texture => "Terraria/Item_1869";
+        public override string Texture => "Terraria/Images/Item_1869";
 
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Ancient Mobile Present");

@@ -15,11 +15,11 @@ using EpikV2.NPCs;
 namespace EpikV2.Items {
     public class Scorpio : ModItem {
         public static int ID = -1;
-        public static Texture2D tailSpikeTexture { get; private set; }
-        public static Texture2D tailSegmentTexture { get; private set; }
-        public static Texture2D tailSegmentDimTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> tailSpikeTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> tailSegmentTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> tailSegmentDimTexture { get; private set; }
 
-        public static Texture2D clawTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> clawTexture { get; private set; }
         public override void Unload() {
             tailSpikeTexture = null;
             tailSegmentTexture = null;

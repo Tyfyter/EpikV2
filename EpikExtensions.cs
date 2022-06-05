@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -82,8 +83,18 @@ namespace EpikV2 {
             }
         }
     }*/
+    public struct AutoCastingAsset<T> where T : class {
+        public T Value => asset.Value;
+
+		readonly Asset<T> asset;
+        AutoCastingAsset(Asset<T> asset) {
+            this.asset = asset;
+        }
+        public static implicit operator AutoCastingAsset<T>(Asset<T> asset) => new(asset);
+        public static implicit operator T (AutoCastingAsset<T> asset) => asset.Value;
+    }
     public static class EpikExtensions {
-        public static Texture2D RequestTexture(this Mod mod, string name) => mod.Assets.Request<Texture2D>("name").Value;
+        public static AutoCastingAsset<Texture2D> RequestTexture(this Mod mod, string name) => mod.Assets.Request<Texture2D>(name);
         public static SoundStyle WithPitch(this SoundStyle soundStyle, float pitch) {
             soundStyle.Pitch = pitch;
             return soundStyle;
@@ -100,7 +111,6 @@ namespace EpikV2 {
             soundStyle.Volume = volume;
             return soundStyle;
         }
-        public static Func<float, int, Vector2> DrawPlayerItemPos { get; internal set; }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Vec4FromVec2x2(Vector2 xy, Vector2 wh) {
             return new Vector4(xy.X, xy.Y, wh.X, wh.Y);
@@ -229,11 +239,11 @@ namespace EpikV2 {
             }
             return true;
         }
-        public static void UseNonVanillaImage(this ArmorShaderData shaderData, Texture2D texture) {
-            typeof(ArmorShaderData).GetField("_uImage", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(shaderData, new Ref<Texture2D>(texture));
+        public static void UseNonVanillaImage(this ArmorShaderData shaderData, Asset<Texture2D> texture) {
+            typeof(ArmorShaderData).GetField("_uImage", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(shaderData, texture);
         }
-        public static void UseNonVanillaImage(this MiscShaderData shaderData, Texture2D texture) {
-            typeof(MiscShaderData).GetField("_uImage", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(shaderData, new Ref<Texture2D>(texture));
+        public static void UseNonVanillaImage(this MiscShaderData shaderData, Asset<Texture2D> texture) {
+            typeof(MiscShaderData).GetField("_uImage", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(shaderData, texture);
         }
         public static float GetAmmoConsumptionMult(this Player player) {
             float o = 1;
@@ -725,6 +735,10 @@ namespace EpikV2 {
         public static void Restart(this SpriteBatch spriteBatch, SpriteSortMode sortMode = SpriteSortMode.Deferred, BlendState blendState = null, SamplerState samplerState = null, RasterizerState rasterizerState = null, Effect effect = null, Matrix? transformMatrix = null) {
             spriteBatch.End();
             spriteBatch.Begin(sortMode, blendState??BlendState.AlphaBlend, samplerState??SamplerState.LinearClamp, DepthStencilState.None, rasterizerState??Main.Rasterizer, effect, transformMatrix??Main.GameViewMatrix.TransformationMatrix);
+        }
+        public static void RestartWithLiteralNull(this SpriteBatch spriteBatch, SpriteSortMode sortMode = SpriteSortMode.Deferred, BlendState blendState = null, SamplerState samplerState = null, DepthStencilState depthStencilState = null, RasterizerState rasterizerState = null, Effect effect = null, Matrix? transformMatrix = null) {
+            spriteBatch.End();
+            spriteBatch.Begin(sortMode, blendState, samplerState, depthStencilState, rasterizerState, effect, transformMatrix ?? Main.GameViewMatrix.TransformationMatrix);
         }
         public static void SayNetMode() {
             switch(Main.netMode) {

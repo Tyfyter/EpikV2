@@ -4,6 +4,9 @@ Icon coming soon, have a potato for now
 
 Changelog:
 
+0.3.5.1:
+Updated to tML for 1.4
+
 0.2.5.1:
 Fixed telescope not deactivating when player leaves range
 Applied spellcheck

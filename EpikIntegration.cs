@@ -20,13 +20,13 @@ namespace EpikV2 {
 				GraphicsLib = false;
 			}
 			internal static void CheckEnabled() {
-				Mod recipeBrowser = ModLoader.GetMod("RecipeBrowser");
-				RecipeBrowser = !(recipeBrowser is null) && recipeBrowser.Version >= new Version(0, 5);
-				Origins = !(ModLoader.GetMod("Origins") is null);
-				GraphicsLib = !(ModLoader.GetMod("GraphicsLib") is null);
+				RecipeBrowser = ModLoader.TryGetMod("RecipeBrowser", out Mod recipeBrowser) && recipeBrowser.Version >= new Version(0, 5);
+				Origins = ModLoader.TryGetMod("Origins", out _);
+				GraphicsLib = ModLoader.TryGetMod("GraphicsLib", out _);
 			}
 		}
 		internal static void AddRecipeBrowserIntegration() {
+			/*
 			try {
 				RecipeBrowser.LootCache.instance.lootInfos.Add(
 					new RecipeBrowser.JSONItem(EpikV2.instance.Name, "GolemDeath", ModContent.ItemType<GolemDeath>()),
@@ -34,6 +34,7 @@ namespace EpikV2 {
 				);
 				EpikV2.instance.Logger.Info("Added Recipe Browser integration");
 			} catch(Exception){}
+			//*/
 		}
 	}
 }

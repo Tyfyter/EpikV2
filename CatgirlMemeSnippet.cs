@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
@@ -26,16 +27,17 @@ namespace EpikV2 {
 					Main.LocalPlayer.team = team;
 				}
 				if (DateTime.UtcNow > timestamp.AddSeconds(30)) {
-					List<ChatLine> chatLines = Main.chatLine.ToList();
-					for (int i = 0; i < Main.numChatLines; i++) {
+					FieldInfo chatLine = typeof(Main).GetField("chatLine", BindingFlags.Static|BindingFlags.NonPublic);
+					List<ChatLine> chatLines = ((ChatLine[])chatLine.GetValue(null)).ToList();
+					for (int i = 0; i < chatLines.Count; i++) {
 						if (chatLines[i].parsedText.Contains(this)) {
-							chatLines[i].text = "";
+							chatLines[i].originalText = "";
 							chatLines.Add(chatLines[i]);
 							chatLines.RemoveAt(i);
 							break;
 						}
 					}
-					Main.chatLine = chatLines.ToArray();
+					chatLine.SetValue(chatLines.ToArray(), null);
 				}
 			}
 		}

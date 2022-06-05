@@ -117,7 +117,7 @@ namespace EpikV2.Items {
 		public static int ID { get; internal set; } = -1;
 		public const int trail_length = 20;
 		public static Texture2D TrailTexture { get; private set; }
-		internal static void Unload() {
+		public override void Unload() {
 			TrailTexture = null;
 		}
 		public override void SetStaticDefaults() {
@@ -207,7 +207,7 @@ namespace EpikV2.Items {
 	}
 	public class Pyrkasivar_Shot : ModProjectile {
 		public static int ID { get; internal set; } = -1;
-		public override string Texture => "Terraria/Item_260";
+		public override string Texture => "Terraria/Images/Item_260";
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Pyrkasivar");
 			ID = Projectile.type;

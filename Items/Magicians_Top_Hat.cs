@@ -13,16 +13,23 @@ using static EpikV2.Items.Magicians_Top_Hat;
 namespace EpikV2.Items {
     [AutoloadEquip(EquipType.Head)]
 	public class Magicians_Top_Hat : ModItem {
-        public static int ArmorID { get; private set; }
-        public override void SetStaticDefaults() {
+        public static int RealArmorID { get; internal set; }
+        public static int ArmorID { get; internal set; }
+		public override void Load() {
+            if (Main.netMode == NetmodeID.Server) return;
+            ArmorID = EquipLoader.AddEquipTexture(Mod, "EpikV2/Items/Step2_Wings", EquipType.Head, name: "Magicians_Top_Hat_Fake");
+            RealArmorID = EquipLoader.AddEquipTexture(Mod, "EpikV2/Items/Magicians_Top_Hat_Head", EquipType.Head, name: "Magicians_Top_Hat_Real");
+        }
+		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Magicians Top Hat");
 			Tooltip.SetDefault("25% increased magic and minion damage\n"+
                                "Increases your max number of minions by 1\n"+
                                "'A magician never reveals <pro> secrets'");
-            ArmorID = Item.headSlot;
-            ArmorIDs.Head.Sets.DrawHatHair[Type] = true;
-		}
+            ArmorIDs.Head.Sets.DrawHatHair[ArmorID] = true;
+            ArmorIDs.Head.Sets.DrawHatHair[RealArmorID] = true;
+        }
 		public override void SetDefaults() {
+            Item.headSlot = ArmorID;
 			Item.width = 20;
 			Item.height = 16;
 			Item.value = 5000000;
@@ -55,9 +62,6 @@ namespace EpikV2.Items {
             ArmorID = Item.headSlot;
 		}
         public abstract class Ace : ModItem {
-            public override bool IsLoadingEnabled(Mod mod) {
-                return false;
-            }
             public override void SetDefaults() {
                 Item.DamageType = DamageClass.MagicSummonHybrid;
                 Item.noUseGraphic = true;
@@ -220,14 +224,17 @@ namespace EpikV2.Items {
             public abstract void AllyHitEffect(Player player);
         }
 	}
-    public class Ace_Heart : Ace {
+    public class Load_Aces : ModItem {
         public override bool IsLoadingEnabled(Mod mod) {
-            Mod.AddContent(new Ace_Heart());//"Ace_Heart"
-            Mod.AddContent(new Ace_Diamond());//"Ace_Diamond"
-            Mod.AddContent(new Ace_Spade());//"Ace_Spade"
-            Mod.AddContent(new Ace_Club());//"Ace_Club"
+            mod.AddContent(new Ace_Heart());//"Ace_Heart"
+            mod.AddContent(new Ace_Diamond());//"Ace_Diamond"
+            mod.AddContent(new Ace_Spade());//"Ace_Spade"
+            mod.AddContent(new Ace_Club());//"Ace_Club"
             return false;
         }
+    }
+    [Autoload(false)]
+    public class Ace_Heart : Ace {
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Ace of Hearts");
         }
@@ -249,6 +256,7 @@ namespace EpikV2.Items {
             return false;
         }
     }
+    [Autoload(false)]
     public class Ace_Diamond : Ace {
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Ace of Diamonds");
@@ -270,6 +278,7 @@ namespace EpikV2.Items {
             return false;
         }
     }
+    [Autoload(false)]
     public class Ace_Spade : Ace {
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Ace of Spades");
@@ -284,6 +293,7 @@ namespace EpikV2.Items {
             return true;
         }
     }
+    [Autoload(false)]
     public class Ace_Club : Ace {
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Ace of Clubs");

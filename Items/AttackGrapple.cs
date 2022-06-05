@@ -11,7 +11,7 @@ using Terraria.ModLoader;
 
 namespace EpikV2.Items {
     public class Attack_Grapple : ModItem {
-        public override string Texture => "Terraria/Projectile_315";
+        public override string Texture => "Terraria/Images/Projectile_315";
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.BatHook);
             Item.shoot = ModContent.ProjectileType<Attack_Grapple_Hook>();
@@ -20,7 +20,7 @@ namespace EpikV2.Items {
     }
     public class Attack_Grapple_Hook : ModProjectile {
         PolarVec2 embedPos;
-        public override string Texture => "Terraria/Projectile_315";
+        public override string Texture => "Terraria/Images/Projectile_315";
         public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Attack Grappling Hook");
 		}

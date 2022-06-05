@@ -14,7 +14,7 @@ using Terraria.DataStructures;
 
 namespace EpikV2.Items {
 	public class Spike_Hook : ModItem {
-        public override string Texture => "Terraria/Projectile_"+ProjectileID.Hook;
+        public override string Texture => "Terraria/Images/Projectile_"+ProjectileID.Hook;
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.AmethystHook);
 			Item.shootSpeed = 20f;
@@ -40,7 +40,7 @@ namespace EpikV2.Items {
         }
     }
 	public class Spike_Hook_Spawn_Projectile : ModProjectile {
-        public override string Texture => "Terraria/Projectile_"+ProjectileID.Hook;
+        public override string Texture => "Terraria/Images/Projectile_"+ProjectileID.Hook;
         public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.GemHookAmethyst);
 			Projectile.netImportant = true;
@@ -73,7 +73,7 @@ namespace EpikV2.Items {
     }
 	public class Spike_Hook_Projectile : ModProjectile {
         public static int ID { get; private set; }
-        public override string Texture => "Terraria/Projectile_23";
+        public override string Texture => "Terraria/Images/Projectile_23";
         protected override bool CloneNewInstances => true;
         public override void SetStaticDefaults() {
 			ID = Projectile.type;

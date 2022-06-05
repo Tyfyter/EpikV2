@@ -101,7 +101,7 @@ namespace EpikV2.Items {
         }
     }
     public class High_Buff : ModBuff {
-		public override string Texture => "Terraria/Buff_160";
+		public override string Texture => "Terraria/Images/Buff_160";
 		public static int ID { get; private set; }
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("");

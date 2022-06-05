@@ -138,7 +138,7 @@ namespace EpikV2.Items {
 	public class Haligbrand_P : ModProjectile {
 		public static int ID { get; internal set; } = -1;
 		public const int trail_length = 20;
-		public static Texture2D TrailTexture { get; private set; }
+		public static AutoCastingAsset<Texture2D> TrailTexture { get; private set; }
 		public override void Unload() {
 			TrailTexture = null;
 		}
@@ -157,7 +157,7 @@ namespace EpikV2.Items {
 			ProjectileID.Sets.TrailCacheLength[Projectile.type] = trail_length - 1;
 			ID = Projectile.type;
 			if (Main.netMode == NetmodeID.Server) return;
-			TrailTexture = Mod.Assets.Request<Texture2D>("Items/Haligbrand_P_Trail").Value;
+			TrailTexture = Mod.RequestTexture("Items/Haligbrand_P_Trail");
 		}
 		public override void SetDefaults() {
 			Projectile.minion = true;
@@ -562,7 +562,7 @@ namespace EpikV2.Items {
 		}
 	}
 	public class Haligbrand_Guard : ModProjectile {
-		public override string Texture => "Terraria/Projectile_" + ProjectileID.NebulaBlaze2;
+		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.NebulaBlaze2;
 		public static int ID { get; internal set; } = -1;
 		public float ScaleFactor => base_size * Projectile.scale * (1 - Projectile.timeLeft / 10f);
 		const float base_size = 64;

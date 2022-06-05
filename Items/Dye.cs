@@ -12,6 +12,7 @@ using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
+using static EpikV2.Resources;
 
 namespace EpikV2.Items {
     public class Jade_Dye : Dye_Item {
@@ -281,17 +282,18 @@ namespace EpikV2.Items {
 			if (!UseShaderOnSelf) {
                 return true;
             }
-            Main.spriteBatch.Restart(SpriteSortMode.Immediate);
+            Main.spriteBatch.RestartWithLiteralNull(SpriteSortMode.Immediate, transformMatrix: Main.UIScaleMatrix);
             
             DrawData data = new DrawData{
                 texture = TextureAssets.Item[Item.type].Value,
+                sourceRect = frame,
                 position = position,
                 color = drawColor,
                 rotation = 0f,
                 scale = new Vector2(scale),
                 shader = Item.dye
 			};
-			GameShaders.Armor.ApplySecondary(Item.dye, Main.player[Item.playerIndexTheItemIsReservedFor], data);
+            GameShaders.Armor.ApplySecondary(Item.dye, null, data);
             return true;
         }
 		public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
@@ -301,7 +303,8 @@ namespace EpikV2.Items {
             if (!UseShaderOnSelf) {
                 return true;
             }
-            Main.spriteBatch.Restart(SpriteSortMode.Immediate, samplerState:SamplerState.PointClamp, transformMatrix: Main.LocalPlayer.gravDir == 1f ? Main.GameViewMatrix.ZoomMatrix : Main.GameViewMatrix.TransformationMatrix);
+            Main.spriteBatch.RestartWithLiteralNull(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.Transform);
+            //Main.spriteBatch.Restart(SpriteSortMode.Immediate, samplerState:SamplerState.PointClamp, transformMatrix: Main.LocalPlayer.gravDir == 1f ? Main.GameViewMatrix.ZoomMatrix : Main.GameViewMatrix.TransformationMatrix);
 
             DrawData data = new DrawData {
                 texture = TextureAssets.Item[Item.type].Value,

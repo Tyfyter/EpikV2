@@ -53,7 +53,7 @@ namespace EpikV2.Items {
     }
 	public class Orion_Boots_Projectile : ModProjectile {
 
-        public override string Texture => "Terraria/Projectile_"+ProjectileID.Hook;
+        public override string Texture => "Terraria/Images/Projectile_"+ProjectileID.Hook;
         protected override bool CloneNewInstances => true;
 
         public override void SetDefaults() {

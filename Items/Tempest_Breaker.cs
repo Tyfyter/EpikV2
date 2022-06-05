@@ -21,8 +21,8 @@ namespace EpikV2.Items {
         float kb = 0;
         public int Startup(Player player)=>player.itemAnimationMax / 4;
         public int Endlag(Player player)=>(int)(player.itemAnimationMax / (3.5f+player.altFunctionUse));
-        public static Texture2D blastTexture { get; private set; }
-        internal static void Unload() {
+        public static AutoCastingAsset<Texture2D> blastTexture { get; private set; }
+        public override void Unload() {
             blastTexture = null;
         }
 		public override void SetStaticDefaults() {
@@ -90,8 +90,8 @@ namespace EpikV2.Items {
                 dmg = 0;
                 kb = 0;
                 canShoot = player.PickAmmo(Item, out shot, out spd, out dmg, out kb, out int usedAmmoItemId);
-                //dmg-=Item.damage;
-                //kb-=Item.knockBack;
+                dmg-=Item.damage;
+                kb-=Item.knockBack;
                 if(canShoot)SoundEngine.PlaySound(SoundID.Item36, player.Center);
                 float rot = diff.SafeNormalize(Vector2.Zero).Y;
                 frame = 3;

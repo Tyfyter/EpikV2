@@ -63,7 +63,7 @@ namespace EpikV2.Items {
         }
     }
 	public class Frost_Band_Shot : ModProjectile {
-        public override string Texture => "Terraria/Star_2";
+        public override string Texture => "Terraria/Images/Star_2";
         Vector2 oldPos = Vector2.Zero;
         bool onGround = false;
         public override void SetStaticDefaults() {

@@ -119,6 +119,7 @@ namespace EpikV2 {
                     int i = Main.rand.Next(EpikWorld.Sacrifices.Count);
                     EpikWorld.Sacrifices.RemoveAt(i);
                     for(i = 0; i < 4; i++)Dust.NewDust(Player.position,Player.width, Player.height, DustID.Cloud, Alpha:100, newColor:new Color(255,150,150));
+                    Main.NewText("beep:"+EpikWorld.Sacrifices.Count);
                 }
             }
             if (redStar) {
@@ -762,7 +763,8 @@ namespace EpikV2 {
             }
         }
 		public override void HideDrawLayers(PlayerDrawSet drawInfo) {
-            //if (Player.itemAnimation == 0 || Player.HeldItem.ModItem is not ICustomDrawItem) PlayerDrawLayers.HeldItem.Hide();
+            if (Player.itemAnimation != 0 && Player.HeldItem.ModItem is ICustomDrawItem) PlayerDrawLayers.HeldItem.Hide();
+            //if (drawInfo.drawPlayer.head == Magicians_Top_Hat.ArmorID) PlayerDrawLayers.Head.Hide();
             if (dracoDash != 0) {
 				foreach (var layer in PlayerDrawLayerLoader.Layers) {
                     layer.Hide();

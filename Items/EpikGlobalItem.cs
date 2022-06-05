@@ -9,13 +9,27 @@ using Microsoft.Xna.Framework;
 using Terraria.ID;
 using Terraria.ModLoader.IO;
 using System.Diagnostics;
+using Terraria.DataStructures;
 
 namespace EpikV2.Items {
     public partial class EpikGlobalItem : GlobalItem {
 		public override bool InstancePerEntity => true;
 		protected override bool CloneNewInstances => true;
 		bool? nOwO = null;
+		public override void OnCreate(Item item, ItemCreationContext context) {
+			if (context is RecipeCreationContext) {
+				InitCatgirlMeme(item);
+			}
+		}
+		public override void OnSpawn(Item item, IEntitySource source) {
+			if (source is EntitySource_Gift or EntitySource_Loot or EntitySource_ShakeTree or EntitySource_TileBreak or EntitySource_ItemOpen or EntitySource_DebugCommand) {
+				InitCatgirlMeme(item);
+			}
+		}
 		public override void SetDefaults(Item item) {
+			RefreshCatgirlMeme(item);
+		}
+		public void InitCatgirlMeme(Item item) {
 			if (item.type == ItemID.CatEars && nOwO is null) {
 				if (!Main.gameMenu && !IsFakeSetDefaults() && Main.rand.NextBool(25)) {
 					Main.NewText("[herb:-1]");
@@ -27,7 +41,7 @@ namespace EpikV2.Items {
 			RefreshCatgirlMeme(item);
 		}
 		public bool IsFakeSetDefaults() {
-			if (ModLoader.GetMod("WeaponOut") is Mod && IsWeaponOutFistSetDefault()) {
+			if (ModLoader.HasMod("WeaponOut") && IsWeaponOutFistSetDefault()) {
 				return true;
 			}
 			return false;
@@ -76,7 +90,7 @@ namespace EpikV2.Items {
 		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
 			if (nOwO ?? false) {
 				tooltips.Add(new TooltipLine(Mod, "plank", EpikExtensions.GetHerbText()) {
-					OverrideColor = new Color(0, 0, 0, 0f)
+					OverrideColor = new Color(0, 0, 0, 1f)
 				});
 			}
 		}

@@ -15,9 +15,9 @@ using static Terraria.ModLoader.ModContent;
 namespace EpikV2.Items {
 
     public class Lucre_Launcher : ModItem, ICustomDrawItem, IScrollableItem {
-        public static Texture2D[] CoinsTextures { get; private set; }
-        public static Texture2D FrontTexture { get; private set; }
-        public static Texture2D BackTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D>[] CoinsTextures { get; private set; }
+        public static AutoCastingAsset<Texture2D> FrontTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> BackTexture { get; private set; }
         public override void Unload() {
             CoinsTextures = null;
             FrontTexture = null;
@@ -109,7 +109,7 @@ namespace EpikV2.Items {
             if(Main.netMode == NetmodeID.Server)return;
             FrontTexture = Mod.RequestTexture("Items/Lucre_Launcher_Front");
             BackTexture = Mod.RequestTexture("Items/Lucre_Launcher_Back");
-            CoinsTextures = new Texture2D[]{
+            CoinsTextures = new AutoCastingAsset<Texture2D>[]{
                 Mod.RequestTexture("Items/Lucre_Launcher_Copper"),
                 Mod.RequestTexture("Items/Lucre_Launcher_Silver"),
                 Mod.RequestTexture("Items/Lucre_Launcher_Gold"),
@@ -315,7 +315,7 @@ namespace EpikV2.Items {
     }
 	public class Copper_Shot : Coin_Shot {
         static int f = 0;
-        public override string Texture => "Terraria/Coin_0";
+        public override string Texture => "Terraria/Images/Coin_0";
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Copper Coin");
 			Main.projFrames[Projectile.type] = 8;
@@ -337,7 +337,7 @@ namespace EpikV2.Items {
 	}
 	public class Silver_Shot : Coin_Shot {
         static int f = 0;
-        public override string Texture => "Terraria/Coin_1";
+        public override string Texture => "Terraria/Images/Coin_1";
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Silver Coin");
 			Main.projFrames[Projectile.type] = 8;
@@ -350,7 +350,7 @@ namespace EpikV2.Items {
 	}
 	public class Gold_Shot : Coin_Shot {
         static int f = 0;
-        public override string Texture => "Terraria/Coin_2";
+        public override string Texture => "Terraria/Images/Coin_2";
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Gold Coin");
 			Main.projFrames[Projectile.type] = 8;
@@ -366,7 +366,7 @@ namespace EpikV2.Items {
 	}
 	public class Platinum_Shot : Coin_Shot {
         static int f = 0;
-        public override string Texture => "Terraria/Coin_3";
+        public override string Texture => "Terraria/Images/Coin_3";
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Platinum Coin");
 			Main.projFrames[Projectile.type] = 8;

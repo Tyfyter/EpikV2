@@ -15,7 +15,7 @@ float2 uImageSize1;
 float2 uOffset;
 float uScale;
 float2 uTargetPosition;
-float4 uLegacyArmorSourceRectand;
+float4 uLegacyArmorSourceRect;
 float2 uLegacyArmorSheetSize;
 /*float2 uMin;
 float2 uMax;*/

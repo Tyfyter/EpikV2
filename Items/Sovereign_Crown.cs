@@ -17,7 +17,7 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("25% increased melee and minion damage\n"+
                                "Increases your max number of minions by 1\n"+
                                "'Heavy is the head that wears the crown'");
-            ArmorIDs.Head.Sets.DrawHatHair[Type] = true;
+            ArmorIDs.Head.Sets.DrawHatHair[Item.headSlot] = true;
 		}
 		public override void SetDefaults() {
 			Item.width = 20;
@@ -52,7 +52,9 @@ namespace EpikV2.Items {
 					float xDiff = player.MountedCenter.X - npc.Center.X;
 					float yDiff = player.MountedCenter.Y - npc.Center.Y;
                     if((float)Math.Sqrt(xDiff * xDiff + yDiff * yDiff) < 800f) {
-                        if(!(npc.townNPC || npc.friendly)) {
+                        if(npc.townNPC || npc.friendly) {
+                            npc.AddBuff(Sovereign_Buff.ID, 20);
+                        } else {
                             npc.AddBuff(Sovereign_Debuff.ID, 20);
                         }
                     }

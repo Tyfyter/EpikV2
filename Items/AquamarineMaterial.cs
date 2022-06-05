@@ -10,7 +10,7 @@ using static Microsoft.Xna.Framework.MathHelper;
 
 namespace EpikV2.Items {
 	public class AquamarineMaterial : ModItem {
-		public override string Texture => "Terraria/Item_"+ItemID.LargeEmerald;
+		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeEmerald;
 		protected override bool CloneNewInstances => true;
 		public static int id = 0;
 		public int time = 3600;
@@ -48,7 +48,7 @@ namespace EpikV2.Items {
 		}
 	}
 	public class SunstoneMaterial : ModItem {
-		public override string Texture => "Terraria/Item_"+ItemID.LargeAmber;
+		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeAmber;
 		protected override bool CloneNewInstances => true;
 		public static int id = 0;
 		public const int hitpoints = 300;
@@ -91,7 +91,7 @@ namespace EpikV2.Items {
 		}
 	}
 	public class SanguineMaterial : ModItem {
-		public override string Texture => "Terraria/Item_"+ItemID.LargeRuby;
+		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeRuby;
 		public static int id = 0;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Sanguine Ruby");
@@ -108,7 +108,7 @@ namespace EpikV2.Items {
 		}*/
 	}
 	public class SanguineMaterialPartial : ModItem {
-		public override string Texture => "Terraria/Item_"+ItemID.LargeRuby;
+		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeRuby;
 		protected override bool CloneNewInstances => true;
 		public static int id = 0;
 		public int charge = 1;
@@ -143,7 +143,7 @@ namespace EpikV2.Items {
 		}
 	}
 	public class MoonlaceMaterial : ModItem {
-		public override string Texture => "Terraria/Item_"+ItemID.LargeDiamond;
+		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeDiamond;
 		protected override bool CloneNewInstances => true;
 		public static int id = 0;
 		public int time = 0;
@@ -204,7 +204,7 @@ namespace EpikV2.Items {
 			if(target.life<1&&(target.townNPC||target.type==NPCID.CultistDevote||target.type==NPCID.CultistArcherBlue||target.type==NPCID.CultistArcherWhite)) {
 				player.GetModPlayer<EpikPlayer>().sacrifice = 3;
 				if(!target.townNPC)return;
-				EpikWorld.Sacrifices.Add(target.type);
+				if(!EpikWorld.Sacrifices.Contains(target.type)) EpikWorld.Sacrifices.Add(target.type);
 				Main.townNPCCanSpawn[target.type] = false;
 			}
 		}
@@ -229,7 +229,7 @@ namespace EpikV2.Items {
 		}
 	}
 	public class GolemDeath : ModItem {
-		public override string Texture => "Terraria/Item_"+ItemID.GolemTrophy;
+		public override string Texture => "Terraria/Images/Item_"+ItemID.GolemTrophy;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Golem");
 			Tooltip.SetDefault("");
@@ -243,7 +243,7 @@ namespace EpikV2.Items {
 		}
 	}
 	public class EmpressDeath : ModItem {
-		public override string Texture => "Terraria/Item_"+ItemID.GolemTrophy;
+		public override string Texture => "Terraria/Images/Item_"+ItemID.GolemTrophy;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Empress of Light");
 			Tooltip.SetDefault("");

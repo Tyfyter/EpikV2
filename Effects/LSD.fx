@@ -20,25 +20,34 @@ float uSaturation;
 float4 uSourceRect;
 float2 uZoom;
 
+float GetFiniteOffset(float factor, float mult) {
+	float realFactor = (factor % 3.14159265359) - 1.57079632679;
+	const float exponent = 8;
+	if (realFactor > 0) {
+		return pow(realFactor, exponent) * mult;
+	} else {
+		return pow(-realFactor, exponent) * -mult;
+	}
+}
+
 float4 LSD(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
 	float4 underlying = tex2D(uImage0, coords);
 	float2 pixelFactor = float2(4, 4) / uScreenResolution;
 	float rx = coords.x + sin(uTime) * pixelFactor.x;
 	float gx = coords.x + sin(uTime * 0.9) * pixelFactor.x;
 	float bx = coords.x + sin(uTime * 1.1) * pixelFactor.x;
-	float ry = coords.y + tan(uTime) * pixelFactor.y;
-	float gy = coords.y + tan(uTime * 0.9) * pixelFactor.y;
-	float by = coords.y + tan(uTime * 1.1) * pixelFactor.y;
-	float4 overlying = (tex2D(uImage0, float2(rx, ry)) * float4(1, 0, 0, 1)) + 
-	(tex2D(uImage0, float2(gx, gy)) * float4(0, 1, 0, 1)) + 
+	float ry = (coords.y + GetFiniteOffset(uTime, 1) / 38) % 1;
+	float gy = (coords.y + GetFiniteOffset(uTime * 0.9, 1) / 38) % 1; // + GetFiniteOffset(uTime * 0.9, 1) / 80; // + GetFiniteOffset(uTime * 0.9, pixelFactor.y, 4);
+	float by = (coords.y + GetFiniteOffset(uTime * 1.1, 1) / 38) % 1; // + GetFiniteOffset(uTime * 1.1, 1) / 80; // + GetFiniteOffset(uTime * 1.1, pixelFactor.y, 4);
+	float4 overlying = (tex2D(uImage0, float2(rx, ry)) * float4(1, 0, 0, 1)) +
+	(tex2D(uImage0, float2(gx, gy)) * float4(0, 1, 0, 1)) +
 	(tex2D(uImage0, float2(bx, by)) * float4(0, 0, 1, 1));
 	if (overlying.a > 1) {
 		overlying.a = 1;
 	}
 	return (1 - overlying.a) * underlying + overlying.a * overlying;
 }
-
-float4 LessD(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
+float4 LessD (float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0{
 	float4 underlying = tex2D(uImage0, coords);
 	float2 pixelFactor = float2(4, 4) / uScreenResolution;
 	float rx = coords.x + sin(uTime) * pixelFactor.x;

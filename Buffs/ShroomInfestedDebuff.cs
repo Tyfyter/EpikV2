@@ -14,7 +14,7 @@ namespace EpikV2.Buffs
 			DisplayName.SetDefault("Hungering Plague");
 			Description.SetDefault("");
             Main.pvpBuff[Type] = false;  //Tells the game if pvp buff or not. 
-			canBeCleared = false;
+			BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
 			//Main.buffNoTimeDisplay[Type] = true;
 		}
 

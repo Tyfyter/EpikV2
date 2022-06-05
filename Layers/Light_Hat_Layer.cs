@@ -22,7 +22,7 @@ namespace EpikV2.Layers {
 		public override Position GetDefaultPosition() => new AfterParent(PlayerDrawLayers.Head);
 		protected override void Draw(ref PlayerDrawSet drawInfo) {
 			Player drawPlayer = drawInfo.drawPlayer;
-			Texture2D texture = TextureAssets.ArmorHead[drawPlayer.head].Value;
+			Texture2D texture = TextureAssets.ArmorHead[Magicians_Top_Hat.RealArmorID].Value;
 			Vector2 velocity = drawInfo.drawPlayer.GetModPlayer<EpikPlayer>().hatOffset;//drawPlayer.velocity-(oldVelocity/2f);
 			float rotationOffset = MathHelper.Clamp((float)Math.Pow(velocity.X / 4f, 5), -0.1f, 0.1f);
 			float heightOffset = MathHelper.Clamp((float)Math.Pow(Math.Abs(velocity.Y / 4f), 0.9f) * Math.Sign(velocity.Y), -1, 8);

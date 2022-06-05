@@ -40,7 +40,7 @@ namespace EpikV2.Items {
 	public class Rope_Hook_Projectile : ModProjectile {
         public const float rope_range = 450f;
 
-        public override string Texture => "Terraria/Projectile_"+ProjectileID.Hook;
+        public override string Texture => "Terraria/Images/Projectile_"+ProjectileID.Hook;
         protected override bool CloneNewInstances => true;
 
         public float distance = rope_range;

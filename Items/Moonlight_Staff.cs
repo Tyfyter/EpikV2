@@ -74,7 +74,7 @@ namespace EpikV2.Items {
         Quirk quirk;
         float boredom;
 
-        public override string Texture => "Terraria/Projectile_" + ProjectileID.NebulaBlaze2;
+        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.NebulaBlaze2;
         protected override bool CloneNewInstances => true;
 
         public override void SetStaticDefaults() {

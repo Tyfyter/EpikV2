@@ -111,7 +111,7 @@ namespace EpikV2.Items {
     public class Draco_Blaze : ModProjectile {
         public static int ID = -1;
         public bool Fired => Projectile.velocity.Length() > 0;
-        public override string Texture => "Terraria/Projectile_" + ProjectileID.NebulaBlaze2;
+        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.NebulaBlaze2;
         protected override bool CloneNewInstances => true;
 
         public override void SetStaticDefaults() {

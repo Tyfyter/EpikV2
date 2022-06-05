@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using EpikV2.Items;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -16,9 +17,9 @@ namespace EpikV2.Layers {
 		public override bool IsHeadLayer => true;
 		public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) {
 			EpikPlayer epikPlayer = drawInfo.drawPlayer.GetModPlayer<EpikPlayer>();
-			return epikPlayer.extraHeadTexture <= -1 && epikPlayer.machiavellianMasquerade;
+			return epikPlayer.extraHeadTexture <= -1 && drawInfo.drawPlayer.armor[0].type == ModContent.ItemType<Machiavellian_Masquerade>();//epikPlayer.machiavellianMasquerade;
 		}
-		public override Position GetDefaultPosition() => new BeforeParent(PlayerDrawLayers.Head);
+		public override Position GetDefaultPosition() => new AfterParent(ModContent.GetInstance<Face_Layer>());
 		protected override void Draw(ref PlayerDrawSet drawInfo) {
 			Extra_Head_Layer.DrawExtraHeadLayer(ref drawInfo, 1);
 			Extra_Head_Layer.DrawExtraHeadLayer(ref drawInfo, 0);

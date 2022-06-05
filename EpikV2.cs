@@ -31,6 +31,7 @@ using MonoMod.Cil;
 using System.Linq;
 using Terraria.UI.Chat;
 using ReLogic.Content;
+using EpikV2.Layers;
 
 #pragma warning disable 672
 namespace EpikV2 {
@@ -81,8 +82,6 @@ namespace EpikV2 {
 			if (Main.netMode!=NetmodeID.Server) {
 				//RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
 				//jadeShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Jade")), "Jade");
-				EpikExtensions.DrawPlayerItemPos = (Func<float, int, Vector2>)typeof(Main).GetMethod("DrawPlayerItemPos", BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate(typeof(Func<float, int, Vector2>), Main.instance);
-
 				Shaders = new ShaderCache();
 				//motionBlurShader = new MotionArmorShaderData(new Ref<Effect>(GetEffect("Effects/MotionBlur")), "MotionBlur");
 				//GameShaders.Armor.BindShader(ModContent.ItemType<Motion_Blur_Dye>(), motionBlurShader);
@@ -99,7 +98,14 @@ namespace EpikV2 {
 			//Main.OnPreDraw += Main_OnPostDraw;
 			IL.Terraria.Main.DoDraw += Main_DoDraw;
 			On.Terraria.UI.ItemSlot.PickItemMovementAction += ItemSlot_PickItemMovementAction;
-			On.Terraria.UI.ItemSlot.ArmorSwap += ItemSlot_ArmorSwap; ;
+			On.Terraria.UI.ItemSlot.ArmorSwap += ItemSlot_ArmorSwap;
+			On.Terraria.DataStructures.PlayerDrawLayers.DrawPlayer_21_Head_TheFace += PlayerDrawLayers_DrawPlayer_21_Head_TheFace;
+		}
+
+		private void PlayerDrawLayers_DrawPlayer_21_Head_TheFace(On.Terraria.DataStructures.PlayerDrawLayers.orig_DrawPlayer_21_Head_TheFace orig, ref PlayerDrawSet drawinfo) {
+			if (Face_Layer.drawFace) {
+				orig(ref drawinfo);
+			}
 		}
 
 		private void Main_DoDraw(ILContext il) {
@@ -172,7 +178,7 @@ namespace EpikV2 {
 		}
 
 		private int ItemSlot_PickItemMovementAction(On.Terraria.UI.ItemSlot.orig_PickItemMovementAction orig, Item[] inv, int context, int slot, Item checkItem) {
-			switch (context) {
+			if(Main.mouseLeftRelease && Main.mouseLeft)switch (context) {
 				case ItemSlot.Context.EquipArmor:
 				case ItemSlot.Context.EquipAccessory:
 				case ItemSlot.Context.EquipLight:
@@ -221,7 +227,6 @@ public static float ShimmerCalc(float val) {
 
 		public override void Unload() {
 			instance = null;
-			EpikExtensions.DrawPlayerItemPos = null;
 			Textures = null;
 			Shaders = null;
 			drawAfterNPCs = null;
@@ -433,7 +438,7 @@ public static float ShimmerCalc(float val) {
 				player.ZoneCorrupt = player.ZoneCrimson;
 				player.ZoneCrimson = corrupt;
 			}
-			return false;
+			return true;
 		}
 		public override void SpecialVisuals(Player player) {
 			player.ManageSpecialBiomeVisuals("EpikV2:LSD", player.GetModPlayer<EpikPlayer>().drugPotion);

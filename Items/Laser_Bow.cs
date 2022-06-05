@@ -16,8 +16,8 @@ using Terraria.Utilities;
 namespace EpikV2.Items
 {
     public class Laser_Bow : ModItem, ICustomDrawItem {
-        public static Texture2D UseTexture { get; private set; }
-        public static Texture2D GlowTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> UseTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> GlowTexture { get; private set; }
         float shotDelay = 30f;
         float nextShotTime = 0f;
         public override void Unload() {

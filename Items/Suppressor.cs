@@ -13,10 +13,10 @@ using static Terraria.ModLoader.ModContent;
 namespace EpikV2.Items {
 
     public class Suppressor : ModItem, ICustomDrawItem  {
-        public static Texture2D handleTexture { get; private set; }
-        public static Texture2D centerTexture { get; private set; }
-        public static Texture2D bottomTexture { get; private set; }
-        public static Texture2D topTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> handleTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> centerTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> bottomTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> topTexture { get; private set; }
         public override void Unload() {
             handleTexture = null;
             centerTexture = null;
@@ -31,10 +31,10 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Hardlight Rifle");
 		    Tooltip.SetDefault("\"This is totally just a [REDACTED]\"\nHold right click to charge a shotgun blast");
             if(Main.netMode == NetmodeID.Server)return;
-            handleTexture = Mod.Assets.Request<Texture2D>("Items/Suppressor_Handle").Value;
-            centerTexture = Mod.Assets.Request<Texture2D>("Items/Suppressor_Center").Value;
-            bottomTexture = Mod.Assets.Request<Texture2D>("Items/Suppressor_Bottom").Value;
-            topTexture = Mod.Assets.Request<Texture2D>("Items/Suppressor_Top").Value;
+            handleTexture = Mod.RequestTexture("Items/Suppressor_Handle");
+            centerTexture = Mod.RequestTexture("Items/Suppressor_Center");
+            bottomTexture = Mod.RequestTexture("Items/Suppressor_Bottom");
+            topTexture = Mod.RequestTexture("Items/Suppressor_Top");
 		}
 
         public override void SetDefaults() {
@@ -168,7 +168,7 @@ namespace EpikV2.Items {
         }
     }
 	public class SuppressorShot : ModProjectile {
-        public override string Texture => "Terraria/Item_260";
+        public override string Texture => "Terraria/Images/Item_260";
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Suppressor");
 		}

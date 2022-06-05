@@ -77,9 +77,9 @@ namespace EpikV2.Items {
     public class Hydra_Nebula : ModProjectile {
         public static int ID { get; internal set; } = -1;
 
-        public static Texture2D topJawTexture { get; private set; }
-        public static Texture2D bottomJawTexture { get; private set; }
-        public static Texture2D neckTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> topJawTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> bottomJawTexture { get; private set; }
+        public static AutoCastingAsset<Texture2D> neckTexture { get; private set; }
         public override void Unload() {
             topJawTexture = null;
             bottomJawTexture = null;
@@ -91,7 +91,7 @@ namespace EpikV2.Items {
         Vector2 idlePosition;
 
         public bool Fired => Projectile.velocity.Length() > 0;
-        public override string Texture => "Terraria/Projectile_" + ProjectileID.NebulaBlaze2;
+        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.NebulaBlaze2;
         protected override bool CloneNewInstances => true;
 
         public override void SetStaticDefaults() {
@@ -302,7 +302,7 @@ namespace EpikV2.Items {
                 spriteEffects ^= SpriteEffects.FlipHorizontally;
             }
             Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.nebulaShader.Shader);
-            Main.graphics.GraphicsDevice.Textures[1] = Shaders.nebulaDistortionTexture;
+            Main.graphics.GraphicsDevice.Textures[1] = Shaders.nebulaDistortionTexture.Value;
             EffectParameterCollection parameters = Shaders.nebulaShader.Shader.Parameters;
             parameters["uImageSize1"].SetValue(new Vector2(300));
             parameters["uImageSize0"].SetValue(new Vector2(16,16));

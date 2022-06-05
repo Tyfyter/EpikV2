@@ -58,7 +58,7 @@ namespace EpikV2.Items {
         }
     }
     public class Sanguis_Royale_P : ModProjectile {
-        public override string Texture => "Terraria/Item_178";
+        public override string Texture => "Terraria/Images/Item_178";
         public override void SetStaticDefaults(){
 		    DisplayName.SetDefault("Sanguis Royale");
 		}
@@ -103,7 +103,7 @@ namespace EpikV2.Items {
     }
     public class Sanguis_Royale_Grab : ModProjectile {
         protected override bool CloneNewInstances => true;
-        public override string Texture => "Terraria/Item_178";
+        public override string Texture => "Terraria/Images/Item_178";
         int targetNPC = -1;
         public override void SetStaticDefaults(){
 		    DisplayName.SetDefault("Sanguis Royale");

@@ -9,9 +9,9 @@ using Terraria.ModLoader;
 
 namespace EpikV2.Items {
 	public class Ashen_Glaive : ModItem {
-        public static Texture2D mark1Texture { get; private set; }
-        public static Texture2D mark2Texture { get; private set; }
-        public static Texture2D mark3Texture { get; private set; }
+        public static AutoCastingAsset<Texture2D> mark1Texture { get; private set; }
+        public static AutoCastingAsset<Texture2D> mark2Texture { get; private set; }
+        public static AutoCastingAsset<Texture2D> mark3Texture { get; private set; }
         public override void Unload() {
             mark1Texture = null;
             mark2Texture = null;
@@ -22,9 +22,9 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Ashen Glaive");
 			Tooltip.SetDefault("");
             if(Main.netMode == NetmodeID.Server)return;
-            mark1Texture = Mod.Assets.Request<Texture2D>("Items/Ashen_Mark_1").Value;
-            mark2Texture = Mod.Assets.Request<Texture2D>("Items/Ashen_Mark_2").Value;
-            mark3Texture = Mod.Assets.Request<Texture2D>("Items/Ashen_Mark_3").Value;
+            mark1Texture = Mod.RequestTexture("Items/Ashen_Mark_1");
+            mark2Texture = Mod.RequestTexture("Items/Ashen_Mark_2");
+            mark3Texture = Mod.RequestTexture("Items/Ashen_Mark_3");
 		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.ThornChakram);

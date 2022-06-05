@@ -97,7 +97,7 @@ namespace EpikV2.Items {
         }
     }
     public class Volatile_Brew : ModItem {
-		public override string Texture => "Terraria/Item_"+ItemID.GenderChangePotion;
+		public override string Texture => "Terraria/Images/Item_" + ItemID.GenderChangePotion;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Volatile Brew");
             Tooltip.SetDefault("Will certainly do something");
@@ -218,14 +218,14 @@ namespace EpikV2.Items {
         }
         public HSVColor lastColor = default;
         public HSVColor nextColor = default;
-        public static Texture2D LiquidTexture { get; private set; }
-        internal static void Unload() {
+        public static AutoCastingAsset<Texture2D> LiquidTexture { get; private set; }
+        public override void Unload() {
             LiquidTexture = null;
         }
         public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Alchemera");
             if (Main.netMode == NetmodeID.Server) return;
-            LiquidTexture = Mod.Assets.Request<Texture2D>("Items/Alchemera_Flask_Liquid").Value;
+            LiquidTexture = Mod.RequestTexture("Items/Alchemera_Flask_Liquid");
         }
         public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.ToxicFlask);
@@ -543,7 +543,7 @@ namespace EpikV2.Items {
     }
     public class Fireball : ModProjectile {
         public static int ID { get; private set; }
-        public override string Texture => "Terraria/Projectile_" + ProjectileID.SolarWhipSwordExplosion;
+        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.SolarWhipSwordExplosion;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Fireball");
             ID = Projectile.type;
@@ -552,6 +552,7 @@ namespace EpikV2.Items {
         public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.SolarWhipSwordExplosion);
             AIType = ProjectileID.SolarWhipSwordExplosion;
+            Projectile.DamageType = DamageClass.Magic;
         }
 		public override void AI() {
             int ownerTeam = Main.player[Projectile.owner].team;
@@ -568,13 +569,14 @@ namespace EpikV2.Items {
     }
     public class Shadowflame_Arc : ModProjectile {
         public static int ID { get; private set; }
-		public override string Texture => "Terraria/Projectile_" + ProjectileID.ShadowFlame;
+		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.ShadowFlame;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Shadowflame Arc");
             ID = Projectile.type;
 		}
 		public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.ShadowFlame);
+            Projectile.DamageType = DamageClass.Magic;
             Projectile.tileCollide = false;
             Projectile.aiStyle = ProjectileID.ShadowFlame;
             Projectile.penetrate = -1;
@@ -628,13 +630,14 @@ namespace EpikV2.Items {
     }
     public class Cursed_Flame : ModProjectile {
         public static int ID { get; private set; }
-        public override string Texture => "Terraria/Projectile_" + ProjectileID.CursedDartFlame;
+        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.CursedDartFlame;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Cursed Flame");
             ID = Projectile.type;
         }
         public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.CursedDartFlame);
+            Projectile.DamageType = DamageClass.Magic;
             AIType = ProjectileID.CursedDartFlame;
             Projectile.timeLeft = Main.rand.Next(60, 90);
         }
@@ -653,13 +656,14 @@ namespace EpikV2.Items {
     }
     public class Ichor_Splash : ModProjectile {
         public static int ID { get; private set; }
-        public override string Texture => "Terraria/Projectile_" + ProjectileID.IchorSplash;
+        public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.IchorSplash;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Ichor Splash");
             ID = Projectile.type;
         }
         public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.IchorSplash);
+            Projectile.DamageType = DamageClass.Magic;
             AIType = ProjectileID.IchorSplash;
         }
         public override void AI() {

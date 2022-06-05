@@ -3,21 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Terraria;
 using Terraria.ModLoader;
 using static EpikV2.Damage_Classes;
 
 namespace EpikV2 {
-    public static class Damage_Classes {
-        public static DamageClass Ranged_Melee_Speed { get; internal set; }
-        public static DamageClass Ranged_Magic { get; internal set; }
+	public class Damage_Classes : ILoadable {
+        private static DamageClass ranged_Melee_Speed;
+        private static DamageClass ranged_Magic;
+
+        public static DamageClass Ranged_Melee_Speed => ranged_Melee_Speed ??= ModContent.GetInstance<Ranged_Melee_Speed>();
+        public static DamageClass Ranged_Magic  => ranged_Magic ??= ModContent.GetInstance<Ranged_Magic>();
+        public void Unload() {
+            ranged_Melee_Speed = null;
+            ranged_Magic = null;
+        }
+        public void Load(Mod mod) {}
     }
-    public class Ranged_Melee_Speed : DamageClass {
+	public class Ranged_Melee_Speed : DamageClass {
         public override void SetStaticDefaults() {
             ClassName.SetDefault("ranged damage");
-            Damage_Classes.Ranged_Melee_Speed = this;
-        }
-        public override void Unload() {
-            Damage_Classes.Ranged_Melee_Speed = null;
         }
         public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
             if (damageClass == Ranged) {
@@ -31,14 +36,13 @@ namespace EpikV2 {
         public override bool GetEffectInheritance(DamageClass damageClass) {
             return damageClass == Ranged || damageClass == Melee;
         }
-    }
+		public override void SetDefaultStats(Player player) {
+            player.GetCritChance(this) += 4;
+		}
+	}
     public class Ranged_Magic : DamageClass {
         public override void SetStaticDefaults() {
             ClassName.SetDefault("ranged/magic damage");
-            Damage_Classes.Ranged_Magic = this;
-        }
-        public override void Unload() {
-            Damage_Classes.Ranged_Magic = null;
         }
         public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
             if (damageClass == Ranged || damageClass == Magic) {
@@ -48,6 +52,9 @@ namespace EpikV2 {
         }
         public override bool GetEffectInheritance(DamageClass damageClass) {
             return damageClass == Ranged || damageClass == Magic;
+        }
+        public override void SetDefaultStats(Player player) {
+            player.GetCritChance(this) += 4;
         }
     }
 }
