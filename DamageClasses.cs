@@ -25,7 +25,7 @@ namespace EpikV2 {
             ClassName.SetDefault("ranged damage");
         }
         public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
-            if (damageClass == Ranged) {
+            if (damageClass == Generic || damageClass == Ranged) {
                 return StatInheritanceData.Full;
             }
             if (damageClass == Melee) {
@@ -45,7 +45,7 @@ namespace EpikV2 {
             ClassName.SetDefault("ranged/magic damage");
         }
         public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
-            if (damageClass == Ranged || damageClass == Magic) {
+            if (damageClass == Generic || damageClass == Ranged || damageClass == Magic) {
                 return StatInheritanceData.Full;
             }
             return StatInheritanceData.None;

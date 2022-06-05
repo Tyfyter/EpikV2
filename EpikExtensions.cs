@@ -111,6 +111,14 @@ namespace EpikV2 {
             soundStyle.Volume = volume;
             return soundStyle;
         }
+        public static StatModifier MultiplyBonuses(this StatModifier statModifier, float factor) {
+            return new StatModifier(
+                (statModifier.Additive - 1) * factor + 1,
+                (statModifier.Multiplicative - 1) * factor + 1,
+                statModifier.Flat * factor,
+                statModifier.Base * factor
+            );
+        }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Vec4FromVec2x2(Vector2 xy, Vector2 wh) {
             return new Vector4(xy.X, xy.Y, wh.X, wh.Y);

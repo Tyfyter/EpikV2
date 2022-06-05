@@ -40,12 +40,7 @@ namespace EpikV2.Items {
             recipe.Create();
         }
         public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
-            damage = new StatModifier(
-                ((damage.Additive - 1) * 2.5f) + 1,
-                ((damage.Multiplicative - 1) * 2.5f) + 1,
-                (damage.Flat * 2.5f),
-                (damage.Base * 2.5f)
-            );
+            damage = damage.MultiplyBonuses(2.5f);
         }
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
             player.AddBuff(Item.buffType, 2);
