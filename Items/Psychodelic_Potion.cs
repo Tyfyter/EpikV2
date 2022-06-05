@@ -32,7 +32,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.ChaosFish);
             recipe.AddIngredient(ItemID.PinkGel);
             recipe.AddTile(TileID.AlchemyTable);
-            recipe.Create();
+            recipe.Register();
 
             recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.StrangeBrew);
@@ -40,7 +40,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.ChaosFish);
             recipe.AddIngredient(ItemID.PinkGel);
             recipe.AddTile(TileID.AlchemyTable);
-            recipe.Create();
+            recipe.Register();
         }
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
             Main.spriteBatch.Restart(

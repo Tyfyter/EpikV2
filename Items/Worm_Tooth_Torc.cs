@@ -27,7 +27,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.WormTooth, 5);
             recipe.AddIngredient(ItemID.CursedFlame, 5);
             recipe.AddTile(TileID.MythrilAnvil);
-            recipe.Create();
+            recipe.Register();
 		}
 		public override void UpdateEquip(Player player) {
 			player.GetArmorPenetration(DamageClass.Default) += 7;

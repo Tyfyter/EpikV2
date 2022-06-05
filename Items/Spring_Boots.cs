@@ -35,7 +35,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(Spring_Boots.ID);
             recipe.AddIngredient(ItemID.LuckyHorseshoe);
             recipe.AddTile(TileID.TinkerersWorkbench);
-            recipe.Create();
+            recipe.Register();
 		}
 	}
 	public class Spring_Boots_Projectile : ModProjectile {

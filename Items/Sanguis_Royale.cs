@@ -39,7 +39,7 @@ namespace EpikV2.Items {
             Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(SanguineMaterial.id);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.Create();
+            recipe.Register();
         }
         public override bool AltFunctionUse(Player player) {
             return true;

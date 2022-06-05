@@ -34,7 +34,7 @@ namespace EpikV2.Items {
             Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(SunstoneMaterial.id);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.Create();
+            recipe.Register();
         }
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Solweaver");

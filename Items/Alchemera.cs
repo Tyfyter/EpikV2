@@ -68,7 +68,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.FlaskofCursedFlames);
             recipe.AddIngredient(ItemID.FlaskofIchor);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.Create();
+            recipe.Register();
         }
 		public override bool AltFunctionUse(Player player) {
 			return true;
@@ -111,7 +111,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.TeleportationPotion);
             recipe.AddIngredient(ItemID.GenderChangePotion);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.Create();
+            recipe.Register();
         }
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
             Main.spriteBatch.Restart(

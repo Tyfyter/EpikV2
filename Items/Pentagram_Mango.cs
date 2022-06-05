@@ -42,7 +42,7 @@ namespace EpikV2.Items {
             recipe.AddTile(TileID.DemonAltar);
             recipe.AddCondition(Recipe.Condition.NearLava);
             recipe.AddConsumeItemCallback(DontConsumeDaggerCallback);
-            recipe.Create();
+            recipe.Register();
         }
         static void DontConsumeDaggerCallback(Recipe recipe, int type, ref int count) {
 			if (type == ModContent.ItemType<Sacrificial_Dagger>()) {

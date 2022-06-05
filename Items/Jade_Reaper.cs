@@ -59,7 +59,7 @@ namespace EpikV2.Items {
             Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(AquamarineMaterial.id, 1);
 			recipe.AddTile(TileID.DemonAltar);
-            recipe.Create();
+            recipe.Register();
         }
 	}
 	public class Jade_Reaper_Spin : ModProjectile {

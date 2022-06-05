@@ -45,7 +45,7 @@ namespace EpikV2.Items {
             Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(AquamarineMaterial.id);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.Create();
+            recipe.Register();
         }
         public override bool AltFunctionUse(Player player) {
             return player.GetModPlayer<EpikPlayer>().light_shots>0;

@@ -52,7 +52,7 @@ namespace EpikV2.Items {
             Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ModContent.ItemType<Frost_Band_Vanity>());
             recipe.AddIngredient(ItemID.FrozenKey);
-            recipe.Create();
+            recipe.Register();
         }
         public override bool AltFunctionUse(Player player) {
             return true;

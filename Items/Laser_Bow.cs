@@ -59,7 +59,7 @@ namespace EpikV2.Items
             recipe.AddIngredient(ItemID.Phantasm);
             recipe.AddIngredient(ItemID.FragmentNebula, 9);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.Create();
+            recipe.Register();
         }
         public override int ChoosePrefix(UnifiedRandom rand) {
             if (Item.noUseGraphic) {

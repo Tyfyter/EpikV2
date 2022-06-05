@@ -23,7 +23,7 @@ namespace EpikV2.Items {
             Recipe recipe = Mod.CreateRecipe(Type, 9);
             recipe.AddIngredient(AquamarineMaterial.id);
             recipe.AddTile(TileID.DyeVat);
-            recipe.Create();
+            recipe.Register();
         }
     }
 
@@ -37,7 +37,7 @@ namespace EpikV2.Items {
             Recipe recipe = Mod.CreateRecipe(Type, 9);
             recipe.AddIngredient(SunstoneMaterial.id);
             recipe.AddTile(TileID.DyeVat);
-            recipe.Create();
+            recipe.Register();
         }
     }
 
@@ -50,7 +50,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.FragmentStardust, 5);
             recipe.AddIngredient(ItemID.FragmentSolar, 5);
             recipe.AddTile(TileID.DyeVat);
-            recipe.Create();
+            recipe.Register();
         }
     }
 
@@ -70,7 +70,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.FragmentStardust, 5);
             recipe.AddIngredient(ItemID.FragmentSolar, 5);
             recipe.AddTile(TileID.DyeVat);
-            recipe.Create();
+            recipe.Register();
         }
     }
 
@@ -90,7 +90,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.FragmentStardust, 5);
             recipe.AddIngredient(ItemID.FragmentSolar, 5);
             recipe.AddTile(TileID.DyeVat);
-            recipe.Create();
+            recipe.Register();
         }
     }
 
@@ -160,7 +160,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.Diamond);
             recipe.AddTile(TileID.DyeVat);
             recipe.SetResult(this, 3);
-            recipe.Create();
+            recipe.Register();
         }
     }*/
     public class Cursed_Hades_Dye : Dye_Item {
@@ -172,7 +172,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.HadesDye, 3);
             recipe.AddIngredient(ItemID.CursedFlame);
             recipe.AddTile(TileID.DyeVat);
-            recipe.Create();
+            recipe.Register();
         }
     }
     public class Ichor_Dye : Dye_Item {
@@ -184,7 +184,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.PurpleOozeDye, 3);
             recipe.AddIngredient(ItemID.Ichor);
             recipe.AddTile(TileID.DyeVat);
-            recipe.Create();
+            recipe.Register();
         }
     }
     public class Golden_Flame_Dye : Dye_Item {
@@ -196,7 +196,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.HadesDye, 3);
             recipe.AddIngredient(ItemID.GoldDust);
             recipe.AddTile(TileID.DyeVat);
-            recipe.Create();
+            recipe.Register();
         }
     }
     public class Chimera_Dye : Dye_Item {
@@ -210,7 +210,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.FragmentVortex, 5);
             recipe.AddIngredient(ItemID.FragmentNebula, 5);
             recipe.AddTile(TileID.DyeVat);
-            recipe.Create();
+            recipe.Register();
         }
     }
     public class Opaque_Chimera_Dye : Dye_Item {
@@ -224,7 +224,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemType<Chimera_Dye>(), 1);
             recipe.AddIngredient(ItemID.BlackInk, 1);
             recipe.AddTile(TileID.DyeVat);
-            recipe.Create();
+            recipe.Register();
         }
     }
     public class Inverted_Chimera_Dye : Dye_Item {
@@ -236,11 +236,11 @@ namespace EpikV2.Items {
         public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemType<Chimera_Dye>());
-            recipe.Create();
+            recipe.Register();
 
             recipe = Mod.CreateRecipe(ItemType<Chimera_Dye>());
             recipe.AddIngredient(this, 1);
-            recipe.Create();
+            recipe.Register();
         }
     }
     public class Opaque_Inverted_Chimera_Dye : Dye_Item {
@@ -252,11 +252,11 @@ namespace EpikV2.Items {
         public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemType<Opaque_Chimera_Dye>());
-            recipe.Create();
+            recipe.Register();
 
             recipe = Mod.CreateRecipe(ItemType<Opaque_Chimera_Dye>());
             recipe.AddIngredient(this, 1);
-            recipe.Create();
+            recipe.Register();
         }
     }
     public class MotionArmorShaderData : ArmorShaderData {

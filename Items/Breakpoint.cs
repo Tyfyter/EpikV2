@@ -49,7 +49,7 @@ namespace EpikV2.Items {
             recipe.AddTile(TileID.LihzahrdAltar);
             recipe.AddTile(TileID.AdamantiteForge);
             recipe.AddTile(TileID.Autohammer);
-            recipe.Create();
+            recipe.Register();
         }
         public override Vector2? HoldoutOffset() {
             return new Vector2(-10, 0);

@@ -29,7 +29,7 @@ namespace EpikV2.Items {
 			recipe.AddIngredient(ItemID.Hook, 1);
             recipe.AddIngredient(ItemID.RopeCoil, 1);
             recipe.AddTile(TileID.WorkBenches);
-            recipe.Create();
+            recipe.Register();
         }
 
         public override bool CanUseItem(Player player){

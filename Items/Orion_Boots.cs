@@ -32,7 +32,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.RocketBoots, 1);
             recipe.AddIngredient(ItemID.FragmentSolar, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);
-            recipe.Create();
+            recipe.Register();
         }
     }
 	public class Orion_Boot_Charge : ModItem {

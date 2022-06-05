@@ -37,7 +37,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.StardustDragonStaff, 1);
             recipe.AddIngredient(ItemID.FragmentNebula, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);
-            recipe.Create();
+            recipe.Register();
         }
         public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
             damage = damage.MultiplyBonuses(2.5f);

@@ -183,7 +183,7 @@ namespace EpikV2.Items {
 			recipe.AddIngredient(ItemID.MartianConduitPlating, 10);
 			recipe.AddIngredient(ItemID.FragmentVortex, 5);
 			recipe.AddTile(TileID.PiggyBank);
-            recipe.Create();
+            recipe.Register();
 		}
         public void Scroll(int direction) {
             SetMode((mode - direction) % 4);

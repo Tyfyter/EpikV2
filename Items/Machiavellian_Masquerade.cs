@@ -43,7 +43,7 @@ namespace EpikV2.Items {
 			recipe.AddIngredient(ItemID.HallowedBar, 5);
 			recipe.AddTile(TileID.MythrilAnvil);
 			//recipe.AddTile(TileID.Relic);
-			recipe.Create();
+			recipe.Register();
 		}
 	}
 }

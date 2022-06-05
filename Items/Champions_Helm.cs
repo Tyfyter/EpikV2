@@ -54,7 +54,7 @@ namespace EpikV2.Items {
                     recipe.AddIngredient(helmets[i0], 1);
                     recipe.AddIngredient(bars[i1], 5);
                     recipe.AddTile(TileID.MythrilAnvil);
-                    recipe.Create();
+                    recipe.Register();
                 }
             }
 		}

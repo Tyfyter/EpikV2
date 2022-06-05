@@ -132,7 +132,7 @@ namespace EpikV2.Items {
 			recipe.AddIngredient(ItemID.BrokenHeroSword, 1);
 			recipe.AddTile(TileID.MythrilAnvil);
 			recipe.AddCondition(Recipe.Condition.NearLava);
-			recipe.Create();
+			recipe.Register();
 		}
 	}
 	public class Haligbrand_P : ModProjectile {

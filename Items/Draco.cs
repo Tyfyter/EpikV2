@@ -43,7 +43,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.NebulaBlaze, 1);
             recipe.AddIngredient(ItemID.FragmentSolar, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);
-            recipe.Create();
+            recipe.Register();
         }
         public override void HoldItem(Player player) {
             if(player.itemAnimation != 0 && player.heldProj != -1) {

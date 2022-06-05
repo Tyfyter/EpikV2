@@ -34,7 +34,7 @@ namespace EpikV2.Items {
 			recipe.AddIngredient(ItemID.ShroomiteBar, 1);
 			recipe.AddIngredient(ItemID.SilverBullet, 70);
 			recipe.AddTile(TileID.Autohammer);
-			recipe.Create();
+			recipe.Register();
 		}
 	}
 	public class Infestation_Round_Pouch : ModItem {
@@ -53,7 +53,7 @@ namespace EpikV2.Items {
 			Recipe recipe = Mod.CreateRecipe(Type);
 			recipe.AddIngredient(ModContent.ItemType<Infestation_Round>(), 3996);
 			recipe.AddTile(TileID.Autohammer);
-			recipe.Create();
+			recipe.Register();
 		}
 	}
 }

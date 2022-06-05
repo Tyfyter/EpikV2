@@ -28,7 +28,7 @@ namespace EpikV2.Items {
 			Recipe recipe = Mod.CreateRecipe(Type);
 			recipe.AddIngredient(ItemID.LargeEmerald);
 			recipe.AddIngredient(ItemType<GolemDeath>());
-			recipe.Create();
+			recipe.Register();
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			for(int i = 1; i < tooltips.Count; i++) {
@@ -67,7 +67,7 @@ namespace EpikV2.Items {
 			Recipe recipe = Mod.CreateRecipe(Type);
 			recipe.AddIngredient(ItemID.LargeAmber);
 			recipe.AddIngredient(ItemType<GolemDeath>());
-			recipe.Create();
+			recipe.Register();
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			for(int i = 1; i < tooltips.Count; i++) {

@@ -32,7 +32,7 @@ namespace EpikV2.Items {
             recipe.AddTile(TileID.Tables);
             recipe.AddTile(TileID.Chairs);
             recipe.AddTile(TileID.CrystalBall);
-            recipe.Create();
+            recipe.Register();
 
             recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(ItemID.CrossNecklace);
@@ -42,7 +42,7 @@ namespace EpikV2.Items {
             recipe.AddTile(TileID.Tables);
             recipe.AddTile(TileID.Chairs);
             recipe.AddTile(TileID.CrystalBall);
-            recipe.Create();
+            recipe.Register();
         }
 	}
 }

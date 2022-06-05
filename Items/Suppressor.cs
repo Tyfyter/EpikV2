@@ -81,7 +81,7 @@ namespace EpikV2.Items {
 			recipe.AddIngredient(ItemID.FragmentVortex, 5);
 			recipe.AddTile(TileID.LihzahrdAltar);
 			recipe.AddTile(TileID.Autohammer);
-			recipe.Create();
+			recipe.Register();
 		}
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 Velocity, int type, int damage, float knockBack) {

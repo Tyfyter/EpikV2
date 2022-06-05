@@ -58,7 +58,7 @@ namespace EpikV2.Items {
 			recipe.AddIngredient(ItemID.BlackFairyDust, 1);
 			recipe.AddTile(TileID.Loom);
             //recipe.AddTile(TileID.Relic);
-            recipe.Create();
+            recipe.Register();
             ArmorID = Item.headSlot;
 		}
         public abstract class Ace : ModItem {

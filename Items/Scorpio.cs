@@ -53,7 +53,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.DayBreak, 1);
             recipe.AddIngredient(ItemID.FragmentStardust, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);
-            recipe.Create();
+            recipe.Register();
         }
         public override bool AltFunctionUse(Player player) {
             return true;

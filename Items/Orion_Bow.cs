@@ -54,7 +54,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.Phantasm, 1);
             recipe.AddIngredient(ItemID.FragmentStardust, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);
-            recipe.Create();
+            recipe.Register();
         }
         public override bool CanConsumeAmmo(Item ammo, Player player) {
             return player.heldProj>-1;

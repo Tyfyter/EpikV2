@@ -70,7 +70,7 @@ namespace EpikV2.Items {
             recipe.AddTile(TileID.MythrilAnvil);
             recipe.AddTile(TileID.DemonAltar);
             recipe.AddCondition(Recipe.Condition.NearLava);
-            recipe.Create();
+            recipe.Register();
         }
         public override void UseItemFrame(Player player) {
             player.handon = Item.handOnSlot;

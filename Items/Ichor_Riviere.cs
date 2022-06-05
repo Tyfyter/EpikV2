@@ -29,7 +29,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.Vertebrae, 5);
             recipe.AddIngredient(ItemID.Ichor, 5);
             recipe.AddTile(TileID.MythrilAnvil);
-            recipe.Create();
+            recipe.Register();
 		}
 		public override void UpdateEquip(Player player) {
 			player.GetArmorPenetration(DamageClass.Default) += 4;

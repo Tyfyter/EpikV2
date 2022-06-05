@@ -64,7 +64,7 @@ namespace EpikV2.Items {
 					Dust.NewDust(guide.position, guide.width, guide.height, DustID.Torch, 0, -6);
 				}
 			});
-			recipe.Create();
+			recipe.Register();
 		}
 		public override bool AltFunctionUse(Player player) {
 			return true;
