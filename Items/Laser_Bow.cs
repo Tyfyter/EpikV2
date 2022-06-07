@@ -27,6 +27,7 @@ namespace EpikV2.Items
         public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Chimerebos");//portmanteau & bastardization of "chimera" and "rebus", which I just now realize doesn't include any indication as to what it's a combination of
 		    Tooltip.SetDefault("It's glowing, so it's futuristic");
+            ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
             if (Main.netMode == NetmodeID.Server) return;
             UseTexture = Mod.RequestTexture("Items/Laser_Bow_Use");
             GlowTexture = Mod.RequestTexture("Items/Laser_Bow_Glow");

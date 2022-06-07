@@ -63,10 +63,13 @@ namespace EpikV2.Items {
         public override Vector2? HoldoutOffset(){
 			return new Vector2(4, -4);
 		}
-        /*public override void ModifyWeaponDamage(Player player, ref float add, ref float mult, ref float flat) {
+		public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
+            damage = damage.CombineWith(player.bulletDamage);
+		}
+		/*public override void ModifyWeaponDamage(Player player, ref float add, ref float mult, ref float flat) {
             mult*=player.bulletDamage;
         }*/
-        public override void HoldItem(Player player) {
+		public override void HoldItem(Player player) {
             for (int i = 3; i < 8 + player.extraAccessorySlots; i++){
                 if(player.armor[i].type==ItemID.RifleScope||player.armor[i].type==ItemID.SniperScope) {
                     player.scope = true;

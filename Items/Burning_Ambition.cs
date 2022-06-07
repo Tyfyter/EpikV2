@@ -69,7 +69,7 @@ namespace EpikV2.Items {
 		public override bool AltFunctionUse(Player player) {
 			return true;
 		}
-		public override float UseTimeMultiplier(Player player) {
+		public override float UseSpeedMultiplier(Player player) {
 			return player.altFunctionUse == 0 ? 1f : 0.85f;
 		}
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
@@ -184,7 +184,7 @@ namespace EpikV2.Items {
 		void DrawAllParticles(bool back) {
 			BlendState bs = new BlendState();
 			bs.ColorDestinationBlend = Blend.One;
-			Main.spriteBatch.Restart(SpriteSortMode.Deferred, effect: Resources.Shaders.blurShader);
+			Main.spriteBatch.Restart(SpriteSortMode.Deferred, blendState: bs, effect: Resources.Shaders.blurShader);
 			try {
 				float rot = Projectile.rotation;
 				for (int i = 4; i >= 0; i--) {
@@ -446,7 +446,7 @@ namespace EpikV2.Items {
 			BlendState bs = new BlendState();
 			bs.ColorSourceBlend = Blend.SourceAlpha;
 			bs.ColorDestinationBlend = Blend.One;
-			Main.spriteBatch.Restart(SpriteSortMode.Deferred, effect: Resources.Shaders.blurShader);
+			Main.spriteBatch.Restart(SpriteSortMode.Deferred, blendState: bs, effect: Resources.Shaders.blurShader);
 			try {
 				float rot = Projectile.rotation;
 				for (int i = 4; i >= 0; i--) {
@@ -512,7 +512,7 @@ namespace EpikV2.Items {
 								return r.requiredItem.Any(
 									i => {
 										int drop = Main.tile[(int)Projectile.ai[0], (int)Projectile.ai[1]].GetTileDrop();
-										return drop == i.type || currentRecipe.AcceptedByItemGroups(drop, i.type);
+										return drop > -1 && (drop == i.type || currentRecipe.AcceptedByItemGroups(drop, i.type));
 									}
 								);
 							}
@@ -603,7 +603,7 @@ namespace EpikV2.Items {
 				ColorSourceBlend = Blend.SourceAlpha,
 				ColorDestinationBlend = Blend.One
 			};
-			Main.spriteBatch.Restart(SpriteSortMode.Deferred, effect: Resources.Shaders.blurShader);
+			Main.spriteBatch.Restart(SpriteSortMode.Deferred, blendState: bs, effect: Resources.Shaders.blurShader);
 			try {
 				for (int i = 4; i >= 0; i--) {
 					DrawParticles(i + 1);

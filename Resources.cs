@@ -45,10 +45,8 @@ namespace EpikV2 {
             public Texture2D distTestTexture0;
             public Texture2D distTestTexture1;
             public Texture2D BreakpointGlow;
-            Texture2D breakpointArrowGlow;
-            Texture2D moonlaceTrailTexture;
-            public Texture2D BreakpointArrowGlow => breakpointArrowGlow??(breakpointArrowGlow = Request<Texture2D>("EpikV2/Items/Breakpoint_Arrow_Glowmask").Value);
-            public Texture2D MoonlaceTrailTexture => moonlaceTrailTexture ?? (moonlaceTrailTexture = Request<Texture2D>("EpikV2/Dusts/Moonlight_Trail").Value);
+            Asset<Texture2D> breakpointArrowGlow;
+            public AutoCastingAsset<Texture2D> BreakpointArrowGlow => breakpointArrowGlow??(breakpointArrowGlow = Request<Texture2D>("EpikV2/Items/Breakpoint_Arrow_Glowmask"));
         }
         public struct ExtraTexture {
             public readonly Texture2D texture;

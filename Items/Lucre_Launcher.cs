@@ -106,7 +106,8 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Lucre Launcher");
 		    Tooltip.SetDefault("It's pay to win\nScroll while holding<Torch> to change coin type\nRight click to load in coins");
-            if(Main.netMode == NetmodeID.Server)return;
+            ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
+            if (Main.netMode == NetmodeID.Server)return;
             FrontTexture = Mod.RequestTexture("Items/Lucre_Launcher_Front");
             BackTexture = Mod.RequestTexture("Items/Lucre_Launcher_Back");
             CoinsTextures = new AutoCastingAsset<Texture2D>[]{

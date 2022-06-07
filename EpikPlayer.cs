@@ -656,15 +656,6 @@ namespace EpikV2 {
         public override void PostItemCheck() {
             ItemChecking[Player.whoAmI] = false;
         }
-        public override float UseTimeMultiplier(Item item) {
-            if(machiavellianMasquerade && (item.CountsAsClass(DamageClass.Ranged) || item.CountsAsClass(DamageClass.Magic))) {
-                return 1.15f;
-            }
-			if (manaAdictionEquipped && item.CountsAsClass(DamageClass.Magic)) {
-                return manaWithdrawal ? 0.9f : 1.1f;
-            }
-            return 1f;
-        }
 		public override void ModifyShootStats(Item item, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
             int marionettePullTime = marionetteDeathTime - (marionetteDeathTimeMax - 20);
             if (marionettePullTime > 0) {

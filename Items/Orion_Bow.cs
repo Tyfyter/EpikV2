@@ -34,7 +34,8 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Orion's Bow");
 		    Tooltip.SetDefault("Shoot for the stars");
             ID = Item.type;
-            if(Main.netMode == NetmodeID.Server)return;
+            ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
+            if (Main.netMode == NetmodeID.Server)return;
             goldTexture = Mod.RequestTexture("Items/Orion_Bow_Limb_Gold");
             skyTexture = Mod.RequestTexture("Items/Orion_Bow_Limb_Sky");
             //starTexture = mod.GetTexture("Items/Orion_Bow_Limb_Stars");

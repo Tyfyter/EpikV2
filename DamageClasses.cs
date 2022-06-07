@@ -11,9 +11,8 @@ namespace EpikV2 {
 	public class Damage_Classes : ILoadable {
         private static DamageClass ranged_Melee_Speed;
         private static DamageClass ranged_Magic;
-
         public static DamageClass Ranged_Melee_Speed => ranged_Melee_Speed ??= ModContent.GetInstance<Ranged_Melee_Speed>();
-        public static DamageClass Ranged_Magic  => ranged_Magic ??= ModContent.GetInstance<Ranged_Magic>();
+        public static DamageClass Ranged_Magic => ranged_Magic ??= ModContent.GetInstance<Ranged_Magic>();
         public void Unload() {
             ranged_Melee_Speed = null;
             ranged_Magic = null;

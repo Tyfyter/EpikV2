@@ -15,6 +15,9 @@ using System.Diagnostics;
 using Terraria.Graphics.Effects;
 using static EpikV2.EpikIntegration;
 using System.IO;
+using Terraria.Graphics;
+using System.Runtime.InteropServices;
+using Terraria.Graphics.Shaders;
 
 #pragma warning disable 672
 namespace EpikV2.Items {
@@ -83,12 +86,14 @@ namespace EpikV2.Items {
 			ProjectileID.Sets.MinionTargettingFeature[Projectile.type] = true;
 			ProjectileID.Sets.MinionSacrificable[Projectile.type] = true;
 			ProjectileID.Sets.CultistIsResistantTo[Projectile.type] = true;
-            ProjectileID.Sets.TrailCacheLength[Projectile.type] = 10;
+            ProjectileID.Sets.TrailCacheLength[Projectile.type] = ProjectileID.Sets.TrailCacheLength[ProjectileID.RainbowRodBullet];
+            //ProjectileID.Sets.TrailingMode[Projectile.type] = ProjectileID.Sets.TrailingMode[ProjectileID.RainbowRodBullet];
             ID = Projectile.type;
         }
         public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.NebulaBlaze2);
             Projectile.DamageType = DamageClass.Summon;
+            Projectile.minion = true;
             Projectile.minionSlots = 1;
             Projectile.penetrate = -1;
             Projectile.extraUpdates = 1;
@@ -237,6 +242,21 @@ namespace EpikV2.Items {
             Array.Copy(projectile.oldPos, 0, newOldPos, 1, 9);
             newOldPos[0] = projectile.Center + idleOffset;
             projectile.oldPos = newOldPos;*/
+            for (int i = Projectile.oldPos.Length - 1; i > 0; i--) {
+                Projectile.oldPos[i] = Projectile.oldPos[i - 1];
+                Projectile.oldRot[i] = Projectile.oldRot[i - 1];
+            }
+            Projectile.oldPos[0] = Projectile.position + idleOffset;
+            Projectile.oldRot[0] = Projectile.rotation;
+            float amount = 0.65f;
+            for (int i = Projectile.oldPos.Length - 1; i > 0; i--) {
+                if (Projectile.oldPos[i] != Vector2.Zero) {
+                    if (Projectile.oldPos[i].DistanceSQ(Projectile.oldPos[i - 1]) > 4f) {
+                        Projectile.oldPos[i] = Vector2.Lerp(Projectile.oldPos[i], Projectile.oldPos[i - 1], amount);
+                    }
+                    Projectile.oldRot[i] = (Projectile.oldPos[i - 1] - Projectile.oldPos[i]).SafeNormalize(Vector2.Zero).ToRotation();
+                }
+            }
         }
         public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
             Projectile.ai[0] = 15;
@@ -312,11 +332,12 @@ namespace EpikV2.Items {
             return 1f;
         }
         public override bool PreDraw(ref Color lightColor) {
+            default(Moonlace_Drawer).Draw(Projectile);
             /* Dust.NewDustPerfect(projectile.Center+new Vector2(10,10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.White).scale = 0.25f;
              Dust.NewDustPerfect(projectile.Center+new Vector2(10,-10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.Red).scale = 0.25f;
              Dust.NewDustPerfect(projectile.Center-new Vector2(10,10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.Green).scale = 0.25f;
              Dust.NewDustPerfect(projectile.Center-new Vector2(10,-10), DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.Blue).scale = 0.25f;*/
-            Dust.NewDustPerfect(Projectile.Center + idleOffset, DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.White).scale = 0.45f;
+            //Dust.NewDustPerfect(Projectile.Center + idleOffset, DustType<Dusts.Moonlight>(), Vector2.Zero, 100, Color.White).scale = 0.45f;
             return false;
         }
         public override void SendExtraAI(BinaryWriter writer) {
@@ -331,6 +352,33 @@ namespace EpikV2.Items {
             Circle,
             Clover,
             Diamond
+        }
+    }
+    [StructLayout(LayoutKind.Sequential, Size = 1)]
+    public struct Moonlace_Drawer {
+        private static VertexStrip _vertexStrip = new VertexStrip();
+
+        public void Draw(Projectile proj) {
+            MiscShaderData miscShaderData = GameShaders.Misc["RainbowRod"];
+            miscShaderData.UseSaturation(-2.8f);
+            miscShaderData.UseOpacity(4f);
+            miscShaderData.Apply();
+            _vertexStrip.PrepareStripWithProceduralPadding(proj.oldPos, proj.oldRot, StripColors, StripWidth, -Main.screenPosition + proj.Size / 2f);
+            _vertexStrip.DrawTrail();
+            Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+        }
+
+        private Color StripColors(float progressOnStrip) {
+            Color result = Color.Lerp(Color.White, Color.Black, Utils.GetLerpValue(-0.2f, 0.5f, progressOnStrip, clamped: true)) * (1f - Utils.GetLerpValue(0f, 0.98f, progressOnStrip));
+            result.A = 0;
+            return result;
+        }
+
+        private float StripWidth(float progressOnStrip) {
+            float num = 1f;
+            float lerpValue = Utils.GetLerpValue(0f, 0.2f, progressOnStrip, clamped: true);
+            num *= 1f - (1f - lerpValue) * (1f - lerpValue);
+            return MathHelper.Lerp(0f, 8f, num);
         }
     }
 }

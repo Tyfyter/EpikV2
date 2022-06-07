@@ -84,6 +84,8 @@ namespace EpikV2 {
         }
     }*/
     public struct AutoCastingAsset<T> where T : class {
+        public bool HasValue => asset is not null;
+        public bool IsLoaded => asset?.IsLoaded??false;
         public T Value => asset.Value;
 
 		readonly Asset<T> asset;

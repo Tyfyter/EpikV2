@@ -21,6 +21,7 @@ namespace EpikV2.Items {
         public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Alchemera");
 		    Tooltip.SetDefault("");
+            //ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
         }
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.ToxicFlask);
@@ -40,7 +41,7 @@ namespace EpikV2.Items {
             Item.shoot = ProjectileType<Alchemera_Flask>();
             Item.shootSpeed = 16f;
 			Item.scale = 0.85f;
-            Item.UseSound = null;
+            //Item.UseSound = null;
         }
         public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type);

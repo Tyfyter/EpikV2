@@ -27,11 +27,13 @@ namespace EpikV2.Items {
 			Item.maxStack = 1;
             Item.defense = 6;
 		}
-		public override void UpdateEquip(Player player){
+		public override void UpdateEquip(Player player) {
 			player.GetDamage(DamageClass.Ranged) += 0.15f;
 			player.GetDamage(DamageClass.Magic) += 0.15f;
-            //player.aggro -= 1000;
-            player.GetModPlayer<EpikPlayer>().machiavellianMasquerade = true;
+			player.GetAttackSpeed(DamageClass.Ranged) += 0.15f;
+			player.GetAttackSpeed(DamageClass.Magic) += 0.15f;
+			//player.aggro -= 1000;
+			player.GetModPlayer<EpikPlayer>().machiavellianMasquerade = true;
 		}
         public override void UpdateVanity(Player player) {
             player.GetModPlayer<EpikPlayer>().extraHeadTexture = 0;
