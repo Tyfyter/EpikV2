@@ -17,7 +17,7 @@ namespace EpikV2.Projectiles {
 		public override bool InstancePerEntity => true;
 		protected override bool CloneNewInstances => true;
         internal bool jade = false;
-        public override bool PreDraw(Projectile projectile, ref Color drawColor) {
+		public override bool PreDraw(Projectile projectile, ref Color drawColor) {
             if(jade) {
                 Lighting.AddLight(projectile.Center,0,1,0.5f);
 			    Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect:Shaders.jadeDyeShader.Shader);

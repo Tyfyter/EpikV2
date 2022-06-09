@@ -101,6 +101,13 @@ namespace EpikV2 {
 			On.Terraria.UI.ItemSlot.PickItemMovementAction += ItemSlot_PickItemMovementAction;
 			On.Terraria.UI.ItemSlot.isEquipLocked += ItemSlot_isEquipLocked;
 			On.Terraria.DataStructures.PlayerDrawLayers.DrawPlayer_21_Head_TheFace += PlayerDrawLayers_DrawPlayer_21_Head_TheFace;
+			On.Terraria.Projectile.GetWhipSettings += (On.Terraria.Projectile.orig_GetWhipSettings orig, Projectile proj, out float timeToFlyOut, out int segments, out float rangeMultiplier) => {
+				if (proj.ModProjectile is IWhipProjectile whip) {
+					whip.GetWhipSettings(out timeToFlyOut, out segments, out rangeMultiplier);
+				} else {
+					orig(proj, out timeToFlyOut, out segments, out rangeMultiplier);
+				}
+			};
 		}
 
 		private bool ItemSlot_isEquipLocked(On.Terraria.UI.ItemSlot.orig_isEquipLocked orig, int type) {

@@ -57,7 +57,7 @@ namespace EpikV2.Items {
         }
 		public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type);
-            recipe.AddIngredient(AquamarineMaterial.id, 1);
+            recipe.AddIngredient(AquamarineMaterial.id);
 			recipe.AddTile(TileID.DemonAltar);
             recipe.Register();
         }

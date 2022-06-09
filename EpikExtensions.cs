@@ -47,6 +47,9 @@ namespace EpikV2 {
     public interface IScrollableItem {
         void Scroll(int direction);
     }
+    public interface IWhipProjectile {
+        void GetWhipSettings(out float timeToFlyOut, out int segments, out float rangeMultiplier);
+    }
     public struct BitsBytes {
         readonly BitsByte[] _bytes;
         public BitsBytes(ushort bytes) {
@@ -120,6 +123,19 @@ namespace EpikV2 {
                 statModifier.Flat * factor,
                 statModifier.Base * factor
             );
+        }
+        public static bool CheckHealth(this Player player, int amount, bool pay = false) {
+			if (player.statLife >= amount) {
+				if (pay) {
+					if (player.statLife == amount) {
+                        return false;
+                    }
+                    player.statLife -= amount;
+                    CombatText.NewText(player.Hitbox, Color.Red, amount, dot: true);
+				}
+                return true;
+            }
+            return false;
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Vec4FromVec2x2(Vector2 xy, Vector2 wh) {

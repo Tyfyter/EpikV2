@@ -47,7 +47,9 @@ namespace EpikV2.NPCs
         public int scorpioTime = 0;
         public int scorpioOwner = 0;
         public bool celestialFlames;
-
+        public int jadeWhipTime;
+        public int jadeWhipDamage;
+        public int jadeWhipCrit;
         public override bool PreAI(NPC npc) {
             if(Ashen_Glaive_P.marks[npc.whoAmI]>0) {
                 ashenGlaiveTime++;
@@ -132,6 +134,13 @@ namespace EpikV2.NPCs
 		}
 		public override void ResetEffects(NPC npc) {
 			celestialFlames = false;
+			if (jadeWhipTime > 0) {
+                jadeWhipTime--;
+                if (jadeWhipTime == 0) {
+                    jadeWhipDamage = 0;
+                    jadeWhipCrit = 0;
+                }
+			}
 		}
         public override void UpdateLifeRegen(NPC npc, ref int damage) {
 
@@ -144,6 +153,14 @@ namespace EpikV2.NPCs
 					damage = 20;
 				}
 			}
+        }
+		public override void ModifyHitByProjectile(NPC npc, Projectile projectile, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+            if (projectile.minion || ProjectileID.Sets.MinionShot[projectile.type]) {
+                damage += jadeWhipDamage;
+				if (Main.rand.Next(100) < jadeWhipCrit) {
+                    crit = true;
+				}
+            }
         }
 		public override void DrawEffects(NPC npc, ref Color drawColor) {
 			if (celestialFlames) {
@@ -282,6 +299,11 @@ namespace EpikV2.NPCs
         public void SetScorpioTime(int owner, int time = 15) {
             scorpioOwner = owner;
             scorpioTime = time;
+        }
+        public void SetJadeWhipValues(int time, int damage, int crit) {
+            if (jadeWhipTime < time) jadeWhipTime = time;
+            if (jadeWhipDamage < damage) jadeWhipDamage = damage;
+            if (jadeWhipCrit < crit) jadeWhipCrit = crit;
         }
     }
 }
