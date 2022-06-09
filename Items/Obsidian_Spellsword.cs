@@ -58,23 +58,23 @@ namespace EpikV2.Items {
 			}
 			this.broken = broken;
 		}
-		public override bool CanUseItem(Player player) {
-			if (player.altFunctionUse != 2) {
-				Item.useStyle = ItemUseStyleID.Swing;
-				SetStats(broken, default);
-				Item.autoReuse = true;
-			} else {
+		public override bool? UseItem(Player player) {
+			if (player.altFunctionUse == 2) {
 				Item.useStyle = ItemUseStyleID.Guitar;
 				durability = 0;
 				SetStats(true, player.Center);
-				Item.noMelee = false;
-				Item.noUseGraphic = false;
-				Item.autoReuse = false;
+				Item.noMelee = true;
+				Item.noUseGraphic = true;
+				Item.autoReuse = true;
+			} else {
+				Item.useStyle = ItemUseStyleID.Swing;
+				SetStats(broken, default);
+				Item.autoReuse = true;
 			}
 			return true;
 		}
 		public override bool AltFunctionUse(Player player) {
-			return true;
+			return !broken && player.CheckMana(Item, 20, true) && player.CheckHealth(10, true);
 		}
 		public override float UseSpeedMultiplier(Player player) {
 			return broken ? 1 : 1.26f;
