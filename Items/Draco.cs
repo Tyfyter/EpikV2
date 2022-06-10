@@ -245,6 +245,7 @@ namespace EpikV2.Items {
         public override void ReceiveExtraAI(BinaryReader reader) {
             //projectile.localAI[0] = reader.ReadSingle();
         }
+        [JITWhenModsEnabled("Origins")]
         private void OriginsIntegration() {
             //OriginGlobalProj.explosiveOverrideNext = true;
         }

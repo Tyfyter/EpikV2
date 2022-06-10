@@ -41,6 +41,7 @@ using EpikV2.NPCs;
 using EpikV2.Projectiles;
 
 namespace EpikV2.Items {
+    [ExtendsFromMod("WeaponOut")]
     [AutoloadEquip(EquipType.HandsOn, EquipType.HandsOff)]
     public class Shattered_Fate : ModItem {
         static bool Fists_Enabled => ModConf.EnableFists;

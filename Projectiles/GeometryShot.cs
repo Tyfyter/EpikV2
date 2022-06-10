@@ -8,7 +8,7 @@ using Terraria.ModLoader;
 
 namespace EpikV2.Projectiles{
 
-    public class GeometryShot : ModProjectile{
+    public class GeometryShot : ModProjectile {
         private bool init = true;
         //public override bool CloneNewInstances => true;
         public override string Texture => "EpikV2/Projectiles/MagShot";

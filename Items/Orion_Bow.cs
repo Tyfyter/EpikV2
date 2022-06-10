@@ -11,6 +11,7 @@ using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
 //using Origins.Projectiles;
 using static EpikV2.Resources;
+using System.IO;
 
 namespace EpikV2.Items {
     public class Orion_Bow : ModItem, ICustomDrawItem {
@@ -178,7 +179,7 @@ namespace EpikV2.Items {
 
             //sky
             value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation-drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
-            value.shader = fireArrow?112:115;
+            value.shader = fireArrow ?112:115;
             drawInfo.DrawDataCache.Add(value);
             value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation+drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect ^ SpriteEffects.FlipVertically, 0);
             value.shader = fireArrow?112:115;//115, 112, 106
@@ -198,23 +199,26 @@ namespace EpikV2.Items {
         public static int ID { get; private set; } = -1;
         internal static int t = -1;
         public int type { get; private set; } = -1;
+        public bool KillOnHit { get; private set; } = false;
         public bool Fired => Projectile.velocity.Length() > 0;
         public override string Texture => "Terraria/Images/Projectile_"+ProjectileID.JestersArrow;
         protected override bool CloneNewInstances => true;
-
+        ModProjectile other;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Orion's Bow");
             ID = Projectile.type;
         }
         public override void SetDefaults() {
             if(Fired)return;
-			;
             if (t > -1) {
                 type = t;
                 Projectile.CloneDefaults(type);
-			} else {
+                if (type >= ProjectileID.Count)
+                    other = ProjectileLoader.GetProjectile(type).NewInstance(Projectile);
+            } else {
                 Projectile.CloneDefaults(ProjectileID.JestersArrow);
             }
+            KillOnHit = Projectile.maxPenetrate > -1;
             Projectile.friendly = true;
             Projectile.penetrate = -1;
             Projectile.alpha = 100;
@@ -230,17 +234,14 @@ namespace EpikV2.Items {
         public override void AI() {
             if(Fired) {
                 Projectile.rotation = Projectile.velocity.ToRotation()+MathHelper.PiOver2;
-                if(type<ProjectileID.Count) {
-                    Projectile.type = type;
-                    Projectile.VanillaAI();
-                    Projectile.type = ID;
-                } else {
-                    ProjectileLoader.GetProjectile(type)?.AI();
-                }
+                Projectile.type = type;
+                Projectile.VanillaAI();
+                other?.AI();
+                Projectile.type = ID;
                 if(Projectile.Center.Y+Projectile.velocity.Y<Main.offLimitBorderTiles * 16) {
                     Projectile.Kill();
                     Orion_Star.t = type;
-			        for(int i = 0; i < 3; i++)Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center.X+Main.rand.NextFloat(-8,8)*16, Main.offLimitBorderTiles * 16, Main.rand.NextFloat(-5,5), 25, Orion_Star.ID, 250, 10f, Projectile.owner);
+			        for(int i = -2; i < 3; i++)Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center.X+(i*96)+Main.rand.NextFloat(-4,4)*16, Main.offLimitBorderTiles * 16, Main.rand.NextFloat(-3, 3) - (i * 2), 25, Orion_Star.ID, 250, 10f, Projectile.owner);
                 }
             } else {
                 Main.player[Projectile.owner].GetModPlayer<EpikPlayer>().nextHeldProj = Projectile.whoAmI;
@@ -248,41 +249,43 @@ namespace EpikV2.Items {
             }
         }
         public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
-            if(type<ProjectileID.Count) {
-                Projectile.type = type;
-                Projectile.StatusNPC(target.whoAmI);
-                Projectile.type = ID;
-                switch(type) {
-                    case ProjectileID.HolyArrow:
-                    case ProjectileID.HellfireArrow:
-                    Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, type, Projectile.damage, Projectile.knockBack, Projectile.owner).Kill();
-                    break;
-                }
-            } else {
-                ProjectileLoader.GetProjectile(type)?.OnHitNPC(target, damage, knockback, crit);
+            Projectile.type = type;
+            Projectile.StatusNPC(target.whoAmI);
+            other?.OnHitNPC(target, damage, knockback, crit);
+            Projectile.type = ID;
+            if (type >= ProjectileID.Count && KillOnHit) {
+                Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, type, Projectile.damage, Projectile.knockBack, Projectile.owner).Kill();
+            }
+            switch (type) {
+                case ProjectileID.HolyArrow:
+                case ProjectileID.HellfireArrow:
+                Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, type, Projectile.damage, Projectile.knockBack, Projectile.owner).Kill();
+                break;
             }
         }
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-            if(type > ProjectileID.Count) {
-                ProjectileLoader.GetProjectile(type)?.ModifyHitNPC(target, ref damage, ref knockback, ref crit, ref hitDirection);
-            }
+            other?.ModifyHitNPC(target, ref damage, ref knockback, ref crit, ref hitDirection);
             if(Projectile.aiStyle == 0) {
                 crit = true;
                 float crt = Main.player[Projectile.owner].GetCritChance(DamageClass.Ranged)/100f;
                 damage+=(int)(damage * crt);
             }
         }
-        public override bool PreKill(int timeLeft) {
-            if(type > ProjectileID.Count) {
-                return ProjectileLoader.GetProjectile(type)?.PreKill(timeLeft)??true;
+		public override bool OnTileCollide(Vector2 oldVelocity) {
+            if (other is not null) {
+                return other.OnTileCollide(oldVelocity);
             }
+            return true;
+        }
+		public override bool PreKill(int timeLeft) {
             Projectile.type = type;
+            if (other is not null) {
+                return other.PreKill(timeLeft);
+            }
             return true;
         }
         public override void Kill(int timeLeft) {
-            if(type > ProjectileID.Count) {
-                ProjectileLoader.GetProjectile(type)?.Kill(timeLeft);
-            }
+            other?.Kill(timeLeft);
         }
         public override bool? CanHitNPC(NPC target) {
             return Fired?base.CanHitNPC(target):false;
@@ -308,25 +311,44 @@ namespace EpikV2.Items {
             Projectile.type = ID;
 			Main.spriteBatch.Restart();
 		}
-        /*private void OriginsIntegration() {
+		public override void SendExtraAI(BinaryWriter writer) {
+            writer.Write(type);
+            writer.Write(KillOnHit);
+		}
+		public override void ReceiveExtraAI(BinaryReader reader) {
+            type = reader.ReadInt32();
+            KillOnHit = reader.ReadBoolean();
+        }
+		/*private void OriginsIntegration() {
             if(type>-1 && Origins.Origins.ExplosiveProjectiles[type]) {
                 OriginGlobalProj.explosiveOverrideNext = true;
             }
         }*/
-    }
+	}
     public class Orion_Star : ModProjectile {
         public static int ID { get; private set; } = -1;
         internal static int t = -1;
         public int type { get; private set; } = -1;
         public override string Texture => "Terraria/Images/Projectile_"+ProjectileID.FallingStar;
+        ModProjectile other;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Orion's Bow");
             ID = Projectile.type;
         }
         public override void SetDefaults() {
-            Projectile.CloneDefaults(ProjectileID.FallingStar);
+            if (t > -1) {
+                type = t;
+                Projectile.CloneDefaults(type);
+                DamageClass damageClass = Projectile.DamageType;
+                Projectile.CloneDefaults(ProjectileID.FallingStar);
+                Projectile.DamageType = damageClass;
+                if (type >= ProjectileID.Count)
+                    other = ProjectileLoader.GetProjectile(type).NewInstance(Projectile);
+            } else {
+                Projectile.CloneDefaults(ProjectileID.FallingStar);
+            }
+
             AIType = ProjectileID.FallingStar;
-            if(t>-1)type = t;
             ProjectileID.Sets.TrailCacheLength[Type] = ProjectileID.Sets.TrailCacheLength[ProjectileID.FallingStar];
             ProjectileID.Sets.TrailingMode[Type] = ProjectileID.Sets.TrailCacheLength[ProjectileID.FallingStar];
             //if(EpikIntegration.EnabledMods.Origins) OriginsIntegration();
@@ -336,42 +358,47 @@ namespace EpikV2.Items {
             if(type<ProjectileID.Count) {
                 Projectile.type = type;
                 Projectile.VanillaAI();
+                other?.AI();
                 Projectile.type = ID;
             } else {
                 ProjectileLoader.GetProjectile(type)?.AI();
             }
         }
         public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
-            if(type<ProjectileID.Count) {
-                Projectile.type = type;
-                Projectile.StatusNPC(target.whoAmI);
-                Projectile.type = ID;
-                switch(type) {
-                    case ProjectileID.HolyArrow:
-                    case ProjectileID.HellfireArrow:
-                    Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, type, Projectile.damage, Projectile.knockBack, Projectile.owner).Kill();
-                    break;
-                }
-            } else {
-                ProjectileLoader.GetProjectile(type)?.OnHitNPC(target, damage, knockback, crit);
+            Projectile.type = type;
+            Projectile.StatusNPC(target.whoAmI);
+            other?.OnHitNPC(target, damage, knockback, crit);
+            Projectile.type = ID;
+            switch (type) {
+                case ProjectileID.HolyArrow:
+                case ProjectileID.HellfireArrow:
+                Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, type, Projectile.damage, Projectile.knockBack, Projectile.owner).Kill();
+                break;
             }
         }
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-            if(type > ProjectileID.Count) {
-                ProjectileLoader.GetProjectile(type)?.ModifyHitNPC(target, ref damage, ref knockback, ref crit, ref hitDirection);
+            other?.ModifyHitNPC(target, ref damage, ref knockback, ref crit, ref hitDirection);
+            if (Projectile.aiStyle == 0) {
+                crit = true;
+                float crt = Main.player[Projectile.owner].GetCritChance(DamageClass.Ranged) / 100f;
+                damage += (int)(damage * crt);
             }
         }
-        public override bool PreKill(int timeLeft) {
-            if(type > ProjectileID.Count) {
-                return ProjectileLoader.GetProjectile(type)?.PreKill(timeLeft)??true;
+        public override bool OnTileCollide(Vector2 oldVelocity) {
+            if (other is not null) {
+                return other.OnTileCollide(oldVelocity);
             }
+            return true;
+        }
+        public override bool PreKill(int timeLeft) {
             Projectile.type = type;
+            if (other is not null) {
+                return other.PreKill(timeLeft);
+            }
             return true;
         }
         public override void Kill(int timeLeft) {
-            if(type > ProjectileID.Count) {
-                ProjectileLoader.GetProjectile(type)?.Kill(timeLeft);
-            }
+            other?.Kill(timeLeft);
         }
         public override bool PreDraw(ref Color lightColor) {
             Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.starlightShader.Shader);
@@ -381,6 +408,12 @@ namespace EpikV2.Items {
         public override void PostDraw(Color lightColor) {
             Projectile.type = ID;
             Main.spriteBatch.Restart();
+        }
+        public override void SendExtraAI(BinaryWriter writer) {
+            writer.Write(type);
+        }
+        public override void ReceiveExtraAI(BinaryReader reader) {
+            type = reader.ReadInt32();
         }
         /*private void OriginsIntegration() {
             if(type>-1 && Origins.Origins.ExplosiveProjectiles[type]) {
