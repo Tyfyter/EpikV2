@@ -656,6 +656,16 @@ namespace EpikV2 {
         public override void PostItemCheck() {
             ItemChecking[Player.whoAmI] = false;
         }
+		public override void CatchFish(FishingAttempt attempt, ref int itemDrop, ref int npcSpawn, ref AdvancedPopupRequest sonar, ref Vector2 sonarPosition) {
+			if (Player.ZoneJungle) {
+                if(!attempt.inLava && !attempt.inHoney && attempt.rare && (attempt.chumsInWater > 0 || Main.rand.NextBool(2))) {
+                    itemDrop = 0;
+                    npcSpawn = ModContent.NPCType<MinisharkNPC>();
+                    sonar.Color = Colors.RarityGreen;
+                    //sonar.Text = 
+				}
+			}
+		}
 		public override void ModifyShootStats(Item item, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
             int marionettePullTime = marionetteDeathTime - (marionetteDeathTimeMax - 20);
             if (marionettePullTime > 0) {

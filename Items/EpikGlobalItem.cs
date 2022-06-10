@@ -101,7 +101,7 @@ namespace EpikV2.Items {
                     Projectile.NewProjectile(Vector2.Zero, Vector2.Zero, type, 0, 0);
                 }
                  */
-				damage.Base += (damage.Base - Main.player[weapon.playerIndexTheItemIsReservedFor].GetWeaponDamage(weapon))*5;
+				damage.Base += ammo.damage * 1.5f;//(damage.Base - Main.player[weapon.playerIndexTheItemIsReservedFor].GetWeaponDamage(weapon))*5;
             }
         }
 		public override void OpenVanillaBag(string context, Player player, int arg) {

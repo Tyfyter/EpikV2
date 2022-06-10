@@ -43,6 +43,7 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.Phantasm);
+            Item.noUseGraphic = false;
             Item.damage = 75;
             Item.useTime = 30;
             Item.useAnimation = 30;
@@ -121,6 +122,7 @@ namespace EpikV2.Items {
             }
         }
         public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
+            //Main.LocalPlayer.chatOverhead.NewMessage(damage. + "", 5);
             damage = damage.MultiplyBonuses(2.5f);
         }
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
@@ -206,8 +208,17 @@ namespace EpikV2.Items {
         }
         public override void SetDefaults() {
             if(Fired)return;
-			Projectile.CloneDefaults(ProjectileID.JestersArrow);
-            if(t>-1)type = t;
+			;
+            if (t > -1) {
+                type = t;
+                Projectile.CloneDefaults(type);
+			} else {
+                Projectile.CloneDefaults(ProjectileID.JestersArrow);
+            }
+            Projectile.friendly = true;
+            Projectile.penetrate = -1;
+            Projectile.alpha = 100;
+            Projectile.ignoreWater = true;
             Projectile.tileCollide = false;
             Projectile.aiStyle = 0;
             Projectile.timeLeft = 3600;
@@ -281,10 +292,13 @@ namespace EpikV2.Items {
         }
         public override bool PreDraw(ref Color lightColor) {
             Projectile.type = type;
+            Main.instance.LoadProjectile(type);
             Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.starlightShader.Shader);
+            //Main.CurrentDrawnEntityShader = EpikV2.starlightShaderID;
             if(type > ProjectileID.Count) {
                 return ProjectileLoader.GetProjectile(type)?.PreDraw(ref lightColor)??true;
             }
+            //Main.EntitySpriteDraw();
             return true;
         }
         public override void PostDraw(Color lightColor) {

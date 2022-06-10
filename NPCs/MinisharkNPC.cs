@@ -9,6 +9,7 @@ using Terraria.ModLoader;
 using Terraria.ID;
 using Microsoft.Xna.Framework;
 using Terraria.GameContent.ItemDropRules;
+using Terraria.DataStructures;
 
 namespace EpikV2.NPCs {
     public class MinisharkNPC : ModNPC {
@@ -35,13 +36,18 @@ namespace EpikV2.NPCs {
             }
             return spawnInfo.Water?0.1f:0f;
         }
-        public override void AI() {
+		public override void OnSpawn(IEntitySource source) {
+            if (source is EntitySource_FishedOut) NPC.life--;
+		}
+		public override void AI() {
 			if (NPC.direction == 0){
 				NPC.TargetClosest(true);
 			}
 			if (NPC.wet){
 				NPC.TargetClosest(false);
-                bool hasTarget = !Main.player[NPC.target].dead && ((Main.player[NPC.target].Distance(NPC.Center)<(Main.player[NPC.target].wet?420:320)+Math.Max(Main.player[NPC.target].aggro/2, -240)) || NPC.life < NPC.lifeMax);// && Main.player[npc.target].wet;
+                bool hasTarget = !Main.player[NPC.target].dead &&
+                    ((Main.player[NPC.target].Distance(NPC.Center)<(Main.player[NPC.target].wet?420:320)+Math.Max(Main.player[NPC.target].aggro/2, -240))
+                    || NPC.life < NPC.lifeMax);// && Main.player[npc.target].wet;
                 Vector2 targetAngle = NPC.velocity;
 				if (!hasTarget){
                     /*if(npc.rotation > -0.15f) {
