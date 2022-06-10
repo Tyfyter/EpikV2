@@ -86,6 +86,24 @@ namespace EpikV2 {
             }
         }
     }*/
+    public class DrawAnimationManual : DrawAnimation {
+        public DrawAnimationManual(int frameCount) {
+            Frame = 0;
+            FrameCounter = 0;
+            FrameCount = frameCount;
+            TicksPerFrame = -1;
+        }
+
+        public override void Update() { }
+
+        public override Rectangle GetFrame(Texture2D texture, int frameCounterOverride = -1) {
+            if (TicksPerFrame == -1) FrameCounter = 0;
+            if (frameCounterOverride != -1) {
+                return texture.Frame(FrameCount, 1, (frameCounterOverride / TicksPerFrame) % FrameCount, 0);
+            }
+            return texture.Frame(FrameCount, 1, Frame, 0);
+        }
+    }
     public struct AutoCastingAsset<T> where T : class {
         public bool HasValue => asset is not null;
         public bool IsLoaded => asset?.IsLoaded??false;

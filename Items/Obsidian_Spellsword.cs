@@ -18,14 +18,37 @@ using Terraria.ModLoader;
 using Terraria.Utilities;
 
 namespace EpikV2.Items {
-	public class Obsidian_Spellsword : ModItem {
-		public override string Texture => "Terraria/Images/Item_" + ItemID.NightsEdge;
+	public class Obsidian_Spellsword : ModItem, ICustomDrawItem {
 		protected override bool CloneNewInstances => true;
+		static short customGlowMask;
+		internal static DrawAnimationManual animation;
+		public DrawAnimation Animation {
+			get {
+				UpdateAnimationFrames();
+				return animation;
+			}
+		}
+		void UpdateAnimationFrames() {
+			if (broken) {
+				animation.Frame = 3;
+			} else {
+				if (durability >= 480) {
+					animation.Frame = 0;
+				} else if (durability >= 120) {
+					animation.Frame = 1;
+				} else {
+					animation.Frame = 2;
+				}
+			}
+		}
 		int durability = 600;
 		bool broken = false;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Obsidian Spellsword");
 			Tooltip.SetDefault("Very fragile\n<right> to pay 20 mana and 10 health to break");
+			animation = new DrawAnimationManual(4);
+			Main.RegisterItemAnimation(Item.type, animation);
+			customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
 			CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
 		}
 		public override void SetDefaults() {
@@ -40,35 +63,50 @@ namespace EpikV2.Items {
 			Item.rare = ItemRarityID.Purple;
 			Item.UseSound = SoundID.Item1;
 			Item.reuseDelay = 1;
-			SetStats(broken = false, Vector2.Zero);
+			SetStats(null, broken = false);
 			Item.autoReuse = true;
+			Item.glowMask = customGlowMask;
 		}
 
-		void SetStats(bool broken, Vector2 pos) {
+		void SetStats(Player player, bool broken) {
 			if (broken) {
 				Item.DamageType = Damage_Classes.Spellsword;
 				Item.noMelee = true;
 				Item.noUseGraphic = true;
-				if(!this.broken) SoundEngine.PlaySound(SoundID.Shatter.WithPitch(-0.5f), pos);
+				if (!this.broken && player is not null) {
+					SoundEngine.PlaySound(SoundID.Shatter.WithPitch(-0.5f), player.Center);
+					int width = 16;
+					int height = 16;
+					Vector2 offset = player.GetFrontHandPosition(Player.CompositeArmStretchAmount.Full, player.itemRotation) - player.MountedCenter;
+					Vector2 pos = player.MountedCenter + offset - (new Vector2(width, height) / 2);
+					for (int i = 0; i < 8; i++) {
+						Dust.NewDustDirect(pos, width, height, DustID.Enchanted_Pink).color = Color.Blue;
+						if(i % 2 == 0) Dust.NewDust(pos, width, height, DustID.Obsidian);
+						pos += offset / 4;
+					}
+				}
 			} else {
 				Item.DamageType = DamageClass.Melee;
 				Item.noMelee = false;
 				Item.noUseGraphic = false;
-				if (this.broken) SoundEngine.PlaySound(SoundID.AbigailUpgrade.WithPitch(1), pos);
+				if (this.broken && player is not null) SoundEngine.PlaySound(SoundID.AbigailUpgrade.WithPitch(1), player.Center);
 			}
-			this.broken = broken;
+			if (this.broken != broken) {
+				this.broken = broken;
+				UpdateAnimationFrames();
+			}
 		}
 		public override bool? UseItem(Player player) {
 			if (player.altFunctionUse == 2) {
-				Item.useStyle = ItemUseStyleID.Guitar;
+				Item.useStyle = ItemUseStyleID.MowTheLawn;
 				durability = 0;
-				SetStats(true, player.Center);
+				SetStats(player, true);
 				Item.noMelee = true;
 				Item.noUseGraphic = true;
 				Item.autoReuse = true;
 			} else {
 				Item.useStyle = ItemUseStyleID.Swing;
-				SetStats(broken, default);
+				SetStats(player, broken);
 				Item.autoReuse = true;
 			}
 			return true;
@@ -90,14 +128,14 @@ namespace EpikV2.Items {
 			durability -= 60;
 			SoundEngine.PlaySound(SoundID.DD2_CrystalCartImpact.WithVolume(0.75f), target.Center);
 			if (durability <= 0) {
-				SetStats(true, player.itemLocation);
+				SetStats(player, true);
 			}
 		}
 		public override void HoldItem(Player player) {
 			if (broken) {
 				durability++;
 				if (durability >= 600) {
-					SetStats(false, player.Center);
+					SetStats(player, false);
 					durability = 600;
 				}
 			}
@@ -109,6 +147,21 @@ namespace EpikV2.Items {
 			Projectile.NewProjectileDirect(source, position, velocity, type, damage, knockback, player.whoAmI).scale *= Item.scale;
 			SoundEngine.PlaySound(SoundID.AbigailSummon.WithPitch(1).WithVolume(0.75f), position);
 			return false;
+		}
+		public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Color lightColor, Vector2 drawOrigin) {
+			Player drawPlayer = drawInfo.drawPlayer;
+			float num77 = drawPlayer.itemRotation + MathHelper.PiOver4 * drawPlayer.direction;
+			Item item = drawPlayer.HeldItem;
+
+			Rectangle frame = Animation.GetFrame(itemTexture);
+			Color currentColor = Lighting.GetColor((int)(drawInfo.Position.X + drawPlayer.width * 0.5) / 16, (int)((drawInfo.Position.Y + drawPlayer.height * 0.5) / 16.0));
+			SpriteEffects spriteEffects = drawInfo.itemEffect;//(drawPlayer.direction == 1 ? 0 : SpriteEffects.FlipHorizontally) | (drawPlayer.gravDir == 1f ? 0 : SpriteEffects.FlipVertically);
+			
+			DrawData value = new DrawData(itemTexture, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y)), frame, drawPlayer.inventory[drawPlayer.selectedItem].GetAlpha(currentColor), drawPlayer.itemRotation, new Vector2(frame.Width * 0.5f - frame.Width * 0.5f * drawPlayer.direction, frame.Height), drawPlayer.inventory[drawPlayer.selectedItem].scale, spriteEffects, 0);
+			drawInfo.DrawDataCache.Add(value);
+
+			//value = new DrawData(TextureAssets.GlowMask[drawPlayer.inventory[drawPlayer.selectedItem].glowMask].Value, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y)), frame, new Color(250, 250, 250, item.alpha), drawPlayer.itemRotation, new Vector2(frame.Width * 0.5f - frame.Width * 0.5f * drawPlayer.direction, frame.Height), drawPlayer.inventory[drawPlayer.selectedItem].scale, spriteEffects, 0);
+			drawInfo.DrawDataCache.Add(value);
 		}
 	}
 	public class Obsidian_Spellsword_P : ModProjectile, IWhipProjectile {
