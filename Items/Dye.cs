@@ -18,6 +18,7 @@ namespace EpikV2.Items {
     public class Jade_Dye : Dye_Item {
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Jade Dye");
+            SacrificeTotal = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type, 9);
@@ -32,6 +33,7 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Items/Non-Chromatic_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Heatwave Dye");
+            SacrificeTotal = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type, 9);
@@ -44,6 +46,7 @@ namespace EpikV2.Items {
     public class Starlight_Dye : Dye_Item {
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Starlight Dye");
+            SacrificeTotal = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type, 9);
@@ -58,6 +61,7 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Items/Starlight_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Dim Starlight Dye");
+            SacrificeTotal = 3;
         }
 		public override void SetDefaults() {
 			int dye = Item.dye;
@@ -78,6 +82,7 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Items/Starlight_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Bright Starlight Dye");
+            SacrificeTotal = 3;
         }
 		public override void SetDefaults() {
 			int dye = Item.dye;
@@ -97,12 +102,14 @@ namespace EpikV2.Items {
     public class Retro_Dye : Dye_Item {
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Retro Dye");
+            SacrificeTotal = 3;
         }
     }
 
     public class Red_Retro_Dye : Dye_Item {
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Retro Dye (Red)");
+            SacrificeTotal = 3;
         }
     }
 
@@ -166,6 +173,7 @@ namespace EpikV2.Items {
     public class Cursed_Hades_Dye : Dye_Item {
         public override void SetStaticDefaults(){
             DisplayName.SetDefault("Cursed Hades Dye");
+            SacrificeTotal = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type, 3);
@@ -178,6 +186,7 @@ namespace EpikV2.Items {
     public class Ichor_Dye : Dye_Item {
         public override void SetStaticDefaults(){
             DisplayName.SetDefault("Ichor Dye");
+            SacrificeTotal = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type, 3);
@@ -190,6 +199,7 @@ namespace EpikV2.Items {
     public class Golden_Flame_Dye : Dye_Item {
         public override void SetStaticDefaults(){
             DisplayName.SetDefault("Golden Flame Dye");
+            SacrificeTotal = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type, 3);
@@ -204,6 +214,7 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Chimera's Blood");
+            SacrificeTotal = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type, 9);
@@ -218,6 +229,7 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Blackened Chimera's Blood");
+            SacrificeTotal = 2;
         }
         public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type, 2);
@@ -232,6 +244,7 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Chimera's Blood (Inverted)");
+            SacrificeTotal = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type);
@@ -248,6 +261,7 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Blackened Chimera's Blood (Inverted)");
+            SacrificeTotal = 2;
         }
         public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type);

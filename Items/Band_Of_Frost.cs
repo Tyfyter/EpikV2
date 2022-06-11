@@ -19,7 +19,8 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Band Of Frost");
 		    Tooltip.SetDefault("");
-		}
+            SacrificeTotal = 1;
+        }
         public override void SetDefaults() {
             sbyte h = Item.handOnSlot;
             Item.CloneDefaults(ItemID.FrostStaff);

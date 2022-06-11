@@ -18,6 +18,7 @@ namespace EpikV2.Items {
                                "15% increased ranged and magic use speed\n"+
                                "Should not the death of a liar be itself a lie?");
 			ArmorIDs.Head.Sets.DrawFullHair[Item.headSlot] = true;
+			SacrificeTotal = 1;
 		}
 		public override void SetDefaults() {
 			Item.width = 20;

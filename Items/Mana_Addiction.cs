@@ -15,6 +15,7 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Black Mana Crystal");
 			Tooltip.SetDefault("Increases magic damage by 30%\n10% increased magic weapon speed");
+			SacrificeTotal = 1;
 		}
 		public static System.Diagnostics.Stopwatch sw;
 		public override void UpdateEquip(Player player) {

@@ -11,6 +11,7 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Brand-Free Peach Beverage");
 			Tooltip.SetDefault("'That's some good Brand-Free Peach Beverage'");
+			SacrificeTotal = 12;
 		}
 		public override void SetDefaults() {
 			//item.name = "jfdjfrbh";

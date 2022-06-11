@@ -10,6 +10,7 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Blood Mushroom Soup");
 			Tooltip.SetDefault("I'm pretty sure this is just mislabeled tomato soup.");
+			SacrificeTotal = 1;
 		}
 		public override void SetDefaults() {
 			//item.name = "jfdjfrbh";

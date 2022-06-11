@@ -16,6 +16,7 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Kusariken");
 			Tooltip.SetDefault("Right click to pull enemies closer with a chain");
+			SacrificeTotal = 1;
 		}
 		public override void SetDefaults() {
 			Item.damage = 98;

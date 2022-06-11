@@ -21,7 +21,7 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Name TBD");
 			Tooltip.SetDefault("Summon tag damage and crit chance benefit from bonuses");
-			CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
+			SacrificeTotal = 1;
 		}
 		public override void SetDefaults() {
 			// Call this method to quickly set some of the properties below.

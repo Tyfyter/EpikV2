@@ -22,7 +22,8 @@ namespace EpikV2.Items {
 		    Tooltip.SetDefault("");
             ItemID.Sets.StaffMinionSlotsRequired[Item.type] = 1;
             ID = Item.type;
-		}
+            SacrificeTotal = 1;
+        }
 		public override void SetDefaults() {
             int dye = Item.dye;
             Item.CloneDefaults(ItemID.StardustDragonStaff);

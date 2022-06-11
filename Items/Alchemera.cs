@@ -21,6 +21,7 @@ namespace EpikV2.Items {
         public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Alchemera");
 		    Tooltip.SetDefault("");
+            SacrificeTotal = 1;
             //ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
         }
         public override void SetDefaults() {

@@ -31,7 +31,8 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Scorpio");
 		    Tooltip.SetDefault("<right> to strike with celestial claws");
             ID = Item.type;
-            if(Main.netMode == NetmodeID.Server)return;
+            SacrificeTotal = 1;
+            if (Main.netMode == NetmodeID.Server)return;
             tailSpikeTexture = Mod.RequestTexture("Items/Scorpio_Tail_Spike");
             tailSegmentTexture = Mod.RequestTexture("Items/Scorpio_Tail_Segment");
             tailSegmentDimTexture = Mod.RequestTexture("Items/Scorpio_Tail_Segment_Dim");

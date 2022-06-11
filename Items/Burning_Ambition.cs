@@ -21,6 +21,7 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Burning Avaritia");//does not contain the letter e
 			Tooltip.SetDefault("Penetrates up to 8 armor\n<right> to smelt tiles.");
+			SacrificeTotal = 1;
 			//customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
 		}
 		public override void SetDefaults() {

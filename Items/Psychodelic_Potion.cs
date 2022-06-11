@@ -17,7 +17,8 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Acrid Potion");
             Tooltip.SetDefault("You definitely shouldn't drink this...");
-		}
+            SacrificeTotal = 10;
+        }
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.StrangeBrew);
             Item.healLife = 0;

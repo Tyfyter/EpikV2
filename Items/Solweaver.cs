@@ -13,7 +13,11 @@ using static EpikV2.Resources;
 
 namespace EpikV2.Items {
     public class Solweaver : ModItem {
-
+		public override void SetStaticDefaults(){
+			DisplayName.SetDefault("Solweaver");
+			Tooltip.SetDefault("");
+            SacrificeTotal = 1;
+        }
         public override void SetDefaults(){
             Item.damage = 80;
             Item.DamageType = DamageClass.Magic;
@@ -36,10 +40,6 @@ namespace EpikV2.Items {
             recipe.AddTile(TileID.DemonAltar);
             recipe.Register();
         }
-		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Solweaver");
-			Tooltip.SetDefault("");
-		}
         public override bool AltFunctionUse(Player player) {
             return true;
         }

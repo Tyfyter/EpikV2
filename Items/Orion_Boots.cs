@@ -17,7 +17,8 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Orion Boots");
 		    Tooltip.SetDefault("I'm sure this is safe");
             ID = Item.type;
-		}
+            SacrificeTotal = 1;
+        }
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.AmethystHook);
 			Item.shootSpeed = 20f;
@@ -41,7 +42,8 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Uranium Capsule");
 		    Tooltip.SetDefault("");
             ID = Item.type;
-		}
+            SacrificeTotal = 99;
+        }
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.Emerald);
             Item.createTile = -1;

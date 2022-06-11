@@ -12,7 +12,8 @@ namespace EpikV2.Items
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Step 2");
             Tooltip.SetDefault("Equip to cover yourself in oil");
-            //Tooltip.SetDefault("Allows flight and slow fall while in water");
+			//Tooltip.SetDefault("Allows flight and slow fall while in water");
+			SacrificeTotal = 1;
 		}
 
 		public override void SetDefaults() {

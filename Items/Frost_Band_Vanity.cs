@@ -20,7 +20,8 @@ namespace EpikV2.Items {
         public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Gold Band");
 		    Tooltip.SetDefault("Looks rather nice, no?");
-		}
+            SacrificeTotal = 1;
+        }
         public override void SetDefaults() {
             Item.handOnSlot = ModContent.GetInstance<Band_Of_Frost>().Item.handOnSlot;
             Item.accessory = true;

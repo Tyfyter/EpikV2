@@ -21,8 +21,9 @@ namespace EpikV2.Items {
             Item.shoot = ProjectileType<Spike_Hook_Spawn_Projectile>();
 		}
 		public override void SetStaticDefaults() {
-		  DisplayName.SetDefault("Rope Hook");
-		  Tooltip.SetDefault("");
+			DisplayName.SetDefault("Rope Hook");
+			Tooltip.SetDefault("");
+			SacrificeTotal = 1;
 		}
 
 

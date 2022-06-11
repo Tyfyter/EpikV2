@@ -31,6 +31,7 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Hardlight Rifle");
 		    Tooltip.SetDefault("\"This is totally just a [REDACTED]\"\nHold right click to charge a shotgun blast");
             ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
+            SacrificeTotal = 1;
             if (Main.netMode == NetmodeID.Server)return;
             handleTexture = Mod.RequestTexture("Items/Suppressor_Handle");
             centerTexture = Mod.RequestTexture("Items/Suppressor_Center");

@@ -27,6 +27,7 @@ namespace EpikV2.Items {
                                "'A magician never reveals <pro> secrets'");
             ArmorIDs.Head.Sets.DrawHatHair[ArmorID] = true;
             ArmorIDs.Head.Sets.DrawHatHair[RealArmorID] = true;
+            SacrificeTotal = 1;
         }
 		public override void SetDefaults() {
             Item.headSlot = ArmorID;

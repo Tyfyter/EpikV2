@@ -26,7 +26,8 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Draco");
 		    Tooltip.SetDefault("");
             ID = Item.type;
-		}
+            SacrificeTotal = 1;
+        }
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.NebulaBlaze);
             Item.knockBack = 5f;

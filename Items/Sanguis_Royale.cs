@@ -18,7 +18,8 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Sanguis Royale");
 			Tooltip.SetDefault("");
             Item.staff[Item.type] = true;
-		}
+            SacrificeTotal = 1;
+        }
         public override void SetDefaults(){
             Item.damage = 78;
             Item.DamageType = DamageClass.Magic;

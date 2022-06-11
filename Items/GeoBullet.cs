@@ -35,7 +35,7 @@ namespace EpikV2.Items {
 			recipe.AddIngredient(ItemID.MoonlordBullet, 70);
 			recipe.AddTile(TileID.MeteoriteBrick);
 			recipe.AddConsumeItemCallback(Recipe.ConsumptionRules.Alchemy);
-			recipe.Register();
+			//recipe.Register();
 		}
 	}
 }

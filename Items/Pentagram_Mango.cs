@@ -14,7 +14,8 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Mango With a Pentagram on it");
 		    Tooltip.SetDefault("Rearranges enemy organs");
-		}
+            SacrificeTotal = 1;
+        }
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.FrostStaff);
             Item.damage = 40;

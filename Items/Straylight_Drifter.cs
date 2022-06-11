@@ -18,8 +18,9 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Straylight Drifter");
 		    Tooltip.SetDefault("\"Skill honed sharp\"");
             id = Item.type;
+            SacrificeTotal = 1;
             //customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
-		}
+        }
         public override void SetDefaults(){
             Item.CloneDefaults(ItemID.Handgun);
             Item.damage = 165;

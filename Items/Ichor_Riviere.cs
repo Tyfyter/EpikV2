@@ -12,6 +12,7 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Ichor Rivière");
 			Tooltip.SetDefault("Increases armor penetration by 4\nAttacks may reduce enemy defense");
+			SacrificeTotal = 1;
 		}
 		public override void SetDefaults() {
 			NeckSlot = Item.neckSlot;

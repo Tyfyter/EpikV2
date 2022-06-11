@@ -14,8 +14,9 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Aquamarine");
 		    Tooltip.SetDefault("\"Make waves\"");//Theta waves to be specific
+            SacrificeTotal = 1;
             //customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
-		}
+        }
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.WoodenBow);
             Item.damage = 60;

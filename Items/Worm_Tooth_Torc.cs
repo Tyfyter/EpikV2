@@ -10,6 +10,7 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Worm Tooth Torc");
 			Tooltip.SetDefault("Increases armor penetration by 7\nAttacks may inflict Cursed Inferno");
+			SacrificeTotal = 1;
 		}
 		public override void SetDefaults() {
 			sbyte n = Item.neckSlot;

@@ -6,6 +6,7 @@ namespace EpikV2.Items {
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Shattered Fate");
             Tooltip.SetDefault("WeaponOut is currently unavailable for this version\nthis item will be reimplemented when that changes, but for now it's just a placeholder");
+            SacrificeTotal = 1;
         }
         public override void SetDefaults() {
             Item.DamageType = DamageClass.Melee;
@@ -60,6 +61,7 @@ namespace EpikV2.Items {
                 "<right> consumes combo to unleash a shattering blow\n" +
                 "Combo grants 15% increased melee attack speed and a crit chance boost based on your combo counter.");
             comboEffect = ModPlayerFists.RegisterComboEffectID(ComboEffects);
+            SacrificeTotal = 1;
         }
         public override void SetDefaults() {
             Item.DamageType = DamageClass.Melee;

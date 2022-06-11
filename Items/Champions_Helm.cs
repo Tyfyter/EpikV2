@@ -16,7 +16,8 @@ namespace EpikV2.Items {
                                "10% increased melee and ranged crit chance\n"+
                                "'Rise, undefeated, and fight'");
             ArmorID = Item.headSlot;
-		}
+            SacrificeTotal = 1;
+        }
 		public override void SetDefaults() {
 			Item.width = 20;
 			Item.height = 16;

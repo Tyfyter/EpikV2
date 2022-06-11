@@ -31,7 +31,8 @@ namespace EpikV2.Items {
 			ItemID.Sets.GamepadWholeScreenUseRange[Item.type] = true;
 			ItemID.Sets.LockOnIgnoresCollision[Item.type] = true;
             ID = Item.type;
-		}
+            SacrificeTotal = 1;
+        }
 		public override void SetDefaults() {
             int dye = Item.dye;
             Item.CloneDefaults(ItemID.StardustDragonStaff);

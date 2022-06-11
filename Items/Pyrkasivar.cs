@@ -20,6 +20,7 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Pyrkasivar");//Google translate seems to think this means armrest in Finnish, but 
 			Tooltip.SetDefault("");
+			SacrificeTotal = 1;
 		}
 		public override void SetDefaults() {
 			Item.DamageType = DamageClass.Summon;

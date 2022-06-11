@@ -12,6 +12,7 @@ using Terraria.DataStructures;
 //using Origins.Projectiles;
 using static EpikV2.Resources;
 using System.IO;
+using Terraria.Graphics.Shaders;
 
 namespace EpikV2.Items {
     public class Orion_Bow : ModItem, ICustomDrawItem {
@@ -36,6 +37,7 @@ namespace EpikV2.Items {
 		    Tooltip.SetDefault("Shoot for the stars");
             ID = Item.type;
             ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
+            SacrificeTotal = 1;
             if (Main.netMode == NetmodeID.Server)return;
             goldTexture = Mod.RequestTexture("Items/Orion_Bow_Limb_Gold");
             skyTexture = Mod.RequestTexture("Items/Orion_Bow_Limb_Sky");
@@ -140,6 +142,10 @@ namespace EpikV2.Items {
             float itemRotation = drawPlayer.itemRotation - drawPlayer.fullRotation;
             DrawData value;
 
+            int shaderIDGold = GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveGoldDye);
+            int shaderIDStars = GameShaders.Armor.GetShaderIdFromItemId(ItemID.StardustDye);
+            int shaderIDSun = GameShaders.Armor.GetShaderIdFromItemId(ItemID.SolarDye);
+
             Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
 
             //string
@@ -161,7 +167,7 @@ namespace EpikV2.Items {
                 stringLength);
 
             value = new DrawData(stringTexture, drawRect, null, Item.GetAlpha(Color.White), stringRotation-stringSpread+Pi, stringOrigin, drawInfo.itemEffect, 0);
-            value.shader = fireArrow?112:115;
+            value.shader = fireArrow ? shaderIDSun : shaderIDStars;
             drawInfo.DrawDataCache.Add(value);
 
             limbOffset.Y = -limbOffset.Y;
@@ -174,24 +180,24 @@ namespace EpikV2.Items {
                 stringLength);
 
             value = new DrawData(stringTexture, drawRect, null, Item.GetAlpha(Color.White), stringRotation+stringSpread, stringOrigin, drawInfo.itemEffect, 0);
-            value.shader = fireArrow?112:115;
+            value.shader = fireArrow ? shaderIDSun : shaderIDStars;
             drawInfo.DrawDataCache.Add(value);
 
             //sky
             value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation-drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
-            value.shader = fireArrow ?112:115;
+            value.shader = fireArrow ? shaderIDSun : shaderIDStars;//consider twilight dye (94), 106
             drawInfo.DrawDataCache.Add(value);
             value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation+drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect ^ SpriteEffects.FlipVertically, 0);
-            value.shader = fireArrow?112:115;//115, 112, 106
+            value.shader = fireArrow ? shaderIDSun : shaderIDStars;//115, 112, 106
             drawInfo.DrawDataCache.Add(value);
 
             //gold
             //new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y))
             value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation-drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
-            value.shader = 80;
+            value.shader = shaderIDGold;
             drawInfo.DrawDataCache.Add(value);
             value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation+drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect ^ SpriteEffects.FlipVertically, 0);
-            value.shader = 80;
+            value.shader = shaderIDGold;
             drawInfo.DrawDataCache.Add(value);
         }
     }

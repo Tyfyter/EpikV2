@@ -28,7 +28,8 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Tempest Breaker");
 		    Tooltip.SetDefault("Right click for a heavy attack");
-            if(Main.netMode == NetmodeID.Server)return;
+            SacrificeTotal = 1;
+            if (Main.netMode == NetmodeID.Server)return;
             blastTexture = Mod.RequestTexture("Items/Tempest_Breaker_Explosion");
 		}
         public override void SetDefaults() {

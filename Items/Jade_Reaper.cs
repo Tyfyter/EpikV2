@@ -20,7 +20,8 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("Jade Reaper");
 			Tooltip.SetDefault("");
-		}
+            SacrificeTotal = 1;
+        }
 		public override void SetDefaults(){
 			Item.CloneDefaults(ItemID.MonkStaffT3);
 			Item.damage = 115;

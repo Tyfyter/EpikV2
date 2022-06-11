@@ -13,6 +13,7 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Ancient Mobile Present");
 			Tooltip.SetDefault("Both does and does not contain a dead cat");
+			SacrificeTotal = 111;
 		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.Present);

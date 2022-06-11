@@ -49,7 +49,7 @@ namespace EpikV2.Items {
 			animation = new DrawAnimationManual(4);
 			Main.RegisterItemAnimation(Item.type, animation);
 			customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
-			CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[Type] = 1;
+			SacrificeTotal = 1;
 		}
 		public override void SetDefaults() {
 			// Call this method to quickly set some of the properties below.

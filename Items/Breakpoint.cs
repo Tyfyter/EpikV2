@@ -20,7 +20,8 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Breakpoint");
 		    Tooltip.SetDefault("");
             customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
-		}
+            SacrificeTotal = 1;
+        }
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.WoodenBow);
             Item.damage = 147;

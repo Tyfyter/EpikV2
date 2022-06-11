@@ -16,7 +16,8 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Spring Boots");
 		    Tooltip.SetDefault("'A bit ropey'");
             ID = Item.type;
-		}
+            SacrificeTotal = 1;
+        }
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.AmethystHook);
 			Item.shootSpeed = 16f;
@@ -29,7 +30,8 @@ namespace EpikV2.Items {
 		    DisplayName.SetDefault("Lucky Boots");
 		    Tooltip.SetDefault("'They've never failed you'");
             ID = Item.type;
-		}
+            SacrificeTotal = 1;
+        }
 		public override void AddRecipes() {
             Recipe recipe = Mod.CreateRecipe(Type);
             recipe.AddIngredient(Spring_Boots.ID);

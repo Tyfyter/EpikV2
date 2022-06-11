@@ -15,7 +15,8 @@ namespace EpikV2.Items {
         public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Red Star Pendant");
 		    Tooltip.SetDefault("кровь для бога крови");
-		}
+            SacrificeTotal = 1;
+        }
         public override void SetDefaults() {
             Item.accessory = true;
             Item.rare = ItemRarityID.LightPurple;
