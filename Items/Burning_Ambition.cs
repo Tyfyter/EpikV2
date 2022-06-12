@@ -104,6 +104,7 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
+			Projectile.DamageType = DamageClass.Magic;
 			Projectile.timeLeft = 120;
 			Projectile.usesLocalNPCImmunity = true;
 			Projectile.width = 12;
@@ -296,6 +297,7 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
+			Projectile.DamageType = DamageClass.Magic;
 			Projectile.timeLeft = 1200;
 			Projectile.usesLocalNPCImmunity = true;
 			Projectile.width = 12;
@@ -470,6 +472,7 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
+			Projectile.DamageType = DamageClass.Magic;
 			Projectile.timeLeft = 1200;
 			Projectile.width = 12;
 			Projectile.height = 12;

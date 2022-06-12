@@ -25,7 +25,7 @@ namespace EpikV2.Items {
 		public override void SetDefaults(){
 			Item.CloneDefaults(ItemID.MonkStaffT3);
 			Item.damage = 115;
-			Item.DamageType = DamageClass.Melee;
+			Item.DamageType = DamageClass.MeleeNoSpeed;
 			Item.width = 64;
 			Item.height = 64;
 			Item.useAnimation = Item.useTime = 30;

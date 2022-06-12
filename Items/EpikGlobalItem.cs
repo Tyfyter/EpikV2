@@ -19,6 +19,8 @@ namespace EpikV2.Items {
 		public override void OnCreate(Item item, ItemCreationContext context) {
 			if (context is RecipeCreationContext) {
 				InitCatgirlMeme(item);
+			} else if(context is not InitializationContext) {
+				EpikV2.instance.Logger.Info("cat ears created in unknown context: "+context);
 			}
 		}
 		public override void OnSpawn(Item item, IEntitySource source) {
@@ -46,7 +48,8 @@ namespace EpikV2.Items {
 			}
 			return false;
 		}
-		[Obsolete]
+		[Obsolete("WeaponOut is currently not updated to 1.4")]
+		[JITWhenModsEnabled("WeaponOut")]
 		public bool IsWeaponOutFistSetDefault() {
 			//bool isWO = new StackTrace().GetFrames()[5].GetMethod().DeclaringType == typeof(WeaponOut.ModPlayerFists);
 			//return isWO;

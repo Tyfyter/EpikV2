@@ -45,15 +45,20 @@ namespace EpikV2.Items {
         public override bool AltFunctionUse(Player player) {
             return true;
         }
-        public override bool CanUseItem(Player player) {
-            if(player.altFunctionUse==2) {
+		public override bool? UseItem(Player player) {
+            if (player.altFunctionUse == 2) {
                 Item.useStyle = ItemUseStyleID.Shoot;
                 Item.shoot = ProjectileID.None;
-                player.GetModPlayer<EpikPlayer>().glaiveRecall = true;
-                return player.ownedProjectileCounts[ModContent.ProjectileType<Ashen_Glaive_P>()]>0;
             } else {
                 Item.useStyle = ItemUseStyleID.Swing;
                 Item.shoot = ModContent.ProjectileType<Ashen_Glaive_P>();
+            }
+            return true;
+        }
+		public override bool CanUseItem(Player player) {
+            if(player.altFunctionUse==2) {
+                player.GetModPlayer<EpikPlayer>().glaiveRecall = true;
+                return player.ownedProjectileCounts[ModContent.ProjectileType<Ashen_Glaive_P>()]>0;
             }
             return player.ownedProjectileCounts[Item.shoot]<=2;
         }

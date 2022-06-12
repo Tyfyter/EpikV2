@@ -34,15 +34,11 @@ using ReLogic.Content;
 using EpikV2.Layers;
 using Terraria.ModLoader.Default;
 
-#pragma warning disable 672
 namespace EpikV2 {
 	public class EpikV2 : Mod {
 		public static string GithubUserName => "Tyfyter";
 		public static string GithubProjectName => "EpikV2";
 		internal static EpikV2 instance;
-		private HotKey ReadTooltipsVar = new HotKey("Read Tooltips (list mod name)", Keys.L);
-		List<int> RegItems = new List<int> {};
-		List<int> ModItems = new List<int> {};
 		//public static MiscShaderData jadeShader;
 		public static int jadeShaderID;
 		public static int starlightShaderID;
@@ -282,6 +278,11 @@ public static float ShimmerCalc(float val) {
 					npc.GetGlobalNPC<EpikGlobalNPC>().organRearrangement = Math.Max(npc.GetGlobalNPC<EpikGlobalNPC>().organRearrangement, reader.ReadSingle());
 					break;
 
+					case PacketType.empressDeath:
+					Logger.InfoFormat("received EoL death packet");
+					Main.LocalPlayer.GetModPlayer<EpikPlayer>().empressTime = 5;
+					break;
+
 					default:
 					Logger.WarnFormat("EpikV2: Unknown Message type: {0}", type);
 					break;
@@ -294,15 +295,7 @@ public static float ShimmerCalc(float val) {
 			public const byte playerHP = 2;
 			public const byte npcHP = 3;
 			public const byte topHatCard = 4;
-		}
-
-		public override void AddRecipes() {
-			for (int i = 1; i < ItemID.Count; i++) {
-				RegItems.Add(i);
-			}
-			for (int i = ItemID.Count; i < ItemLoader.ItemCount; i++) {
-				ModItems.Add(i);
-			}
+			public const byte empressDeath = 5;
 		}
 
 		public string GetTriggerName(string name) {
@@ -314,7 +307,7 @@ public static float ShimmerCalc(float val) {
 				for (int i = 0; i < TextureAssets.GlowMask.Length; i++) {
 					glowMasks[i] = TextureAssets.GlowMask[i];
 				}
-				glowMasks[glowMasks.Length - 1] = ModContent.Request<Texture2D>(modItem.Texture+"_Glow");
+				glowMasks[^1] = ModContent.Request<Texture2D>(modItem.Texture+"_Glow");
 				TextureAssets.GlowMask = glowMasks;
 				return (short)(glowMasks.Length - 1);
 			} else return 0;
@@ -325,15 +318,11 @@ public static float ShimmerCalc(float val) {
 			HellforgeRecipes = new HashSet<Recipe>(Main.recipe.Where(
 				r => r.requiredTile.Sum(
 					t => {
-						switch (t) {
-							case TileID.Furnaces:
-							case TileID.Hellforge:
-							return 1;
-							case -1:
-							return 0;
-							default:
-							return -100;
-						}
+						return t switch {
+							TileID.Furnaces or TileID.Hellforge => 1,
+							-1 => 0,
+							_ => -100,
+						};
 					}
 				) > 0
 			));

@@ -26,6 +26,7 @@ namespace EpikV2.Items {
 		}
         public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.BatHook);
+            Projectile.DamageType = DamageClass.Melee;
             Projectile.usesLocalNPCImmunity = true;
         }
         public override void NumGrappleHooks(Player player, ref int numHooks) {

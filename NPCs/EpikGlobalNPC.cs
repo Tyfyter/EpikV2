@@ -8,18 +8,19 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent.ItemDropRules;
 using Terraria.GameContent.NetModules;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using static EpikV2.EpikExtensions;
+using static EpikV2.EpikV2;
 using static EpikV2.Resources;
 using static Microsoft.Xna.Framework.MathHelper;
 
 namespace EpikV2.NPCs
 {
-	public class EpikGlobalNPC : GlobalNPC
-	{
+	public class EpikGlobalNPC : GlobalNPC {
 		public override bool InstancePerEntity => true;
 		protected override bool CloneNewInstances => true;
 		internal float suppressorHits = 0;
@@ -93,7 +94,7 @@ namespace EpikV2.NPCs
                     bounced = true;
                 }
                 float acc = (npc.velocity - oldVel).Length();
-                acc = (acc * 7);
+                acc *= 7;
                 if(bounced) {
                     if(acc>25)npc.StrikeNPC((int)acc, 0, 0);
                     if(--bounces<1) {
@@ -201,31 +202,81 @@ namespace EpikV2.NPCs
             if(jaded || scorpioTime>0)return false;
 			return base.CanHitPlayer(npc, target, ref cooldownSlot);
 		}
+		public override void ModifyGlobalLoot(GlobalLoot globalLoot) {
+            globalLoot.Add(ItemDropRule.ByCondition(new MobilePresentXmasCondition(), ModContent.ItemType<Mobile_Glitch_Present>(), 75));
+            globalLoot.Add(ItemDropRule.ByCondition(new MobilePresentFrostMoonCondition(), ModContent.ItemType<Mobile_Glitch_Present>(), 40));
+        }
+		public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot) {
+			switch (npc.type) {
+                case NPCID.CultistArcherWhite:
+                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Sacrificial_Dagger>(), 20));
+                break;
 
+                case NPCID.SantaClaus:
+                case NPCID.Steampunker:
+                npcLoot.Add(ItemDropRule.ByCondition(new KilledByPlayerCondition(), ModContent.ItemType<Red_Star_Pendant>()));
+                break;
+
+                case NPCID.TravellingMerchant:
+                npcLoot.Add(ItemDropRule.ByCondition(new KilledByPlayerAndNoPurchaseCondition(), ModContent.ItemType<Red_Star_Pendant>()));
+                break;
+
+                case NPCID.RainbowSlime:
+                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Psychodelic_Potion>(), 20));
+                break;
+
+                case NPCID.PresentMimic:
+                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Mobile_Glitch_Present>(), 20));
+                break;
+                case NPCID.SlimeRibbonGreen:
+                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Mobile_Glitch_Present>(), 20));
+                break;
+                case NPCID.SlimeRibbonRed:
+                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Mobile_Glitch_Present>(), 30));
+                break;
+                case NPCID.SlimeRibbonWhite:
+                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Mobile_Glitch_Present>(), 40));
+                break;
+                case NPCID.SlimeRibbonYellow:
+                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Mobile_Glitch_Present>(), 50));
+                break;
+            }
+		}
 		public override void OnKill(NPC npc){
-            if(npc.type == NPCID.Golem) {
-                if(Main.netMode == NetmodeID.Server) {
+			switch (npc.type) {
+                case NPCID.Golem:
+                if (Main.netMode == NetmodeID.Server) {
                     ModPacket modPacket;
-                    for(int i = 0; i < 255; i++) {
-                        if(npc.playerInteraction[i] && Main.player[i].active) {
+                    for (int i = 0; i < 255; i++) {
+                        if (npc.playerInteraction[i] && Main.player[i].active) {
                             modPacket = Mod.GetPacket(1);
-                            modPacket.Write((byte)1);
+                            modPacket.Write(PacketType.golemDeath);
                             modPacket.Send();
                         }
                     }
                 } else {
-                    if(Main.netMode == NetmodeID.SinglePlayer) {
+                    if (Main.netMode == NetmodeID.SinglePlayer) {
                         Main.LocalPlayer.GetModPlayer<EpikPlayer>().golemTime = 5;
                     }
                 }
-            } else if(npc.type == NPCID.CultistArcherWhite && Main.rand.NextBool(19)) {
-                ///TODO:fix
-                Item.NewItem(new EntitySource_Death(npc), npc.Hitbox, ModContent.ItemType<Sacrificial_Dagger>(), 1);
-            } else if(npc.type == NPCID.SantaClaus||npc.type == NPCID.Steampunker||(npc.type == NPCID.TravellingMerchant&&!itemPurchasedFrom)) {
-                if(npc.playerInteraction[Main.myPlayer])Item.NewItem(new EntitySource_Death(npc), npc.Hitbox, ModContent.ItemType<Red_Star_Pendant>(), 1);
-            }
-            if (npc.type == NPCID.RainbowSlime && Main.rand.NextBool(19)) {
-                Item.NewItem(new EntitySource_Death(npc), npc.Hitbox, ModContent.ItemType<Psychodelic_Potion>());
+                break;
+
+                case NPCID.HallowBoss:
+                if (Main.netMode == NetmodeID.Server) {
+                    ModPacket modPacket;
+                    for (int i = 0; i < 255; i++) {
+                        if (npc.playerInteraction[i] && Main.player[i].active) {
+                            modPacket = Mod.GetPacket(1);
+                            modPacket.Write(PacketType.empressDeath);
+                            modPacket.Send();
+                        }
+                    }
+                } else {
+                    if (Main.netMode == NetmodeID.SinglePlayer) {
+                        Main.LocalPlayer.GetModPlayer<EpikPlayer>().empressTime = 5;
+                    }
+                }
+                break;
             }
             if (npc.HasBuff(ModContent.BuffType<ShroomInfestedDebuff>())){
 				int a;
@@ -236,9 +287,6 @@ namespace EpikV2.NPCs
 					    Main.projectile[a].tileCollide = false;
 					}
 				}
-			}
-			if(EpikConfig.Instance.AncientPresents&&((Main.rand.NextBool(74) && Main.xMas) || (Main.rand.NextBool(39) && Main.snowMoon) || (npc.type == NPCID.PresentMimic && Main.rand.NextBool(19)) || (npc.type == NPCID.SlimeRibbonGreen && Main.rand.NextBool(19)) || (npc.type == NPCID.SlimeRibbonRed && Main.rand.NextBool(29)) || (npc.type == NPCID.SlimeRibbonWhite && Main.rand.NextBool(39)) || (npc.type == NPCID.SlimeRibbonYellow && Main.rand.NextBool(49)))){
-				Item.NewItem(new EntitySource_Death(npc), npc.Hitbox, ModContent.ItemType<Mobile_Glitch_Present>(), 1);
 			}
 		}
 
@@ -305,5 +353,30 @@ namespace EpikV2.NPCs
             if (jadeWhipDamage < damage) jadeWhipDamage = damage;
             if (jadeWhipCrit < crit) jadeWhipCrit = crit;
         }
+    }
+	public class KilledByPlayerCondition : IItemDropRuleCondition {
+        public bool CanDrop(DropAttemptInfo info) => info.npc.lastInteraction == info.player.whoAmI;
+        public bool CanShowItemDropInUI() => true;
+        public string GetConditionDescription() => "";
+    }
+    public class KilledByPlayerAndNoPurchaseCondition : IItemDropRuleCondition {
+        public bool CanDrop(DropAttemptInfo info) => info.npc.lastInteraction == info.player.whoAmI && !(info.npc.GetGlobalNPC<EpikGlobalNPC>()?.itemPurchasedFrom??true);
+        public bool CanShowItemDropInUI() => true;
+        public string GetConditionDescription() => "Without purchasing an item";
+    }
+    public class MobilePresentCondition : IItemDropRuleCondition {
+        public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents;
+        public bool CanShowItemDropInUI() => true;
+        public string GetConditionDescription() => "";
+    }
+    public class MobilePresentXmasCondition : IItemDropRuleCondition {
+        public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents;
+        public bool CanShowItemDropInUI() => true;
+        public string GetConditionDescription() => "";
+    }
+    public class MobilePresentFrostMoonCondition : IItemDropRuleCondition {
+        public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents;
+        public bool CanShowItemDropInUI() => true;
+        public string GetConditionDescription() => "";
     }
 }

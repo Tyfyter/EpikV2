@@ -126,6 +126,7 @@ namespace EpikV2.Items {
 			ID = Projectile.type;
 		}
 		public override void SetDefaults() {
+			Projectile.DamageType = DamageClass.Summon;
 			Projectile.minion = true;
 			Projectile.friendly = true;
 			Projectile.penetrate = -1;
@@ -215,6 +216,7 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.HeatRay);
+			Projectile.DamageType = DamageClass.Summon;
 			Projectile.penetrate = 1;
 			AIType = ProjectileID.HeatRay;
 		}

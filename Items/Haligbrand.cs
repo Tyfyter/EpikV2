@@ -161,6 +161,7 @@ namespace EpikV2.Items {
 			TrailTexture = Mod.RequestTexture("Items/Haligbrand_P_Trail");
 		}
 		public override void SetDefaults() {
+			Projectile.DamageType = DamageClass.Summon;
 			Projectile.minion = true;
 			Projectile.friendly = true;
 			Projectile.penetrate = -1;
@@ -572,7 +573,7 @@ namespace EpikV2.Items {
 			ID = Projectile.type;
 		}
 		public override void SetDefaults() {
-			Projectile.minion = true;
+			Projectile.DamageType = DamageClass.Summon;
 			Projectile.friendly = true;
 			Projectile.penetrate = -1;
 			Projectile.width = 0;

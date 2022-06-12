@@ -29,6 +29,7 @@ namespace EpikV2 {
         public int oldStatLife = 0;
         //public bool majesticWings;
         public int golemTime = 0;
+        public int empressTime = 0;
         public bool chargedEmerald = false;
         public bool chargedAmber = false;
         public bool chargedDiamond = false;
@@ -202,8 +203,9 @@ namespace EpikV2 {
             }
             if(!Player.HasBuff(True_Self_Debuff.ID))reallyWolf = false;
             if(wetTime>0)wetTime--;
-            if(golemTime>0)golemTime--;
-            if(yoteTimeCollide.x>0) {
+            if (golemTime > 0) golemTime--;
+            if (empressTime > 0) empressTime--;
+            if (yoteTimeCollide.x>0) {
                 yoteTimeCollide.x--;
             }else if(yoteTimeCollide.x<0) {
                 yoteTimeCollide.x++;

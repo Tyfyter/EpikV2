@@ -59,7 +59,7 @@ namespace EpikV2.Items {
             }
             Item.noUseGraphic = false;
             Item.UseSound = SoundID.Item41;
-            return base.CanUseItem(player);
+            return true;
         }
         public override Vector2? HoldoutOffset(){
 			return new Vector2(4, -4);

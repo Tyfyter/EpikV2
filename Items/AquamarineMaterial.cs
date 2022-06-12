@@ -46,6 +46,7 @@ namespace EpikV2.Items {
 			}
 			player.GetModPlayer<EpikPlayer>().chargedEmerald = true;
 		}
+		public override bool CanResearch() => false;
 	}
 	public class SunstoneMaterial : ModItem {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeAmber;
@@ -89,6 +90,7 @@ namespace EpikV2.Items {
 				Item.SetDefaults(Item.type);
 			}
 		}
+		public override bool CanResearch() => false;
 	}
 	public class SanguineMaterial : ModItem {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeRuby;
@@ -106,6 +108,7 @@ namespace EpikV2.Items {
 		/*public override void UpdateInventory(Player player) {
 			player.GetModPlayer<EpikPlayer>().chargedRuby = true;
 		}*/
+		public override bool CanResearch() => false;
 	}
 	public class SanguineMaterialPartial : ModItem {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeRuby;
@@ -141,6 +144,7 @@ namespace EpikV2.Items {
 				}
 			}
 		}
+		public override bool CanResearch() => false;
 	}
 	public class MoonlaceMaterial : ModItem {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeDiamond;
@@ -182,11 +186,13 @@ namespace EpikV2.Items {
 			}
 			time++;
 		}
+		public override bool CanResearch() => false;
 	}
 	public class Sacrificial_Dagger : ModItem {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Sacrificial Dagger");
 			Tooltip.SetDefault("");
+			SacrificeTotal = 1;
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.PsychoKnife);
@@ -241,6 +247,7 @@ namespace EpikV2.Items {
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			tooltips.RemoveRange(1,tooltips.Count-1);
 		}
+		public override bool CanResearch() => false;
 	}
 	public class EmpressDeath : ModItem {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.GolemTrophy;
@@ -255,16 +262,17 @@ namespace EpikV2.Items {
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			tooltips.RemoveRange(1,tooltips.Count-1);
 		}
+		public override bool CanResearch() => false;
 	}
 	public partial class EpikGlobalItem : GlobalItem {
 		public override void UpdateInventory(Item item, Player player) {
 			if(player.GetModPlayer<EpikPlayer>().golemTime>0) {
 				bool consumed = false;
-				if(item.type==ItemID.LargeAmber) {
+				if(item.type == ItemID.LargeAmber) {
 					item.type = SunstoneMaterial.id;
 					item.SetDefaults(item.type);
 					consumed = true;
-				}else if(item.type==ItemID.LargeEmerald) {
+				}else if(item.type == ItemID.LargeEmerald) {
 					item.type = AquamarineMaterial.id;
 					item.SetDefaults(item.type);
 					consumed = true;
@@ -272,13 +280,13 @@ namespace EpikV2.Items {
 				if(consumed) {
 					player.GetModPlayer<EpikPlayer>().golemTime = 0;
 				}
-			}/*else if(item.type==ItemID.LargeDiamond&&EpikWorld.EmpressTime>0) {
-				item.type = MoonlaceStaffMaterial.id;
+			}else if(item.type == ItemID.LargeDiamond && player.GetModPlayer<EpikPlayer>().empressTime > 0) {
+				item.type = MoonlaceMaterial.id;
 				item.SetDefaults(item.type);
-			}*/
-			if(item.type==ItemID.LargeRuby) {
+			}
+			if(item.type == ItemID.LargeRuby) {
 				EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
-				if(epikPlayer.sacrifice>0) {
+				if(epikPlayer.sacrifice > 0) {
 					epikPlayer.sacrifice = 0;
 					item.type = SanguineMaterialPartial.id;
 					item.SetDefaults(item.type);

@@ -101,7 +101,7 @@ namespace EpikV2.Items {
                 explosion.height*=8;
                 explosion.width*=8;
                 explosion.Center = exPos;
-                explosion.DamageType = DamageClass.Default;
+                explosion.DamageType = DamageClass.Generic;
                 SoundEngine.PlaySound(SoundID.Item14, exPos);
             } else {
                 if(epikPlayer.yoteTimeCollide.y>0&&Projectile.velocity.Y>0) {
