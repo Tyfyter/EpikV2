@@ -10,6 +10,8 @@ using Terraria.ID;
 using Microsoft.Xna.Framework;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.DataStructures;
+using Terraria.GameContent.Bestiary;
+using static Terraria.GameContent.Bestiary.BestiaryDatabaseNPCsPopulator;
 
 namespace EpikV2.NPCs {
     public class MinisharkNPC : ModNPC {
@@ -28,13 +30,19 @@ namespace EpikV2.NPCs {
             if(spawnInfo.Sky||spawnInfo.PlayerInTown||spawnInfo.Lihzahrd){
                 return 0f;
             }
-            if(spawnInfo.SpawnTileX>Main.maxTilesX/4&&spawnInfo.SpawnTileX<Main.maxTilesX*0.75&&!spawnInfo.Player.ZoneJungle) {
+            if(spawnInfo.SpawnTileX > Main.maxTilesX / 4 && spawnInfo.SpawnTileX < Main.maxTilesX * 0.75 && !spawnInfo.Player.ZoneJungle) {
                 return 0f;
             }
-            if(spawnInfo.SpawnTileY>Main.worldSurface+20) {
+            if(spawnInfo.SpawnTileY > Main.worldSurface + 20) {
                 return 0f;
             }
-            return spawnInfo.Water?0.1f:0f;
+            return spawnInfo.Water?0.05f:0f;
+        }
+		public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) {
+            bestiaryEntry.AddTags(new BestiaryPortraitBackgroundProviderPreferenceInfoElement(CommonTags.SpawnConditions.Biomes.Ocean));
+            bestiaryEntry.AddTags(CommonTags.SpawnConditions.Biomes.Jungle);
+            bestiaryEntry.AddTags(CommonTags.SpawnConditions.Biomes.Ocean);
+            bestiaryEntry.AddTags(new SearchAliasInfoElement("gun"));
         }
 		public override void OnSpawn(IEntitySource source) {
             if (source is EntitySource_FishedOut) NPC.life--;
@@ -196,7 +204,7 @@ namespace EpikV2.NPCs {
 			}*/
             NPC.directionY = NPC.direction;
             NPC.spriteDirection = 1;
-            if(Main.SmartCursorIsUsed)NPC.velocity = Vector2.Zero;
+            //if(Main.SmartCursorIsUsed)NPC.velocity = Vector2.Zero;
         }
 		public override void ModifyNPCLoot(NPCLoot npcLoot) {
             npcLoot.Add(ItemDropRule.Common(ItemID.Minishark));

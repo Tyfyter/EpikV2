@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.GameContent.NetModules;
 using Terraria.ID;
@@ -201,12 +202,17 @@ namespace EpikV2.NPCs
 		public override bool CanHitPlayer(NPC npc, Player target, ref int cooldownSlot){
             if(jaded || scorpioTime>0)return false;
 			return base.CanHitPlayer(npc, target, ref cooldownSlot);
-		}
-		public override void ModifyGlobalLoot(GlobalLoot globalLoot) {
+        }
+        public override void SetBestiary(NPC npc, BestiaryDatabase database, BestiaryEntry bestiaryEntry) {
+            ContentSamples.NpcBestiaryRarityStars[ModContent.NPCType<MinisharkNPC>()] = 4;
+        }
+
+        public override void ModifyGlobalLoot(GlobalLoot globalLoot) {
             globalLoot.Add(ItemDropRule.ByCondition(new MobilePresentXmasCondition(), ModContent.ItemType<Mobile_Glitch_Present>(), 75));
             globalLoot.Add(ItemDropRule.ByCondition(new MobilePresentFrostMoonCondition(), ModContent.ItemType<Mobile_Glitch_Present>(), 40));
         }
-		public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot) {
+
+        public override void ModifyNPCLoot(NPC npc, NPCLoot npcLoot) {
 			switch (npc.type) {
                 case NPCID.CultistArcherWhite:
                 npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Sacrificial_Dagger>(), 20));

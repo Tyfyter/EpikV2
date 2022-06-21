@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.GameContent.Bestiary;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static Terraria.ID.NPCID;
@@ -12,6 +13,9 @@ using static Terraria.ID.NPCID;
 namespace EpikV2.NPCs {
 	public class Wrong_Spawn_NPC : ModNPC {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.StrangeBrew;
+		public override void SetBestiary(BestiaryDatabase database, BestiaryEntry bestiaryEntry) {
+			database.Entries.Remove(bestiaryEntry);
+		}
 		public override int SpawnNPC(int tileX, int tileY) {
 			if (Main.rand.NextBool(1000)) {
 				return NPC.NewNPC(Terraria.Entity.GetSource_NaturalSpawn(), tileX * 16 + 8, tileY * 16, Derpling);

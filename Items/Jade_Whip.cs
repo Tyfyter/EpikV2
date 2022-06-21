@@ -66,12 +66,6 @@ namespace EpikV2.Items {
 			return false;
 		}
 	}
-	public class Jade_Whip_Debuff : ModBuff {
-		public override string Texture => "Terraria/Images/Buff_" + BuffID.RainbowWhipNPCDebuff;
-		public override void SetStaticDefaults() {
-			BuffID.Sets.IsAnNPCWhipDebuff[Type] = true;
-		}
-	}
 	public class Jade_Whip_P : ModProjectile, IWhipProjectile {
 		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.RainbowWhip;
 		public override void SetStaticDefaults() {
