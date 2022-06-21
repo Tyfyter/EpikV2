@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using EpikV2.Modifiers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -27,9 +28,10 @@ namespace EpikV2.Items {
         public override void RightClick(Player player) {
             int random = Main.rand.NextBool(ItemLoader.ItemCount) ? ItemID.Drax : Main.rand.Next(1, ItemLoader.ItemCount);
 			Item item = new(random);
-			Item.NewItem(player.GetSource_OpenItem(item.type), player.Center, new Vector2(), random, Main.rand.Next(1, Math.Max(Math.Min(item.maxStack/Main.rand.Next(1,10), 500), 1)), false, 0, true);
+			int prefix = Main.rand.NextBool(20) ? ModContent.PrefixType<Frogged_Prefix>() : -1;
+			Item.NewItem(player.GetSource_OpenItem(item.type), player.Center, new Vector2(), random, Main.rand.Next(1, Math.Max(Math.Min(item.maxStack/Main.rand.Next(1,10), 500), 1)), false, prefix, true);
             if(random == ItemID.UnluckyYarn) {
-			    Item.NewItem(player.GetSource_OpenItem(item.type), player.Center, new Vector2(), ItemID.MiniNukeI, 1, false, 0, true);
+			    Item.NewItem(player.GetSource_OpenItem(item.type), player.Center, new Vector2(), ItemID.MiniNukeI, 1, false, prefix, true);
             }
         }
 	}
