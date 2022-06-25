@@ -30,7 +30,7 @@ namespace EpikV2.Items {
 		}
 
 		public override void AddRecipes() {
-			Recipe recipe = Mod.CreateRecipe(Type);
+			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ItemID.OrichalcumBar, 10);
 			recipe.AddIngredient(ItemID.MoonlordBullet, 70);
 			recipe.AddTile(TileID.MeteoriteBrick);

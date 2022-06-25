@@ -43,7 +43,7 @@ namespace EpikV2.Items {
             Item.glowMask = customGlowMask;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.HallowedBar, 10);
             recipe.AddIngredient(ItemID.PulseBow);
             recipe.AddIngredient(ItemID.EyeoftheGolem);

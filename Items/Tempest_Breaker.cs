@@ -65,7 +65,7 @@ namespace EpikV2.Items {
             player.handon = Item.handOnSlot;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.MartianConduitPlating, 15);
             recipe.AddIngredient(ItemID.SoulofMight, 5);
             recipe.AddTile(TileID.MythrilAnvil);

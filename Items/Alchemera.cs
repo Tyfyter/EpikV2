@@ -45,7 +45,7 @@ namespace EpikV2.Items {
             //Item.UseSound = null;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.ToxicFlask);
             recipe.AddIngredient(ItemID.FragmentNebula, 9);
 
@@ -105,7 +105,7 @@ namespace EpikV2.Items {
             Tooltip.SetDefault("Will certainly do something");
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.StrangeBrew);
             recipe.AddIngredient(ItemID.InfernoPotion);
             recipe.AddIngredient(ItemID.MagicPowerPotion);

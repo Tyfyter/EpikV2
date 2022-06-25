@@ -152,14 +152,14 @@ namespace EpikV2.Tiles {
 			Item.createTile = ModContent.TileType<Telescope>();
 		}
 		public override void AddRecipes() {
-			Recipe recipe = Mod.CreateRecipe(Type);
+			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ItemID.SilverBar, 8);
 			recipe.AddIngredient(ItemID.Lens, 2);
 			recipe.AddTile(TileID.Tables);
 			recipe.AddTile(TileID.Chairs);
 			recipe.Register();
 
-			recipe = Mod.CreateRecipe(Type);
+			recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ItemID.TungstenBar, 8);
 			recipe.AddIngredient(ItemID.Lens, 2);
 			recipe.AddTile(TileID.Tables);

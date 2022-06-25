@@ -37,7 +37,7 @@ namespace EpikV2.Items {
             Item.UseSound = SoundID.Item8;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(SanguineMaterial.id);
             recipe.AddTile(TileID.DemonAltar);
             recipe.Register();

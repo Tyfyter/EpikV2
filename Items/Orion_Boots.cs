@@ -29,7 +29,7 @@ namespace EpikV2.Items {
 
 
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.RocketBoots, 1);
             recipe.AddIngredient(ItemID.FragmentSolar, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);

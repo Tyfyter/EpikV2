@@ -21,7 +21,7 @@ namespace EpikV2.Items {
             SacrificeTotal = 3;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type, 9);
+            Recipe recipe = Recipe.Create(Type, 9);
             recipe.AddIngredient(AquamarineMaterial.id);
             recipe.AddTile(TileID.DyeVat);
             recipe.Register();
@@ -36,7 +36,7 @@ namespace EpikV2.Items {
             SacrificeTotal = 3;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type, 9);
+            Recipe recipe = Recipe.Create(Type, 9);
             recipe.AddIngredient(SunstoneMaterial.id);
             recipe.AddTile(TileID.DyeVat);
             recipe.Register();
@@ -49,7 +49,7 @@ namespace EpikV2.Items {
             SacrificeTotal = 3;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type, 9);
+            Recipe recipe = Recipe.Create(Type, 9);
             recipe.AddIngredient(ItemID.FragmentStardust, 5);
             recipe.AddIngredient(ItemID.FragmentSolar, 5);
             recipe.AddTile(TileID.DyeVat);
@@ -70,7 +70,7 @@ namespace EpikV2.Items {
             Item.color = Colors.CoinSilver;
 		}
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type, 9);
+            Recipe recipe = Recipe.Create(Type, 9);
             recipe.AddIngredient(ItemID.FragmentStardust, 5);
             recipe.AddIngredient(ItemID.FragmentSolar, 5);
             recipe.AddTile(TileID.DyeVat);
@@ -91,7 +91,7 @@ namespace EpikV2.Items {
             Item.color = new Color(255, 255, 255, 100);
 		}
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type, 9);
+            Recipe recipe = Recipe.Create(Type, 9);
             recipe.AddIngredient(ItemID.FragmentStardust, 5);
             recipe.AddIngredient(ItemID.FragmentSolar, 5);
             recipe.AddTile(TileID.DyeVat);
@@ -163,7 +163,7 @@ namespace EpikV2.Items {
 			item.dye = dye;
 		}
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.Diamond);
             recipe.AddTile(TileID.DyeVat);
             recipe.SetResult(this, 3);
@@ -176,7 +176,7 @@ namespace EpikV2.Items {
             SacrificeTotal = 3;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type, 3);
+            Recipe recipe = Recipe.Create(Type, 3);
             recipe.AddIngredient(ItemID.HadesDye, 3);
             recipe.AddIngredient(ItemID.CursedFlame);
             recipe.AddTile(TileID.DyeVat);
@@ -189,7 +189,7 @@ namespace EpikV2.Items {
             SacrificeTotal = 3;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type, 3);
+            Recipe recipe = Recipe.Create(Type, 3);
             recipe.AddIngredient(ItemID.PurpleOozeDye, 3);
             recipe.AddIngredient(ItemID.Ichor);
             recipe.AddTile(TileID.DyeVat);
@@ -202,7 +202,7 @@ namespace EpikV2.Items {
             SacrificeTotal = 3;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type, 3);
+            Recipe recipe = Recipe.Create(Type, 3);
             recipe.AddIngredient(ItemID.HadesDye, 3);
             recipe.AddIngredient(ItemID.GoldDust);
             recipe.AddTile(TileID.DyeVat);
@@ -217,7 +217,7 @@ namespace EpikV2.Items {
             SacrificeTotal = 3;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type, 9);
+            Recipe recipe = Recipe.Create(Type, 9);
             recipe.AddIngredient(ItemID.FragmentVortex, 5);
             recipe.AddIngredient(ItemID.FragmentNebula, 5);
             recipe.AddTile(TileID.DyeVat);
@@ -232,7 +232,7 @@ namespace EpikV2.Items {
             SacrificeTotal = 2;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type, 2);
+            Recipe recipe = Recipe.Create(Type, 2);
             recipe.AddIngredient(ItemType<Chimera_Dye>(), 1);
             recipe.AddIngredient(ItemID.BlackInk, 1);
             recipe.AddTile(TileID.DyeVat);
@@ -247,11 +247,11 @@ namespace EpikV2.Items {
             SacrificeTotal = 3;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemType<Chimera_Dye>());
             recipe.Register();
 
-            recipe = Mod.CreateRecipe(ItemType<Chimera_Dye>());
+            recipe = Recipe.Create(ItemType<Chimera_Dye>());
             recipe.AddIngredient(this, 1);
             recipe.Register();
         }
@@ -264,11 +264,11 @@ namespace EpikV2.Items {
             SacrificeTotal = 2;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemType<Opaque_Chimera_Dye>());
             recipe.Register();
 
-            recipe = Mod.CreateRecipe(ItemType<Opaque_Chimera_Dye>());
+            recipe = Recipe.Create(ItemType<Opaque_Chimera_Dye>());
             recipe.AddIngredient(this, 1);
             recipe.Register();
         }

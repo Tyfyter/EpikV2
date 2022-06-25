@@ -53,7 +53,7 @@ namespace EpikV2.Items {
             }
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(SanguineMaterial.id, 1);
 			recipe.AddIngredient(ItemID.TopHat, 1);
 			recipe.AddIngredient(ItemID.BlackFairyDust, 1);

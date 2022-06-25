@@ -23,7 +23,7 @@ namespace EpikV2.Items {
 			Item.maxStack = 1;
 		}
 		public override void AddRecipes() {
-			Recipe recipe = Mod.CreateRecipe(Type);
+			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ItemID.SharkToothNecklace);
             recipe.AddIngredient(ItemID.WormTooth, 5);
             recipe.AddIngredient(ItemID.CursedFlame, 5);

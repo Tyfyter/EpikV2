@@ -40,7 +40,7 @@ namespace EpikV2.Items {
             Item.autoReuse = EpikConfig.Instance.ConstellationDraco;
 		}
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.NebulaBlaze, 1);
             recipe.AddIngredient(ItemID.FragmentSolar, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);

@@ -55,7 +55,7 @@ namespace EpikV2.Items {
             Item.UseSound = null;
 		}
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.Phantasm, 1);
             recipe.AddIngredient(ItemID.FragmentStardust, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);

@@ -30,7 +30,7 @@ namespace EpikV2.Items {
 		}
 
 		public override void AddRecipes() {
-			Recipe recipe = Mod.CreateRecipe(Type, 70);
+			Recipe recipe = Recipe.Create(Type, 70);
 			recipe.AddIngredient(ItemID.ShroomiteBar, 1);
 			recipe.AddIngredient(ItemID.SilverBullet, 70);
 			recipe.AddTile(TileID.Autohammer);
@@ -50,7 +50,7 @@ namespace EpikV2.Items {
 		}
 
 		public override void AddRecipes() {
-			Recipe recipe = Mod.CreateRecipe(Type);
+			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ModContent.ItemType<Infestation_Round>(), 3996);
 			recipe.AddTile(TileID.Autohammer);
 			recipe.Register();

@@ -63,7 +63,7 @@ namespace EpikV2.Items {
             return player.ownedProjectileCounts[Item.shoot]<=2;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.MartianConduitPlating, 15);
             recipe.AddIngredient(ItemID.SoulofFright, 5);
             recipe.AddTile(TileID.MythrilAnvil);

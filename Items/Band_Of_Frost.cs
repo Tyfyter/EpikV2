@@ -50,7 +50,7 @@ namespace EpikV2.Items {
             player.bodyFrame.Y = player.altFunctionUse == 2 ? 112 : 224 ;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ModContent.ItemType<Frost_Band_Vanity>());
             recipe.AddIngredient(ItemID.FrozenKey);
             recipe.Register();

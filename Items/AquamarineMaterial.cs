@@ -25,7 +25,7 @@ namespace EpikV2.Items {
 			Item.rare = ItemRarityID.Purple;
 		}
 		public override void AddRecipes() {
-			Recipe recipe = Mod.CreateRecipe(Type);
+			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ItemID.LargeEmerald);
 			recipe.AddIngredient(ItemType<GolemDeath>());
 			recipe.Register();
@@ -65,7 +65,7 @@ namespace EpikV2.Items {
 			Item.rare = ItemRarityID.Purple;
 		}
 		public override void AddRecipes() {
-			Recipe recipe = Mod.CreateRecipe(Type);
+			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ItemID.LargeAmber);
 			recipe.AddIngredient(ItemType<GolemDeath>());
 			recipe.Register();

@@ -27,7 +27,7 @@ namespace EpikV2.Items {
             Item.buffTime = 60 * 60 * 10;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.StrangeBrew);
             recipe.AddIngredient(ItemID.Ale);
             recipe.AddIngredient(ItemID.ChaosFish);
@@ -35,7 +35,7 @@ namespace EpikV2.Items {
             recipe.AddTile(TileID.AlchemyTable);
             recipe.Register();
 
-            recipe = Mod.CreateRecipe(Type);
+            recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.StrangeBrew);
             recipe.AddIngredient(ItemID.Sake);
             recipe.AddIngredient(ItemID.ChaosFish);

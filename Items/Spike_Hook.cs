@@ -28,7 +28,7 @@ namespace EpikV2.Items {
 
 
         public override void AddRecipes() {
-			Recipe recipe = Mod.CreateRecipe(Type);
+			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ItemID.Hook, 1);
             recipe.AddIngredient(ItemID.RopeCoil, 1);
             recipe.AddTile(TileID.WorkBenches);

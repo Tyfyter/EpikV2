@@ -33,7 +33,7 @@ namespace EpikV2.Items {
             SacrificeTotal = 1;
         }
 		public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(Spring_Boots.ID);
             recipe.AddIngredient(ItemID.LuckyHorseshoe);
             recipe.AddTile(TileID.TinkerersWorkbench);

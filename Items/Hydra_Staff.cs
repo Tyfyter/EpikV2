@@ -34,7 +34,7 @@ namespace EpikV2.Items {
             Item.buffType = Hydra_Buff.ID;
 		}
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.StardustDragonStaff, 1);
             recipe.AddIngredient(ItemID.FragmentNebula, 10);
             recipe.AddTile(TileID.TinkerersWorkbench);

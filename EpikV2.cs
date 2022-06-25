@@ -402,15 +402,16 @@ public static float ShimmerCalc(float val) {
 	}
 	public class BiomeUpdates : ModBiome {
 		public override bool IsBiomeActive(Player player) {
-			if (player.GetModPlayer<EpikPlayer>().drugPotion) {
+			bool high = player.GetModPlayer<EpikPlayer>().drugPotion;
+			if (high) {
 				bool corrupt = player.ZoneCorrupt;
 				player.ZoneCorrupt = player.ZoneCrimson;
 				player.ZoneCrimson = corrupt;
 			}
-			return true;
+			return high;
 		}
-		public override void SpecialVisuals(Player player) {
-			player.ManageSpecialBiomeVisuals("EpikV2:LSD", player.GetModPlayer<EpikPlayer>().drugPotion);
+		public override void SpecialVisuals(Player player, bool isActive) {
+			player.ManageSpecialBiomeVisuals("EpikV2:LSD", isActive);
 		}
 	}
 }

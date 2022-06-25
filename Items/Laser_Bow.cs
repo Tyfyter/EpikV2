@@ -56,7 +56,7 @@ namespace EpikV2.Items
             Item.UseSound = null;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ModContent.ItemType<Aquamarine>());
             recipe.AddIngredient(ItemID.Phantasm);
             recipe.AddIngredient(ItemID.FragmentNebula, 9);

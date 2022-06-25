@@ -77,7 +77,7 @@ namespace EpikV2.Items {
             return true;
         }
         public override void AddRecipes() {
-			Recipe recipe = Mod.CreateRecipe(Type);
+			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ItemID.HeatRay, 1);
 			recipe.AddIngredient(ItemID.MartianConduitPlating, 10);
 			recipe.AddIngredient(ItemID.FragmentVortex, 5);

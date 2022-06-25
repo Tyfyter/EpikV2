@@ -50,7 +50,7 @@ namespace EpikV2.Items {
             Recipe recipe;
             for(int i0 = 0; i0 < helmets.Length; i0++) {
                 for(int i1 = 0; i1 < bars.Length; i1++) {
-                    recipe = Mod.CreateRecipe(Type);
+                    recipe = Recipe.Create(Type);
                     recipe.AddIngredient(SanguineMaterial.id, 1);
                     recipe.AddIngredient(helmets[i0], 1);
                     recipe.AddIngredient(bars[i1], 5);

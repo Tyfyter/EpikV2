@@ -128,7 +128,7 @@ namespace EpikV2.Items {
 			return false;
 		}
 		public override void AddRecipes() {
-			Recipe recipe = Mod.CreateRecipe(Type);
+			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ItemID.PaladinsShield, 1);
 			recipe.AddIngredient(ItemID.BrokenHeroSword, 1);
 			recipe.AddTile(TileID.MythrilAnvil);

@@ -36,7 +36,7 @@ namespace EpikV2.Items {
             Item.mana = 15;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.Mango);
             recipe.AddIngredient(ModContent.ItemType<Sacrificial_Dagger>());
             recipe.AddIngredient(ItemID.SoulofSight, 5);

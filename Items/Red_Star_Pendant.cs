@@ -25,7 +25,7 @@ namespace EpikV2.Items {
             player.GetModPlayer<EpikPlayer>().redStar = true;
         }
 		public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.CrossNecklace);
             recipe.AddIngredient(ItemType<Mana_Addiction>());
             recipe.AddIngredient(ItemID.PurpleSolution, 2);
@@ -35,7 +35,7 @@ namespace EpikV2.Items {
             recipe.AddTile(TileID.CrystalBall);
             recipe.Register();
 
-            recipe = Mod.CreateRecipe(Type);
+            recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.CrossNecklace);
             recipe.AddIngredient(ItemType<Mana_Addiction>());
             recipe.AddIngredient(ItemID.RedSolution, 2);

@@ -37,7 +37,7 @@ namespace EpikV2.Items {
 			Item.useAmmo = AmmoID.Arrow;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(AquamarineMaterial.id);
             recipe.AddTile(TileID.DemonAltar);
             recipe.Register();

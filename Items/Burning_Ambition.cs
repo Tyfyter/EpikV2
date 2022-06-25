@@ -46,7 +46,7 @@ namespace EpikV2.Items {
 			//item.glowMask = customGlowMask;
 		}
 		public override void AddRecipes() {
-			Recipe recipe = Mod.CreateRecipe(Type);
+			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ItemID.Hellforge);
 			recipe.AddIngredient(ItemID.GoldCoin, 10);
 			recipe.AddIngredient(ItemID.GuideVoodooDoll);

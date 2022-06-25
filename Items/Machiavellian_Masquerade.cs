@@ -40,7 +40,7 @@ namespace EpikV2.Items {
             player.GetModPlayer<EpikPlayer>().extraHeadTexture = 0;
         }
         public override void AddRecipes() {
-			Recipe recipe = Mod.CreateRecipe(Type);
+			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(SanguineMaterial.id, 1);
 			recipe.AddIngredient(ItemID.MimeMask, 1);
 			recipe.AddIngredient(ItemID.HallowedBar, 5);

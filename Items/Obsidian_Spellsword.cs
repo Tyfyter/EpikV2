@@ -118,7 +118,7 @@ namespace EpikV2.Items {
 			return broken ? 1 : 1.26f;
 		}
 		public override void AddRecipes() {
-			Recipe recipe = Mod.CreateRecipe(Type);
+			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ItemID.Obsidian, 15);
 			recipe.AddIngredient(ItemID.ManaCrystal);
 			recipe.AddTile(TileID.BoneWelder);

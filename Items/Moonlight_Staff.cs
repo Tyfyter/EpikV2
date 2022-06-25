@@ -43,7 +43,7 @@ namespace EpikV2.Items {
             Item.buffType = Moonlace_Buff.ID;
         }
         public override void AddRecipes() {
-            Recipe recipe = Mod.CreateRecipe(Type);
+            Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(MoonlaceMaterial.id);
             recipe.AddTile(TileID.DemonAltar);
             recipe.Register();
