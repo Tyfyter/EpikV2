@@ -64,7 +64,7 @@ namespace EpikV2.Items
             recipe.Register();
         }
         public override int ChoosePrefix(UnifiedRandom rand) {
-            if (Item.noUseGraphic) {
+            if (Item.DamageType == Damage_Classes.Ranged_Magic) {
                 Item.DamageType = rand.NextBool() ? DamageClass.Ranged : DamageClass.Magic;
                 Item.Prefix(-2);
                 Item.DamageType = Damage_Classes.Ranged_Magic;
