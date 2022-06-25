@@ -41,7 +41,13 @@ namespace EpikV2.Items {
             Item.knockBack = 3f;
             Item.shoot = Moonlace_Proj.ID;
             Item.buffType = Moonlace_Buff.ID;
-		}
+        }
+        public override void AddRecipes() {
+            Recipe recipe = Mod.CreateRecipe(Type);
+            recipe.AddIngredient(MoonlaceMaterial.id);
+            recipe.AddTile(TileID.DemonAltar);
+            recipe.Register();
+        }
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
             player.AddBuff(Item.buffType, 2);
             position = Main.MouseWorld;
