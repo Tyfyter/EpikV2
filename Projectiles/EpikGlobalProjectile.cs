@@ -18,21 +18,39 @@ namespace EpikV2.Projectiles {
 		public override bool InstancePerEntity => true;
 		protected override bool CloneNewInstances => true;
         internal bool jade = false;
-        public int? prefix;
+        public ModPrefix prefix;
 		public override void OnSpawn(Projectile projectile, IEntitySource source) {
-			if (source is EntitySource_ItemUse itemUseSource &&
-                PrefixLoader.GetPrefix(itemUseSource.Item.prefix) is IOnSpawnProjectilePrefix prefix) {
+			if (source is EntitySource_ItemUse itemUseSource) {
+                prefix = PrefixLoader.GetPrefix(itemUseSource.Item.prefix);
 
-                prefix.OnProjectileSpawn(projectile, source);
-			}else if(source is EntitySource_Parent parentSource) {
-				if (parentSource.Entity is Projectile parentProjectile &&
-                    parentProjectile.GetGlobalProjectile<EpikGlobalProjectile>().prefix is int projPrefixID &&
-                    PrefixLoader.GetPrefix(projPrefixID) is IOnSpawnProjectilePrefix projPrefix) {
+                if (prefix is IOnSpawnProjectilePrefix spawnPrefix) {
+                    spawnPrefix.OnProjectileSpawn(projectile, source);
+                }
+            } else if(source is EntitySource_Parent parentSource) {
+				if (parentSource.Entity is Projectile parentProjectile) {
+                    prefix = parentProjectile.GetGlobalProjectile<EpikGlobalProjectile>().prefix;
 
-                    projPrefix.OnProjectileSpawn(projectile, source);
+                    if (prefix is IOnSpawnProjectilePrefix spawnPrefix) {
+                        spawnPrefix.OnProjectileSpawn(projectile, source);
+                    }
                 }
 			}
 		}
+		public override void AI(Projectile projectile) {
+            if (prefix is IProjectileAIPrefix aiPrefix) {
+                aiPrefix.OnProjectileAI(projectile);
+            }
+        }
+		public override void ModifyHitNPC(Projectile projectile, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+            if (prefix is IProjectileHitPrefix hitPrefix) {
+                hitPrefix.ModifyProjectileHitNPC(projectile, target, ref damage, ref knockback, ref crit, ref hitDirection);
+            }
+}
+		public override void OnHitNPC(Projectile projectile, NPC target, int damage, float knockback, bool crit) {
+            if (prefix is IProjectileHitPrefix hitPrefix) {
+                hitPrefix.OnProjectileHitNPC(projectile, target, damage, knockback, crit);
+            }
+        }
 		public override bool PreDraw(Projectile projectile, ref Color drawColor) {
             if(jade) {
                 Lighting.AddLight(projectile.Center, 0, 1, 0.5f);
