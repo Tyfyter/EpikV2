@@ -12,6 +12,7 @@ using static EpikV2.EpikExtensions;
 using static Microsoft.Xna.Framework.MathHelper;
 using static EpikV2.Resources;
 using EpikV2.Modifiers;
+using EpikV2.NPCs;
 
 namespace EpikV2.Projectiles {
     public class EpikGlobalProjectile : GlobalProjectile {
@@ -19,6 +20,7 @@ namespace EpikV2.Projectiles {
 		protected override bool CloneNewInstances => true;
         internal bool jade = false;
         public ModPrefix prefix;
+        public bool controledNPCProjectile = false;
 		public override void OnSpawn(Projectile projectile, IEntitySource source) {
 			if (source is EntitySource_ItemUse itemUseSource) {
                 prefix = PrefixLoader.GetPrefix(itemUseSource.Item.prefix);
@@ -28,14 +30,26 @@ namespace EpikV2.Projectiles {
                 }
             } else if(source is EntitySource_Parent parentSource) {
 				if (parentSource.Entity is Projectile parentProjectile) {
-                    prefix = parentProjectile.GetGlobalProjectile<EpikGlobalProjectile>().prefix;
+                    EpikGlobalProjectile parentGlobalProjectile = parentProjectile.GetGlobalProjectile<EpikGlobalProjectile>();
+                    prefix = parentGlobalProjectile.prefix;
 
                     if (prefix is IOnSpawnProjectilePrefix spawnPrefix) {
                         spawnPrefix.OnProjectileSpawn(projectile, source);
                     }
+                    controledNPCProjectile = parentGlobalProjectile.controledNPCProjectile;
+                } else if (parentSource.Entity is NPC parentNPC) {
+                    EpikGlobalNPC parentGlobalNPC = parentNPC.GetGlobalNPC<EpikGlobalNPC>();
+					if (parentGlobalNPC.owner >= 0) {
+                        controledNPCProjectile = true;
+                        projectile.owner = parentGlobalNPC.owner;
+                        projectile.npcProj = false;
+                    }
                 }
-			}
-		}
+            }
+            if (controledNPCProjectile && projectile.hostile) {
+                Utils.Swap(ref projectile.friendly, ref projectile.hostile);
+            }
+        }
 		public override void AI(Projectile projectile) {
             if (prefix is IProjectileAIPrefix aiPrefix) {
                 aiPrefix.OnProjectileAI(projectile);

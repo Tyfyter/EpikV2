@@ -53,9 +53,13 @@ namespace EpikV2.NPCs {
 			}
 			if (NPC.wet){
 				NPC.TargetClosest(false);
-                bool hasTarget = !Main.player[NPC.target].dead &&
-                    ((Main.player[NPC.target].Distance(NPC.Center)<(Main.player[NPC.target].wet?420:320)+Math.Max(Main.player[NPC.target].aggro/2, -240))
-                    || NPC.life < NPC.lifeMax);// && Main.player[npc.target].wet;
+                NPCAimedTarget target = NPC.GetTargetData();
+                bool hasTarget = !target.Invalid && 
+                    ((NPC.Distance(target.Center) < (target.Type == Terraria.Enums.NPCTargetType.Player ? 
+                        (Main.player[NPC.target].wet ? 420 : 320) + Math.Max(Main.player[NPC.target].aggro / 2, -240)
+                        : 320)
+                    )
+                    || NPC.life < NPC.lifeMax);
                 Vector2 targetAngle = NPC.velocity;
 				if (!hasTarget){
                     /*if(npc.rotation > -0.15f) {
@@ -83,14 +87,17 @@ namespace EpikV2.NPCs {
 				}
                 if(hasTarget) {
                     NPC.TargetClosest(true);
-                    Vector2 targetDiff = (NPC.targetRect.Center.ToVector2()-NPC.Center);
+                    Vector2 targetDiff = (target.Hitbox.Center.ToVector2()-NPC.Center);
                     Vector2 absDiff = new Vector2(Math.Abs(targetDiff.X),Math.Abs(targetDiff.Y));
                     Vector2 diffDir = targetDiff / absDiff;
                     Vector2 targetVelocity = new Vector2(0, 0);
                     float targetRot = targetDiff.ToRotation();
                     EpikExtensions.AngularSmoothing(ref NPC.rotation, targetRot, 0.15f);
                     float distance = (absDiff*new Vector2(0.8f,1)).Length();
-                    float range = 400+Math.Max(Main.player[NPC.target].aggro/2, -220);
+                    float range = 400;
+					if (target.Type == Terraria.Enums.NPCTargetType.Player) {
+                        range += Math.Max(Main.player[NPC.target].aggro / 2, -220);
+                    }
                     if(distance<range) {
                         NPC.ai[1]++;
                         if(NPC.ai[1]>42) {
@@ -212,10 +219,10 @@ namespace EpikV2.NPCs {
         void Shoot() {
             Vector2 vel = new Vector2(12,0).RotatedBy(Main.rand.NextFloat(NPC.rotation-0.1f,NPC.rotation+0.1f));
             SoundEngine.PlaySound(SoundID.Item11, NPC.Center+vel*2);
-            int p = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center+vel.RotatedByRandom(0.2), vel, ProjectileID.Bullet, 20, 3);
+            int p = Projectile.NewProjectile(NPC.GetSource_FromAI(), NPC.Center+vel.RotatedByRandom(0.2), vel, ProjectileID.BulletDeadeye, 20, 3);
             Main.projectile[p].ignoreWater = true;
-            Main.projectile[p].friendly = false;
-            Main.projectile[p].hostile = true;
+            //Main.projectile[p].friendly = false;
+            //Main.projectile[p].hostile = true;
             NPC.velocity-=vel/2;
         }
     }

@@ -71,12 +71,12 @@ namespace EpikV2 {
 		}
 		public override void Load() {
 			instance = this;
-			EpikWorld.Sacrifices = new List<int>() {};
+			EpikWorld.Sacrifices = new List<int>() { };
 			EpikPlayer.ItemChecking = new BitsBytes(32);
 			Logging.IgnoreExceptionContents("at EpikV2.Items.Burning_Ambition_Smelter.AI() in EpikV2\\Items\\Burning_Ambition.cs:line 472");
 			Logging.IgnoreExceptionContents("at EpikV2.Items.Haligbrand_P.HandleGraphicsLibIntegration()");
 			Logging.IgnoreExceptionContents("at EpikV2.Items.Moonlace_Proj.HandleGraphicsLibIntegration()");
-			if (Main.netMode!=NetmodeID.Server) {
+			if (Main.netMode != NetmodeID.Server) {
 				//RegisterHotKey(ReadTooltipsVar.Name, ReadTooltipsVar.DefaultKey.ToString());
 				//jadeShader = new MiscShaderData(new Ref<Effect>(GetEffect("Effects/Jade")), "Jade");
 				Shaders = new ShaderCache();
@@ -104,6 +104,18 @@ namespace EpikV2 {
 					orig(proj, out timeToFlyOut, out segments, out rangeMultiplier);
 				}
 			};
+			On.Terraria.NPC.GetTargetData += NPC_GetTargetData;
+		}
+
+		private NPCAimedTarget NPC_GetTargetData(On.Terraria.NPC.orig_GetTargetData orig, NPC self, bool ignorePlayerTankPets) {
+			if (self.GetGlobalNPC<EpikGlobalNPC>().owner >= 0) {
+				return new NPCAimedTarget(new NPC() {
+					position = Main.MouseWorld,
+					width = 8,
+					height = 8
+				});
+			}
+			return orig(self, ignorePlayerTankPets);
 		}
 
 		private bool ItemSlot_isEquipLocked(On.Terraria.UI.ItemSlot.orig_isEquipLocked orig, int type) {
