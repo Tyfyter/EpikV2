@@ -37,13 +37,6 @@ namespace EpikV2.Projectiles {
                         spawnPrefix.OnProjectileSpawn(projectile, source);
                     }
                     controledNPCProjectile = parentGlobalProjectile.controledNPCProjectile;
-                } else if (parentSource.Entity is NPC parentNPC) {
-                    EpikGlobalNPC parentGlobalNPC = (parentNPC.realLife >= 0 ? Main.npc[parentNPC.realLife] : parentNPC).GetGlobalNPC<EpikGlobalNPC>();
-					if (parentGlobalNPC.owner >= 0) {
-                        controledNPCProjectile = true;
-                        projectile.owner = parentGlobalNPC.owner;
-                        projectile.npcProj = false;
-                    }
                 }
             }
             if (controledNPCProjectile && projectile.hostile) {

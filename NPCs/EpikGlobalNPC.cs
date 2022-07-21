@@ -52,7 +52,6 @@ namespace EpikV2.NPCs
         public int jadeWhipTime;
         public int jadeWhipDamage;
         public int jadeWhipCrit;
-        public int owner = -1;
         public override bool PreAI(NPC npc) {
             if(Ashen_Glaive_P.marks[npc.whoAmI]>0) {
                 ashenGlaiveTime++;
@@ -188,9 +187,6 @@ namespace EpikV2.NPCs
         }
         public override bool? CanHitNPC(NPC npc, NPC target){
             if(jaded || scorpioTime>0)return false;
-			if (owner >= 0) {
-                return true;
-			}
             return base.CanHitNPC(npc, target);
         }
 
