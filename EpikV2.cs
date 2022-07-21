@@ -105,17 +105,26 @@ namespace EpikV2 {
 				}
 			};
 			On.Terraria.NPC.GetTargetData += NPC_GetTargetData;
+			On.Terraria.NPC.FaceTarget += NPC_FaceTarget;
 		}
 
 		private NPCAimedTarget NPC_GetTargetData(On.Terraria.NPC.orig_GetTargetData orig, NPC self, bool ignorePlayerTankPets) {
-			if (self.GetGlobalNPC<EpikGlobalNPC>().owner >= 0) {
+			if ((self.realLife >= 0 ? Main.npc[self.realLife] : self).GetGlobalNPC<EpikGlobalNPC>().owner >= 0) {
 				return new NPCAimedTarget(new NPC() {
 					position = Main.MouseWorld,
 					width = 8,
 					height = 8
-				});
+				}) {
+					Type = Terraria.Enums.NPCTargetType.Player
+				};
 			}
 			return orig(self, ignorePlayerTankPets);
+		}
+
+		private void NPC_FaceTarget(On.Terraria.NPC.orig_FaceTarget orig, NPC self) {
+			if ((self.realLife >= 0 ? Main.npc[self.realLife] : self).GetGlobalNPC<EpikGlobalNPC>().owner >= 0) {
+				self.targetRect = new Rectangle((int)Main.MouseWorld.X, (int)Main.MouseWorld.X, 8, 8);
+			}
 		}
 
 		private bool ItemSlot_isEquipLocked(On.Terraria.UI.ItemSlot.orig_isEquipLocked orig, int type) {

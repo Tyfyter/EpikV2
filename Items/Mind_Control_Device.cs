@@ -66,9 +66,7 @@ namespace EpikV2.Items {
             Dust.NewDustPerfect(Projectile.Center, 226, Projectile.velocity*-0.25f, 100, new Color(0, 255, 191), 0.5f).noGravity = true;
         }
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
-
 			(target.realLife >= 0 ? Main.npc[target.realLife] : target).GetGlobalNPC<EpikGlobalNPC>().owner = Projectile.owner;
-
 		}
 	}
 }
