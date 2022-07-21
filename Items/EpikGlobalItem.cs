@@ -10,6 +10,7 @@ using Terraria.ID;
 using Terraria.ModLoader.IO;
 using System.Diagnostics;
 using Terraria.DataStructures;
+using Terraria.GameContent.ItemDropRules;
 
 namespace EpikV2.Items {
     public partial class EpikGlobalItem : GlobalItem {
@@ -107,10 +108,24 @@ namespace EpikV2.Items {
 				damage.Base += ammo.damage * 1.5f;//(damage.Base - Main.player[weapon.playerIndexTheItemIsReservedFor].GetWeaponDamage(weapon))*5;
             }
         }
-		public override void OpenVanillaBag(string context, Player player, int arg) {
+		/*public override void OpenVanillaBag(string context, Player player, int arg) {
             if(context=="goodieBag"&&Main.rand.NextBool(10)) {
                 player.QuickSpawnItem(player.GetSource_OpenItem(arg, context), ModContent.ItemType<Chocolate_Bar>());
             }
+		}*/
+		public override void ModifyItemLoot(Item item, ItemLoot itemLoot) {
+			switch (item.type) {
+				case ItemID.GoodieBag: {
+					SequentialRulesNotScalingWithLuckRule rule = (SequentialRulesNotScalingWithLuckRule)itemLoot.Get(false).First(rule => rule is SequentialRulesNotScalingWithLuckRule);
+					var rules = rule.rules.ToList();
+					rules.Insert(
+						rules.FindIndex(r => r is OneFromRulesRule),
+						ItemDropRule.NotScalingWithLuck(ModContent.ItemType<Chocolate_Bar>(), 8)
+					);
+					rule.rules = rules.ToArray();
+				}
+				break;
+			}
 		}
-    }
+	}
 }

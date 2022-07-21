@@ -311,7 +311,7 @@ public static float ShimmerCalc(float val) {
 				return (short)(glowMasks.Length - 1);
 			} else return 0;
 		}
-		public override void PostAddRecipes() {
+		public override void PostAddRecipes()/* tModPorter Note: Removed. Use ModSystem.PostAddRecipes */ {
 			EpikIntegration.EnabledMods.CheckEnabled();
 			if (EpikIntegration.EnabledMods.RecipeBrowser)EpikIntegration.AddRecipeBrowserIntegration();
 			HellforgeRecipes = new HashSet<Recipe>(Main.recipe.Where(

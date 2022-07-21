@@ -208,6 +208,11 @@ namespace EpikV2.Items {
         public bool KillOnHit { get; private set; } = false;
         public bool Fired => Projectile.velocity.Length() > 0;
         public override string Texture => "Terraria/Images/Projectile_"+ProjectileID.JestersArrow;
+        public override ModProjectile Clone(Projectile newEntity) {
+            Orion_Arrow clone = (Orion_Arrow)base.Clone(newEntity);
+            clone.other = null;
+            return clone;
+        }
         protected override bool CloneNewInstances => true;
         ModProjectile other;
         public override void SetStaticDefaults() {
@@ -336,6 +341,12 @@ namespace EpikV2.Items {
         internal static int t = -1;
         public int type { get; private set; } = -1;
         public override string Texture => "Terraria/Images/Projectile_"+ProjectileID.FallingStar;
+        public override ModProjectile Clone(Projectile newEntity) {
+            Orion_Star clone = (Orion_Star)base.Clone(newEntity);
+            clone.other = null;
+            return clone;
+        }
+        protected override bool CloneNewInstances => true;
         ModProjectile other;
         public override void SetStaticDefaults() {
             DisplayName.SetDefault("Orion's Bow");
