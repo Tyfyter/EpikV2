@@ -66,7 +66,7 @@ namespace EpikV2.Items {
 			return false;
 		}
 	}
-	public class Jade_Whip_P : ModProjectile, IWhipProjectile {
+	public class Jade_Whip_P : ModProjectile {
 		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.RainbowWhip;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Name TBD");
@@ -77,15 +77,7 @@ namespace EpikV2.Items {
 		public override void SetDefaults() {
 			Projectile.DefaultToWhip();
 			Projectile.DamageType = Damage_Classes.Melee_Summon;
-			Projectile.width = 18;
-			Projectile.height = 18;
-			Projectile.friendly = true;
-			Projectile.penetrate = -1;
-			Projectile.tileCollide = false;
-			Projectile.ownerHitCheck = true; // This prevents the projectile from hitting through solid tiles.
-			Projectile.extraUpdates = 1;
-			Projectile.usesLocalNPCImmunity = true;
-			Projectile.localNPCHitCooldown = -1;
+			Projectile.WhipSettings.Segments = 20;
 		}
 
 		private float Timer {
@@ -94,6 +86,7 @@ namespace EpikV2.Items {
 		}
 
 		public override void AI() {
+			Projectile.WhipSettings.RangeMultiplier = 1.1f * Projectile.scale * (Projectile.ai[1] == 2 ? 1.5f : 1);
 			Player owner = Main.player[Projectile.owner];
 			Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2; // Without PiOver2, the rotation would be off by 90 degrees counterclockwise.
 
@@ -124,11 +117,6 @@ namespace EpikV2.Items {
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			target.GetGlobalNPC<EpikGlobalNPC>().SetJadeWhipValues(300, damage / 10, Projectile.CritChance);
 			if(target.life > 0)Main.player[Projectile.owner].MinionAttackTargetNPC = target.whoAmI;
-		}
-		public void GetWhipSettings(out float timeToFlyOut, out int segments, out float rangeMultiplier) {
-			timeToFlyOut = Main.player[Projectile.owner].itemAnimationMax * Projectile.MaxUpdates;
-			segments = 20;
-			rangeMultiplier = 1.1f * Projectile.scale * (Projectile.ai[1] == 2 ? 1.5f : 1);
 		}
 
 		// This method draws a line between all points of the whip, in case there's empty space between the sprites.

@@ -47,9 +47,6 @@ namespace EpikV2 {
     public interface IScrollableItem {
         void Scroll(int direction);
     }
-    public interface IWhipProjectile {
-        void GetWhipSettings(out float timeToFlyOut, out int segments, out float rangeMultiplier);
-    }
     public struct BitsBytes {
         readonly BitsByte[] _bytes;
         public BitsBytes(ushort bytes) {

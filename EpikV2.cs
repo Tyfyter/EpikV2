@@ -33,6 +33,7 @@ using Terraria.UI.Chat;
 using ReLogic.Content;
 using EpikV2.Layers;
 using Terraria.ModLoader.Default;
+using Detour = On.Terraria;
 
 namespace EpikV2 {
 	public class EpikV2 : Mod {
@@ -91,21 +92,30 @@ namespace EpikV2 {
 			ChatManager.Register<CatgirlMemeHandler>(new string[]{
 				"herb"
 			});
-			On.Terraria.Player.SlopingCollision += EpikPlayer.SlopingCollision;
+			Detour.Player.SlopingCollision += EpikPlayer.SlopingCollision;
 			//Main.OnPreDraw += Main_OnPostDraw;
 			IL.Terraria.Main.DoDraw += Main_DoDraw;
-			On.Terraria.UI.ItemSlot.PickItemMovementAction += ItemSlot_PickItemMovementAction;
-			On.Terraria.UI.ItemSlot.isEquipLocked += ItemSlot_isEquipLocked;
-			On.Terraria.DataStructures.PlayerDrawLayers.DrawPlayer_21_Head_TheFace += PlayerDrawLayers_DrawPlayer_21_Head_TheFace;
-			On.Terraria.Projectile.GetWhipSettings += (On.Terraria.Projectile.orig_GetWhipSettings orig, Projectile proj, out float timeToFlyOut, out int segments, out float rangeMultiplier) => {
-				if (proj.ModProjectile is IWhipProjectile whip) {
-					whip.GetWhipSettings(out timeToFlyOut, out segments, out rangeMultiplier);
-				} else {
-					orig(proj, out timeToFlyOut, out segments, out rangeMultiplier);
+			Detour.UI.ItemSlot.PickItemMovementAction += ItemSlot_PickItemMovementAction;
+			Detour.UI.ItemSlot.isEquipLocked += ItemSlot_isEquipLocked;
+			Detour.DataStructures.PlayerDrawLayers.DrawPlayer_21_Head_TheFace += PlayerDrawLayers_DrawPlayer_21_Head_TheFace;
+			Detour.GameContent.TeleportPylonsSystem.HasPylonOfType += (Detour.GameContent.TeleportPylonsSystem.orig_HasPylonOfType orig, TeleportPylonsSystem self, TeleportPylonType pylonType) => {
+				if (pylonType == TeleportPylonType.Victory || EpikConfig.Instance.InfiniteUniversalPylons) {
+					return false;
+				}
+				return orig(self, pylonType);
+			};
+#if DEBUG
+			Detour.Main.TryDisposingEverything += (orig) => {
+				try {
+					orig();
+				} catch (Exception e) {
+					Logger.Error(e);
 				}
 			};
+#endif
 		}
-		private bool ItemSlot_isEquipLocked(On.Terraria.UI.ItemSlot.orig_isEquipLocked orig, int type) {
+
+		private bool ItemSlot_isEquipLocked(Detour.UI.ItemSlot.orig_isEquipLocked orig, int type) {
 			Item item = null;
 			for (int i = 3; i < 10; i++) {
 				if (Main.LocalPlayer.armor[i].type == type) {
@@ -131,7 +141,7 @@ namespace EpikV2 {
 			return orig(type);
 		}
 
-		private void PlayerDrawLayers_DrawPlayer_21_Head_TheFace(On.Terraria.DataStructures.PlayerDrawLayers.orig_DrawPlayer_21_Head_TheFace orig, ref PlayerDrawSet drawinfo) {
+		private void PlayerDrawLayers_DrawPlayer_21_Head_TheFace(Detour.DataStructures.PlayerDrawLayers.orig_DrawPlayer_21_Head_TheFace orig, ref PlayerDrawSet drawinfo) {
 			if (Face_Layer.drawFace) {
 				orig(ref drawinfo);
 			}
@@ -152,7 +162,7 @@ namespace EpikV2 {
 			}
 		}
 
-		private int ItemSlot_PickItemMovementAction(On.Terraria.UI.ItemSlot.orig_PickItemMovementAction orig, Item[] inv, int context, int slot, Item checkItem) {
+		private int ItemSlot_PickItemMovementAction(Detour.UI.ItemSlot.orig_PickItemMovementAction orig, Item[] inv, int context, int slot, Item checkItem) {
 			if(Main.mouseLeftRelease && Main.mouseLeft)switch (context) {
 				case ItemSlot.Context.EquipArmor:
 				case ItemSlot.Context.EquipAccessory:
@@ -311,21 +321,6 @@ public static float ShimmerCalc(float val) {
 				return (short)(glowMasks.Length - 1);
 			} else return 0;
 		}
-		public override void PostAddRecipes()/* tModPorter Note: Removed. Use ModSystem.PostAddRecipes */ {
-			EpikIntegration.EnabledMods.CheckEnabled();
-			if (EpikIntegration.EnabledMods.RecipeBrowser)EpikIntegration.AddRecipeBrowserIntegration();
-			HellforgeRecipes = new HashSet<Recipe>(Main.recipe.Where(
-				r => r.requiredTile.Sum(
-					t => {
-						return t switch {
-							TileID.Furnaces or TileID.Hellforge => 1,
-							-1 => 0,
-							_ => -100,
-						};
-					}
-				) > 0
-			));
-		}
 	}
 	[Label("Settings")]
 	public class EpikConfig : ModConfig {
@@ -340,6 +335,10 @@ public static float ShimmerCalc(float val) {
 		[Label("Become a Constellation")]
 		[DefaultValue(false)]
 		public bool ConstellationDraco = false;
+
+		[Label("Infinite Universal Pylons")]
+		[DefaultValue(true)]
+		public bool InfiniteUniversalPylons = true;
 	}
 	[Label("Client Settings")]
 	public class EpikClientConfig : ModConfig {
@@ -358,7 +357,21 @@ public static float ShimmerCalc(float val) {
 		private static bool raining;
 		public static List<int> Sacrifices { get => sacrifices; set => sacrifices = value; }
 		public static bool Raining { get => raining; set => raining = value; }
-
+		public override void PostAddRecipes(){
+			EpikIntegration.EnabledMods.CheckEnabled();
+			if (EpikIntegration.EnabledMods.RecipeBrowser) EpikIntegration.AddRecipeBrowserIntegration();
+			EpikV2.HellforgeRecipes = new HashSet<Recipe>(Main.recipe.Where(
+				r => r.requiredTile.Sum(
+					t => {
+						return t switch {
+							TileID.Furnaces or TileID.Hellforge => 1,
+							-1 => 0,
+							_ => -100,
+						};
+					}
+				) > 0
+			));
+		}
 		public override void PostUpdateTime() {
 			for (int i = 0; i < Sacrifices.Count; i++) {
 				Main.townNPCCanSpawn[Sacrifices[i]] = false;
