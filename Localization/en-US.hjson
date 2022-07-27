@@ -6,5 +6,8 @@
 		MapObject:{
 			Party_Pylon_Tile: Party Pylon (Inactive)
 		}
+		BiomeName:{
+			PartyPseudoBiome: Parties
+		}
 	}
 }

@@ -14,15 +14,6 @@ using Terraria.ModLoader.Default;
 using Terraria.ObjectData;
 
 namespace EpikV2.Tiles {
-	/// <summary>
-	/// An example for creating a Pylon, identical to how they function in Vanilla. Shows off <seealso cref="ModPylon"/>, an abstract
-	/// extension of <seealso cref="ModTile"/> that has additional functionality for Pylon specific tiles.
-	/// <br>
-	/// If you are going to make multiple pylons that all act the same (like in Vanilla), it is recommended you make a base class
-	/// with override functionality in order to prevent writing boilerplate. (For example, making a "CrystalTexture" property that you can
-	/// override in order to streamline that process.)
-	/// </br>
-	/// </summary>
 	public class Party_Pylon_Tile : ModPylon {
 		public const int CrystalHorizontalFrameCount = 2;
 		public const int CrystalVerticalFrameCount = 8;
@@ -47,8 +38,7 @@ namespace EpikV2.Tiles {
 			TileObjectData.newTile.LavaDeath = false;
 			TileObjectData.newTile.DrawYOffset = 2;
 			TileObjectData.newTile.StyleHorizontal = true;
-			// These definitions allow for vanilla's pylon TileEntities to be placed. If you want to use your own TileEntities, do NOT add these lines!
-			// tModLoader has a built in Tile Entity specifically for modded pylons, which we must extend (see SimplePylonTileEntity)
+
 			Party_Pylon_TE moddedPylon = ModContent.GetInstance<Party_Pylon_TE>();
 			TileObjectData.newTile.HookCheckIfCanPlace = new PlacementHook(moddedPylon.PlacementPreviewHook_CheckIfCanPlace, 1, 0, true);
 			TileObjectData.newTile.HookPostPlaceMyPlayer = new PlacementHook(moddedPylon.Hook_AfterPlacement, -1, 0, false);
@@ -60,18 +50,18 @@ namespace EpikV2.Tiles {
 
 			// Adds functionality for proximity of pylons; if this is true, then being near this tile will count as being near a pylon for the teleportation process.
 			AddToArray(ref TileID.Sets.CountsAsPylon);
+			AddToArray(ref TileID.Sets.RoomNeeds.CountsAsTorch);
 
 			ModTranslation pylonName = CreateMapEntryName(); //Name is in the localization file
 			AddMapEntry(Color.Magenta, pylonName);
 		}
 
 		public override int? IsPylonForSale(int npcType, Player player, bool isNPCHappyEnough) {
-			return BirthdayParty.PartyIsUp ? ModContent.ItemType<Party_Pylon_Item>() : null;
+			return isNPCHappyEnough && npcType == NPCID.PartyGirl && BirthdayParty.PartyIsUp ? ModContent.ItemType<Party_Pylon_Item>() : null;
 		}
 
 
 		public override void MouseOver(int i, int j) {
-			// Show a little pylon icon on the mouse indicating we are hovering over it.
 			if (BirthdayParty.PartyIsUp) {
 				Main.LocalPlayer.cursorItemIconEnabled = true;
 				Main.LocalPlayer.cursorItemIconID = ModContent.ItemType<Party_Pylon_Item>();
@@ -79,16 +69,12 @@ namespace EpikV2.Tiles {
 		}
 
 		public override void KillMultiTile(int i, int j, int frameX, int frameY) {
-			// We need to clean up after ourselves, since this is still a "unique" tile, separate from Vanilla Pylons, so we must kill the TileEntity.
 			ModContent.GetInstance<Party_Pylon_TE>().Kill(i, j);
 
-			// Also, like other pylons, breaking it simply drops the item once again. Pretty straight-forward.
 			Item.NewItem(new EntitySource_TileBreak(i, j), i * 16, j * 16, 2, 3, ModContent.ItemType<Party_Pylon_Item>());
 		}
 
 		public override bool ValidTeleportCheck_NPCCount(TeleportPylonInfo pylonInfo, int defaultNecessaryNPCCount) {
-			// Let's say for fun sake that no NPCs need to be nearby in order for this pylon to function. If you want your pylon to function just like vanilla,
-			// you don't need to override this method at all.
 			return true;
 		}
 

@@ -34,6 +34,7 @@ using ReLogic.Content;
 using EpikV2.Layers;
 using Terraria.ModLoader.Default;
 using Detour = On.Terraria;
+using Terraria.GameContent.Events;
 
 namespace EpikV2 {
 	public class EpikV2 : Mod {
@@ -412,7 +413,7 @@ public static float ShimmerCalc(float val) {
 			}
 		}
 	}
-	public class BiomeUpdates : ModBiome {
+	public class LSDBiome : ModBiome {
 		public override bool IsBiomeActive(Player player) {
 			bool high = player.GetModPlayer<EpikPlayer>().drugPotion;
 			if (high) {
@@ -424,6 +425,12 @@ public static float ShimmerCalc(float val) {
 		}
 		public override void SpecialVisuals(Player player, bool isActive) {
 			player.ManageSpecialBiomeVisuals("EpikV2:LSD", isActive);
+		}
+	}
+	public class PartyBiome : ModBiome {
+		public override string Name => "PartyPseudoBiome";
+		public override bool IsBiomeActive(Player player) {
+			return BirthdayParty.PartyIsUp;
 		}
 	}
 }

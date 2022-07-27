@@ -11,6 +11,7 @@ using Terraria.DataStructures;
 using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.GameContent.NetModules;
+using Terraria.GameContent.Personalities;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -52,6 +53,10 @@ namespace EpikV2.NPCs
         public int jadeWhipTime;
         public int jadeWhipDamage;
         public int jadeWhipCrit;
+        public override void SetStaticDefaults() {
+            NPCHappiness.Get(NPCID.PartyGirl).SetBiomeAffection<PartyBiome>(AffectionLevel.Love);
+            NPCHappiness.Get(NPCID.PartyGirl).SetBiomeAffection(new PartyBiome(), AffectionLevel.Love);
+        }
         public override bool PreAI(NPC npc) {
             if(Ashen_Glaive_P.marks[npc.whoAmI]>0) {
                 ashenGlaiveTime++;
