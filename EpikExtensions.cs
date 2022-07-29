@@ -113,6 +113,10 @@ namespace EpikV2 {
         public static implicit operator AutoCastingAsset<T>(Asset<T> asset) => new(asset);
         public static implicit operator T (AutoCastingAsset<T> asset) => asset.Value;
     }
+    public class AdvancedPopupText : PopupText {
+        public virtual bool PreUpdate(int whoAmI) => true;
+        public virtual void PostUpdate(int whoAmI) { }
+    }
     public static class EpikExtensions {
         public static AutoCastingAsset<Texture2D> RequestTexture(this Mod mod, string name) => mod.Assets.Request<Texture2D>(name);
         public static SoundStyle WithPitch(this SoundStyle soundStyle, float pitch) {

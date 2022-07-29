@@ -29,6 +29,10 @@ float GetFiniteOffset(float factor, float mult) {
 		return pow(-realFactor, exponent) * -mult;
 	}
 }
+float2 PolarToCart(float theta) {
+	const float pi = 3.14159265359;
+	return float2(sin(theta + (pi / 2)), sin(theta));//actual cosine function doesn't give cosine, so use offset sine
+}
 
 float4 LSD(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
 	float4 underlying = tex2D(uImage0, coords);
@@ -47,7 +51,25 @@ float4 LSD(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
 	}
 	return (1 - overlying.a) * underlying + overlying.a * overlying;
 }
-float4 LessD (float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0{
+float4 LessD(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
+	const float pi = 3.14159265359;
+	const float twopi = pi * 2;
+	const float twothirdspi = twopi / 3;
+	float4 underlying = tex2D(uImage0, coords);
+	float2 pixelFactor = float2(16, 16) / uScreenResolution;
+	float time = uTime;
+	float sizeFact = sin(time * pi);
+	pixelFactor *= sizeFact * sizeFact;
+	float4 overlying = (
+	tex2D(uImage0, coords + (PolarToCart(time) * pixelFactor)) * float4(1, 0, 0, 1)) +
+	(tex2D(uImage0, coords + (PolarToCart(time + twothirdspi) * pixelFactor)) * float4(0, 1, 0, 1)) +
+	(tex2D(uImage0, coords + (PolarToCart(time + twothirdspi * 2) * pixelFactor)) * float4(0, 0, 1, 1));
+	if (overlying.a > 0.5) {
+		overlying.a = 0.5;
+	}
+	return (1 - overlying.a) * underlying + overlying.a * overlying;
+}
+/*float4 LessD (float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0{
 	float4 underlying = tex2D(uImage0, coords);
 	float2 pixelFactor = float2(4, 4) / uScreenResolution;
 	float rx = coords.x + sin(uTime) * pixelFactor.x;
@@ -60,7 +82,7 @@ float4 LessD (float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0{
 		overlying.a = 1;
 	}
 	return (1 - overlying.a) * underlying + overlying.a * overlying;
-}
+}*/
 
 technique Technique1 {
 	pass LSD {

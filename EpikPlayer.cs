@@ -664,7 +664,10 @@ namespace EpikV2 {
                     itemDrop = 0;
                     npcSpawn = ModContent.NPCType<MinisharkNPC>();
                     sonar.Color = Colors.RarityGreen;
-                    //sonar.Text = 
+                    sonar.Text = Lang.GetItemNameValue(ItemID.Minishark);
+                    sonar.Velocity = new Vector2(0, -7);
+                    sonar.DurationInFrames = 60;
+                    EpikV2.nextPopupText = new MinisharkPopupText();
 				}
 			}
 		}

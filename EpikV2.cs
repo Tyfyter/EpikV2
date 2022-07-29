@@ -61,6 +61,7 @@ namespace EpikV2 {
 		public static int alphaMapShaderID;
 		internal static List<IDrawAfterNPCs> drawAfterNPCs;
 		internal static HashSet<Recipe> HellforgeRecipes;
+		internal static PopupText nextPopupText;
 		//public static MotionArmorShaderData motionBlurShader;
 		public override object Call(params object[] args) {
 			if (args.Length > 0) {
@@ -105,15 +106,73 @@ namespace EpikV2 {
 				}
 				return orig(self, pylonType);
 			};
-#if DEBUG
-			Detour.Main.TryDisposingEverything += (orig) => {
-				try {
-					orig();
-				} catch (Exception e) {
-					Logger.Error(e);
+			Detour.PopupText.Update += PopupText_Update;
+			Detour.PopupText.NewText_AdvancedPopupRequest_Vector2 += PopupText_NewText_AdvancedPopupRequest_Vector2;
+			Detour.PopupText.FindNextItemTextSlot += (orig) => {
+				int index = orig();
+				if (Main.popupText[index] is AdvancedPopupText) {
+					Main.popupText[index] = new PopupText();
 				}
+				return index;
 			};
-#endif
+		}
+
+		private int PopupText_NewText_AdvancedPopupRequest_Vector2(Detour.PopupText.orig_NewText_AdvancedPopupRequest_Vector2 orig, AdvancedPopupRequest request, Vector2 position) {
+			if (nextPopupText is null) {
+				nextPopupText = new PopupText();
+			}
+			if (!Main.showItemText) {
+				nextPopupText = null;
+				return -1;
+			}
+			if (Main.netMode == NetmodeID.Server) {
+				nextPopupText = null;
+				return -1;
+			}
+			int index = -1;
+			for (int i = 0; i < 20; i++) {
+				if (!Main.popupText[i].active) {
+					index = i;
+					break;
+				}
+			}
+			if (index == -1) {
+				double lowestY = Main.bottomWorld;
+				for (int j = 0; j < 20; j++) {
+					if (lowestY > Main.popupText[j].position.Y) {
+						index = j;
+						lowestY = Main.popupText[j].position.Y;
+					}
+				}
+			}
+			if (index >= 0) {
+				string text = request.Text;
+				Vector2 value = FontAssets.MouseText.Value.MeasureString(text);
+				PopupText obj = Main.popupText[index] = nextPopupText;
+				PopupText.ResetText(obj);
+				obj.active = true;
+				obj.position = position - value / 2f;
+				obj.name = text;
+				obj.stack = 1;
+				obj.velocity = request.Velocity;
+				obj.lifeTime = request.DurationInFrames;
+				obj.context = PopupTextContext.Advanced;
+				obj.freeAdvanced = true;
+				obj.color = request.Color;
+			}
+			nextPopupText = null;
+			return index;
+		}
+
+		private void PopupText_Update(Detour.PopupText.orig_Update orig, PopupText self, int whoAmI) {
+			if (self is AdvancedPopupText advancedSelf) {
+				if (advancedSelf.PreUpdate(whoAmI)) {
+					orig(self, whoAmI);
+				}
+				advancedSelf.PostUpdate(whoAmI);
+			} else {
+				orig(self, whoAmI);
+			}
 		}
 
 		private bool ItemSlot_isEquipLocked(Detour.UI.ItemSlot.orig_isEquipLocked orig, int type) {
@@ -349,7 +408,6 @@ public static float ShimmerCalc(float val) {
 		[Label("Reduce Jitter")]
 		[Tooltip("Reduces intentional jitter in some elements\nOn by default for the sake of players with photosensitive epilepsy")]
 		[DefaultValue(true)]
-		[ReloadRequired]
 		public bool reduceJitter = true;
 	}
 	public class EpikWorld : ModSystem {
@@ -424,7 +482,7 @@ public static float ShimmerCalc(float val) {
 			return high;
 		}
 		public override void SpecialVisuals(Player player, bool isActive) {
-			player.ManageSpecialBiomeVisuals("EpikV2:LSD", isActive);
+			player.ManageSpecialBiomeVisuals(EpikClientConfig.Instance.reduceJitter ? "EpikV2:LessD" : "EpikV2:LSD", isActive);
 		}
 	}
 	public class PartyBiome : ModBiome {

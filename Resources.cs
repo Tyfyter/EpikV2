@@ -146,7 +146,8 @@ namespace EpikV2 {
                 GameShaders.Armor.BindShader(ItemType<Opaque_Inverted_Chimera_Dye>(), new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", AssetRequestMode.ImmediateLoad).Value), "ChimerebosInvertedOpaque"));
                 int opaqueInvertedChimeraShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Opaque_Inverted_Chimera_Dye>());
 
-                Filters.Scene["EpikV2:LSD"] = new Filter(new ScreenShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/LSD", AssetRequestMode.ImmediateLoad).Value), EpikClientConfig.Instance.reduceJitter ? "LessD" : "LSD"), EffectPriority.High);
+                Filters.Scene["EpikV2:LSD"] = new Filter(new ScreenShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/LSD", AssetRequestMode.ImmediateLoad).Value), "LSD"), EffectPriority.High);
+                Filters.Scene["EpikV2:LessD"] = new Filter(new ScreenShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/LSD", AssetRequestMode.ImmediateLoad).Value), "LessD"), EffectPriority.High);
 
                 InvalidArmorShaders = new List<InvalidArmorShader> {
                     new InvalidArmorShader(EpikV2.starlightShaderID, EpikV2.dimStarlightShaderID),
