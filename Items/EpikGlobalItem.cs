@@ -11,6 +11,7 @@ using Terraria.ModLoader.IO;
 using System.Diagnostics;
 using Terraria.DataStructures;
 using Terraria.GameContent.ItemDropRules;
+using EpikV2.Modifiers;
 
 namespace EpikV2.Items {
     public partial class EpikGlobalItem : GlobalItem {
@@ -96,6 +97,11 @@ namespace EpikV2.Items {
 				tooltips.Add(new TooltipLine(Mod, "plank", EpikExtensions.GetHerbText()) {
 					OverrideColor = new Color(0, 0, 0, 1f)
 				});
+			}
+		}
+		public override void OnHitNPC(Item item, Player player, NPC target, int damage, float knockBack, bool crit) {
+			if (PrefixLoader.GetPrefix(item.prefix) is IMeleeHitPrefix meleeHitPrefix) {
+				meleeHitPrefix.OnMeleeHitNPC(player, item, target, damage, knockBack, crit);
 			}
 		}
 		public override void PickAmmo(Item weapon, Item ammo, Player player, ref int type, ref float speed, ref StatModifier damage, ref float knockback) {

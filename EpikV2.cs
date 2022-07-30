@@ -399,6 +399,10 @@ public static float ShimmerCalc(float val) {
 		[Label("Infinite Universal Pylons")]
 		[DefaultValue(true)]
 		public bool InfiniteUniversalPylons = true;
+
+		[Label("Luck Affects Fishing")]
+		[DefaultValue(true)]
+		public bool LuckyFish = true;
 	}
 	[Label("Client Settings")]
 	public class EpikClientConfig : ModConfig {
@@ -482,6 +486,10 @@ public static float ShimmerCalc(float val) {
 			return high;
 		}
 		public override void SpecialVisuals(Player player, bool isActive) {
+			ScreenShaderData shader = Filters.Scene["EpikV2:LessD"].GetShader();
+			float val = (float)((Math.Sin(Main.GlobalTimeWrappedHourly * MathHelper.Pi)) + 1f) / 2;
+			shader.UseIntensity(shader.Intensity + val / 30f);
+			shader.UseOpacity(val);
 			player.ManageSpecialBiomeVisuals(EpikClientConfig.Instance.reduceJitter ? "EpikV2:LessD" : "EpikV2:LSD", isActive);
 		}
 	}

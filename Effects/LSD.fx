@@ -57,8 +57,8 @@ float4 LessD(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
 	const float twothirdspi = twopi / 3;
 	float4 underlying = tex2D(uImage0, coords);
 	float2 pixelFactor = float2(16, 16) / uScreenResolution;
-	float time = uTime;
-	float sizeFact = sin(time * pi);
+	float time = uIntensity;
+	float sizeFact = uOpacity; //sin(uTime * pi);
 	pixelFactor *= sizeFact * sizeFact;
 	float4 overlying = (
 	tex2D(uImage0, coords + (PolarToCart(time) * pixelFactor)) * float4(1, 0, 0, 1)) +

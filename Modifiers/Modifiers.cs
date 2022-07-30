@@ -23,6 +23,10 @@ namespace EpikV2.Modifiers {
 		void OnProjectileHitNPC(Projectile projectile, NPC target, int damage, float knockback, bool crit) { }
 		void ModifyProjectileHitNPC(Projectile projectile, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) { }
 	}
+	public interface IMeleeHitPrefix {
+		void OnMeleeHitNPC(Player player, Item item, NPC target, int damage, float knockback, bool crit) { }
+		void ModifyMeleeHitNPC(Player player, Item item, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) { }
+	}
 	public class Frogged_Prefix : ModPrefix, IOnSpawnProjectilePrefix {
 		public override PrefixCategory Category => PrefixCategory.AnyWeapon;
 		public override void SetStaticDefaults() {
@@ -49,6 +53,22 @@ namespace EpikV2.Modifiers {
 				target.velocity -= Microsoft.Xna.Framework.Vector2.Normalize(projectile.velocity) * knockback * target.knockBackResist;
 			}
 		}
-		public override float RollChance(Item item) => item.shoot > ProjectileID.None ? 0.75f : 0;
+		public override float RollChance(Item item) => item.shoot > ProjectileID.None ? 0.5f : 0;
+	}
+	public class Poisoned_Prefix : ModPrefix, IProjectileHitPrefix, IMeleeHitPrefix {
+		public override PrefixCategory Category => PrefixCategory.AnyWeapon;
+		public override void SetStaticDefaults() {
+			DisplayName.SetDefault("Poisoned");
+		}
+		public void OnProjectileHitNPC(Projectile projectile, NPC target, int damage, float knockback, bool crit) {
+			target.AddBuff(BuffID.Poisoned, crit ? 300 : 480);
+		}
+		public void OnMeleeHitNPC(Player player, Item item, NPC target, int damage, float knockback, bool crit) {
+			target.AddBuff(BuffID.Poisoned, crit ? 300 : 480);
+		}
+		public override void ModifyValue(ref float valueMult) {
+			valueMult *= 1.15f;
+		}
+		public override float RollChance(Item item) => 0.75f;
 	}
 }
