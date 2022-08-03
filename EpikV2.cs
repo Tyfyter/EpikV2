@@ -474,6 +474,9 @@ public static float ShimmerCalc(float val) {
 				Sacrifices = new List<int>() {};
 			}
 		}
+		public static bool IsDevName(string name) {
+			return name is "Jennifer" or "Asher";
+		}
 	}
 	public class LSDBiome : ModBiome {
 		public override bool IsBiomeActive(Player player) {
