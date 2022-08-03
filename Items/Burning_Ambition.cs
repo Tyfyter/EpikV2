@@ -55,7 +55,7 @@ namespace EpikV2.Items {
 				Terraria.Localization.NetworkText.FromLiteral("This kills the Guide"),
 				(r) => NPC.AnyNPCs(NPCID.Guide)
 			));
-			recipe.AddOnCraftCallback((r, item) => {
+			recipe.AddOnCraftCallback((r, item, _) => {
 				NPC guide = Main.npc[NPC.FindFirstNPC(NPCID.Guide)];
 				guide.life = 0;
 				guide.DeathSound = SoundID.Item104;
@@ -96,6 +96,11 @@ namespace EpikV2.Items {
 				side *= zMult * zMult;
 				return new Triangle(Projectile.Center, @base + side * 64, @base - side * 64);
 			}
+		}
+		public override ModProjectile Clone(Projectile newEntity) {
+			Burning_Ambition_Vortex clone = (Burning_Ambition_Vortex)base.Clone(newEntity);
+			clone.particles = null;
+			return clone;
 		}
 		protected override bool CloneNewInstances => true;
 		internal List<Particle> particles;
@@ -289,6 +294,11 @@ namespace EpikV2.Items {
 	}
 	public class Burning_Ambition_Fireball : ModProjectile {
 		public override string Texture => "EpikV2/Items/Burning_Ambition";
+		public override ModProjectile Clone(Projectile newEntity) {
+			Burning_Ambition_Fireball clone = (Burning_Ambition_Fireball)base.Clone(newEntity);
+			clone.particles = null;
+			return clone;
+		}
 		protected override bool CloneNewInstances => true;
 		internal Fireball_Particle[] particles;
 		internal List<Fireball_Particle> deathParticles;
@@ -465,6 +475,11 @@ namespace EpikV2.Items {
 	}
 	public class Burning_Ambition_Smelter : ModProjectile {
 		public override string Texture => "EpikV2/Items/Burning_Ambition";
+		public override ModProjectile Clone(Projectile newEntity) {
+			Burning_Ambition_Smelter clone = (Burning_Ambition_Smelter)base.Clone(newEntity);
+			clone.particles = null;
+			return clone;
+		}
 		protected override bool CloneNewInstances => true;
 		internal Fireball_Particle[] particles;
 		public override void SetStaticDefaults() {

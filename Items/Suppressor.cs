@@ -143,30 +143,37 @@ namespace EpikV2.Items {
             float itemRotation = drawPlayer.itemRotation;// - drawPlayer.fullRotation;
             drawOrigin.X*=-drawPlayer.direction;
             DrawData value;
+
+            float scale = drawPlayer.GetAdjustedItemScale(Item);
+
             Vector2 unit = Vector2.UnitX.RotatedBy(itemRotation+(drawPlayer.direction>0?0:MathHelper.Pi));
             float splitValue = split>75?75:split;
             Vector2 splitShake = unit*((split - splitValue) / 15f);
             float splitBack = ARCool?1.5f:0;//drawPlayer.altFunctionUse == 2?0:1.5f;
 
             Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
-            //pos+=unit*4;
+			//pos+=unit*4;
 
-            value = new DrawData(handleTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
-            value.shader = 84;
-            drawInfo.DrawDataCache.Add(value);
+			value = new DrawData(handleTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, scale, drawInfo.itemEffect, 0) {
+				shader = 84
+			};
+			drawInfo.DrawDataCache.Add(value);
 
-            pos+=(unit * splitValue * splitMult) - (splitShake * splitBack);
-            value = new DrawData(centerTexture, pos+splitShake.RotatedByRandom(Math.PI), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
-            value.shader = 84;
-            drawInfo.DrawDataCache.Add(value);
+            pos += (unit * splitValue * splitMult) - (splitShake * splitBack);
+			value = new DrawData(centerTexture, pos + splitShake.RotatedByRandom(Math.PI), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, scale, drawInfo.itemEffect, 0) {
+				shader = 84
+			};
+			drawInfo.DrawDataCache.Add(value);
 
-            value = new DrawData(bottomTexture, pos-(splitShake*splitBack)+(unit.RotatedBy(1f*drawPlayer.direction)*splitValue*splitMult+splitShake.RotatedByRandom(Math.PI)), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
-            value.shader = 84;
-            drawInfo.DrawDataCache.Add(value);
+			value = new DrawData(bottomTexture, pos - (splitShake * splitBack) + (unit.RotatedBy(1f * drawPlayer.direction) * splitValue * splitMult + splitShake.RotatedByRandom(Math.PI)), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, scale, drawInfo.itemEffect, 0) {
+				shader = 84
+			};
+			drawInfo.DrawDataCache.Add(value);
 
-            value = new DrawData(topTexture, pos-(splitShake*splitBack)+(unit.RotatedBy(-1f*drawPlayer.direction)*splitValue*splitMult+splitShake.RotatedByRandom(Math.PI)), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
-            value.shader = 84;
-            drawInfo.DrawDataCache.Add(value);
+			value = new DrawData(topTexture, pos - (splitShake * splitBack) + (unit.RotatedBy(-1f * drawPlayer.direction) * splitValue * splitMult + splitShake.RotatedByRandom(Math.PI)), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, scale, drawInfo.itemEffect, 0) {
+				shader = 84
+			};
+			drawInfo.DrawDataCache.Add(value);
         }
     }
 	public class SuppressorShot : ModProjectile {

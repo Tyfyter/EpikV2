@@ -1,0 +1,13 @@
+﻿Mods: {
+	EpikV2:{
+		ItemName:{
+			Party_Pylon_Item: Party Pylon
+		}
+		MapObject:{
+			Party_Pylon_Tile: Party Pylon (Inactive)
+		}
+		BiomeName:{
+			PartyPseudoBiome: Parties
+		}
+	}
+}

@@ -258,18 +258,20 @@ namespace EpikV2.Items {
             float itemRotation = drawPlayer.itemRotation;
             DrawData value;
 
+            float scale = drawPlayer.GetAdjustedItemScale(Item);
+
             Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
 
-            value = new DrawData(BackTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
+            value = new DrawData(BackTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, scale, drawInfo.itemEffect, 0);
             drawInfo.DrawDataCache.Add(value);
 
             if(totalCoins>=Price) {
                 int offset = Math.Max((16-(totalCoins / Price))/2,0)*drawPlayer.direction*-2;
-                value = new DrawData(CoinsTextures[mode], pos+(Vector2.UnitX.RotatedBy(itemRotation)*offset), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
+                value = new DrawData(CoinsTextures[mode], pos+(Vector2.UnitX.RotatedBy(itemRotation)*offset), new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, scale, drawInfo.itemEffect, 0);
                 //value.shader = 84;
                 drawInfo.DrawDataCache.Add(value);
             }
-            value = new DrawData(FrontTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
+            value = new DrawData(FrontTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, scale, drawInfo.itemEffect, 0);
             //value.shader = 84;
             drawInfo.DrawDataCache.Add(value);
         }

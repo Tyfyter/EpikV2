@@ -167,7 +167,8 @@ namespace EpikV2.Items {
                 break;
             }
             unit.X *= player.direction;
-            hitbox = BoxOf(player.MountedCenter+unit*8, player.MountedCenter+unit*72*Item.scale, frame==3?new Vector2(0,12*Item.scale):new Vector2(4*Item.scale));
+			float scale = player.GetAdjustedItemScale(Item);
+            hitbox = BoxOf(player.MountedCenter+unit*8, player.MountedCenter+unit*68*scale, frame==3?new Vector2(16, 12*scale):new Vector2(4*scale));
             Item.Hitbox = hitbox;
         }
         bool recursionnt = false;
@@ -280,7 +281,8 @@ namespace EpikV2.Items {
                 rot+=-MathHelper.PiOver4*drawPlayer.direction;
                 break;
             }
-            value = new DrawData(blastTexture, drawPlayer.MountedCenter-Main.screenPosition+new Vector2(16,0).RotatedBy(rot-MathHelper.PiOver2), new Rectangle(0, 66*blastFrame, 64, 64), new Color(255, 255, 255, 255), rot, new Vector2(32, 64), Item.scale, drawInfo.playerEffect, 1);
+            float scale = drawPlayer.GetAdjustedItemScale(Item);
+            value = new DrawData(blastTexture, drawPlayer.MountedCenter-Main.screenPosition+new Vector2(16,0).RotatedBy(rot-MathHelper.PiOver2), new Rectangle(0, 66*blastFrame, 64, 64), new Color(255, 255, 255, 255), rot, new Vector2(32, 64), scale, drawInfo.playerEffect, 1);
             drawInfo.DrawDataCache.Add(value);
         }
     }

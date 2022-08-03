@@ -33,6 +33,8 @@ using Terraria.UI.Chat;
 using ReLogic.Content;
 using EpikV2.Layers;
 using Terraria.ModLoader.Default;
+using Detour = On.Terraria;
+using Terraria.GameContent.Events;
 
 namespace EpikV2 {
 	public class EpikV2 : Mod {
@@ -59,6 +61,7 @@ namespace EpikV2 {
 		public static int alphaMapShaderID;
 		internal static List<IDrawAfterNPCs> drawAfterNPCs;
 		internal static HashSet<Recipe> HellforgeRecipes;
+		internal static PopupText nextPopupText;
 		//public static MotionArmorShaderData motionBlurShader;
 		public override object Call(params object[] args) {
 			if (args.Length > 0) {
@@ -91,21 +94,88 @@ namespace EpikV2 {
 			ChatManager.Register<CatgirlMemeHandler>(new string[]{
 				"herb"
 			});
-			On.Terraria.Player.SlopingCollision += EpikPlayer.SlopingCollision;
+			Detour.Player.SlopingCollision += EpikPlayer.SlopingCollision;
 			//Main.OnPreDraw += Main_OnPostDraw;
 			IL.Terraria.Main.DoDraw += Main_DoDraw;
-			On.Terraria.UI.ItemSlot.PickItemMovementAction += ItemSlot_PickItemMovementAction;
-			On.Terraria.UI.ItemSlot.isEquipLocked += ItemSlot_isEquipLocked;
-			On.Terraria.DataStructures.PlayerDrawLayers.DrawPlayer_21_Head_TheFace += PlayerDrawLayers_DrawPlayer_21_Head_TheFace;
-			On.Terraria.Projectile.GetWhipSettings += (On.Terraria.Projectile.orig_GetWhipSettings orig, Projectile proj, out float timeToFlyOut, out int segments, out float rangeMultiplier) => {
-				if (proj.ModProjectile is IWhipProjectile whip) {
-					whip.GetWhipSettings(out timeToFlyOut, out segments, out rangeMultiplier);
-				} else {
-					orig(proj, out timeToFlyOut, out segments, out rangeMultiplier);
+			Detour.UI.ItemSlot.PickItemMovementAction += ItemSlot_PickItemMovementAction;
+			Detour.UI.ItemSlot.isEquipLocked += ItemSlot_isEquipLocked;
+			Detour.DataStructures.PlayerDrawLayers.DrawPlayer_21_Head_TheFace += PlayerDrawLayers_DrawPlayer_21_Head_TheFace;
+			Detour.GameContent.TeleportPylonsSystem.HasPylonOfType += (Detour.GameContent.TeleportPylonsSystem.orig_HasPylonOfType orig, TeleportPylonsSystem self, TeleportPylonType pylonType) => {
+				if (pylonType == TeleportPylonType.Victory && EpikConfig.Instance.InfiniteUniversalPylons) {
+					return false;
 				}
+				return orig(self, pylonType);
+			};
+			Detour.PopupText.Update += PopupText_Update;
+			Detour.PopupText.NewText_AdvancedPopupRequest_Vector2 += PopupText_NewText_AdvancedPopupRequest_Vector2;
+			Detour.PopupText.FindNextItemTextSlot += (orig) => {
+				int index = orig();
+				if (Main.popupText[index] is AdvancedPopupText) {
+					Main.popupText[index] = new PopupText();
+				}
+				return index;
 			};
 		}
-		private bool ItemSlot_isEquipLocked(On.Terraria.UI.ItemSlot.orig_isEquipLocked orig, int type) {
+
+		private int PopupText_NewText_AdvancedPopupRequest_Vector2(Detour.PopupText.orig_NewText_AdvancedPopupRequest_Vector2 orig, AdvancedPopupRequest request, Vector2 position) {
+			if (nextPopupText is null) {
+				nextPopupText = new PopupText();
+			}
+			if (!Main.showItemText) {
+				nextPopupText = null;
+				return -1;
+			}
+			if (Main.netMode == NetmodeID.Server) {
+				nextPopupText = null;
+				return -1;
+			}
+			int index = -1;
+			for (int i = 0; i < 20; i++) {
+				if (!Main.popupText[i].active) {
+					index = i;
+					break;
+				}
+			}
+			if (index == -1) {
+				double lowestY = Main.bottomWorld;
+				for (int j = 0; j < 20; j++) {
+					if (lowestY > Main.popupText[j].position.Y) {
+						index = j;
+						lowestY = Main.popupText[j].position.Y;
+					}
+				}
+			}
+			if (index >= 0) {
+				string text = request.Text;
+				Vector2 value = FontAssets.MouseText.Value.MeasureString(text);
+				PopupText obj = Main.popupText[index] = nextPopupText;
+				PopupText.ResetText(obj);
+				obj.active = true;
+				obj.position = position - value / 2f;
+				obj.name = text;
+				obj.stack = 1;
+				obj.velocity = request.Velocity;
+				obj.lifeTime = request.DurationInFrames;
+				obj.context = PopupTextContext.Advanced;
+				obj.freeAdvanced = true;
+				obj.color = request.Color;
+			}
+			nextPopupText = null;
+			return index;
+		}
+
+		private void PopupText_Update(Detour.PopupText.orig_Update orig, PopupText self, int whoAmI) {
+			if (self is AdvancedPopupText advancedSelf) {
+				if (advancedSelf.PreUpdate(whoAmI)) {
+					orig(self, whoAmI);
+				}
+				advancedSelf.PostUpdate(whoAmI);
+			} else {
+				orig(self, whoAmI);
+			}
+		}
+
+		private bool ItemSlot_isEquipLocked(Detour.UI.ItemSlot.orig_isEquipLocked orig, int type) {
 			Item item = null;
 			for (int i = 3; i < 10; i++) {
 				if (Main.LocalPlayer.armor[i].type == type) {
@@ -131,7 +201,7 @@ namespace EpikV2 {
 			return orig(type);
 		}
 
-		private void PlayerDrawLayers_DrawPlayer_21_Head_TheFace(On.Terraria.DataStructures.PlayerDrawLayers.orig_DrawPlayer_21_Head_TheFace orig, ref PlayerDrawSet drawinfo) {
+		private void PlayerDrawLayers_DrawPlayer_21_Head_TheFace(Detour.DataStructures.PlayerDrawLayers.orig_DrawPlayer_21_Head_TheFace orig, ref PlayerDrawSet drawinfo) {
 			if (Face_Layer.drawFace) {
 				orig(ref drawinfo);
 			}
@@ -152,7 +222,7 @@ namespace EpikV2 {
 			}
 		}
 
-		private int ItemSlot_PickItemMovementAction(On.Terraria.UI.ItemSlot.orig_PickItemMovementAction orig, Item[] inv, int context, int slot, Item checkItem) {
+		private int ItemSlot_PickItemMovementAction(Detour.UI.ItemSlot.orig_PickItemMovementAction orig, Item[] inv, int context, int slot, Item checkItem) {
 			if(Main.mouseLeftRelease && Main.mouseLeft)switch (context) {
 				case ItemSlot.Context.EquipArmor:
 				case ItemSlot.Context.EquipAccessory:
@@ -311,21 +381,6 @@ public static float ShimmerCalc(float val) {
 				return (short)(glowMasks.Length - 1);
 			} else return 0;
 		}
-		public override void PostAddRecipes() {
-			EpikIntegration.EnabledMods.CheckEnabled();
-			if (EpikIntegration.EnabledMods.RecipeBrowser)EpikIntegration.AddRecipeBrowserIntegration();
-			HellforgeRecipes = new HashSet<Recipe>(Main.recipe.Where(
-				r => r.requiredTile.Sum(
-					t => {
-						return t switch {
-							TileID.Furnaces or TileID.Hellforge => 1,
-							-1 => 0,
-							_ => -100,
-						};
-					}
-				) > 0
-			));
-		}
 	}
 	[Label("Settings")]
 	public class EpikConfig : ModConfig {
@@ -340,6 +395,14 @@ public static float ShimmerCalc(float val) {
 		[Label("Become a Constellation")]
 		[DefaultValue(false)]
 		public bool ConstellationDraco = false;
+
+		[Label("Infinite Universal Pylons")]
+		[DefaultValue(true)]
+		public bool InfiniteUniversalPylons = true;
+
+		[Label("Luck Affects Fishing")]
+		[DefaultValue(true)]
+		public bool LuckyFish = true;
 	}
 	[Label("Client Settings")]
 	public class EpikClientConfig : ModConfig {
@@ -349,7 +412,6 @@ public static float ShimmerCalc(float val) {
 		[Label("Reduce Jitter")]
 		[Tooltip("Reduces intentional jitter in some elements\nOn by default for the sake of players with photosensitive epilepsy")]
 		[DefaultValue(true)]
-		[ReloadRequired]
 		public bool reduceJitter = true;
 	}
 	public class EpikWorld : ModSystem {
@@ -358,7 +420,21 @@ public static float ShimmerCalc(float val) {
 		private static bool raining;
 		public static List<int> Sacrifices { get => sacrifices; set => sacrifices = value; }
 		public static bool Raining { get => raining; set => raining = value; }
-
+		public override void PostAddRecipes(){
+			EpikIntegration.EnabledMods.CheckEnabled();
+			if (EpikIntegration.EnabledMods.RecipeBrowser) EpikIntegration.AddRecipeBrowserIntegration();
+			EpikV2.HellforgeRecipes = new HashSet<Recipe>(Main.recipe.Where(
+				r => r.requiredTile.Sum(
+					t => {
+						return t switch {
+							TileID.Furnaces or TileID.Hellforge => 1,
+							-1 => 0,
+							_ => -100,
+						};
+					}
+				) > 0
+			));
+		}
 		public override void PostUpdateTime() {
 			for (int i = 0; i < Sacrifices.Count; i++) {
 				Main.townNPCCanSpawn[Sacrifices[i]] = false;
@@ -399,7 +475,7 @@ public static float ShimmerCalc(float val) {
 			}
 		}
 	}
-	public class BiomeUpdates : ModBiome {
+	public class LSDBiome : ModBiome {
 		public override bool IsBiomeActive(Player player) {
 			bool high = player.GetModPlayer<EpikPlayer>().drugPotion;
 			if (high) {
@@ -410,7 +486,17 @@ public static float ShimmerCalc(float val) {
 			return high;
 		}
 		public override void SpecialVisuals(Player player, bool isActive) {
-			player.ManageSpecialBiomeVisuals("EpikV2:LSD", isActive);
+			ScreenShaderData shader = Filters.Scene["EpikV2:LessD"].GetShader();
+			float val = (float)((Math.Sin(Main.GlobalTimeWrappedHourly * MathHelper.Pi)) + 1f) / 2;
+			shader.UseIntensity(shader.Intensity + val / 30f);
+			shader.UseOpacity(val);
+			player.ManageSpecialBiomeVisuals(EpikClientConfig.Instance.reduceJitter ? "EpikV2:LessD" : "EpikV2:LSD", isActive);
+		}
+	}
+	public class PartyBiome : ModBiome {
+		public override string Name => "PartyPseudoBiome";
+		public override bool IsBiomeActive(Player player) {
+			return BirthdayParty.PartyIsUp;
 		}
 	}
 }

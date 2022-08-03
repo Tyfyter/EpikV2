@@ -10,6 +10,8 @@ using Terraria.ID;
 using Terraria.ModLoader.IO;
 using System.Diagnostics;
 using Terraria.DataStructures;
+using Terraria.GameContent.ItemDropRules;
+using EpikV2.Modifiers;
 
 namespace EpikV2.Items {
     public partial class EpikGlobalItem : GlobalItem {
@@ -97,6 +99,11 @@ namespace EpikV2.Items {
 				});
 			}
 		}
+		public override void OnHitNPC(Item item, Player player, NPC target, int damage, float knockBack, bool crit) {
+			if (PrefixLoader.GetPrefix(item.prefix) is IMeleeHitPrefix meleeHitPrefix) {
+				meleeHitPrefix.OnMeleeHitNPC(player, item, target, damage, knockBack, crit);
+			}
+		}
 		public override void PickAmmo(Item weapon, Item ammo, Player player, ref int type, ref float speed, ref StatModifier damage, ref float knockback) {
             if(weapon.type == Orion_Bow.ID) {
 				/*
@@ -107,10 +114,24 @@ namespace EpikV2.Items {
 				damage.Base += ammo.damage * 1.5f;//(damage.Base - Main.player[weapon.playerIndexTheItemIsReservedFor].GetWeaponDamage(weapon))*5;
             }
         }
-		public override void OpenVanillaBag(string context, Player player, int arg) {
+		/*public override void OpenVanillaBag(string context, Player player, int arg) {
             if(context=="goodieBag"&&Main.rand.NextBool(10)) {
                 player.QuickSpawnItem(player.GetSource_OpenItem(arg, context), ModContent.ItemType<Chocolate_Bar>());
             }
+		}*/
+		public override void ModifyItemLoot(Item item, ItemLoot itemLoot) {
+			switch (item.type) {
+				case ItemID.GoodieBag: {
+					SequentialRulesNotScalingWithLuckRule rule = (SequentialRulesNotScalingWithLuckRule)itemLoot.Get(false).First(rule => rule is SequentialRulesNotScalingWithLuckRule);
+					var rules = rule.rules.ToList();
+					rules.Insert(
+						rules.FindIndex(r => r is OneFromRulesRule),
+						ItemDropRule.NotScalingWithLuck(ModContent.ItemType<Chocolate_Bar>(), 8)
+					);
+					rule.rules = rules.ToArray();
+				}
+				break;
+			}
 		}
-    }
+	}
 }

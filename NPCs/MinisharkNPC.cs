@@ -226,4 +226,22 @@ namespace EpikV2.NPCs {
             NPC.velocity-=vel/2;
         }
     }
+    public class MinisharkPopupText : AdvancedPopupText {
+        float? realX = null;
+        public override bool PreUpdate(int whoAmI) {
+            int drainB = Math.Min((int)color.B, 2);
+			if (drainB > 0) {
+                color.B = (byte)(color.B - drainB);
+                color.R = (byte)Math.Min(color.R + drainB, 255);
+            }
+            int drainG = Math.Min((int)color.G, 1);
+            if (drainG > 0) {
+                color.G = (byte)(color.G - drainB);
+                color.R = (byte)Math.Min(color.R + drainG, 255);
+            }
+            realX ??= position.X;
+            position.X = (float)((realX??0) + Main.rand.NextFloat(-1f, 1f) * Math.Pow((255 - color.B) * 0.004f, 8));
+            return true;
+        }
+    }
 }

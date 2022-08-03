@@ -144,7 +144,7 @@ namespace EpikV2.Items {
 			return broken && player.altFunctionUse !=2;
 		}
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
-			Projectile.NewProjectileDirect(source, position, velocity, type, damage, knockback, player.whoAmI).scale *= Item.scale;
+			Projectile.NewProjectileDirect(source, position, velocity, type, damage, knockback, player.whoAmI).scale *= player.GetAdjustedItemScale(Item);
 			SoundEngine.PlaySound(SoundID.AbigailSummon.WithPitch(1).WithVolume(0.75f), position);
 			return false;
 		}
@@ -153,18 +153,20 @@ namespace EpikV2.Items {
 			float num77 = drawPlayer.itemRotation + MathHelper.PiOver4 * drawPlayer.direction;
 			Item item = drawPlayer.HeldItem;
 
+			float scale = drawPlayer.GetAdjustedItemScale(item);
+
 			Rectangle frame = Animation.GetFrame(itemTexture);
 			Color currentColor = Lighting.GetColor((int)(drawInfo.Position.X + drawPlayer.width * 0.5) / 16, (int)((drawInfo.Position.Y + drawPlayer.height * 0.5) / 16.0));
 			SpriteEffects spriteEffects = drawInfo.itemEffect;//(drawPlayer.direction == 1 ? 0 : SpriteEffects.FlipHorizontally) | (drawPlayer.gravDir == 1f ? 0 : SpriteEffects.FlipVertically);
 			
-			DrawData value = new DrawData(itemTexture, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y)), frame, drawPlayer.inventory[drawPlayer.selectedItem].GetAlpha(currentColor), drawPlayer.itemRotation, new Vector2(frame.Width * 0.5f - frame.Width * 0.5f * drawPlayer.direction, frame.Height), drawPlayer.inventory[drawPlayer.selectedItem].scale, spriteEffects, 0);
+			DrawData value = new DrawData(itemTexture, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y)), frame, drawPlayer.inventory[drawPlayer.selectedItem].GetAlpha(currentColor), drawPlayer.itemRotation, new Vector2(frame.Width * 0.5f - frame.Width * 0.5f * drawPlayer.direction, frame.Height), scale, spriteEffects, 0);
 			drawInfo.DrawDataCache.Add(value);
 
-			value = new DrawData(TextureAssets.GlowMask[customGlowMask].Value, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y)), frame, new Color(250, 250, 250, item.alpha), drawPlayer.itemRotation, new Vector2(frame.Width * 0.5f - frame.Width * 0.5f * drawPlayer.direction, frame.Height), drawPlayer.inventory[drawPlayer.selectedItem].scale, spriteEffects, 0);
+			value = new DrawData(TextureAssets.GlowMask[customGlowMask].Value, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y)), frame, new Color(250, 250, 250, item.alpha), drawPlayer.itemRotation, new Vector2(frame.Width * 0.5f - frame.Width * 0.5f * drawPlayer.direction, frame.Height), scale, spriteEffects, 0);
 			drawInfo.DrawDataCache.Add(value);
 		}
 	}
-	public class Obsidian_Spellsword_P : ModProjectile, IWhipProjectile {
+	public class Obsidian_Spellsword_P : ModProjectile {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Obsidian Spellsword");
 			// This makes the projectile use whip collision detection and allows flasks to be applied to it.
@@ -173,16 +175,8 @@ namespace EpikV2.Items {
 
 		public override void SetDefaults() {
 			Projectile.DefaultToWhip();
-			Projectile.DamageType = DamageClass.Melee;
-			Projectile.width = 18;
-			Projectile.height = 18;
-			Projectile.friendly = true;
-			Projectile.penetrate = -1;
-			Projectile.tileCollide = false;
-			Projectile.ownerHitCheck = true; // This prevents the projectile from hitting through solid tiles.
-			Projectile.extraUpdates = 1;
-			Projectile.usesLocalNPCImmunity = true;
-			Projectile.localNPCHitCooldown = -1;
+			Projectile.DamageType = Damage_Classes.Spellsword;
+			Projectile.WhipSettings.Segments = 10;
 		}
 
 		private float Timer {
@@ -191,6 +185,7 @@ namespace EpikV2.Items {
 		}
 
 		public override void AI() {
+			Projectile.WhipSettings.RangeMultiplier = 0.9f * Projectile.scale;
 			Player owner = Main.player[Projectile.owner];
 			Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2; // Without PiOver2, the rotation would be off by 90 degrees counterclockwise.
 
@@ -222,11 +217,6 @@ namespace EpikV2.Items {
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			target.GetGlobalNPC<EpikGlobalNPC>().SetJadeWhipValues(300, damage / 10, Projectile.CritChance);
 			if(target.life > 0)Main.player[Projectile.owner].MinionAttackTargetNPC = target.whoAmI;
-		}
-		public void GetWhipSettings(out float timeToFlyOut, out int segments, out float rangeMultiplier) {
-			timeToFlyOut = Main.player[Projectile.owner].itemAnimationMax * Projectile.MaxUpdates;
-			segments = 10;
-			rangeMultiplier = 0.9f * Projectile.scale;
 		}
 
 		public override bool PreDraw(ref Color lightColor) {

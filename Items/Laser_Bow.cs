@@ -101,12 +101,14 @@ namespace EpikV2.Items
             float itemRotation = drawPlayer.itemRotation;
             DrawData value;
 
+            float scale = drawPlayer.GetAdjustedItemScale(Item);
+
             Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
 
-            value = new DrawData(UseTexture, pos, null, Item.GetAlpha(lightColor), itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
+            value = new DrawData(UseTexture, pos, null, Item.GetAlpha(lightColor), itemRotation, drawOrigin, scale, drawInfo.itemEffect, 0);
             drawInfo.DrawDataCache.Add(value);
 
-			value = new DrawData(GlowTexture, pos, null, Color.White, itemRotation, drawOrigin, Item.scale, drawInfo.itemEffect, 0) {
+			value = new DrawData(GlowTexture, pos, null, Color.White, itemRotation, drawOrigin, scale, drawInfo.itemEffect, 0) {
 				shader = EpikV2.laserBowShaderID
 			};
             Shaders.laserBowOverlayShader.UseSaturation(nextShotTime / shotDelay);

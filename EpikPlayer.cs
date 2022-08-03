@@ -506,7 +506,7 @@ namespace EpikV2 {
             }
             return true;
         }
-        public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource) {
+        public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource, ref int cooldownCounter) {
             bool canDodge = true;
             bool canReduce = true;
             if (marionetteDeathTime>0) {
@@ -658,13 +658,56 @@ namespace EpikV2 {
         public override void PostItemCheck() {
             ItemChecking[Player.whoAmI] = false;
         }
+		public override void ModifyFishingAttempt(ref FishingAttempt attempt) {
+			if (EpikConfig.Instance.LuckyFish && Player.luck != 0) {
+                int chanceUncommon = 300 / attempt.fishingLevel;
+                int chanceRare = 1050 / attempt.fishingLevel;
+                int chanceVeryRare = 2250 / attempt.fishingLevel;
+                int chanceLegendary = 4500 / attempt.fishingLevel;
+
+                if (chanceUncommon < 3) chanceUncommon = 3;
+                if (chanceRare < 4) chanceRare = 4;
+                if (chanceVeryRare < 5) chanceVeryRare = 5;
+                if (chanceLegendary < 6) chanceLegendary = 6;
+
+                bool uncommon = Main.rand.NextBool(chanceUncommon);
+                bool rare = Main.rand.NextBool(chanceRare);
+                bool veryrare = Main.rand.NextBool(chanceVeryRare);
+                bool legendary = Main.rand.NextBool(chanceLegendary);
+                bool crate = Player.cratePotion && Main.rand.Next(100) < 20;
+
+                if (Player.luck > 0f) {
+                    if (Main.rand.NextFloat() < Player.luck) {
+                        attempt.uncommon |= uncommon;
+                        attempt.rare |= rare;
+                        attempt.veryrare |= veryrare;
+                        attempt.legendary |= legendary;
+                        attempt.crate |= crate;
+                    }
+                } else if (Player.luck < 0f && Main.rand.NextFloat() < 0f - Player.luck) {
+                    int chanceCommon = 150 / attempt.fishingLevel;
+                    if (chanceCommon < 2) {
+                        chanceCommon = 2;
+                    }
+                    attempt.common &= Main.rand.NextBool(chanceCommon);
+                    attempt.uncommon &= uncommon;
+                    attempt.rare &= rare;
+                    attempt.veryrare &= veryrare;
+                    attempt.legendary &= legendary;
+                    attempt.crate &= crate;
+                }
+            }
+		}
 		public override void CatchFish(FishingAttempt attempt, ref int itemDrop, ref int npcSpawn, ref AdvancedPopupRequest sonar, ref Vector2 sonarPosition) {
 			if (Player.ZoneJungle) {
                 if(!attempt.inLava && !attempt.inHoney && attempt.rare && (attempt.chumsInWater > 0 || Main.rand.NextBool(2))) {
                     itemDrop = 0;
                     npcSpawn = ModContent.NPCType<MinisharkNPC>();
                     sonar.Color = Colors.RarityGreen;
-                    //sonar.Text = 
+                    sonar.Text = Lang.GetItemNameValue(ItemID.Minishark);
+                    sonar.Velocity = new Vector2(0, -7);
+                    sonar.DurationInFrames = 60;
+                    EpikV2.nextPopupText = new MinisharkPopupText();
 				}
 			}
 		}

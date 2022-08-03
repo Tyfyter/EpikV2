@@ -47,9 +47,6 @@ namespace EpikV2 {
     public interface IScrollableItem {
         void Scroll(int direction);
     }
-    public interface IWhipProjectile {
-        void GetWhipSettings(out float timeToFlyOut, out int segments, out float rangeMultiplier);
-    }
     public struct BitsBytes {
         readonly BitsByte[] _bytes;
         public BitsBytes(ushort bytes) {
@@ -115,6 +112,10 @@ namespace EpikV2 {
         }
         public static implicit operator AutoCastingAsset<T>(Asset<T> asset) => new(asset);
         public static implicit operator T (AutoCastingAsset<T> asset) => asset.Value;
+    }
+    public class AdvancedPopupText : PopupText {
+        public virtual bool PreUpdate(int whoAmI) => true;
+        public virtual void PostUpdate(int whoAmI) { }
     }
     public static class EpikExtensions {
         public static AutoCastingAsset<Texture2D> RequestTexture(this Mod mod, string name) => mod.Assets.Request<Texture2D>(name);

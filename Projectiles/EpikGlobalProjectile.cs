@@ -19,6 +19,7 @@ namespace EpikV2.Projectiles {
 		public override bool InstancePerEntity => true;
 		protected override bool CloneNewInstances => true;
         internal bool jade = false;
+        [CloneByReference]
         public ModPrefix prefix;
         public bool controledNPCProjectile = false;
 		public override void OnSpawn(Projectile projectile, IEntitySource source) {
