@@ -158,6 +158,8 @@ namespace EpikV2.Items {
             float num1 = 8;//.5f - 2 * ChargePercent;
             float num2 = 16f;
 
+            float scale = drawPlayer.GetAdjustedItemScale(Item);
+
             Vector2 limbOffset2 = limbOffset.RotatedBy(stringRotation - (drawPlayer.direction/6f) + drawPlayer.fullRotation);//drawSpread
             limbOffset2 -= new Vector2(playerRight ? num1 : num2, 0).RotatedBy(stringRotation);
             Rectangle drawRect = new Rectangle(
@@ -184,19 +186,19 @@ namespace EpikV2.Items {
             drawInfo.DrawDataCache.Add(value);
 
             //sky
-            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation-drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
+            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation-drawSpread, drawOrigin, scale, drawInfo.itemEffect, 0);
             value.shader = fireArrow ? shaderIDSun : shaderIDStars;//consider twilight dye (94), 106
             drawInfo.DrawDataCache.Add(value);
-            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation+drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect ^ SpriteEffects.FlipVertically, 0);
+            value = new DrawData(skyTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(Color.White), itemRotation+drawSpread, drawOrigin, scale, drawInfo.itemEffect ^ SpriteEffects.FlipVertically, 0);
             value.shader = fireArrow ? shaderIDSun : shaderIDStars;//115, 112, 106
             drawInfo.DrawDataCache.Add(value);
 
             //gold
             //new Vector2((int)(drawInfo.itemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.itemLocation.Y - Main.screenPosition.Y + itemCenter.Y))
-            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation-drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect, 0);
+            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation-drawSpread, drawOrigin, scale, drawInfo.itemEffect, 0);
             value.shader = shaderIDGold;
             drawInfo.DrawDataCache.Add(value);
-            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation+drawSpread, drawOrigin, Item.scale, drawInfo.itemEffect ^ SpriteEffects.FlipVertically, 0);
+            value = new DrawData(goldTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation+drawSpread, drawOrigin, scale, drawInfo.itemEffect ^ SpriteEffects.FlipVertically, 0);
             value.shader = shaderIDGold;
             drawInfo.DrawDataCache.Add(value);
         }

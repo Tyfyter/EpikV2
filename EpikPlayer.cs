@@ -685,14 +685,11 @@ namespace EpikV2 {
                         attempt.crate |= crate;
                     }
                 } else if (Player.luck < 0f && Main.rand.NextFloat() < 0f - Player.luck) {
-                    int num = 150 / fishingLevel;
-                    if (num < 2) {
-                        num = 2;
+                    int chanceCommon = 150 / attempt.fishingLevel;
+                    if (chanceCommon < 2) {
+                        chanceCommon = 2;
                     }
-                    if (Main.rand.Next(num) == 0) {
-                        common = true;
-                    }
-                    attempt.common &= uncommon;
+                    attempt.common &= Main.rand.NextBool(chanceCommon);
                     attempt.uncommon &= uncommon;
                     attempt.rare &= rare;
                     attempt.veryrare &= veryrare;

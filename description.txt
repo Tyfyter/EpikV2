@@ -1,4 +1,4 @@
-A continuation of my first mod, "Epikmod".
+A continuation of my first mod, "Epikmod", this mod basically adds whatever I think of that doesn't fit in another mod (which has since upgraded from glitchy chainsaw bullets to an arsenal of unique, sometimes esoteric weapons, potions, accessories, and more)
 Icon coming soon, have a potato for now
 "The only terraria mod with a telescope except for any other mods which happen to have one"
 
@@ -61,3 +61,4 @@ Special Thanks to the 7387 people who've downloaded the original mod.
 Wait, why is it 7395 now...
 7477? Are people still using tML v0.8.2.1?
 7574. How is it still available?
+Gott sei Dank it's finally gone.

@@ -101,7 +101,7 @@ namespace EpikV2 {
 			Detour.UI.ItemSlot.isEquipLocked += ItemSlot_isEquipLocked;
 			Detour.DataStructures.PlayerDrawLayers.DrawPlayer_21_Head_TheFace += PlayerDrawLayers_DrawPlayer_21_Head_TheFace;
 			Detour.GameContent.TeleportPylonsSystem.HasPylonOfType += (Detour.GameContent.TeleportPylonsSystem.orig_HasPylonOfType orig, TeleportPylonsSystem self, TeleportPylonType pylonType) => {
-				if (pylonType == TeleportPylonType.Victory || EpikConfig.Instance.InfiniteUniversalPylons) {
+				if (pylonType == TeleportPylonType.Victory && EpikConfig.Instance.InfiniteUniversalPylons) {
 					return false;
 				}
 				return orig(self, pylonType);
