@@ -62,3 +62,5 @@ Wait, why is it 7395 now...
 7477? Are people still using tML v0.8.2.1?
 7574. How is it still available?
 Gott sei Dank it's finally gone.
+
+Once I find an excuse to put shaders on the minimap credit for the idea goes to Chee
