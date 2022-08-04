@@ -411,8 +411,15 @@ public static float ShimmerCalc(float val) {
 
 		[Label("Reduce Jitter")]
 		[Tooltip("Reduces intentional jitter in some elements\nOn by default for the sake of players with photosensitive epilepsy")]
-		[DefaultValue(true)]
-		public bool reduceJitter = true;
+		[DefaultValue(JitterTypes.All)]
+		public JitterTypes reduceJitter = JitterTypes.All;
+	}
+	[Flags]
+	public enum JitterTypes : byte {
+		None	=	0b00000000,
+		Tooltip =	0b00000001,
+		LSD		=	0b00000010,
+		All		=	0b11111111
 	}
 	public class EpikWorld : ModSystem {
 		//public static int GolemTime = 0;
@@ -479,6 +486,7 @@ public static float ShimmerCalc(float val) {
 		}
 	}
 	public class LSDBiome : ModBiome {
+		public override SceneEffectPriority Priority => SceneEffectPriority.None;
 		public override bool IsBiomeActive(Player player) {
 			bool high = player.GetModPlayer<EpikPlayer>().drugPotion;
 			if (high) {
@@ -493,7 +501,7 @@ public static float ShimmerCalc(float val) {
 			float val = (float)((Math.Sin(Main.GlobalTimeWrappedHourly * MathHelper.Pi)) + 1f) / 2;
 			shader.UseIntensity(shader.Intensity + val / 30f);
 			shader.UseOpacity(val);
-			player.ManageSpecialBiomeVisuals(EpikClientConfig.Instance.reduceJitter ? "EpikV2:LessD" : "EpikV2:LSD", isActive);
+			player.ManageSpecialBiomeVisuals(EpikClientConfig.Instance.reduceJitter.HasFlag(JitterTypes.LSD) ? "EpikV2:LessD" : "EpikV2:LSD", isActive);
 		}
 	}
 	public class PartyBiome : ModBiome {

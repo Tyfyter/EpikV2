@@ -425,7 +425,7 @@ namespace EpikV2 {
             char[] text = "The herb which flourishes within shall never wither in the eyes of god".ToCharArray();
             string spacing = "";
             float width = FontAssets.MouseText.Value.MeasureString(new string(text)).X;
-            if (!(EpikClientConfig.Instance?.reduceJitter ?? false)) {
+            if (!(EpikClientConfig.Instance?.reduceJitter ?? JitterTypes.All).HasFlag(JitterTypes.Tooltip)) {
                 unchecked {
                     switch (Main.rand.Next(16)) {
                         case 0:
