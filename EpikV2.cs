@@ -115,6 +115,30 @@ namespace EpikV2 {
 				}
 				return index;
 			};
+			Detour.Player.ConsumeItem += (orig, self, type, rev) => {
+				if (type == ItemID.GoldenKey && self.HasItem(ItemID.Keybrand)) {
+					return true;
+				}
+				return orig(self, type, rev);
+			};
+			Detour.Player.TileInteractionsUse += (orig, self, x, y) => {
+				for (int i = 0; i < 58; i++) {
+					if (self.inventory[i].type == ItemID.Keybrand) {
+						if (self.inventory[i].prefix == 0) {
+							self.inventory[i].prefix = -4;
+						}
+						self.inventory[i].type = ItemID.GoldenKey;
+						break;
+					}
+				}
+				orig(self, x, y);
+				for (int i = 0; i < 58; i++) {
+					if (self.inventory[i].type == ItemID.GoldenKey && self.inventory[i].prefix != 0) {
+						self.inventory[i].type = ItemID.Keybrand;
+						break;
+					}
+				}
+			};
 		}
 
 		private int PopupText_NewText_AdvancedPopupRequest_Vector2(Detour.PopupText.orig_NewText_AdvancedPopupRequest_Vector2 orig, AdvancedPopupRequest request, Vector2 position) {
@@ -505,6 +529,7 @@ public static float ShimmerCalc(float val) {
 		}
 	}
 	public class PartyBiome : ModBiome {
+		public override SceneEffectPriority Priority => SceneEffectPriority.None;
 		public override string Name => "PartyPseudoBiome";
 		public override bool IsBiomeActive(Player player) {
 			return BirthdayParty.PartyIsUp;

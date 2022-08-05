@@ -114,6 +114,12 @@ namespace EpikV2.Items {
 				damage.Base += ammo.damage * 1.5f;//(damage.Base - Main.player[weapon.playerIndexTheItemIsReservedFor].GetWeaponDamage(weapon))*5;
             }
         }
+		public override bool ConsumeItem(Item item, Player player) {
+			if (item.type == ItemID.GoldenKey && item.prefix != 0) {
+				return false;
+			}
+			return true;
+		}
 		/*public override void OpenVanillaBag(string context, Player player, int arg) {
             if(context=="goodieBag"&&Main.rand.NextBool(10)) {
                 player.QuickSpawnItem(player.GetSource_OpenItem(arg, context), ModContent.ItemType<Chocolate_Bar>());
