@@ -76,6 +76,16 @@ namespace EpikV2 {
 			instance = this;
 			EpikWorld.Sacrifices = new List<int>() { };
 			EpikPlayer.ItemChecking = new BitsBytes(32);
+
+			Biome_Key.Biome_Keys = new List<Biome_Key_Data>();
+			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Forest>(), ItemID.GoldenKey, TileID.Containers, 72));
+			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Corrupt>(), ItemID.CorruptionKey, TileID.Containers, 864));
+			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Crimson>(), ItemID.CrimsonKey, TileID.Containers, 900));
+			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Hallow>(), ItemID.HallowedKey, TileID.Containers, 936));
+			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Jungle>(), ItemID.JungleKey, TileID.Containers, 828));
+			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Frozen>(), ItemID.FrozenKey, TileID.Containers, 972));
+			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Desert>(), ItemID.DungeonDesertKey, TileID.Containers2, 468));
+
 			Logging.IgnoreExceptionContents("at EpikV2.Items.Burning_Ambition_Smelter.AI() in EpikV2\\Items\\Burning_Ambition.cs:line 472");
 			Logging.IgnoreExceptionContents("at EpikV2.Items.Haligbrand_P.HandleGraphicsLibIntegration()");
 			Logging.IgnoreExceptionContents("at EpikV2.Items.Moonlace_Proj.HandleGraphicsLibIntegration()");
@@ -122,19 +132,39 @@ namespace EpikV2 {
 				return orig(self, type, rev);
 			};
 			Detour.Player.TileInteractionsUse += (orig, self, x, y) => {
+				int oldType = ItemID.Keybrand;
+				int keyType = ItemID.GoldenKey;
 				for (int i = 0; i < 58; i++) {
 					if (self.inventory[i].type == ItemID.Keybrand) {
+						oldType = ItemID.Keybrand;
 						if (self.inventory[i].prefix == 0) {
 							self.inventory[i].prefix = -4;
 						}
-						self.inventory[i].type = ItemID.GoldenKey;
+						self.inventory[i].type = keyType = ItemID.GoldenKey;
+						break;
+					}else if (self.inventory[i].ModItem is Biome_Key) {
+						oldType = self.inventory[i].type;
+						string s = "";
+						for (int keyIndex = 0; keyIndex < Biome_Key.Biome_Keys.Count; keyIndex++) {
+							Biome_Key_Data current = Biome_Key.Biome_Keys[keyIndex];
+							if (Main.tile[x, y].TileType == current.TileID && (Main.tile[x, y].TileFrameX / 36) == (current.TileFrameX / 36)) {
+								if (self.inventory[i].prefix == 0) {
+									self.inventory[i].prefix = -4;
+								}
+								self.inventory[i].type = keyType = current.KeyID;
+							}
+							Main.LocalPlayer.chatOverhead.NewMessage(s, 5);
+						}
 						break;
 					}
 				}
 				orig(self, x, y);
 				for (int i = 0; i < 58; i++) {
-					if (self.inventory[i].type == ItemID.GoldenKey && self.inventory[i].prefix != 0) {
-						self.inventory[i].type = ItemID.Keybrand;
+					if (self.inventory[i].type == keyType && self.inventory[i].prefix != 0) {
+						self.inventory[i].type = oldType;
+						if (self.inventory[i].prefix == -4) {
+							self.inventory[i].prefix = 0;
+						}
 						break;
 					}
 				}

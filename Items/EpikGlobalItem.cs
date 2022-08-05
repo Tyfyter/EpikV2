@@ -118,6 +118,9 @@ namespace EpikV2.Items {
 			if (item.type == ItemID.GoldenKey && item.prefix != 0) {
 				return false;
 			}
+			if (item.ModItem is Biome_Key) {
+				return false;
+			}
 			return true;
 		}
 		/*public override void OpenVanillaBag(string context, Player player, int arg) {
