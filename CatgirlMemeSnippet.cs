@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.GameContent.UI.Chat;
 using Terraria.UI.Chat;
 
 namespace EpikV2 {
@@ -27,17 +28,12 @@ namespace EpikV2 {
 					Main.LocalPlayer.team = team;
 				}
 				if (DateTime.UtcNow > timestamp.AddSeconds(30)) {
-					FieldInfo chatLine = typeof(Main).GetField("chatLine", BindingFlags.Static|BindingFlags.NonPublic);
-					List<ChatLine> chatLines = ((ChatLine[])chatLine.GetValue(null)).ToList();
-					for (int i = 0; i < chatLines.Count; i++) {
-						if (chatLines[i].parsedText.Contains(this)) {
-							chatLines[i].originalText = "";
-							chatLines.Add(chatLines[i]);
-							chatLines.RemoveAt(i);
-							break;
-						}
+					FieldInfo messages = typeof(RemadeChatMonitor).GetField("_messages", BindingFlags.NonPublic | BindingFlags.Instance);
+					FieldInfo parsedText = typeof(ChatMessageContainer).GetField("_parsedText", BindingFlags.NonPublic | BindingFlags.Instance);
+					if (Main.chatMonitor is RemadeChatMonitor) {
+						(messages.GetValue(Main.chatMonitor) as List<ChatMessageContainer>).RemoveAll(v => (parsedText.GetValue(v) as List<TextSnippet[]>).Any(snippets => snippets.Contains(this)));
 					}
-					chatLine.SetValue(chatLines.ToArray(), null);
+					//timestamp = DateTime.MaxValue;
 				}
 			}
 		}

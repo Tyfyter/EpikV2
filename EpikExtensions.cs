@@ -747,6 +747,15 @@ namespace EpikV2 {
                 list[n] = value;
             }
         }
+        public static int RandomRound(this UnifiedRandom random, float value) {
+            float amount = value % 1;
+            value -= amount;
+            if (amount == 0) return (int)value;
+            if (random.NextFloat() < amount) {
+                value++;
+            }
+            return (int)value;
+        }
         public static FungibleSet<int> ToFungibleSet(this Recipe recipe) {
             return new FungibleSet<int>(recipe.requiredItem.Select(i => new KeyValuePair<int, int>(i.type, i.stack)));
 		}
