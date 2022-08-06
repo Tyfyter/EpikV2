@@ -124,6 +124,25 @@ namespace EpikV2.Items {
 				}
 			}
 		}
+		public static float GetLifeDamageMult(NPC target, float mult = (5f / 3)) {
+			return Math.Min(mult * (1 - target.life / (float)target.lifeMax), mult);
+		}
+		public override void ModifyHitNPC(Player player, NPC target, ref int damage, ref float knockBack, ref bool crit) {
+			damage += (int)(damage * GetLifeDamageMult(target));
+		}
+
+		internal static Rectangle meleeHitbox;
+		public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox) {
+			meleeHitbox = hitbox;
+		}
+		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit) {
+
+			Vector2 point = meleeHitbox.Center();
+			Vector2 positionInWorld = target.Hitbox.ClosestPointInRect(point);
+			ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.Keybrand, new ParticleOrchestraSettings {
+				PositionInWorld = positionInWorld
+			}, player.whoAmI);
+		}
 		public override void AddRecipes() {
 			Recipe recipe = CreateRecipe();
 			recipe.AddIngredient(ItemID.Keybrand);
@@ -142,6 +161,9 @@ namespace EpikV2.Items {
 		public override void SetDefaults() {
 			base.SetDefaults();
 			Item.DamageType = Biome_Key_Forest_Damage.ID;
+		}
+		public override void ModifyHitNPC(Player player, NPC target, ref int damage, ref float knockBack, ref bool crit) {
+			damage += (int)(damage * GetLifeDamageMult(target, 2.25f));
 		}
 	}
 	public class Biome_Key_Forest_Damage : DamageClass {
@@ -176,7 +198,7 @@ namespace EpikV2.Items {
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
 			if (damageClass == Melee) {
-				return new StatInheritanceData(2, 2, 2, 2, 2);
+				return new StatInheritanceData(2, 2, 2.5f, 2, 2);
 			}
 			return StatInheritanceData.None;
 		}
@@ -200,7 +222,7 @@ namespace EpikV2.Items {
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
 			if (damageClass == Melee) {
-				return new StatInheritanceData(2, 2, 2, 2, 2);
+				return new StatInheritanceData(2.5f, 2, 1.5f, 2, 2);
 			}
 			return StatInheritanceData.None;
 		}
@@ -263,9 +285,11 @@ namespace EpikV2.Items {
 		public override void SetStaticDefaults() {
 			base.SetStaticDefaults();
 			ID = Type;
+			Tooltip.SetDefault("20 summon tag damage\n{$CommonItemTooltip.Whips}\n" + Tooltip.GetDefault());
 		}
 		public override void SetDefaults() {
 			base.SetDefaults();
+			Item.damage = (int)(Item.damage * 0.75f);
 			Item.DamageType = Biome_Key_Frozen_Damage.ID;
 			Item.shoot = ProjectileType<Biome_Key_Frozen_Stab>();
 			Item.autoReuse = false;
@@ -345,11 +369,16 @@ namespace EpikV2.Items {
 			DelegateMethods.v3_1 = new Vector3(0f, 0f, 0f);
 			Utils.PlotTileLine(Projectile.Center - Projectile.velocity, Projectile.Center + Projectile.velocity.SafeNormalize(Vector2.Zero) * 80f, 16f, DelegateMethods.CastLightOpen);
 		}
+		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
+			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target, 0.66666663f));
+		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			Player player = Main.player[Projectile.owner];
 			float speed = (player.HeldItem.useTime * 0.01f) / player.GetWeaponAttackSpeed(player.HeldItem);
 			target.immune[Projectile.owner] = Main.rand.RandomRound(6 * speed);
+			target.AddBuff(Biome_Key_Frozen_Buff.ID, 600);
 			if (target.life > 0) player.MinionAttackTargetNPC = target.whoAmI;
+			
 		}
 		public override void CutTiles() {
 			DelegateMethods.tilecut_0 = TileCuttingContext.AttackProjectile;
@@ -359,11 +388,16 @@ namespace EpikV2.Items {
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
 			Vector2 vel = (Projectile.velocity / 15f) * Projectile.width * 0.95f;
+			Vector2 rotVel = vel.RotatedByRandom(Main.rand.NextFloatDirection() * ((float)Math.PI * 2f) * 0.04f);
+			Vector2 currentCenter = Projectile.Center;
 			for (int j = 1; j <= 5; j++) {
 				Rectangle hitbox = projHitbox;
 				Vector2 offset = vel * j;
 				hitbox.Offset((int)offset.X, (int)offset.Y);
 				if (hitbox.Intersects(targetHitbox)) {
+					ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.Keybrand, new ParticleOrchestraSettings {
+						PositionInWorld = targetHitbox.ClosestPointInRect(currentCenter + rotVel * j)
+					}, Projectile.owner);
 					return true;
 				}
 			}
@@ -383,7 +417,7 @@ namespace EpikV2.Items {
 			Vector2 itemOrigin = itemTexture.Size() / 2f;
 			float itemOffsetScale = 8f + MathHelper.Lerp(0f, 20f, itemOffsetAmount) + Main.rand.NextFloat() * 6f;
 			float offsetDirection = Projectile.rotation + Main.rand.NextFloatDirection() * ((float)Math.PI * 2f) * 0.04f;
-			float itemRotation = offsetDirection + (float)Math.PI / 4f;
+			float itemRotation = offsetDirection + MathHelper.PiOver4;
 			Vector2 position = basePosition + offsetDirection.ToRotationVector2() * itemOffsetScale + Main.rand.NextVector2Circular(8f, 8f) - Main.screenPosition;
 			
 			SpriteEffects spriteEffects = SpriteEffects.None;
@@ -423,6 +457,14 @@ namespace EpikV2.Items {
 			return false;
 		}
 	}
+	public class Biome_Key_Frozen_Buff : ModBuff {
+		public override string Texture => "Terraria/Images/Buff_160";
+		public static int ID { get; private set; } = -1;
+		public override void SetStaticDefaults() {
+			BuffID.Sets.IsAnNPCWhipDebuff[Type] = true;
+			ID = Type;
+		}
+	}
 	public class Biome_Key_Frozen_Damage : DamageClass {
 		public static DamageClass ID { get; private set; } = Melee;
 		public override void SetStaticDefaults() {
@@ -431,7 +473,7 @@ namespace EpikV2.Items {
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
 			if (damageClass == Melee || damageClass == Summon) {
-				return StatInheritanceData.Full;
+				return new StatInheritanceData(1, 1, 0.333f, 1, 1);
 			}
 			return StatInheritanceData.None;
 		}
@@ -442,6 +484,10 @@ namespace EpikV2.Items {
 	#endregion
 	#region desert
 	public class Biome_Key_Desert : Biome_Key {
+		public override void SetStaticDefaults() {
+			base.SetStaticDefaults();
+			Tooltip.SetDefault("10% summon tag critical strike chance\nWeak summon tag knockback\n{$CommonItemTooltip.Whips}\n" + Tooltip.GetDefault());
+		}
 		public override void SetDefaults() {
 			base.SetDefaults();
 			Item.DamageType = Biome_Key_Desert_Damage.ID;
@@ -481,8 +527,24 @@ namespace EpikV2.Items {
 			dust.noGravity = true;
 			dust.velocity = Projectile.velocity * 2;
 		}
+		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+			target.AddBuff(Biome_Key_Desert_Buff.ID, 600);
 			if (target.life > 0) Main.player[Projectile.owner].MinionAttackTargetNPC = target.whoAmI;
+			
+			ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.Keybrand, new ParticleOrchestraSettings {
+				PositionInWorld = target.Hitbox.ClosestPointInRect(target.Center - Projectile.velocity * 16 + Projectile.velocity.RotatedBy(MathHelper.PiOver2) * Main.rand.NextFloat(-1, 1))
+			}, Projectile.owner);
+		}
+	}
+	public class Biome_Key_Desert_Buff : ModBuff {
+		public override string Texture => "Terraria/Images/Buff_160";
+		public static int ID { get; private set; } = -1;
+		public override void SetStaticDefaults() {
+			BuffID.Sets.IsAnNPCWhipDebuff[Type] = true;
+			ID = Type;
 		}
 	}
 	public class Biome_Key_Desert_Damage : DamageClass {
@@ -520,6 +582,14 @@ namespace EpikV2.Items {
 			Projectile.Center = player.MountedCenter;
 			Projectile.frame = (Projectile.frame + 1) % 28;
 			Projectile.spriteDirection = Math.Sign(Projectile.velocity.X);
+		}
+		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		}
+		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+			ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.Keybrand, new ParticleOrchestraSettings {
+				PositionInWorld = target.Hitbox.ClosestPointInRect(Projectile.Center)
+			}, Projectile.owner);
 		}
 	}
 	public record Biome_Key_Data(int WeaponID,int KeyID,int TileID, int TileFrameX);

@@ -167,6 +167,18 @@ namespace EpikV2.NPCs
 				if (Main.rand.Next(100) < jadeWhipCrit) {
                     crit = true;
 				}
+				for (int i = 0; i < npc.buffType.Length; i++) {
+                    if (npc.buffTime[i] <= 0) break;
+					if (npc.buffType[i] == Biome_Key_Desert_Buff.ID) {
+                        if (Main.rand.NextBool(10)) {
+                            crit = true;
+                        }
+                        knockback += 2;
+                    }
+                    if (npc.buffType[i] == Biome_Key_Frozen_Buff.ID) {
+                        damage += 20;
+                    }
+                }
             }
         }
 		public override void DrawEffects(NPC npc, ref Color drawColor) {
