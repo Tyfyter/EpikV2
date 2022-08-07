@@ -39,6 +39,8 @@ namespace EpikV2.Items {
 			SetNormalAnimation();
 		}
 		public override sealed bool AltFunctionUse(Player player) {
+			Item.useTime = 20;
+			Item.useAnimation = 20;
 			return true;
 		}
 		public override bool? UseItem(Player player) {
@@ -68,6 +70,10 @@ namespace EpikV2.Items {
 		//TODO: close slash, close slash, hold up
 		public override void UseItemFrame(Player player) {
 			if (player.altFunctionUse == 2) {
+				if (player.itemAnimationMax != 15) {
+					player.itemAnimation = 15;
+					player.itemAnimationMax = 15;
+				}
 				Item.noUseGraphic = false;
 				Item.noMelee = true;
 				if (player.ItemAnimationJustStarted || player.itemAnimation == player.itemAnimationMax / 2) {
@@ -81,7 +87,7 @@ namespace EpikV2.Items {
 						player.GetWeaponKnockback(Item),
 						player.whoAmI
 					);
-					SoundEngine.PlaySound(Item.UseSound, player.MountedCenter + direction);
+					SoundEngine.PlaySound(SoundID.Item1, player.MountedCenter + direction);
 				}
 				if (player.ItemAnimationEndingOrEnded) {
 					for (int i = 1; i <= Biome_Keys.Count; i++) {
@@ -99,6 +105,12 @@ namespace EpikV2.Items {
 					}
 				}
 			}else if (Item.useStyle == ItemUseStyleID.HoldUp) {
+				if (player.itemTimeMax != 19) {
+					player.itemTime = 19;
+					player.itemTimeMax = 19;
+					player.itemAnimation = 15;
+					player.itemAnimationMax = 15;
+				}
 				Item.noUseGraphic = false;
 				player.itemLocation.X -= player.direction * 16;
 				player.itemLocation.Y -= 8;
@@ -284,8 +296,9 @@ namespace EpikV2.Items {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			base.SetStaticDefaults();
-			ID = Type;
+			DisplayName.SetDefault("Biome Key (Frozen)");
 			Tooltip.SetDefault("20 summon tag damage\n{$CommonItemTooltip.Whips}\n" + Tooltip.GetDefault());
+			ID = Type;
 		}
 		public override void SetDefaults() {
 			base.SetDefaults();
@@ -484,18 +497,134 @@ namespace EpikV2.Items {
 	#endregion
 	#region desert
 	public class Biome_Key_Desert : Biome_Key {
+		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			base.SetStaticDefaults();
+			DisplayName.SetDefault("Biome Key (Desert)");
 			Tooltip.SetDefault("10% summon tag critical strike chance\nWeak summon tag knockback\n{$CommonItemTooltip.Whips}\n" + Tooltip.GetDefault());
+			ID = Type;
 		}
 		public override void SetDefaults() {
 			base.SetDefaults();
 			Item.DamageType = Biome_Key_Desert_Damage.ID;
-			Item.shoot = ProjectileType<Biome_Key_Desert_Sand>();
+			Item.shoot = ProjectileType<Biome_Key_Desert_Slash>();
 			Item.shootSpeed = 12;
+			Item.useTime = 20;
+			Item.useAnimation = 40;
+			Item.UseSound = null;
+		}
+		public override void SetNormalAnimation() {
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.noUseGraphic = true;
+			Item.noMelee = true;
 		}
 		public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
-			damage /= 3;
+			//damage /= 3;
+		}
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
+			if (!base.Shoot(player, source, position, velocity, type, damage, knockback)) {
+				return false;
+			}
+			if (!player.controlUseItem) {
+				player.itemAnimation = 0;
+				player.itemTime = 0;
+				return false;
+			}
+			SoundEngine.PlaySound(SoundID.Item1, position);
+			Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai1: player.itemAnimation == player.itemTime ? -1 : 1);
+			return false;
+		}
+	}
+	public class Biome_Key_Desert_Slash : ModProjectile {
+		public override string Texture => "EpikV2/Items/Biome_Key_Desert";
+		public override void SetDefaults() {
+			Projectile.CloneDefaults(ProjectileID.PiercingStarlight);
+			Projectile.aiStyle = 0;
+			Projectile.DamageType = Biome_Key_Desert_Damage.ID;
+			Projectile.extraUpdates = 0;
+			Projectile.usesLocalNPCImmunity = true;
+			Projectile.localNPCHitCooldown = 600;
+		}
+		public override void OnSpawn(IEntitySource source) {
+			if (source is EntitySource_ItemUse itemUse) {
+				Projectile.scale *= itemUse.Item.scale;
+				Projectile.rotation = -2f;
+				if (itemUse.Entity is Player player) {
+					Projectile.ai[1] *= player.direction;
+					if (player.itemAnimationMax != player.itemTimeMax) {
+						//player.chatOverhead.NewMessage($"{player.itemAnimation} == {player.itemTime}", 5);
+					}
+					//player.itemAnimation = player.itemTime;
+					//player.itemAnimationMax = player.itemTimeMax;
+				}
+			}
+		}
+		public override void AI() {
+			Player player = Main.player[Projectile.owner];
+			Projectile.rotation = MathHelper.Lerp(2.5f, -2f, player.itemTime / (float)player.itemTimeMax) * Projectile.ai[1];
+			float realRotation = Projectile.rotation + Projectile.velocity.ToRotation();
+			Projectile.Center = player.MountedCenter - Projectile.velocity + (Vector2)new Tyfyter.Utils.PolarVec2(32, realRotation);
+			Projectile.timeLeft = player.itemTime * Projectile.MaxUpdates;
+			player.heldProj = Projectile.whoAmI;
+			player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, realRotation - MathHelper.PiOver2);
+			if (Projectile.localAI[1] > 0) {
+				Projectile.localAI[1]--;
+			}
+			if (player.itemTime / (float)player.itemTimeMax > 0.5f) {
+				Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity, ProjectileType<Biome_Key_Desert_Sand>(), Projectile.damage / 3, Projectile.knockBack, Projectile.owner);
+				if (Projectile.localAI[0] == 0) {
+					SoundEngine.PlaySound(SoundID.DD2_BookStaffCast.WithPitchOffset(1), Projectile.Center);
+					SoundEngine.PlaySound(SoundID.Item151.WithPitchOffset(1), Projectile.Center);
+					Projectile.localAI[0] = 1;
+				}
+			}
+		}
+		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
+			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		}
+		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+			Player player = Main.player[Projectile.owner];
+			target.AddBuff(Biome_Key_Desert_Buff.ID, 600);
+			if (target.life > 0) player.MinionAttackTargetNPC = target.whoAmI;
+
+		}
+		public override void CutTiles() {
+			DelegateMethods.tilecut_0 = TileCuttingContext.AttackProjectile;
+			Vector2 end = Projectile.Center + Projectile.velocity.SafeNormalize(Vector2.UnitX) * 220f * Projectile.scale;
+			Utils.PlotTileLine(Projectile.Center, end, 80f * Projectile.scale, DelegateMethods.CutTiles);
+		}
+		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
+			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
+			Vector2 vel = (Projectile.velocity.RotatedBy(Projectile.rotation) / 12f) * Projectile.width * 0.95f;
+			for (int j = 0; j <= 1; j++) {
+				Rectangle hitbox = projHitbox;
+				Vector2 offset = vel * j;
+				hitbox.Offset((int)offset.X, (int)offset.Y);
+				if (hitbox.Intersects(targetHitbox)) {
+					if (Projectile.localAI[1] == 0) {
+						ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.Keybrand, new ParticleOrchestraSettings {
+							PositionInWorld = Rectangle.Intersect(hitbox, targetHitbox).Center()
+						}, Projectile.owner);
+						Projectile.localAI[1] = 15;
+					}
+					return true;
+				}
+			}
+			return false;
+		}
+		public override bool PreDraw(ref Color lightColor) {
+			Main.EntitySpriteDraw(
+				TextureAssets.Item[Biome_Key_Desert.ID].Value,
+				Projectile.Center - Main.screenPosition,
+				null,
+				lightColor,
+				Projectile.rotation + Projectile.velocity.ToRotation() + (MathHelper.PiOver4 * Projectile.ai[1]),
+				new Vector2(14, 25 + 11 * Projectile.ai[1]),
+				Projectile.scale,
+				Projectile.ai[1] > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically,
+				0
+			);
+			return false;
 		}
 	}
 	public class Biome_Key_Desert_Sand : ModProjectile {
@@ -504,28 +633,33 @@ namespace EpikV2.Items {
 			Projectile.CloneDefaults(ProjectileID.PurificationPowder);
 			Projectile.DamageType = Biome_Key_Desert_Damage.ID;
 			Projectile.aiStyle = 0;
-			Projectile.width *= 2;
-			Projectile.height *= 2;
+			Projectile.width /= 2;
+			Projectile.height /= 2;
 			Projectile.extraUpdates = 1;
+			Projectile.tileCollide = false;
 		}
 		public override void AI() {
 			//Projectile.velocity *= 1.01f;
-			if (Projectile.ai[0] == 0f) {
-				//SoundEngine.PlaySound(SoundID.DD2_BetsyWindAttack.WithPitchOffset(1), Projectile.Center);
-				SoundEngine.PlaySound(SoundID.DD2_BookStaffCast.WithPitchOffset(1), Projectile.Center);
-				SoundEngine.PlaySound(SoundID.Item151.WithPitchOffset(1), Projectile.Center);
+			if (!Projectile.tileCollide && Collision.TileCollision(Projectile.position, Projectile.velocity, Projectile.width, Projectile.height, false, false) == Projectile.velocity) {
+				Projectile.tileCollide = true;
 			}
-			Projectile.ai[0] += 1f;
 			if (Projectile.ai[0] == 180f) {
 				Projectile.Kill();
 			}
-			Dust dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Sandstorm, Projectile.velocity.X, Projectile.velocity.Y, 0, Color.Goldenrod);
-			dust.noGravity = true;
-			dust.velocity = Projectile.velocity * 2;
-
-			dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.PortalBoltTrail, Projectile.velocity.X, Projectile.velocity.Y, 0, Color.Goldenrod);
-			dust.noGravity = true;
-			dust.velocity = Projectile.velocity * 2;
+			if (!Projectile.tileCollide) {
+				return;
+			}
+			Dust dust;
+			if (Main.rand.NextBool()) {
+				dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.Sandstorm, Projectile.velocity.X, Projectile.velocity.Y, 0, Color.Goldenrod);
+				dust.noGravity = true;
+				dust.velocity = Projectile.velocity * 2;
+			}
+			if (Main.rand.NextBool()) {
+				dust = Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.PortalBoltTrail, Projectile.velocity.X, Projectile.velocity.Y, 0, Color.Goldenrod);
+				dust.noGravity = true;
+				dust.velocity = Projectile.velocity * 2;
+			}
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
 			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
@@ -537,6 +671,11 @@ namespace EpikV2.Items {
 			ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.Keybrand, new ParticleOrchestraSettings {
 				PositionInWorld = target.Hitbox.ClosestPointInRect(target.Center - Projectile.velocity * 16 + Projectile.velocity.RotatedBy(MathHelper.PiOver2) * Main.rand.NextFloat(-1, 1))
 			}, Projectile.owner);
+		}
+		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) {
+			width /= 2;
+			height /= 2;
+			return true;
 		}
 	}
 	public class Biome_Key_Desert_Buff : ModBuff {
