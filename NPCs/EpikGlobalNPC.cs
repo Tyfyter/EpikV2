@@ -167,6 +167,7 @@ namespace EpikV2.NPCs
 				if (Main.rand.Next(100) < jadeWhipCrit) {
                     crit = true;
 				}
+                float keybrandMult = 0;
 				for (int i = 0; i < npc.buffType.Length; i++) {
                     if (npc.buffTime[i] <= 0) break;
 					if (npc.buffType[i] == Biome_Key_Desert_Buff.ID) {
@@ -174,10 +175,17 @@ namespace EpikV2.NPCs
                             crit = true;
                         }
                         knockback += 2;
+                        keybrandMult += 0.2f;
                     }
                     if (npc.buffType[i] == Biome_Key_Frozen_Buff.ID) {
-                        damage += 20;
+                        damage += 15;
+                        keybrandMult += 0.2f;
                     }
+                }
+				if (keybrandMult > 0) {
+                    int damageBoost = (int)(damage * Biome_Key.GetLifeDamageMult(npc, keybrandMult));
+                    Main.LocalPlayer.chatOverhead.NewMessage($"{keybrandMult}x for {damageBoost}", 90);
+                    damage += damageBoost;
                 }
             }
         }

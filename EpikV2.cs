@@ -35,6 +35,8 @@ using EpikV2.Layers;
 using Terraria.ModLoader.Default;
 using Detour = On.Terraria;
 using Terraria.GameContent.Events;
+using Terraria.GameContent.Drawing;
+using Terraria.Graphics.Renderers;
 
 namespace EpikV2 {
 	public class EpikV2 : Mod {
@@ -167,6 +169,22 @@ namespace EpikV2 {
 						}
 						break;
 					}
+				}
+			};
+			Detour.GameContent.Drawing.ParticleOrchestrator.Spawn_Keybrand += (Detour.GameContent.Drawing.ParticleOrchestrator.orig_Spawn_Keybrand orig, ParticleOrchestraSettings settings) => {
+				if (settings.PackedShaderIndex == -1) {
+					int index = Main.ParticleSystem_World_OverPlayers.Particles.Count;
+					orig(settings);
+					for (int i = index; i < Main.ParticleSystem_World_OverPlayers.Particles.Count; i++) {
+						var particle = Main.ParticleSystem_World_OverPlayers.Particles[i];
+						if (particle is PrettySparkleParticle prettySparkleParticle) {
+							prettySparkleParticle.ColorTint = Main.DiscoColor;
+						} else if (particle is FadingParticle fadingParticle) {
+							fadingParticle.ColorTint = new Color(255 - Main.DiscoR, 255 - Main.DiscoG, 255 - Main.DiscoB);
+						}
+					}
+				} else {
+					orig(settings);
 				}
 			};
 		}

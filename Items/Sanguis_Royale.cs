@@ -88,7 +88,7 @@ namespace EpikV2.Items {
             }
         }
         public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-            float bonus = (1-target.life/(float)target.lifeMax);
+            float bonus = (1-target.GetLifePercent());
             if(target.GetGlobalNPC<EpikGlobalNPC>().crushTime!=0)bonus++;
             damage+=(int)Math.Max((35-target.defense)*(2+bonus), 0);
         }

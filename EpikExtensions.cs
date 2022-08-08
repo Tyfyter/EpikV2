@@ -499,7 +499,7 @@ namespace EpikV2 {
             return new string(text) + spacing;
         }
         public static int GetItemBaseRarity(Item item) {
-            return item.rare - GetPrefixRarityOffset(item);
+            return ContentSamples.ItemsByType[item.type].rare;
         }
         public static int GetPrefixRarityOffset(Item item) {
             int rare = 0;
