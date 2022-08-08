@@ -289,9 +289,11 @@ namespace EpikV2.Items {
 		}
 		public override void OnSpawn(IEntitySource source) {
 			if (source is EntitySource_ItemUse itemUse) {
-				Projectile.scale *= itemUse.Item.scale;
 				if (itemUse.Entity is Player player) {
 					Projectile.ai[1] = player.direction;
+					Projectile.scale *= player.GetAdjustedItemScale(itemUse.Item);
+				} else {
+					Projectile.scale *= itemUse.Item.scale;
 				}
 			}
 		}
@@ -409,7 +411,7 @@ namespace EpikV2.Items {
 			Item.shootSpeed = 12;
 			Item.useTime = 35;
 			Item.useAnimation = 70;
-			Item.reuseDelay = 10;
+			Item.reuseDelay = 20;
 		}
 		public override void SetNormalAnimation() {
 			Item.useStyle = ItemUseStyleID.Swing;
@@ -427,8 +429,12 @@ namespace EpikV2.Items {
 			}
 			if (player.itemAnimation == player.itemTime) {
 				Projectile.NewProjectile(source, position, velocity, ProjectileType<Biome_Key_Crimson_Smash>(), damage * 2, knockback * 2, player.whoAmI);
+				player.itemTime = player.itemTime * 4 / 7;
+				player.itemTimeMax = player.itemTimeMax * 4 / 7;
+				player.itemAnimation = player.itemTime;
+				player.itemAnimationMax = player.itemTimeMax;
 			} else {
-				Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
+				Projectile.NewProjectile(source, position, velocity, type, damage, knockback * 0.25f, player.whoAmI);
 			}
 			return false;
 		}
@@ -445,9 +451,11 @@ namespace EpikV2.Items {
 		}
 		public override void OnSpawn(IEntitySource source) {
 			if (source is EntitySource_ItemUse itemUse) {
-				Projectile.scale *= itemUse.Item.scale;
 				if (itemUse.Entity is Player player) {
 					Projectile.ai[1] = -player.direction;
+					Projectile.scale *= player.GetAdjustedItemScale(itemUse.Item);
+				} else {
+					Projectile.scale *= itemUse.Item.scale;
 				}
 			}
 		}
@@ -477,8 +485,15 @@ namespace EpikV2.Items {
 		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			target.AddBuff(BuffID.Ichor, 600);
+			if (target.life < 0) {
+				Projectile.NewProjectile(target.GetSource_Death("lifesteal"), target.Center, default, ProjectileID.VampireHeal, 0, 0, Projectile.owner, Projectile.owner, target.lifeMax / 30 + 1);
+			}
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
+			Player player = Main.player[Projectile.owner];
+			if (player.itemTime / (float)player.itemTimeMax > 0.65f) {
+				return false;
+			}
 			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
 			Vector2 vel = (Projectile.velocity.RotatedBy(Projectile.rotation) / 12f) * Projectile.width * 0.95f;
 			for (int j = 0; j <= 1; j++) {
@@ -530,13 +545,11 @@ namespace EpikV2.Items {
 		}
 		public override void OnSpawn(IEntitySource source) {
 			if (source is EntitySource_ItemUse itemUse) {
-				Projectile.scale *= itemUse.Item.scale;
 				if (itemUse.Entity is Player player) {
 					Projectile.ai[1] = player.direction;
-					player.itemTime = player.itemTime * 4 / 7;
-					player.itemTimeMax = player.itemTimeMax * 4 / 7;
-					player.itemAnimation = player.itemTime;
-					player.itemAnimationMax = player.itemTimeMax;
+					Projectile.scale *= player.GetAdjustedItemScale(itemUse.Item);
+				} else {
+					Projectile.scale *= itemUse.Item.scale;
 				}
 			}
 		}
@@ -561,11 +574,18 @@ namespace EpikV2.Items {
 		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			target.AddBuff(BuffID.Ichor, 600);
+			if (target.life < 0) {
+				Projectile.NewProjectile(target.GetSource_Death("lifesteal"), target.Center, default, ProjectileID.VampireHeal, 0, 0, Projectile.owner, Projectile.owner, target.lifeMax / 9 + 1);
+			}
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
+			Player player = Main.player[Projectile.owner];
+			if (player.itemTime / (float)player.itemTimeMax > 0.4f) {
+				return false;
+			}
 			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
 			Vector2 vel = (Projectile.velocity.RotatedBy(Projectile.rotation) / 12f) * Projectile.width * 0.95f;
-			for (int j = 0; j <= 1; j++) {
+			for (int j = 0; j <= 2; j++) {
 				Rectangle hitbox = projHitbox;
 				Vector2 offset = vel * j;
 				hitbox.Offset((int)offset.X, (int)offset.Y);
@@ -588,17 +608,32 @@ namespace EpikV2.Items {
 		}
 
 		public override bool PreDraw(ref Color lightColor) {
+			float rotation = Projectile.rotation + Projectile.velocity.ToRotation() + (MathHelper.PiOver4 * Projectile.ai[1]);
+			Main.instance.LoadProjectile(ProjectileID.PiercingStarlight);
+			float vel = (Projectile.velocity.Length() / 12f) * Projectile.width * 0.95f * 2;
+			Main.EntitySpriteDraw(
+				TextureAssets.Projectile[ProjectileID.PiercingStarlight].Value,
+				Projectile.Center - Main.screenPosition,
+				null,
+				new Color(0.35f, 0f, 0f, 0f) * Projectile.scale,
+				rotation - MathHelper.PiOver4 * Projectile.ai[1],
+				new Vector2(16, 36),
+				new Vector2(vel / 42, 0.5f) * Projectile.scale,
+				SpriteEffects.None,
+			0);
+
 			Main.EntitySpriteDraw(
 				TextureAssets.Projectile[Type].Value,
 				Projectile.Center - Main.screenPosition,
 				null,
 				lightColor,
-				Projectile.rotation + Projectile.velocity.ToRotation() + (MathHelper.PiOver4 * Projectile.ai[1]),
+				rotation,
 				new Vector2(14, 25 + 11 * Projectile.ai[1]),
 				Projectile.scale,
 				Projectile.ai[1] > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically,
 				0
 			);
+
 			return false;
 		}
 	}
@@ -667,7 +702,15 @@ namespace EpikV2.Items {
 		}
 		public override void OnSpawn(IEntitySource source) {
 			if (source is EntitySource_ItemUse itemUse) {
-				Projectile.scale *= itemUse.Item.scale;
+				if (itemUse.Entity is Player player) {
+					Projectile.scale *= player.GetAdjustedItemScale(itemUse.Item);
+					player.itemAnimationMax = (int)(Math.Round(player.itemAnimationMax / 3f) * 3);
+					player.itemTimeMax = (int)(Math.Round(player.itemTimeMax / 3f) * 3);
+					player.itemAnimation = player.itemAnimationMax;
+					player.itemTime = player.itemTimeMax;
+				} else {
+					Projectile.scale *= itemUse.Item.scale;
+				}
 			}
 		}
 		public override void AI() {
@@ -759,11 +802,12 @@ namespace EpikV2.Items {
 			Projectile.aiStyle = 0;
 			Projectile.DamageType = Biome_Key_Hallow_Damage.ID;
 			Projectile.extraUpdates = 1;
+			Projectile.ownerHitCheck = false;
 
 		}
 		public override void OnSpawn(IEntitySource source) {
-			if (source is EntitySource_ItemUse itemUse) {
-				Projectile.scale *= itemUse.Item.scale;
+			if (source is EntitySource_Parent parentSource && parentSource.Entity is Projectile parentProjectile) {
+				Projectile.scale *= parentProjectile.scale;
 			}
 		}
 		public override void AI() {
@@ -804,7 +848,7 @@ namespace EpikV2.Items {
 			const float split = MathHelper.PiOver4 / 8;
 			Vector2 scale = new Vector2(Projectile.scale * 3, Projectile.scale * 0.75f);
 			//Main.CurrentDrawnEntityShader = Terraria.Graphics.Shaders.GameShaders.Armor.GetShaderIdFromItemId(ItemID.MidnightRainbowDye);
-			Main.spriteBatch.Restart(SpriteSortMode.Immediate);
+			//Main.spriteBatch.Restart(SpriteSortMode.Immediate);
 			Main.EntitySpriteDraw(
 				itemTexture,
 				Projectile.Center + Projectile.velocity * (Math.Abs(4 - Projectile.ai[0]) * 0.25f) - Main.screenPosition,
@@ -825,7 +869,7 @@ namespace EpikV2.Items {
 				scale,
 				SpriteEffects.None,
 			0);
-			Main.spriteBatch.Restart();
+			//Main.spriteBatch.Restart();
 			return false;
 		}
 	}
@@ -928,7 +972,11 @@ namespace EpikV2.Items {
 		}
 		public override void OnSpawn(IEntitySource source) {
 			if (source is EntitySource_ItemUse itemUse) {
-				Projectile.scale *= itemUse.Item.scale;
+				if (itemUse.Entity is Player player) {
+					Projectile.scale *= player.GetAdjustedItemScale(itemUse.Item);
+				} else {
+					Projectile.scale *= itemUse.Item.scale;
+				}
 			}
 		}
 		public override void AI() {
@@ -1139,7 +1187,7 @@ namespace EpikV2.Items {
 				Projectile.localAI[1]--;
 			}
 			if (player.itemTime / (float)player.itemTimeMax > 0.5f) {
-				Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity, ProjectileType<Biome_Key_Desert_Sand>(), Projectile.damage / 3, Projectile.knockBack, Projectile.owner);
+				Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity, ProjectileType<Biome_Key_Desert_Sand>(), Projectile.damage / 2, Projectile.knockBack, Projectile.owner);
 				if (Projectile.localAI[0] == 0) {
 					SoundEngine.PlaySound(SoundID.DD2_BookStaffCast.WithPitchOffset(1), Projectile.Center);
 					SoundEngine.PlaySound(SoundID.Item151.WithPitchOffset(1), Projectile.Center);
