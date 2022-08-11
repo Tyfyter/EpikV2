@@ -47,6 +47,11 @@ namespace EpikV2 {
     public interface IScrollableItem {
         void Scroll(int direction);
     }
+    public interface IMultiModeItem {
+        int GetSlotContents(int slotIndex);
+        bool ItemSelected(int slotIndex);
+        void SelectItem(int slotIndex);
+    }
     public struct BitsBytes {
         readonly BitsByte[] _bytes;
         public BitsBytes(ushort bytes) {

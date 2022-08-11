@@ -32,7 +32,8 @@ namespace EpikV2.Layers {
             Player drawPlayer = drawInfo.drawPlayer;
             Item item = drawPlayer.HeldItem;
             Texture2D itemTexture = TextureAssets.Item[item.type].Value;
-            ICustomDrawItem aItem = (ICustomDrawItem)item.ModItem;
+            ICustomDrawItem aItem = item.ModItem as ICustomDrawItem;
+            if (aItem is null) return;
             int drawXPos = 0;
             Vector2 itemCenter = new Vector2(itemTexture.Width / 2, itemTexture.Height / 2);
             Vector2 drawItemPos = Main.DrawPlayerItemPos(drawPlayer.gravDir, item.type);
@@ -50,7 +51,8 @@ namespace EpikV2.Layers {
             Player drawPlayer = drawInfo.drawPlayer;
 
             Item item = drawPlayer.HeldItem;
-            ICustomDrawItem aItem = (ICustomDrawItem)item.ModItem;
+            ICustomDrawItem aItem = item.ModItem as ICustomDrawItem;
+            if (aItem is null) return;
             Color lightColor = Lighting.GetColor((int)(drawInfo.Position.X + drawPlayer.width * 0.5) / 16, (int)((drawInfo.Position.Y + drawPlayer.height * 0.5) / 16.0));
             
             aItem.DrawInHand(TextureAssets.Item[item.type].Value, ref drawInfo, default, lightColor, new Vector2(item.width * 0.5f - item.width * 0.5f * drawPlayer.direction, item.height));

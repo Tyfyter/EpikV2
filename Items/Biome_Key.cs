@@ -20,9 +20,10 @@ using Tyfyter.Utils;
 using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items {
-    public abstract class Biome_Key : ModItem {
+    public abstract class Biome_Key : ModItem, IMultiModeItem {
 		public static List<Biome_Key_Data> Biome_Keys { get; internal set; }
 		public bool holdUp = false;
+		public static int? forcedSwitchIndex = null;
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Biome Key ");
 			Tooltip.SetDefault("<right> to change modes");
@@ -41,6 +42,8 @@ namespace EpikV2.Items {
 			SetNormalAnimation();
 		}
 		public override sealed bool AltFunctionUse(Player player) {
+			Item.noUseGraphic = true;
+			Item.noMelee = true;
 			Item.useTime = 20;
 			Item.useAnimation = 20;
 			return true;
@@ -69,7 +72,6 @@ namespace EpikV2.Items {
 				holdUp = false;
 			}
 		}
-		//TODO: close slash, close slash, hold up
 		public override void UseItemFrame(Player player) {
 			if (player.altFunctionUse == 2) {
 				player.reuseDelay = 0;
@@ -79,7 +81,7 @@ namespace EpikV2.Items {
 					player.itemAnimation = 15;
 					player.itemAnimationMax = 15;
 				}
-				Item.noUseGraphic = false;
+				Item.noUseGraphic = true;
 				Item.noMelee = true;
 				if (player.ItemAnimationJustStarted || player.itemAnimation == player.itemAnimationMax / 2) {
 					Vector2 direction = new Vector2(player.direction * 24, 0);
@@ -95,20 +97,26 @@ namespace EpikV2.Items {
 					SoundEngine.PlaySound(SoundID.Item1, player.MountedCenter + direction);
 				}
 				if (player.ItemAnimationEndingOrEnded) {
-					int dir = player.controlUseTile ? -1 : 1;
-					for (int i = 0; i < Biome_Keys.Count; i++) {
-						if (Item.type == Biome_Keys[i].WeaponID) {
-							int prefix = Item.prefix;
-							ItemLoader.PreReforge(Item);
-							Item.SetDefaults(Biome_Keys[(i + Biome_Keys.Count + dir) % Biome_Keys.Count].WeaponID);
-							Item.Prefix(prefix);
-							ItemLoader.PostReforge(Item);
-							player.altFunctionUse = 0;
-							//player
-							if(Item.ModItem is Biome_Key newKey) newKey.holdUp = true;
-							break;
+					int targetMode = forcedSwitchIndex??0;
+					if (!forcedSwitchIndex.HasValue) {
+						int dir = player.controlUseTile ? -1 : 1;
+						for (int i = 0; i < Biome_Keys.Count; i++) {
+							if (Item.type == Biome_Keys[i].WeaponID) {
+								targetMode = (i + Biome_Keys.Count + dir) % Biome_Keys.Count;
+								break;
+							}
 						}
 					}
+					forcedSwitchIndex = null;
+
+					int prefix = Item.prefix;
+					ItemLoader.PreReforge(Item);
+					Item.SetDefaults(Biome_Keys[targetMode].WeaponID);
+					Item.Prefix(prefix);
+					ItemLoader.PostReforge(Item);
+					player.altFunctionUse = 0;
+					//player
+					if (Item.ModItem is Biome_Key newKey) newKey.holdUp = true;
 				}
 			}else if (Item.useStyle == ItemUseStyleID.HoldUp) {
 				if (player.itemTimeMax != 19) {
@@ -141,6 +149,26 @@ namespace EpikV2.Items {
 					player.itemLocation.Y += 8;
 				}
 			}
+		}
+		public int GetSlotContents(int slotIndex) {
+			if (slotIndex < Biome_Keys.Count) {
+				return Biome_Keys[slotIndex].WeaponID;
+			}
+			return 0;
+		}
+		public bool ItemSelected(int slotIndex) {
+			if (slotIndex < Biome_Keys.Count) {
+				return Item.type == Biome_Keys[slotIndex].WeaponID;
+			}
+			return false;
+		}
+		public void SelectItem(int slotIndex) {
+			if (slotIndex < Biome_Keys.Count) {
+				forcedSwitchIndex = slotIndex;
+				Main.LocalPlayer.releaseUseTile = false;
+				Main.LocalPlayer.controlUseTile = true;
+			}
+			Main.LocalPlayer.GetModPlayer<EpikPlayer>().switchBackSlot = Main.LocalPlayer.selectedItem;
 		}
 		public static float GetLifeDamageMult(NPC target, float mult = (5f / 3)) {
 			return Math.Min(mult * (1 - target.GetLifePercent()), mult);
@@ -1206,6 +1234,7 @@ namespace EpikV2.Items {
 				target.buffTime[frozenIndex] = 600;
 			}
 			if (target.life > 0) player.MinionAttackTargetNPC = target.whoAmI;
+			target.immune[Projectile.owner] = 0;
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
@@ -1230,6 +1259,8 @@ namespace EpikV2.Items {
 			Projectile.height /= 2;
 			Projectile.extraUpdates = 1;
 			Projectile.tileCollide = false;
+			Projectile.usesIDStaticNPCImmunity = true;
+			Projectile.idStaticNPCHitCooldown = 10;
 		}
 		public override void AI() {
 			//Projectile.velocity *= 1.01f;

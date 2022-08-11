@@ -99,6 +99,7 @@ namespace EpikV2 {
         public bool imbueShadowflame = false;
         public bool imbueCursedInferno = false;
         public bool imbueIchor = false;
+        public int? switchBackSlot = 0;
 
         public static BitsBytes ItemChecking;
 
@@ -244,6 +245,10 @@ namespace EpikV2 {
                 Player.attackCD = 0;
                 noAttackCD = false;
             }
+            if (switchBackSlot.HasValue && Player.selectedItem != switchBackSlot.Value) {
+                Player.selectedItem = switchBackSlot.Value;
+                switchBackSlot = null;
+            }
         }
 		public override void ModifyScreenPosition() {
             if (telescopeID >= 0) {
@@ -313,11 +318,24 @@ namespace EpikV2 {
         public override void PostBuyItem(NPC vendor, Item[] shopInventory, Item item) {
             if(item.value!=0)vendor.GetGlobalNPC<EpikGlobalNPC>().itemPurchasedFrom = true;
         }
-		/*
+        public override void ProcessTriggers(TriggersSet triggersSet) {
+			if (Player.HeldItem.ModItem is IMultiModeItem multiModeItem && triggersSet.KeyStatus["EpikV2: Change Item Mode"]) {
+                EpikV2.modeSwitchHotbarActive = true;
+				for(int i = 0; i < 10; i++){
+					if (triggersSet.KeyStatus["Hotbar" + (i + 1)] && !multiModeItem.ItemSelected(i)) {
+                        multiModeItem.SelectItem(i);
+                    }
+                    triggersSet.KeyStatus["Hotbar" + (i + 1)] = false;
+				}
+			} else {
+                EpikV2.modeSwitchHotbarActive = false;
+            }
+        }
+        /*
         public override void UpdateBiomeVisuals() {
             player.ManageSpecialBiomeVisuals("EpikV2:FilterMapped", true, player.Center);
         }//*/
-		public override void UpdateBadLifeRegen() {
+        public override void UpdateBadLifeRegen() {
 			if (manaWithdrawal) {
 				if (Player.lifeRegen > -10) {
                     Player.lifeRegen -= 10;

@@ -37,6 +37,7 @@ using Detour = On.Terraria;
 using Terraria.GameContent.Events;
 using Terraria.GameContent.Drawing;
 using Terraria.Graphics.Renderers;
+using EpikV2.UI;
 
 namespace EpikV2 {
 	public class EpikV2 : Mod {
@@ -54,6 +55,8 @@ namespace EpikV2 {
 		public static int laserBowShaderID;
 		public static int chimeraShaderID;
 		public static int opaqueChimeraShaderID;
+		public static ModKeybind ModeSwitchHotkey { get; private set; }
+		public static bool modeSwitchHotbarActive;
 		public static Filter mappedFilter {
 			get=>Filters.Scene["EpikV2:FilterMapped"];
 			set=>Filters.Scene["EpikV2:FilterMapped"] = value;
@@ -106,6 +109,8 @@ namespace EpikV2 {
 			ChatManager.Register<CatgirlMemeHandler>(new string[]{
 				"herb"
 			});
+			ModeSwitchHotkey = KeybindLoader.RegisterKeybind(this, "Change Item Mode", "Mouse5");
+
 			Detour.Player.SlopingCollision += EpikPlayer.SlopingCollision;
 			//Main.OnPreDraw += Main_OnPostDraw;
 			IL.Terraria.Main.DoDraw += Main_DoDraw;
@@ -438,10 +443,6 @@ public static float ShimmerCalc(float val) {
 			public const byte topHatCard = 4;
 			public const byte empressDeath = 5;
 		}
-
-		public string GetTriggerName(string name) {
-			return Name + ": " + name;
-		}
 		public static short SetStaticDefaultsGlowMask(ModItem modItem) {
 			if (Main.netMode!=NetmodeID.Server) {
 				Asset<Texture2D>[] glowMasks = new Asset<Texture2D>[TextureAssets.GlowMask.Length + 1];
@@ -499,6 +500,21 @@ public static float ShimmerCalc(float val) {
 		private static bool raining;
 		public static List<int> Sacrifices { get => sacrifices; set => sacrifices = value; }
 		public static bool Raining { get => raining; set => raining = value; }
+		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
+			if (EpikV2.modeSwitchHotbarActive) {
+				int hotbarIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Hotbar"));
+				if (hotbarIndex != -1) {
+					layers[hotbarIndex] = new LegacyGameInterfaceLayer(
+						"EpikV2: ModeSwitchHotbar",
+						delegate {
+							ModeSwitchHotbar.Draw();
+							return true;
+						},
+						InterfaceScaleType.UI
+					);
+				}
+			}
+		}
 		public override void PostAddRecipes(){
 			EpikIntegration.EnabledMods.CheckEnabled();
 			if (EpikIntegration.EnabledMods.RecipeBrowser) EpikIntegration.AddRecipeBrowserIntegration();

@@ -14,7 +14,7 @@ using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items {
 
-    public class Lucre_Launcher : ModItem, ICustomDrawItem, IScrollableItem {
+    public class Lucre_Launcher : ModItem, ICustomDrawItem, IScrollableItem, IMultiModeItem {
         public static AutoCastingAsset<Texture2D>[] CoinsTextures { get; private set; }
         public static AutoCastingAsset<Texture2D> FrontTexture { get; private set; }
         public static AutoCastingAsset<Texture2D> BackTexture { get; private set; }
@@ -190,6 +190,17 @@ namespace EpikV2.Items {
         public void Scroll(int direction) {
             SetMode((mode - direction) % 4);
         }
+
+        public int GetSlotContents(int slotIndex) => slotIndex switch {
+            0 or 1 or 2 or 3 => ItemID.CopperCoin + slotIndex,
+            _ => 0
+		};
+
+        public bool ItemSelected(int slotIndex) => slotIndex == mode;
+
+        public void SelectItem(int slotIndex) {
+            if(slotIndex < 4)SetMode(slotIndex);
+        }
         public override void SaveData(TagCompound tag) {
             tag.Add("coins", totalCoins);
         }
@@ -286,7 +297,7 @@ namespace EpikV2.Items {
 				held = false;
             }
         }
-    }
+	}
     public abstract class Coin_Shot : ModProjectile {
         public override void AI() {
             Projectile.rotation = Projectile.velocity.ToRotation()+MathHelper.PiOver2;
