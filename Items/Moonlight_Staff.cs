@@ -18,6 +18,7 @@ using System.IO;
 using Terraria.Graphics;
 using System.Runtime.InteropServices;
 using Terraria.Graphics.Shaders;
+using Tyfyter.Utils;
 
 #pragma warning disable 672
 namespace EpikV2.Items {
@@ -260,7 +261,9 @@ namespace EpikV2.Items {
                 if (Projectile.oldPos[i] != Vector2.Zero) {
                     if (Projectile.oldPos[i].DistanceSQ(Projectile.oldPos[i - 1]) > 4f) {
                         Projectile.oldPos[i] = Vector2.Lerp(Projectile.oldPos[i], Projectile.oldPos[i - 1], amount);
-                    }
+                    } else {
+                        Projectile.oldPos[i] -= GeometryUtils.Vec2FromPolar(0.1f, Projectile.oldRot[i]);
+					}
                     Projectile.oldRot[i] = (Projectile.oldPos[i - 1] - Projectile.oldPos[i]).SafeNormalize(Vector2.Zero).ToRotation();
                 }
             }
@@ -364,13 +367,14 @@ namespace EpikV2.Items {
     [StructLayout(LayoutKind.Sequential, Size = 1)]
     public struct Moonlace_Drawer {
         private static VertexStrip _vertexStrip = new VertexStrip();
-
+        private Vector2[] positions;
         public void Draw(Projectile proj) {
             MiscShaderData miscShaderData = GameShaders.Misc["RainbowRod"];
             miscShaderData.UseSaturation(-2.8f);
             miscShaderData.UseOpacity(4f);
             miscShaderData.Apply();
-            _vertexStrip.PrepareStripWithProceduralPadding(proj.oldPos, proj.oldRot, StripColors, StripWidth, -Main.screenPosition + proj.Size / 2f);
+            positions = proj.oldPos;
+            _vertexStrip.PrepareStripWithProceduralPadding(positions, proj.oldRot, StripColors, StripWidth, -Main.screenPosition + proj.Size / 2f);
             _vertexStrip.DrawTrail();
             Main.pixelShader.CurrentTechnique.Passes[0].Apply();
         }
@@ -383,7 +387,11 @@ namespace EpikV2.Items {
 
         private float StripWidth(float progressOnStrip) {
             float num = 1f;
+            int index = (int)(progressOnStrip * positions.Length);
             float lerpValue = Utils.GetLerpValue(0f, 0.2f, progressOnStrip, clamped: true);
+			if (index > 1 && positions.Length > index) {
+                lerpValue *= Math.Min((positions[index] - positions[index - 1]).LengthSquared(), 1);
+			}
             num *= 1f - (1f - lerpValue) * (1f - lerpValue);
             return MathHelper.Lerp(0f, 8f, num);
         }

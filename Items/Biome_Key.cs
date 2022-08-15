@@ -440,6 +440,7 @@ namespace EpikV2.Items {
 			Item.useTime = 35;
 			Item.useAnimation = 70;
 			Item.reuseDelay = 20;
+			Item.UseSound = null;
 		}
 		public override void SetNormalAnimation() {
 			Item.useStyle = ItemUseStyleID.Swing;
@@ -455,6 +456,7 @@ namespace EpikV2.Items {
 				player.itemTime = 0;
 				return false;
 			}
+			SoundEngine.PlaySound(SoundID.Item1, position);
 			if (player.itemAnimation == player.itemTime) {
 				Projectile.NewProjectile(source, position, velocity, ProjectileType<Biome_Key_Crimson_Smash>(), damage * 2, knockback * 2, player.whoAmI);
 				player.itemTime = player.itemTime * 4 / 7;
@@ -812,7 +814,7 @@ namespace EpikV2.Items {
 				Projectile.GetAlpha(Lighting.GetColor(Projectile.Center.ToTileCoordinates())) * Projectile.scale,
 				Projectile.rotation + MathHelper.PiOver4,
 				new Vector2(14, 36),
-				1f,
+				Projectile.scale,
 				SpriteEffects.None,
 			0);
 
@@ -930,6 +932,340 @@ namespace EpikV2.Items {
 		public override void SetDefaults() {
 			base.SetDefaults();
 			Item.DamageType = Biome_Key_Jungle_Damage.ID;
+			Item.shoot = ProjectileType<Biome_Key_Jungle_Spin>();
+			Item.shootSpeed = 12;
+			Item.useTime = 35;
+			Item.useAnimation = 70;
+			Item.reuseDelay = 20;
+			Item.UseSound = null;
+		}
+		public override void SetNormalAnimation() {
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.noUseGraphic = true;
+			Item.noMelee = true;
+		}
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
+			if (!base.Shoot(player, source, position, velocity, type, damage, knockback)) {
+				return false;
+			}
+			if (!player.controlUseItem) {
+				player.itemAnimation = 0;
+				player.itemTime = 0;
+				return false;
+			}
+			SoundEngine.PlaySound(SoundID.Item1, position);
+			if (player.itemAnimation == player.itemTime) {
+				Projectile.NewProjectile(source, position, velocity, ProjectileType<Biome_Key_Jungle_Slash>(), (int)(damage * 1.5f), knockback, player.whoAmI);
+				player.itemTime = player.itemTime * 4 / 7;
+				player.itemTimeMax = player.itemTimeMax * 4 / 7;
+				player.itemAnimation = player.itemTime;
+				player.itemAnimationMax = player.itemTimeMax;
+			} else {
+				Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI);
+			}
+			return false;
+		}
+	}
+	public class Biome_Key_Jungle_Spin : ModProjectile {
+		public override string Texture => "EpikV2/Items/Biome_Key_Jungle";
+		public override void SetDefaults() {
+			Projectile.CloneDefaults(ProjectileID.PiercingStarlight);
+			Projectile.DamageType = Biome_Key_Jungle_Damage.ID;
+			Projectile.aiStyle = 0;
+			Projectile.extraUpdates = 0;
+			Projectile.usesLocalNPCImmunity = true;
+			Projectile.localNPCHitCooldown = 600;
+		}
+		public override void OnSpawn(IEntitySource source) {
+			if (source is EntitySource_ItemUse itemUse) {
+				if (itemUse.Entity is Player player) {
+					Projectile.ai[1] = -player.direction;
+					Projectile.scale *= player.GetAdjustedItemScale(itemUse.Item);
+				} else {
+					Projectile.scale *= itemUse.Item.scale;
+				}
+			}
+		}
+		public override void AI() {
+			Player player = Main.player[Projectile.owner];
+			float swingFactor = (float)Math.Pow(1 - player.itemTime / (float)player.itemTimeMax, 0.85f);
+			Projectile.rotation = MathHelper.Lerp(-2.75f - MathHelper.TwoPi, 2f, swingFactor) * Projectile.ai[1];
+			if (swingFactor > 0.45) {
+				player.velocity = Vector2.Lerp(
+					Vector2.Lerp(player.velocity, Vector2.Zero, swingFactor),
+					Projectile.velocity * -2f,
+					MathHelper.Lerp(swingFactor, 0, (swingFactor - 0.45f) / 0.55f)
+				);
+			} else {
+				player.velocity = Vector2.Lerp(
+					Vector2.Lerp(player.velocity, Vector2.Zero, swingFactor),
+					Vector2.Zero,
+					MathHelper.Lerp(swingFactor, 0, swingFactor)
+				);
+			}
+			float realRotation = Projectile.rotation + Projectile.velocity.ToRotation();
+			Projectile.Center = player.MountedCenter - Projectile.velocity + (Vector2)new PolarVec2(32, realRotation);
+			Projectile.timeLeft = player.itemTime * Projectile.MaxUpdates;
+			player.heldProj = Projectile.whoAmI;
+			player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, realRotation - MathHelper.PiOver2);
+			if (Projectile.localAI[1] > 0) {
+				Projectile.localAI[1]--;
+			}
+			player.direction = Math.Sign(Projectile.velocity.RotatedBy(Projectile.rotation).X - Projectile.ai[1] * 8);
+		}
+		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
+			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		}
+		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+			//target.AddBuff(BuffID.Ichor, 600);
+			if (target.life < 0) {
+				//Projectile.NewProjectile(target.GetSource_Death("lifesteal"), target.Center, default, ProjectileID.VampireHeal, 0, 0, Projectile.owner, Projectile.owner, target.lifeMax / 30 + 1);
+			}
+		}
+		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
+			Player player = Main.player[Projectile.owner];
+			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
+			Vector2 vel = (Projectile.velocity.RotatedBy(Projectile.rotation) / 12f) * Projectile.width * 0.95f;
+			for (int j = 0; j <= 1; j++) {
+				Rectangle hitbox = projHitbox;
+				Vector2 offset = vel * j;
+				hitbox.Offset((int)offset.X, (int)offset.Y);
+				if (hitbox.Intersects(targetHitbox)) {
+					if (Projectile.localAI[1] == 0) {
+						ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.Keybrand, new ParticleOrchestraSettings {
+							PositionInWorld = Rectangle.Intersect(hitbox, targetHitbox).Center()
+						}, Projectile.owner);
+						Projectile.localAI[1] = 15;
+					}
+					return true;
+				}
+			}
+			return false;
+		}
+		public override void CutTiles() {
+			DelegateMethods.tilecut_0 = TileCuttingContext.AttackProjectile;
+			Vector2 end = Projectile.Center + Projectile.velocity.RotatedBy(Projectile.rotation).SafeNormalize(Vector2.UnitX) * 50f * Projectile.scale;
+			Utils.PlotTileLine(Projectile.Center, end, 80f * Projectile.scale, DelegateMethods.CutTiles);
+		}
+
+		public override bool PreDraw(ref Color lightColor) {
+			Main.EntitySpriteDraw(
+				TextureAssets.Projectile[Type].Value,
+				Projectile.Center - Main.screenPosition,
+				null,
+				lightColor,
+				Projectile.rotation + Projectile.velocity.ToRotation() + (MathHelper.PiOver4 * Projectile.ai[1]),
+				new Vector2(14, 25 + 11 * Projectile.ai[1]),
+				Projectile.scale,
+				Projectile.ai[1] > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically,
+				0
+			);
+			return false;
+		}
+	}
+	public class Biome_Key_Jungle_Slash : ModProjectile {
+		int vineIdentity;
+		public override string Texture => "EpikV2/Items/Biome_Key_Jungle";
+		public override void SetDefaults() {
+			Projectile.CloneDefaults(ProjectileID.PiercingStarlight);
+			Projectile.DamageType = Biome_Key_Jungle_Damage.ID;
+			Projectile.aiStyle = 0;
+			Projectile.extraUpdates = 0;
+			Projectile.usesLocalNPCImmunity = true;
+			Projectile.localNPCHitCooldown = 600;
+		}
+		public override void OnSpawn(IEntitySource source) {
+			if (source is EntitySource_ItemUse itemUse) {
+				if (itemUse.Entity is Player player) {
+					Projectile.ai[1] = player.direction;
+					Projectile.scale *= player.GetAdjustedItemScale(itemUse.Item);
+				} else {
+					Projectile.scale *= itemUse.Item.scale;
+				}
+			}
+		}
+		public override void AI() {
+			Player player = Main.player[Projectile.owner];
+			float swingFactor = (float)Math.Pow(1 - player.itemTime / (float)player.itemTimeMax, 2f);
+			Projectile.rotation = MathHelper.Lerp(-2.75f, 1.5f, swingFactor) * Projectile.ai[1];
+			player.velocity = Vector2.Lerp(
+				Vector2.Lerp(player.velocity, Vector2.Zero, swingFactor),
+				Projectile.velocity * 1.5f,
+				MathHelper.Lerp(swingFactor, 0, swingFactor)
+			);
+			float realRotation = Projectile.rotation + Projectile.velocity.ToRotation();
+			Projectile.Center = player.MountedCenter - Projectile.velocity + (Vector2)new PolarVec2(32, realRotation);
+
+			Projectile.timeLeft = player.itemTime * Projectile.MaxUpdates;
+			player.heldProj = Projectile.whoAmI;
+			player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, realRotation - MathHelper.PiOver2);
+
+			if (Projectile.localAI[1] > 0) {
+				Projectile.localAI[1]--;
+			}
+			if (swingFactor > 0.35f) {
+				if (Projectile.ai[0] == 0) {
+					vineIdentity = Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, ProjectileType<Biome_Key_Jungle_Vines>(), Projectile.damage / 2, Projectile.knockBack, Projectile.owner).identity;
+					Projectile.ai[0] = 1;
+				}
+				Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity.RotatedBy(Projectile.rotation), ProjectileType<Biome_Key_Jungle_Vine_Node>(), 0, Projectile.knockBack, Projectile.owner, vineIdentity);
+			}
+		}
+		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
+			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		}
+		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+			//target.AddBuff(BuffID.Ichor, 600);
+			if (target.life < 0) {
+				//Projectile.NewProjectile(target.GetSource_Death("lifesteal"), target.Center, default, ProjectileID.VampireHeal, 0, 0, Projectile.owner, Projectile.owner, target.lifeMax / 9 + 1);
+			}
+		}
+		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
+			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
+			Vector2 vel = (Projectile.velocity.RotatedBy(Projectile.rotation) / 12f) * Projectile.width * 0.95f;
+			for (int j = 0; j <= 2; j++) {
+				Rectangle hitbox = projHitbox;
+				Vector2 offset = vel * j;
+				hitbox.Offset((int)offset.X, (int)offset.Y);
+				if (hitbox.Intersects(targetHitbox)) {
+					if (Projectile.localAI[1] == 0) {
+						ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.Keybrand, new ParticleOrchestraSettings {
+							PositionInWorld = Rectangle.Intersect(hitbox, targetHitbox).Center()
+						}, Projectile.owner);
+						Projectile.localAI[1] = 15;
+					}
+					return true;
+				}
+			}
+			return false;
+		}
+		public override void CutTiles() {
+			DelegateMethods.tilecut_0 = TileCuttingContext.AttackProjectile;
+			Vector2 end = Projectile.Center + Projectile.velocity.RotatedBy(Projectile.rotation).SafeNormalize(Vector2.UnitX) * 50f * Projectile.scale;
+			Utils.PlotTileLine(Projectile.Center, end, 80f * Projectile.scale, DelegateMethods.CutTiles);
+		}
+
+		public override bool PreDraw(ref Color lightColor) {
+			float rotation = Projectile.rotation + Projectile.velocity.ToRotation() + (MathHelper.PiOver4 * Projectile.ai[1]);
+
+			Main.EntitySpriteDraw(
+				TextureAssets.Projectile[Type].Value,
+				Projectile.Center - Main.screenPosition,
+				null,
+				lightColor,
+				rotation,
+				new Vector2(14, 25 + 11 * Projectile.ai[1]),
+				Projectile.scale,
+				Projectile.ai[1] > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically,
+				0
+			);
+
+			return false;
+		}
+	}
+	public class Biome_Key_Jungle_Vines : ModProjectile {
+		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.NettleBurstLeft;
+		internal List<int> nodes = new List<int>();
+		public override void SetDefaults() {
+			Projectile.CloneDefaults(ProjectileID.PurificationPowder);
+			Projectile.DamageType = Biome_Key_Jungle_Damage.ID;
+			Projectile.aiStyle = 0;
+			Projectile.width /= 2;
+			Projectile.height /= 2;
+			Projectile.extraUpdates = 1;
+			Projectile.tileCollide = false;
+			Projectile.usesIDStaticNPCImmunity = true;
+			Projectile.idStaticNPCHitCooldown = 10;
+			Projectile.hide = true;
+		}
+		public override void AI() {
+			Projectile.velocity *= 0.95f;
+			if (++Projectile.ai[0] == 600f) {
+				Projectile.Kill();
+
+				for (int i = 0; i < nodes.Count; i++) {
+					Main.projectile[nodes[i]].Kill();
+				}
+			}
+		}
+		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		}
+		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
+			if(nodes is null) return false;
+			for (int i = 1; i < nodes.Count; i++) {
+				if (!Main.projectile[nodes[i]].active) continue;
+				Triangle hitbox = new Triangle(Projectile.Center, Main.projectile[nodes[i] - 1].Center, Main.projectile[nodes[i]].Center);
+				if (hitbox.Intersects(targetHitbox)) {
+					ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.Keybrand, new ParticleOrchestraSettings {
+						PositionInWorld = Main.rand.NextVector2FromRectangle(targetHitbox)
+					}, Projectile.owner);
+					return true;
+				}
+			}
+			return false;
+		}
+		public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI) {
+			behindNPCsAndTiles.Add(index);
+		}
+		public override bool PreDraw(ref Color lightColor) {
+			if (nodes is null) return false;
+			Texture2D texture = TextureAssets.Projectile[Type].Value;
+			for (int i = 0; i < nodes.Count; i++) {
+				if (Main.projectile[nodes[i]].active) {
+					DrawLaser(Main.spriteBatch, texture, Projectile.Center, Main.projectile[nodes[i]].Center);
+					if (i > 0) DrawLaser(Main.spriteBatch, texture, Main.projectile[nodes[i - 1]].Center, Main.projectile[nodes[i]].Center);
+				}
+			}
+			return false;
+		}
+		public void DrawLaser(SpriteBatch spriteBatch, Texture2D texture, Vector2 start, Vector2 end) {
+			Vector2 scale = new Vector2(1f, 1f);
+			Vector2 origin = start;
+			Vector2 diff = (end - start);
+			float maxl = diff.Length();
+			Vector2 unit = diff / maxl;
+			float r = diff.ToRotation();// + rotation??(float)(Math.PI/2);
+			//int t = Projectile.timeLeft > 10 ? 25 - Projectile.timeLeft : Projectile.timeLeft;
+			//float s = Math.Min(t / 15f, 1f);
+			Vector2 perpUnit = unit.RotatedBy(MathHelper.PiOver2);
+			//Dust dust;
+			DrawData data;
+			for (float i = 0; i <= maxl; i += 1) {
+				origin = start + i * unit;
+				data = new DrawData(texture,
+					origin - Main.screenPosition,
+					new Rectangle(0, (int)(i % 32), 34, 1),
+					Color.White,//Lighting.GetColor(origin.ToWorldCoordinates().ToPoint())
+					r + MathHelper.PiOver2,
+					new Vector2(0, 0),
+					scale,
+					0,
+				0);
+				data.Draw(spriteBatch);
+			}
+			//Dust.NewDustPerfect(origin + (perpUnit * Main.rand.NextFloat(-8, 8)), 6, unit * 5).noGravity = true;
+		}
+	}
+	public class Biome_Key_Jungle_Vine_Node : ModProjectile {
+		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.PurificationPowder;
+		public int VineIdentity => (int)Projectile.ai[0];
+		public override void SetDefaults() {
+			Projectile.CloneDefaults(ProjectileID.PurificationPowder);
+			Projectile.DamageType = Biome_Key_Jungle_Damage.ID;
+			Projectile.aiStyle = 0;
+			Projectile.timeLeft = 3600;
+			Projectile.width /= 2;
+			Projectile.height /= 2;
+			Projectile.extraUpdates = 1;
+			Projectile.tileCollide = false;
+			Projectile.usesIDStaticNPCImmunity = true;
+			Projectile.idStaticNPCHitCooldown = 10;
+			Projectile.hide = true;
+		}
+		public override void AI() {
+			Projectile.velocity *= 0.95f;
+
 		}
 	}
 	public class Biome_Key_Jungle_Damage : DamageClass {
@@ -1261,6 +1597,7 @@ namespace EpikV2.Items {
 			Projectile.tileCollide = false;
 			Projectile.usesIDStaticNPCImmunity = true;
 			Projectile.idStaticNPCHitCooldown = 10;
+			Projectile.hide = true;
 		}
 		public override void AI() {
 			//Projectile.velocity *= 1.01f;

@@ -547,6 +547,22 @@ public static float ShimmerCalc(float val) {
 				}
 			}
 		}
+		public override void PreUpdateProjectiles() {
+			Dictionary<int, List<int>> vineNodes = new Dictionary<int, List<int>>();
+			int vineID = ModContent.ProjectileType<Biome_Key_Jungle_Vines>();
+			int vineNodeID = ModContent.ProjectileType<Biome_Key_Jungle_Vine_Node>();
+			Projectile proj;
+			for (int i = 0; i < Main.maxProjectiles; i++) {
+				proj = Main.projectile[i];
+				if (proj.type == vineNodeID) {
+					if (!vineNodes.ContainsKey((int)proj.ai[0])) vineNodes[(int)proj.ai[0]] = new List<int>();
+					vineNodes[(int)proj.ai[0]].Add(i);
+				}else if (proj.type == vineID && proj.ModProjectile is Biome_Key_Jungle_Vines vines) {
+					if (!vineNodes.ContainsKey(i)) vineNodes[i] = new List<int>();
+					vines.nodes = vineNodes[i];
+				}
+			}
+		}
 		public override void PostWorldGen() {
 			ChestLootCache[] lootCaches = ChestLootCache.BuildCaches();
 			ChestLootCache.ApplyLootQueue(lootCaches,
