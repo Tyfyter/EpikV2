@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using EpikV2.NPCs;
 using EpikV2.Projectiles;
 using Microsoft.Xna.Framework;
@@ -1105,7 +1106,7 @@ namespace EpikV2.Items {
 			}
 			if (swingFactor > 0.35f) {
 				if (Projectile.ai[0] == 0) {
-					vineIdentity = Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, ProjectileType<Biome_Key_Jungle_Vines>(), Projectile.damage / 2, Projectile.knockBack, Projectile.owner).identity;
+					vineIdentity = Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, ProjectileType<Biome_Key_Jungle_Vines>(), Projectile.damage / 4, Projectile.knockBack, Projectile.owner).identity;
 					Projectile.ai[0] = 1;
 				}
 				Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity.RotatedBy(Projectile.rotation), ProjectileType<Biome_Key_Jungle_Vine_Node>(), 0, Projectile.knockBack, Projectile.owner, vineIdentity);
@@ -1166,6 +1167,7 @@ namespace EpikV2.Items {
 	public class Biome_Key_Jungle_Vines : ModProjectile {
 		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.NettleBurstLeft;
 		internal List<int> nodes = new List<int>();
+		((int index, float pos) a, (int index, float pos) b)[] vineLines;
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.PurificationPowder);
 			Projectile.DamageType = Biome_Key_Jungle_Damage.ID;
@@ -1210,19 +1212,47 @@ namespace EpikV2.Items {
 		}
 		public override bool PreDraw(ref Color lightColor) {
 			if (nodes is null) return false;
-			Texture2D texture = TextureAssets.Projectile[Type].Value;
+			Main.instance.LoadProjectile(ProjectileID.NettleBurstEnd);
+			Main.instance.LoadProjectile(ProjectileID.NettleBurstLeft);
+			Texture2D[] textures = new Texture2D[] {
+				TextureAssets.Projectile[ProjectileID.NettleBurstEnd].Value,
+				TextureAssets.Projectile[ProjectileID.NettleBurstLeft].Value
+			};
+			List<Line> lines = new List<Line>();
 			for (int i = 0; i < nodes.Count; i++) {
 				if (Main.projectile[nodes[i]].active) {
-					DrawLaser(Main.spriteBatch, texture, Projectile.Center, Main.projectile[nodes[i]].Center);
-					if (i > 0) DrawLaser(Main.spriteBatch, texture, Main.projectile[nodes[i - 1]].Center, Main.projectile[nodes[i]].Center);
+					lines.Add(new Line(Projectile.Center, Main.projectile[nodes[i]].Center));
+					if (i > 0) lines.Add(new Line(Main.projectile[nodes[i - 1]].Center, Main.projectile[nodes[i]].Center));
+					//DrawVine(Main.spriteBatch, texture, Projectile.Center, Main.projectile[nodes[i]].Center);
+					//if (i > 0) DrawVine(Main.spriteBatch, texture, Main.projectile[nodes[i - 1]].Center, Main.projectile[nodes[i]].Center);
 				}
+			}
+			if (Projectile.ai[0] >= 60) {
+				if (vineLines is null) {
+					vineLines = new ((int, float), (int, float))[16];
+					WeightedRandom<Vector2> rand2 = new WeightedRandom<Vector2>();
+					for (int i = 0; i < 16; i++) {
+						int index = 0;
+						WeightedRandom<int> rand1 = new(Main.rand, lines.Select(v => new Tuple<int, double>(index++, 1)).ToArray());
+						vineLines[i] = ((rand1.Pop(), Main.rand.NextFloat(0, 1)), (rand1.Pop(), Main.rand.NextFloat(0, 1)));
+					}
+				}
+				for (int i = 0; i < 16; i++) {
+					DrawVine(Main.spriteBatch, textures, new Line(
+						lines[vineLines[i].a.index][vineLines[i].a.pos],
+						lines[vineLines[i].b.index][vineLines[i].b.pos]
+					));
+				}
+			}
+			for (int i = 0; i < lines.Count; i++) {
+				DrawVine(Main.spriteBatch, textures, lines[i]);
 			}
 			return false;
 		}
-		public void DrawLaser(SpriteBatch spriteBatch, Texture2D texture, Vector2 start, Vector2 end) {
+		public void DrawVine(SpriteBatch spriteBatch, Texture2D[] textures, Line line) {
 			Vector2 scale = new Vector2(1f, 1f);
-			Vector2 origin = start;
-			Vector2 diff = (end - start);
+			Vector2 origin = line.a;
+			Vector2 diff = (line.b - line.a);
 			float maxl = diff.Length();
 			Vector2 unit = diff / maxl;
 			float r = diff.ToRotation();// + rotation??(float)(Math.PI/2);
@@ -1232,7 +1262,15 @@ namespace EpikV2.Items {
 			//Dust dust;
 			DrawData data;
 			for (float i = 0; i <= maxl; i += 1) {
-				origin = start + i * unit;
+				Texture2D texture = textures[1];
+				SpriteEffects spriteEffects = 0;
+				if (i < textures[0].Height) {
+					texture = textures[0];
+				} else if (maxl - i < textures[0].Height) {
+					texture = textures[0];
+					spriteEffects = SpriteEffects.FlipVertically;
+				}
+				origin = line.a + i * unit;
 				data = new DrawData(texture,
 					origin - Main.screenPosition,
 					new Rectangle(0, (int)(i % 32), 34, 1),
@@ -1240,7 +1278,7 @@ namespace EpikV2.Items {
 					r + MathHelper.PiOver2,
 					new Vector2(0, 0),
 					scale,
-					0,
+					spriteEffects,
 				0);
 				data.Draw(spriteBatch);
 			}

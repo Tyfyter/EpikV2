@@ -761,6 +761,24 @@ namespace EpikV2 {
             }
             return (int)value;
         }
+        public static T Pop<T>(this WeightedRandom<T> random) {
+            double _totalWeight = 0.0;
+            foreach (Tuple<T, double> element in random.elements) {
+                _totalWeight += element.Item2;
+            }
+            double num = random.random.NextDouble();
+            num *= _totalWeight;
+            foreach (Tuple<T, double> element in random.elements) {
+                if (num > element.Item2) {
+                    num -= element.Item2;
+                    continue;
+                }
+                random.elements.Remove(element);
+                random.needsRefresh = true;
+                return element.Item1;
+            }
+            return default(T);
+        }
         public static FungibleSet<int> ToFungibleSet(this Recipe recipe) {
             return new FungibleSet<int>(recipe.requiredItem.Select(i => new KeyValuePair<int, int>(i.type, i.stack)));
 		}
