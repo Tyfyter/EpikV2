@@ -1167,7 +1167,7 @@ namespace EpikV2.Items {
 	public class Biome_Key_Jungle_Vines : ModProjectile {
 		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.NettleBurstLeft;
 		internal List<int> nodes = new List<int>();
-		((int index, float pos) a, (int index, float pos) b)[] vineLines;
+		List<((int index, float pos) a, (int index, float pos) b)> vineLines;
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.PurificationPowder);
 			Projectile.DamageType = Biome_Key_Jungle_Damage.ID;
@@ -1180,14 +1180,17 @@ namespace EpikV2.Items {
 			Projectile.idStaticNPCHitCooldown = 10;
 			Projectile.hide = true;
 		}
+		public override void OnSpawn(IEntitySource source) {
+			if (source is EntitySource_Parent parentSource && parentSource.Entity is Projectile parentProjectile) {
+				Projectile.scale *= parentProjectile.scale * 0.85f;
+			}
+		}
 		public override void AI() {
-			Projectile.velocity *= 0.95f;
 			if (++Projectile.ai[0] == 600f) {
-				Projectile.Kill();
-
 				for (int i = 0; i < nodes.Count; i++) {
 					Main.projectile[nodes[i]].Kill();
 				}
+				Projectile.Kill();
 			}
 		}
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
@@ -1215,7 +1218,7 @@ namespace EpikV2.Items {
 			Main.instance.LoadProjectile(ProjectileID.NettleBurstEnd);
 			Main.instance.LoadProjectile(ProjectileID.NettleBurstLeft);
 			Texture2D[] textures = new Texture2D[] {
-				TextureAssets.Projectile[ProjectileID.NettleBurstEnd].Value,
+				//TextureAssets.Projectile[ProjectileID.NettleBurstEnd].Value,
 				TextureAssets.Projectile[ProjectileID.NettleBurstLeft].Value
 			};
 			List<Line> lines = new List<Line>();
@@ -1227,22 +1230,25 @@ namespace EpikV2.Items {
 					//if (i > 0) DrawVine(Main.spriteBatch, texture, Main.projectile[nodes[i - 1]].Center, Main.projectile[nodes[i]].Center);
 				}
 			}
-			if (Projectile.ai[0] >= 60) {
-				if (vineLines is null) {
-					vineLines = new ((int, float), (int, float))[16];
-					WeightedRandom<Vector2> rand2 = new WeightedRandom<Vector2>();
-					for (int i = 0; i < 16; i++) {
-						int index = 0;
-						WeightedRandom<int> rand1 = new(Main.rand, lines.Select(v => new Tuple<int, double>(index++, 1)).ToArray());
-						vineLines[i] = ((rand1.Pop(), Main.rand.NextFloat(0, 1)), (rand1.Pop(), Main.rand.NextFloat(0, 1)));
-					}
+			if (Projectile.ai[0] >= 30 && vineLines.Count < lines.Count * 2 - 2) {
+				WeightedRandom<Vector2> rand2 = new WeightedRandom<Vector2>();
+				for (int i = 0; i < nodes.Count; i++) {
+					int index = 0;
+					WeightedRandom<int> rand1 = new(Main.rand, lines.Select(v => new Tuple<int, double>(index++, 1)).ToArray());
+					vineLines.Add(((rand1.Pop(), Main.rand.NextFloat(0, 1)), (rand1.Pop(), Main.rand.NextFloat(0, 1))));
 				}
-				for (int i = 0; i < 16; i++) {
-					DrawVine(Main.spriteBatch, textures, new Line(
-						lines[vineLines[i].a.index][vineLines[i].a.pos],
-						lines[vineLines[i].b.index][vineLines[i].b.pos]
-					));
-				}
+
+			}
+			if (vineLines is null) vineLines = new();
+			if (vineLines.Count < lines.Count - 1) {
+				vineLines.Add(((Math.Max(lines.Count - 4, 0), Main.rand.NextFloat(0.3f, 0.8f)), (lines.Count - 2, Main.rand.NextFloat(0.3f, 0.8f))));
+				//vineLines.Add(((nodes.Count - 2, Main.rand.NextFloat(0, 1)), ( - 1, Main.rand.NextFloat(0, 1))));
+			}
+			for (int i = 0; i < vineLines.Count; i++){
+				DrawVine(Main.spriteBatch, textures, new Line(
+					lines[vineLines[i].a.index][vineLines[i].a.pos],
+					lines[vineLines[i].b.index][vineLines[i].b.pos]
+				));
 			}
 			for (int i = 0; i < lines.Count; i++) {
 				DrawVine(Main.spriteBatch, textures, lines[i]);
@@ -1250,7 +1256,7 @@ namespace EpikV2.Items {
 			return false;
 		}
 		public void DrawVine(SpriteBatch spriteBatch, Texture2D[] textures, Line line) {
-			Vector2 scale = new Vector2(1f, 1f);
+			Vector2 scale = new Vector2(Projectile.scale);
 			Vector2 origin = line.a;
 			Vector2 diff = (line.b - line.a);
 			float maxl = diff.Length();
@@ -1262,21 +1268,21 @@ namespace EpikV2.Items {
 			//Dust dust;
 			DrawData data;
 			for (float i = 0; i <= maxl; i += 1) {
-				Texture2D texture = textures[1];
+				Texture2D texture = textures[^1];
 				SpriteEffects spriteEffects = 0;
 				if (i < textures[0].Height) {
 					texture = textures[0];
 				} else if (maxl - i < textures[0].Height) {
 					texture = textures[0];
-					spriteEffects = SpriteEffects.FlipVertically;
+					//spriteEffects = SpriteEffects.FlipVertically;
 				}
 				origin = line.a + i * unit;
 				data = new DrawData(texture,
 					origin - Main.screenPosition,
-					new Rectangle(0, (int)(i % 32), 34, 1),
-					Color.White,//Lighting.GetColor(origin.ToWorldCoordinates().ToPoint())
+					new Rectangle(0, (int)(spriteEffects == 0? (i % 32) : 32 - (i % 32)), 34, 1),
+					Lighting.GetColor((int)(origin.X / 16), (int)(origin.Y / 16)),
 					r + MathHelper.PiOver2,
-					new Vector2(0, 0),
+					new Vector2(17, 0),
 					scale,
 					spriteEffects,
 				0);
