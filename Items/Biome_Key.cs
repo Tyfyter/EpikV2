@@ -16,6 +16,7 @@ using Terraria.GameContent.UI.Chat;
 using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using Terraria.Utilities;
 using Tyfyter.Utils;
 using static Terraria.ModLoader.ModContent;
@@ -25,6 +26,7 @@ namespace EpikV2.Items {
 		public static List<Biome_Key_Data> Biome_Keys { get; internal set; }
 		public bool holdUp = false;
 		public static int? forcedSwitchIndex = null;
+		Dictionary<string, object> keyValuePairs;
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Biome Key ");
 			Tooltip.SetDefault("<right> to change modes");
@@ -111,6 +113,7 @@ namespace EpikV2.Items {
 					forcedSwitchIndex = null;
 
 					int prefix = Item.prefix;
+					if (keyValuePairs is null) keyValuePairs = new();
 					ItemLoader.PreReforge(Item);
 					Item.SetDefaults(Biome_Keys[targetMode].WeaponID);
 					Item.Prefix(prefix);
@@ -201,6 +204,16 @@ namespace EpikV2.Items {
         }
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
 			return player.altFunctionUse != 2;
+		}
+		public override void SaveData(TagCompound tag) {
+			TagCompound kvp = new TagCompound();
+			foreach (var item in keyValuePairs) {
+				kvp.Add(item);
+			}
+			tag.Add("keyValuePairs", kvp);
+		}
+		public override void LoadData(TagCompound tag) {
+			if (tag.TryGet("keyValuePairs", out TagCompound kvp)) keyValuePairs = new(kvp);
 		}
 	}
 	#region forest
