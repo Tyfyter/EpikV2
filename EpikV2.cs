@@ -151,7 +151,6 @@ namespace EpikV2 {
 						break;
 					}else if (self.inventory[i].ModItem is Biome_Key) {
 						oldType = self.inventory[i].type;
-						string s = "";
 						for (int keyIndex = 0; keyIndex < Biome_Key.Biome_Keys.Count; keyIndex++) {
 							Biome_Key_Data current = Biome_Key.Biome_Keys[keyIndex];
 							if (Main.tile[x, y].TileType == current.TileID && (Main.tile[x, y].TileFrameX / 36) == (current.TileFrameX / 36)) {
@@ -160,7 +159,6 @@ namespace EpikV2 {
 								}
 								self.inventory[i].type = keyType = current.KeyID;
 							}
-							Main.LocalPlayer.chatOverhead.NewMessage(s, 5);
 						}
 						break;
 					}

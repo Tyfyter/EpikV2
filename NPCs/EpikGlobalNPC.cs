@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.GameContent.NetModules;
@@ -126,6 +127,20 @@ namespace EpikV2.NPCs
                 scorpioTime--;
                 return false;
             }
+            switch (npc.type) {
+                case NPCID.IlluminantSlime:
+                npc.directionY = 1;
+                npc.noGravity = false;
+                if (npc.ai[1] == -1) {
+                    npc.ai[1] = -2;
+                } else if (npc.ai[1] == -2) {
+                    npc.directionY = -1;
+                    npc.noGravity = true;
+                    IllSlimeAI(npc);
+                    return false;
+                }
+                break;
+            }
             return true;
         }
         public override void AI(NPC npc){
@@ -139,6 +154,126 @@ namespace EpikV2.NPCs
                 organRearrangement = 0;
             }
 		}
+		public override void PostAI(NPC npc) {
+            switch (npc.type) {
+                case NPCID.IlluminantSlime:
+                if (npc.aiAction == 1 && npc.ai[0] == -4) {
+                    npc.ai[1] = npc.ai[1] < 0 ? 1 : -1;
+                }
+                if (npc.noGravity) {
+                    float maxFallSpeed = -10f;
+                    float gravity = -0.3f;
+                    float worldWidthSq = Main.maxTilesX / 4200;
+                    worldWidthSq *= worldWidthSq;
+                    float num2 = (float)((npc.position.Y / 16f - (60f + 10f * worldWidthSq)) / (Main.worldSurface / 6.0f));
+                    if (num2 < 0.25) {
+                        num2 = 0.25f;
+                    }
+                    if (num2 > 1f) {
+                        num2 = 1f;
+                    }
+                    npc.velocity.Y += gravity * num2;
+                    if (npc.velocity.Y < maxFallSpeed) {
+                        npc.velocity.Y = maxFallSpeed;
+                    }
+                }
+                break;
+            }
+        }
+        static void IllSlimeAI(NPC npc) {
+            if (npc.ai[2] > 1f) {
+                npc.ai[2] -= 1f;
+            }
+            if (npc.wet) {
+                if (npc.collideY) {
+                    npc.velocity.Y = 2f;
+                }
+                if (npc.velocity.Y > 0f && npc.ai[3] == npc.position.X) {
+                    npc.direction *= -1;
+                    npc.ai[2] = 200f;
+                }
+                if (npc.velocity.Y > 0f) {
+                    npc.ai[3] = npc.position.X;
+                }
+                if (npc.velocity.Y < 2f) {
+                    npc.velocity.Y *= 0.9f;
+                }
+                npc.velocity.Y += 0.5f;
+                if (npc.velocity.Y > 4f) {
+                    npc.velocity.Y = 4f;
+                }
+                if (npc.ai[2] == 1f) {
+                    npc.TargetClosest();
+                }
+            }
+            npc.aiAction = 0;
+            if (npc.ai[2] == 0f) {
+                npc.ai[0] = -100f;
+                npc.ai[2] = 1f;
+                npc.TargetClosest();
+            }
+            if (npc.velocity.Y == 0f || npc.velocity.Y == 0.01f) {
+                if (npc.collideY && npc.oldVelocity.Y != 0f && Collision.SolidCollision(npc.position, npc.width, npc.height)) {
+                    npc.position.X -= npc.velocity.X + npc.direction;
+                }
+                if (npc.ai[3] == npc.position.X) {
+                    npc.direction *= -1;
+                    npc.ai[2] = 200f;
+                }
+                npc.ai[3] = 0f;
+                npc.velocity.X *= 0.8f;
+                if (npc.velocity.X > -0.1 && npc.velocity.X < 0.1) {
+                    npc.velocity.X = 0f;
+                }
+                npc.ai[0] += 4f;
+                float num24 = -1000f;
+                int num25 = 0;
+                if (npc.ai[0] >= 0f) {
+                    num25 = 1;
+                }
+                if (npc.ai[0] >= num24 && npc.ai[0] <= num24 * 0.5f) {
+                    num25 = 2;
+                }
+                if (npc.ai[0] >= num24 * 2f && npc.ai[0] <= num24 * 1.5f) {
+                    num25 = 3;
+                }
+                if (num25 > 0) {
+                    npc.netUpdate = true;
+                    if (npc.ai[2] == 1f) {
+                        npc.TargetClosest();
+                    }
+                    if (num25 == 3) {
+                        npc.velocity.Y = 8f;
+                        npc.velocity.X += 3 * npc.direction;
+                        npc.ai[0] = -200f;
+                        npc.ai[3] = npc.position.X;
+                    } else {
+                        npc.velocity.Y = 6f;
+                        npc.velocity.X += 2 * npc.direction;
+                        npc.ai[0] = -120f;
+                        if (num25 == 1) {
+                            npc.ai[0] += num24;
+                        } else {
+                            npc.ai[0] += num24 * 2f;
+                        }
+                    }
+                } else if (npc.ai[0] >= -30f) {
+                    npc.aiAction = 1;
+                }
+            } else if (npc.target < 255 && ((npc.direction == 1 && npc.velocity.X < 3f) || (npc.direction == -1 && npc.velocity.X > -3f))) {
+                if (npc.collideX && Math.Abs(npc.velocity.X) == 0.2f) {
+                    npc.position.X -= 1.4f * npc.direction;
+                }
+                if (npc.collideY && npc.oldVelocity.Y != 0f && Collision.SolidCollision(npc.position, npc.width, npc.height)) {
+                    npc.position.X -= npc.velocity.X + npc.direction;
+                }
+                if ((npc.direction == -1 && npc.velocity.X < 0.01) || (npc.direction == 1 && npc.velocity.X > -0.01)) {
+                    npc.velocity.X += 0.2f * npc.direction;
+                } else {
+                    npc.velocity.X *= 0.93f;
+                }
+            }
+        }
 		public override void ResetEffects(NPC npc) {
 			celestialFlames = false;
 			if (jadeWhipTime > 0) {
@@ -184,7 +319,6 @@ namespace EpikV2.NPCs
                 }
 				if (keybrandMult > 0) {
                     int damageBoost = (int)(damage * Biome_Key.GetLifeDamageMult(npc, keybrandMult));
-                    Main.LocalPlayer.chatOverhead.NewMessage($"{keybrandMult}x for {damageBoost}", 90);
                     damage += damageBoost;
                 }
             }
@@ -344,6 +478,39 @@ namespace EpikV2.NPCs
                 npc.frame = freezeFrame;
                 Shaders.jadeShader.Parameters["uProgress"].SetValue(jadeFrames/(float)Math.Ceiling(Math.Sqrt((npc.frame.Width*npc.frame.Width)+(npc.frame.Height*npc.frame.Height))));
                 spriteBatch.Restart(SpriteSortMode.Immediate, effect:Shaders.jadeShader);
+            }
+            if (npc.type == NPCID.IlluminantSlime && npc.noGravity) {
+                Texture2D texture = TextureAssets.Npc[npc.type].Value;
+                Vector2 halfSize = new Vector2(texture.Width / 2, texture.Height / Main.npcFrameCount[npc.type] / 2);
+                float npcAddedHeight = Main.NPCAddHeight(npc);
+                Main.spriteBatch.Draw(
+                    texture,
+                    new Vector2(npc.position.X - screenPos.X + (npc.width / 2) - texture.Width * npc.scale / 2f + halfSize.X * npc.scale, npc.position.Y - screenPos.Y + npc.height - texture.Height * npc.scale / Main.npcFrameCount[npc.type] + 4f + halfSize.Y * npc.scale + npcAddedHeight),
+                    npc.frame,
+                    drawColor,
+                    npc.rotation,
+                    halfSize,
+                    npc.scale,
+                    (npc.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None) | SpriteEffects.FlipVertically,
+                0f);
+                for (int i = 1; i < npc.oldPos.Length; i++) {
+                    Color illSlimeColor = default(Color);
+                    illSlimeColor.R = (byte)(150 * (10 - i) / 15);
+                    illSlimeColor.G = (byte)(100 * (10 - i) / 15);
+                    illSlimeColor.B = (byte)(150 * (10 - i) / 15);
+                    illSlimeColor.A = (byte)(50 * (10 - i) / 15);
+                    Main.spriteBatch.Draw(
+                        texture,
+                        new Vector2(npc.oldPos[i].X - screenPos.X + (npc.width / 2) - texture.Width * npc.scale / 2f + halfSize.X * npc.scale, npc.oldPos[i].Y - screenPos.Y + npc.height - texture.Height * npc.scale / Main.npcFrameCount[npc.type] + 4f + halfSize.Y * npc.scale + npcAddedHeight),
+                        npc.frame,
+                        illSlimeColor,
+                        npc.rotation,
+                        halfSize,
+                        npc.scale,
+                        (npc.spriteDirection == 1 ? SpriteEffects.FlipHorizontally : SpriteEffects.None) | SpriteEffects.FlipVertically,
+                    0f);
+                }
+                return false;
             }
             return true;
         }

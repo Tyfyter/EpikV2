@@ -206,8 +206,8 @@ namespace EpikV2.Items {
 			return player.altFunctionUse != 2;
 		}
 		public override void SaveData(TagCompound tag) {
-			TagCompound kvp = new TagCompound();
-			foreach (var item in keyValuePairs) {
+			TagCompound kvp = new();
+			if(keyValuePairs is not null) foreach (var item in keyValuePairs) {
 				kvp.Add(item);
 			}
 			tag.Add("keyValuePairs", kvp);
