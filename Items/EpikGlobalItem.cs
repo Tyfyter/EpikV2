@@ -35,7 +35,7 @@ namespace EpikV2.Items {
 		}
 		public void InitCatgirlMeme(Item item) {
 			if (item.type == ItemID.CatEars && nOwO is null) {
-				if (!Main.gameMenu && !IsFakeSetDefaults() && Main.rand.NextBool((int)(25 - (24 * Main.LocalPlayer.luck)))) {
+				if (!Main.gameMenu && !IsFakeSetDefaults() && Main.LocalPlayer.RollLuck(25) == 0) {
 					Main.NewText("[herb:-1]");
 					nOwO = true;
 				} else {

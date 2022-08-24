@@ -190,6 +190,28 @@ namespace EpikV2 {
 					orig(settings);
 				}
 			};
+			Detour.Player.RollLuck += (Detour.Player.orig_RollLuck orig, Player self, int range) => {
+				if (!EpikConfig.Instance.RedLuck) {
+					return orig(self, range);
+				}
+				if (self.luck > 0f) {
+					float luck = self.luck;
+					int baseDiv = 1;
+					for (; luck >= 1; luck -= 1) baseDiv++;
+					int div = baseDiv;
+					if (Main.rand.NextFloat() < luck) div++;
+					return Main.rand.Next(Main.rand.Next(range / div, range / baseDiv));
+				}
+				if (self.luck < 0f) {
+					float luck = self.luck;
+					int baseDiv = 1;
+					for (; luck <= -1; luck += 1) baseDiv++;
+					int div = baseDiv;
+					if (Main.rand.NextFloat() < -luck) div++;
+					return Main.rand.Next(Main.rand.Next(range * baseDiv, range * div));
+				}
+				return Main.rand.Next(range);
+			};
 		}
 
 		private int PopupText_NewText_AdvancedPopupRequest_Vector2(Detour.PopupText.orig_NewText_AdvancedPopupRequest_Vector2 orig, AdvancedPopupRequest request, Vector2 position) {
@@ -474,6 +496,10 @@ public static float ShimmerCalc(float val) {
 		[Label("Luck Affects Fishing")]
 		[DefaultValue(true)]
 		public bool LuckyFish = true;
+
+		[Label("Boundless Luck")]
+		[DefaultValue(true)]
+		public bool RedLuck = true;
 	}
 	[Label("Client Settings")]
 	public class EpikClientConfig : ModConfig {

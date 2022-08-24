@@ -17,9 +17,10 @@ namespace EpikV2.Items {
 
 		public override void SetDefaults() {
 			Item.accessory = true;
+			Item.rare = CursedRarity.ID;
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
-			tooltips[0].OverrideColor = Color.Lerp(Color.Purple, Color.Crimson, GetColorValue(Main.mouseTextColor));
+			//tooltips[0].OverrideColor = Color.Lerp(Color.Purple, Color.Crimson, GetColorValue(Main.mouseTextColor));
 			//Terraria.UI.ItemSlot.Context
 			if (Main.cursorOverride == 7) {
 				Main.cursorOverride = -1;
@@ -32,5 +33,15 @@ namespace EpikV2.Items {
 		public static float GetColorValue(float value) {
 			return ((value - 173) / 82f);
 		}
+	}
+	public class CursedRarity : ModRarity {
+		public static string RarityName => "Cursed";
+		public static byte RarityAnimationFrames => 5;
+		public static int ID { get; private set; }
+		public override Color RarityColor => Color.Lerp(Color.Purple, Color.Crimson, Parasitic_Accessory.GetColorValue(Main.mouseTextColor));
+		public override void SetStaticDefaults() {
+			ID = Type;
+		}
+		public override int GetPrefixedRarity(int offset, float valueMult) => Type;
 	}
 }

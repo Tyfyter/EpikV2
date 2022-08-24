@@ -17,7 +17,6 @@ namespace EpikV2.Items {
 			Tooltip.SetDefault("Increases magic damage by 30%\n10% increased magic weapon speed");
 			SacrificeTotal = 1;
 		}
-		public static System.Diagnostics.Stopwatch sw;
 		public override void UpdateEquip(Player player) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			epikPlayer.manaAdictionEquipped = true;

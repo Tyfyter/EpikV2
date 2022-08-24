@@ -7,4 +7,3 @@ displayName = EpikV2
 buildIgnore = Unused\*
 includeSource = true
 languageVersion = 6
-sortAfter = RecipeBrowser
