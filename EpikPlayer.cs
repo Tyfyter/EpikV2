@@ -117,11 +117,11 @@ namespace EpikV2 {
             moonlightThreads = 0;
             if(sacrifice>0) {
                 sacrifice--;
-                if(sacrifice==0&&Main.rand.NextBool(5)&&EpikWorld.Sacrifices.Count>0) {
+                if(sacrifice==0 && Main.rand.NextBool(5) && EpikWorld.Sacrifices.Count>0) {
                     int i = Main.rand.Next(EpikWorld.Sacrifices.Count);
                     EpikWorld.Sacrifices.RemoveAt(i);
-                    for(i = 0; i < 4; i++)Dust.NewDust(Player.position,Player.width, Player.height, DustID.Cloud, Alpha:100, newColor:new Color(255,150,150));
-                    Main.NewText("beep:"+EpikWorld.Sacrifices.Count);
+                    for(i = 0; i < 16; i++)Dust.NewDust(Player.itemLocation, 0, 0, DustID.Cloud, Alpha:100, newColor:new Color(255,200,200));
+                    //Main.NewText("beep:"+EpikWorld.Sacrifices.Count);
                 }
             }
             if (redStar) {

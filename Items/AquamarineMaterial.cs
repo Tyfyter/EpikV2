@@ -189,6 +189,7 @@ namespace EpikV2.Items {
 		public override bool CanResearch() => false;
 	}
 	public class Sacrificial_Dagger : ModItem {
+		Rectangle hitBox;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Sacrificial Dagger");
 			Tooltip.SetDefault("");
@@ -204,7 +205,7 @@ namespace EpikV2.Items {
 			Item.scale = 0.8f;
 		}
 		public override bool? CanHitNPC(Player player, NPC target) {
-			return true;
+			return target.Hitbox.Intersects(hitBox);
 		}
 		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit) {
 			if(target.life<1&&(target.townNPC||target.type==NPCID.CultistDevote||target.type==NPCID.CultistArcherBlue||target.type==NPCID.CultistArcherWhite)) {
@@ -232,6 +233,7 @@ namespace EpikV2.Items {
 			}else if(player.itemAnimation<8) {
 				player.itemAnimation = --player.reuseDelay<1?0:8;
 			}
+			hitBox = hitbox;
 		}
 	}
 	public class GolemDeath : ModItem {
