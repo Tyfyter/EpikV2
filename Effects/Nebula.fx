@@ -47,10 +47,10 @@ float2 RectClamp(float2 val, float4 bounds){
 float4 Nebula(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) :COLOR0{
 	float pi = 3.14159265359;
 	float4 color = sampleColor;
-	if(uDirection<0){
-		coords.x = 1-coords.x;
+	float2 absoluteCoords = (uImageSize0 * coords * 2) + uWorldPosition;
+	if (uDirection < 0) {
+		coords.x = 1 - coords.x;
 	}
-	float2 absoluteCoords = (uImageSize0*coords*2)+uWorldPosition;
 	float4 starColor = tex2D(uImage1, (absoluteCoords%uImageSize1)/uImageSize1);
 	float star = starColor.b;
 	float2 off = float2(starColor.g*cos(starColor.r*pi), starColor.g*sin(starColor.r*pi))*3;
@@ -64,8 +64,8 @@ float4 Nebula(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) :COLOR0{
 	return color;
 }
 
-technique Technique1{
-	pass Nebula{
+technique Technique1 {
+	pass Nebula {
 		PixelShader = compile ps_2_0 Nebula();
 	}
 }

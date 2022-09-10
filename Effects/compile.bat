@@ -1,3 +1,3 @@
 @echo off
-fxcompiler.exe>log.log
+EasyXnb.exe>log.log
 log.log

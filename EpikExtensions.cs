@@ -237,6 +237,17 @@ namespace EpikV2 {
             Vector2 dimensions = (Vector2.Max(a, b) + buffer) - position;
             return new Rectangle((int)position.X, (int)position.Y, (int)dimensions.X, (int)dimensions.Y);
         }
+        public static Rectangle BoxOf(Vector2 buffer, params Vector2[] vectors) {
+            Vector2 min = new(float.PositiveInfinity);
+            Vector2 max = new(float.NegativeInfinity);
+			for (int i = 0; i < vectors.Length; i++) {
+                min = Vector2.Min(min, vectors[i]);
+                max = Vector2.Max(max, vectors[i]);
+            }
+			Vector2 position = min - buffer;
+			Vector2 dimensions = max + buffer - position;
+			return new Rectangle((int)position.X, (int)position.Y, (int)dimensions.X, (int)dimensions.Y);
+        }
         public static bool CanBeHitBy(this NPC npc, Player player, Item item, bool checkImmortal = true) {
             if (!npc.active || (checkImmortal && npc.immortal) || npc.dontTakeDamage) {
                 return false;

@@ -20,9 +20,9 @@ namespace EpikV2 {
         public static ShaderCache Shaders { get; internal set; }
         public class TextureCache {
             public TextureCache() {
-                pixelTexture = Request<Texture2D>("EpikV2/Textures/Pixel").Value;
-                distTestTexture0 = Request<Texture2D>("EpikV2/Textures/40x40").Value;
-                distTestTexture1 = Request<Texture2D>("EpikV2/Textures/40x40Dist").Value;
+                pixelTexture = Request<Texture2D>("EpikV2/Textures/Pixel");
+                distTestTexture0 = Request<Texture2D>("EpikV2/Textures/40x40");
+                distTestTexture1 = Request<Texture2D>("EpikV2/Textures/40x40Dist");
                 ExtraHeadTextures = new List<ExtraTexture> {
                     new ExtraTexture(Request<Texture2D>("EpikV2/Items/Machiavellian_Masquerade_Head_Overlay").Value,
                         GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveGoldDye)),
@@ -41,10 +41,10 @@ namespace EpikV2 {
             }
             public List<ExtraTexture> ExtraHeadTextures { get; private set; }
             public List<ExtraTexture> ExtraNeckTextures { get; private set; }
-            public Texture2D pixelTexture;
-            public Texture2D distTestTexture0;
-            public Texture2D distTestTexture1;
-            public Texture2D BreakpointGlow;
+            public AutoCastingAsset<Texture2D> pixelTexture;
+            public AutoCastingAsset<Texture2D> distTestTexture0;
+            public AutoCastingAsset<Texture2D> distTestTexture1;
+            public AutoCastingAsset<Texture2D> BreakpointGlow;
             Asset<Texture2D> breakpointArrowGlow;
             public AutoCastingAsset<Texture2D> BreakpointArrowGlow => breakpointArrowGlow??(breakpointArrowGlow = Request<Texture2D>("EpikV2/Items/Breakpoint_Arrow_Glowmask"));
         }
@@ -82,6 +82,10 @@ namespace EpikV2 {
                 nebulaShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Nebula", AssetRequestMode.ImmediateLoad).Value), "Nebula");
                 nebulaDistortionTexture = mod.Assets.Request<Texture2D>("Textures/Starry_Noise", AssetRequestMode.ImmediateLoad);
                 nebulaShader.UseNonVanillaImage(nebulaDistortionTexture);
+
+                hydraNeckShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/HydraNeck", AssetRequestMode.ImmediateLoad).Value), "HydraNeck");
+                hydraNeckShader.UseNonVanillaImage(nebulaDistortionTexture);
+                GameShaders.Armor.BindShader(ItemType<Mobile_Glitch_Present>(), hydraNeckShader);
 
                 retroShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", AssetRequestMode.ImmediateLoad).Value), "Retro");
                 retroShader.UseOpacity(0.75f);
@@ -168,6 +172,7 @@ namespace EpikV2 {
             public ArmorShaderData dimStarlightShader;
             public ArmorShaderData brightStarlightShader;
             public ArmorShaderData nebulaShader;
+            public ArmorShaderData hydraNeckShader;
             public ArmorShaderData retroShader;
             public ArmorShaderData retroShaderRed;
             public ArmorShaderData distortMiscShader;

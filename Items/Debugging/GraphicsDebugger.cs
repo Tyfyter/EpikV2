@@ -12,7 +12,7 @@ using static EpikV2.Resources;
 
 namespace EpikV2.Items.Debugging {
 
-    public class GraphicsDebugger : ModItem {
+    public class GraphicsDebugger : ModItem, ICustomDrawItem {
         float f = 0f;
         double h = 0;
         public override string Texture => "EpikV2/Items/Suppressor_Handle";
@@ -45,16 +45,16 @@ namespace EpikV2.Items.Debugging {
             }
             return false;
 		}
-        /*public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Color lightColor, Vector2 drawOrigin) {
+        public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Color lightColor, Vector2 drawOrigin) {
             DrawData value = new DrawData(Textures.distTestTexture0, Main.MouseScreen, null, Color.White, 0, new Vector2(20, 20), 2f, SpriteEffects.None, 0);
             Shaders.distortMiscShader.Shader.Parameters["uOffset"].SetValue(new Vector2(0.5f));
-            Shaders.distortMiscShader.UseColor(new Vector3((float)(Math.Sin(f)*0.5) + 0.5f, (float)(Math.Cos(f) * 0.5) + 0.5f, 1f));//
-            f += 0.04f;
+            Shaders.distortMiscShader.UseColor(new Vector3(1, 1, (float)(Math.Sin(f) * 0.5) + 0.5f));//(new Vector3((float)(Math.Sin(f)*0.5) + 0.5f, (float)(Math.Cos(f) * 0.5) + 0.5f, 1f));//
+            f += 0.01f;
             if (Math.Sin(f)<h) {
                 h = Math.Sin(f);
             }
             value.shader = EpikV2.distortShaderID;
             drawInfo.DrawDataCache.Add(value);
-        }*/
+        }
     }
 }

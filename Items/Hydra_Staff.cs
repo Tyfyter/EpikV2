@@ -11,8 +11,9 @@ using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
 //using Origins.Projectiles;
 using static EpikV2.Resources;
+using Terraria.Graphics;
+using System.Collections.Generic;
 
-#pragma warning disable 672
 namespace EpikV2.Items {
     public class Hydra_Staff : ModItem {
         public static int ID { get; internal set; } = -1;
@@ -30,6 +31,7 @@ namespace EpikV2.Items {
             Item.dye = dye;
             Item.damage = 80;
             Item.knockBack = 3f;
+            Item.useAnimation = Item.useTime = 100;
             Item.shoot = Hydra_Nebula.ID;
             Item.buffType = Hydra_Buff.ID;
 		}
@@ -41,9 +43,12 @@ namespace EpikV2.Items {
             recipe.Register();
         }
         public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
-            damage = damage.MultiplyBonuses(2.5f);
+            damage = damage.Scale(2.5f);
         }
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
+		public override float UseSpeedMultiplier(Player player) {
+			return 2.8f;
+		}
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
             player.AddBuff(Item.buffType, 2);
             position = Main.MouseWorld;
             Projectile.NewProjectile(source, position, Vector2.Zero, Hydra_Nebula.ID, damage, knockBack, player.whoAmI, ai1:player.itemAnimationMax);
@@ -206,7 +211,7 @@ namespace EpikV2.Items {
                             // Additional check for this specific minion behavior, otherwise it will stop attacking once it dashed through an enemy while flying though tiles afterwards
                             // The number depends on various parameters seen in the movement code below. Test different ones out until it works alright
                             bool closeThroughWall = between < 100f;
-                            if(((closest && inRange) || !foundTarget) && (lineOfSight || closeThroughWall)) {
+                            if(((closest || !foundTarget) && inRange) && (lineOfSight || closeThroughWall)) {
                                 distanceFromTarget = between;
                                 targetCenter = npc.Center;
                                 target = npc.whoAmI;
@@ -292,27 +297,55 @@ namespace EpikV2.Items {
             Color color = new Color(255,255,255,100);
             SpriteEffects spriteEffects = (Math.Cos(rotation)>0 ? SpriteEffects.None : SpriteEffects.FlipVertically);
             Vector2 off = Vector2.Zero;
-            if((spriteEffects&SpriteEffects.FlipVertically)!=SpriteEffects.None) {
+            Vector2 uOffset = new Vector2(-28, 0);
+            if ((spriteEffects&SpriteEffects.FlipVertically)!=SpriteEffects.None) {
                 j = -j;
-                off = new Vector2(0,6).RotatedBy(rotation);
+                off = new Vector2(0, 6).RotatedBy(rotation);
                 spriteEffects ^= SpriteEffects.FlipHorizontally;
+                uOffset = new Vector2(10.5f, 0);
             }
-            Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.nebulaShader.Shader);
-            Main.graphics.GraphicsDevice.Textures[1] = Shaders.nebulaDistortionTexture.Value;
-            EffectParameterCollection parameters = Shaders.nebulaShader.Shader.Parameters;
-            parameters["uImageSize1"].SetValue(new Vector2(300));
-            parameters["uImageSize0"].SetValue(new Vector2(16,16));
-            parameters["uSourceRect"].SetValue(new Vector4(0,0,16,16));
-            DrawData data;
+            bool flip = spriteEffects == SpriteEffects.None;
 
             Vector2 bendTarg = idlePosition;
             Vector2 startPos = player.Top + new Vector2(-12 * player.direction, 12);
             Vector2 drawPos = startPos;
             Vector2 drawVel = Vector2.Zero;
+
+            Main.EntitySpriteDraw(new DrawData(Textures.pixelTexture, startPos - Main.screenPosition, new Color(255, 0, 0, 0)));
+            Main.EntitySpriteDraw(new DrawData(Textures.pixelTexture, Projectile.Center - Main.screenPosition, new Color(0, 0, 255, 0)));
+            Main.EntitySpriteDraw(new DrawData(Textures.pixelTexture, Projectile.Center + new Vector2(0, 24) - Main.screenPosition, new Color(0, 255, 0, 0)));
+
+            Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.hydraNeckShader.Shader);
+            Main.graphics.GraphicsDevice.Textures[1] = Shaders.nebulaDistortionTexture.Value;
+            EffectParameterCollection parameters = Shaders.hydraNeckShader.Shader.Parameters;
+            parameters["uImageSize1"].SetValue(new Vector2(300));
+
+            Rectangle area = EpikExtensions.BoxOf(new Vector2(8), startPos, Projectile.Center, Projectile.Center + new Vector2(0, 24));
+            parameters["pointA"].SetValue(startPos);
+            parameters["pointB"].SetValue(Projectile.Center + new Vector2(0, 24));
+            parameters["pointC"].SetValue(Projectile.Center);
+            parameters["uWorldPosition"].SetValue(area.TopLeft());
+            parameters["uScale"].SetValue(Projectile.scale);
+            parameters["uOffset"].SetValue(uOffset);
+            parameters["uImageSize0"].SetValue(area.Size());
+            area.Offset((-Main.screenPosition).ToPoint());
+            Main.EntitySpriteDraw(new DrawData(Textures.pixelTexture, area, new Color(0, 6, 31)));
+
+            Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.nebulaShader.Shader);
+            //Main.graphics.GraphicsDevice.Textures[1] = Shaders.nebulaDistortionTexture.Value;
+            Main.graphics.GraphicsDevice.VertexSamplerStates[0] = SamplerState.AnisotropicClamp;
+            parameters = Shaders.nebulaShader.Shader.Parameters;
+            parameters["uImageSize1"].SetValue(new Vector2(300));
+            parameters["uImageSize0"].SetValue(new Vector2(16,16));
+            parameters["uSourceRect"].SetValue(new Vector4(0,0,16,16));
+            DrawData data;
+
+            List<Vector2> points = new();
             for(int i = 16; i > 0; i--) {
                 data = new DrawData(neckTexture, drawPos - Main.screenPosition, new Rectangle(0, 0, 16, 16), color, rotation, new Vector2(8, 8), Projectile.scale, SpriteEffects.None, 0);
                 parameters["uWorldPosition"].SetValue(drawPos);
-                Main.EntitySpriteDraw(data);
+                //Main.EntitySpriteDraw(data);
+                points.Add(drawPos);
                 drawVel = (bendTarg - drawPos).WithMaxLength(8).RotatedBy((player.direction*0.5f*MathHelper.Clamp((Projectile.Center-startPos).Y, -1, 1))+0.05f);
                 drawPos += drawVel;
                 if((bendTarg - drawPos).Length()<4) break;
@@ -324,10 +357,11 @@ namespace EpikV2.Items {
             diff.Normalize();
             bool br = false;
             //for(diff.Normalize(); d > 0; d--) {
-            while((Projectile.Center - drawPos).Length()>4){
+            while((Projectile.Center - drawPos).Length() > 4){
                 data = new DrawData(neckTexture, drawPos - Main.screenPosition, new Rectangle(0, 0, 16, 16), color, 0, new Vector2(8, 8), Projectile.scale, SpriteEffects.None, 0);
                 parameters["uWorldPosition"].SetValue(drawPos);
-                Main.EntitySpriteDraw(data);
+                //Main.EntitySpriteDraw(data);
+                points.Add(drawPos);
                 diff = (Projectile.Center - drawPos);
                 drawVel = Vector2.Lerp(drawVel, diff.SafeNormalize(Vector2.Zero)*8, 0.5f);
                 if(drawVel.Length()>diff.Length()) {
@@ -342,14 +376,16 @@ namespace EpikV2.Items {
             //}
 
             parameters["uImageSize0"].SetValue(new Vector2(62,28));
-            parameters["uWorldPosition"].SetValue(Projectile.Center);
+            parameters["uWorldPosition"].SetValue(Projectile.Center - new Vector2(flip ? -50 : 32, flip ? 22 : 16));
             parameters["uSourceRect"].SetValue(new Vector4(0,0,62,28));
-            parameters["uDirection"].SetValue(spriteEffects == SpriteEffects.None?1:-1);
+            parameters["uDirection"].SetValue(flip ? 1 : -1);
 
-            data = new DrawData(topJawTexture, Projectile.Center - Main.screenPosition+off, new Rectangle(0, 0, 62, 28), color, rotation-j, new Vector2(32,20), new Vector2(Projectile.scale), spriteEffects, 0);
+            //default(Hydra_Neck_Drawer).Draw(points.ToArray());
+
+            data = new DrawData(topJawTexture, Projectile.Center + off - Main.screenPosition, new Rectangle(0, 0, 62, 28), color, rotation-j, new Vector2(32,20), new Vector2(Projectile.scale), spriteEffects, 0);
             //data.shader = 87;
             Main.EntitySpriteDraw(data);
-            data = new DrawData(bottomJawTexture, Projectile.Center - Main.screenPosition+off, new Rectangle(0, 0, 62, 28), color, rotation + j, new Vector2(32, 20), Projectile.scale, spriteEffects, 0);
+            data = new DrawData(bottomJawTexture, Projectile.Center + off - Main.screenPosition, new Rectangle(0, 0, 62, 28), color, rotation + j, new Vector2(32, 20), Projectile.scale, spriteEffects, 0);
             //data.shader = EpikV2.nebulaShaderID;
             Main.EntitySpriteDraw(data);
 
@@ -358,5 +394,25 @@ namespace EpikV2.Items {
             //spriteBatch.Draw(bottomJawTexture, projectile.Center-Main.screenPosition, new Rectangle(0, 0, 62, 28), Color.White, rotation+j, new Vector2(32,20), projectile.scale, spriteEffects, 0f);
             return false;
         }
+    }
+    public struct Hydra_Neck_Drawer {
+        private static VertexStrip _vertexStrip = new VertexStrip();
+
+        public void Draw(Vector2[] positions) {
+            //MiscShaderData miscShaderData = GameShaders.Misc["MagicMissile"];
+            //miscShaderData.UseSaturation(-2f);
+            Shaders.nebulaShader.Apply();
+            float[] rotations = new float[positions.Length];
+            for (int i = 1; i < positions.Length; i++) {
+                rotations[i] = (positions[i - 1] - positions[i]).ToRotation();
+
+            }
+            //rotations[^1] = rotations[^2];
+            Main.graphics.GraphicsDevice.Textures[0] = Textures.pixelTexture;
+            _vertexStrip.PrepareStrip(positions, rotations, (_) => new Color(0, 6, 31), (_) => 3f, -Main.screenPosition);
+            _vertexStrip.DrawTrail();
+            Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+        }
+
     }
 }
