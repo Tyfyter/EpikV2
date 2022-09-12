@@ -355,15 +355,6 @@ namespace EpikV2.Items {
 		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
 			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
-			Player player = Main.player[Projectile.owner];
-			target.AddBuff(Biome_Key_Desert_Buff.ID, 600);
-			int frozenIndex = target.FindBuffIndex(Biome_Key_Frozen_Buff.ID);
-			if (frozenIndex > -1) {
-				target.buffTime[frozenIndex] = 600;
-			}
-			if (target.life > 0) player.MinionAttackTargetNPC = target.whoAmI;
-		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
 			Vector2 vel = Projectile.velocity;
@@ -1450,8 +1441,7 @@ namespace EpikV2.Items {
 			if (desertIndex > -1) {
 				target.buffTime[desertIndex] = 600;
 			}
-			if (target.life > 0) player.MinionAttackTargetNPC = target.whoAmI;
-			
+			if (target.life > 0 && target.CanBeChasedBy()) player.MinionAttackTargetNPC = target.whoAmI;
 		}
 		public override void CutTiles() {
 			DelegateMethods.tilecut_0 = TileCuttingContext.AttackProjectile;
@@ -1626,7 +1616,7 @@ namespace EpikV2.Items {
 			if (frozenIndex > -1) {
 				target.buffTime[frozenIndex] = 600;
 			}
-			if (target.life > 0) player.MinionAttackTargetNPC = target.whoAmI;
+			if (target.life > 0 && target.CanBeChasedBy()) player.MinionAttackTargetNPC = target.whoAmI;
 			target.immune[Projectile.owner] = 0;
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
@@ -1690,7 +1680,7 @@ namespace EpikV2.Items {
 			if (frozenIndex > -1) {
 				target.buffTime[frozenIndex] = 600;
 			}
-			if (target.life > 0) Main.player[Projectile.owner].MinionAttackTargetNPC = target.whoAmI;
+			if (target.life > 0 && target.CanBeChasedBy()) Main.player[Projectile.owner].MinionAttackTargetNPC = target.whoAmI;
 			
 			ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.Keybrand, new ParticleOrchestraSettings {
 				PositionInWorld = target.Hitbox.ClosestPointInRect(Projectile.Center)

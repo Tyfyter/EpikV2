@@ -306,14 +306,7 @@ namespace EpikV2.Items {
             }
             bool flip = spriteEffects == SpriteEffects.None;
 
-            Vector2 bendTarg = idlePosition;
             Vector2 startPos = player.Top + new Vector2(-12 * player.direction, 12);
-            Vector2 drawPos = startPos;
-            Vector2 drawVel = Vector2.Zero;
-
-            Main.EntitySpriteDraw(new DrawData(Textures.pixelTexture, startPos - Main.screenPosition, new Color(255, 0, 0, 0)));
-            Main.EntitySpriteDraw(new DrawData(Textures.pixelTexture, Projectile.Center - Main.screenPosition, new Color(0, 0, 255, 0)));
-            Main.EntitySpriteDraw(new DrawData(Textures.pixelTexture, Projectile.Center + new Vector2(0, 24) - Main.screenPosition, new Color(0, 255, 0, 0)));
 
             Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.hydraNeckShader.Shader);
             Main.graphics.GraphicsDevice.Textures[1] = Shaders.nebulaDistortionTexture.Value;
@@ -338,49 +331,13 @@ namespace EpikV2.Items {
             parameters["uImageSize1"].SetValue(new Vector2(300));
             parameters["uImageSize0"].SetValue(new Vector2(16,16));
             parameters["uSourceRect"].SetValue(new Vector4(0,0,16,16));
-            DrawData data;
-
-            List<Vector2> points = new();
-            for(int i = 16; i > 0; i--) {
-                data = new DrawData(neckTexture, drawPos - Main.screenPosition, new Rectangle(0, 0, 16, 16), color, rotation, new Vector2(8, 8), Projectile.scale, SpriteEffects.None, 0);
-                parameters["uWorldPosition"].SetValue(drawPos);
-                //Main.EntitySpriteDraw(data);
-                points.Add(drawPos);
-                drawVel = (bendTarg - drawPos).WithMaxLength(8).RotatedBy((player.direction*0.5f*MathHelper.Clamp((Projectile.Center-startPos).Y, -1, 1))+0.05f);
-                drawPos += drawVel;
-                if((bendTarg - drawPos).Length()<4) break;
-                bendTarg = Vector2.Lerp(idlePosition, Projectile.Center+off, 0.2f);
-            }
-            Vector2 diff = Projectile.Center - drawPos;
-            float diffDir = diff.ToRotation();
-            float velDir = drawVel.ToRotation();
-            diff.Normalize();
-            bool br = false;
-            //for(diff.Normalize(); d > 0; d--) {
-            while((Projectile.Center - drawPos).Length() > 4){
-                data = new DrawData(neckTexture, drawPos - Main.screenPosition, new Rectangle(0, 0, 16, 16), color, 0, new Vector2(8, 8), Projectile.scale, SpriteEffects.None, 0);
-                parameters["uWorldPosition"].SetValue(drawPos);
-                //Main.EntitySpriteDraw(data);
-                points.Add(drawPos);
-                diff = (Projectile.Center - drawPos);
-                drawVel = Vector2.Lerp(drawVel, diff.SafeNormalize(Vector2.Zero)*8, 0.5f);
-                if(drawVel.Length()>diff.Length()) {
-                    if(br)break;
-                    drawVel.Normalize();
-                    drawVel *= diff.Length()/2;
-                    br = true;
-                }
-                drawPos += drawVel;//= Vector2.Lerp(diff*8, drawVel, 0.25f*d);
-                //--d;
-            }
-            //}
 
             parameters["uImageSize0"].SetValue(new Vector2(62,28));
             parameters["uWorldPosition"].SetValue(Projectile.Center - new Vector2(flip ? -50 : 32, flip ? 22 : 16));
             parameters["uSourceRect"].SetValue(new Vector4(0,0,62,28));
             parameters["uDirection"].SetValue(flip ? 1 : -1);
 
-            //default(Hydra_Neck_Drawer).Draw(points.ToArray());
+            DrawData data;
 
             data = new DrawData(topJawTexture, Projectile.Center + off - Main.screenPosition, new Rectangle(0, 0, 62, 28), color, rotation-j, new Vector2(32,20), new Vector2(Projectile.scale), spriteEffects, 0);
             //data.shader = 87;
@@ -394,25 +351,5 @@ namespace EpikV2.Items {
             //spriteBatch.Draw(bottomJawTexture, projectile.Center-Main.screenPosition, new Rectangle(0, 0, 62, 28), Color.White, rotation+j, new Vector2(32,20), projectile.scale, spriteEffects, 0f);
             return false;
         }
-    }
-    public struct Hydra_Neck_Drawer {
-        private static VertexStrip _vertexStrip = new VertexStrip();
-
-        public void Draw(Vector2[] positions) {
-            //MiscShaderData miscShaderData = GameShaders.Misc["MagicMissile"];
-            //miscShaderData.UseSaturation(-2f);
-            Shaders.nebulaShader.Apply();
-            float[] rotations = new float[positions.Length];
-            for (int i = 1; i < positions.Length; i++) {
-                rotations[i] = (positions[i - 1] - positions[i]).ToRotation();
-
-            }
-            //rotations[^1] = rotations[^2];
-            Main.graphics.GraphicsDevice.Textures[0] = Textures.pixelTexture;
-            _vertexStrip.PrepareStrip(positions, rotations, (_) => new Color(0, 6, 31), (_) => 3f, -Main.screenPosition);
-            _vertexStrip.DrawTrail();
-            Main.pixelShader.CurrentTechnique.Passes[0].Apply();
-        }
-
     }
 }

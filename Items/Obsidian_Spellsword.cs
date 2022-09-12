@@ -214,10 +214,6 @@ namespace EpikV2.Items {
 				//SoundEngine.PlaySound(SoundID.AbigailSummon.WithPitch(1), points[points.Count - 1]);
 			}
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
-			target.GetGlobalNPC<EpikGlobalNPC>().SetJadeWhipValues(300, damage / 10, Projectile.CritChance);
-			if(target.life > 0)Main.player[Projectile.owner].MinionAttackTargetNPC = target.whoAmI;
-		}
 
 		public override bool PreDraw(ref Color lightColor) {
 			List<Vector2> list = new List<Vector2>();

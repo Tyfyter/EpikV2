@@ -116,7 +116,7 @@ namespace EpikV2.Items {
 		}
 		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
 			target.GetGlobalNPC<EpikGlobalNPC>().SetJadeWhipValues(300, damage / 10, Projectile.CritChance);
-			if(target.life > 0)Main.player[Projectile.owner].MinionAttackTargetNPC = target.whoAmI;
+			if(target.life > 0 && target.CanBeChasedBy()) Main.player[Projectile.owner].MinionAttackTargetNPC = target.whoAmI;
 		}
 
 		// This method draws a line between all points of the whip, in case there's empty space between the sprites.
