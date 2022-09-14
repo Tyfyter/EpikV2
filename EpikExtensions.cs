@@ -772,6 +772,15 @@ namespace EpikV2 {
             }
             return (int)value;
         }
+        public static int RollLuckInverted(this Player player, int range) {
+            if (player.luck > 0f && Main.rand.NextFloat() < player.luck) {
+                return Main.rand.Next(Main.rand.Next(range, range * 2));
+            }
+            if (player.luck < 0f && Main.rand.NextFloat() < 0f - player.luck) {
+                return Main.rand.Next(Main.rand.Next(range / 2, range));
+            }
+            return Main.rand.Next(range);
+        }
         public static T Pop<T>(this WeightedRandom<T> random) {
             double _totalWeight = 0.0;
             foreach (Tuple<T, double> element in random.elements) {

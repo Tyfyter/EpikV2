@@ -142,22 +142,23 @@ namespace EpikV2 {
 				int oldType = ItemID.Keybrand;
 				int keyType = ItemID.GoldenKey;
 				for (int i = 0; i < 58; i++) {
-					if (self.inventory[i].type == ItemID.Keybrand) {
+					Item item = self.inventory[i];
+					if (item.type == ItemID.Keybrand) {
 						oldType = ItemID.Keybrand;
-						if (self.inventory[i].prefix == 0) {
-							self.inventory[i].prefix = -4;
+						if (item.prefix == 0) {
+							item.prefix = -4;
 						}
-						self.inventory[i].type = keyType = ItemID.GoldenKey;
+						item.type = keyType = ItemID.GoldenKey;
 						break;
-					}else if (self.inventory[i].ModItem is Biome_Key) {
-						oldType = self.inventory[i].type;
+					} else if (item.ModItem is Biome_Key) {
+						oldType = item.type;
 						for (int keyIndex = 0; keyIndex < Biome_Key.Biome_Keys.Count; keyIndex++) {
 							Biome_Key_Data current = Biome_Key.Biome_Keys[keyIndex];
 							if (Main.tile[x, y].TileType == current.TileID && (Main.tile[x, y].TileFrameX / 36) == (current.TileFrameX / 36)) {
-								if (self.inventory[i].prefix == 0) {
-									self.inventory[i].prefix = -4;
+								if (item.prefix == 0) {
+									item.prefix = -4;
 								}
-								self.inventory[i].type = keyType = current.KeyID;
+								item.type = keyType = current.KeyID;
 							}
 						}
 						break;
@@ -165,10 +166,19 @@ namespace EpikV2 {
 				}
 				orig(self, x, y);
 				for (int i = 0; i < 58; i++) {
-					if (self.inventory[i].type == keyType && self.inventory[i].prefix != 0) {
-						self.inventory[i].type = oldType;
-						if (self.inventory[i].prefix == -4) {
-							self.inventory[i].prefix = 0;
+					Item item = self.inventory[i];
+					if (item.type == keyType && item.prefix != 0) {
+						item.type = oldType;
+						if (item.prefix == -4) {
+							item.prefix = 0;
+						}
+						if (item.type >= ItemID.Count && item.ModItem is null) {
+							int netID = item.netID;
+							int prefix = item.prefix;
+							item.SetDefaults(item.type);
+							item.netID = netID;
+							item.prefix = prefix;
+							item.useStyle = ItemUseStyleID.None;
 						}
 						break;
 					}
@@ -484,6 +494,14 @@ public static float ShimmerCalc(float val) {
 		[Label("Ancient Presents")]
 		[DefaultValue(true)]
 		public bool AncientPresents = true;
+
+		[Label("Remotely Balanced Ancient Presents")]
+		[DefaultValue(true)]
+		public bool BalancedAncientPresents = true;
+
+		[Label("Stronger Ancient Presents")]
+		[DefaultValue(false)]
+		public bool TooGoodAncientPresents = false;
 
 		[Label("Become a Constellation")]
 		[DefaultValue(false)]

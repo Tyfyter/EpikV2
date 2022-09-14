@@ -18,6 +18,7 @@ namespace EpikV2.Layers {
 		}
 		public override Position GetDefaultPosition() => new Between(PlayerDrawLayers.HeldItem, PlayerDrawLayers.ArmOverItem);
 		protected override void Draw(ref PlayerDrawSet drawInfo) {
+            if (!drawInfo.drawPlayer.ItemAnimationActive) return;
 			switch (drawInfo.drawPlayer.HeldItem.useStyle) {
                 case ItemUseStyleID.Swing:
                 DrawSwing(ref drawInfo);

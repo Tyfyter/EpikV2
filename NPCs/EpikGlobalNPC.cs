@@ -391,19 +391,19 @@ namespace EpikV2.NPCs
                 break;
 
                 case NPCID.PresentMimic:
-                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Mobile_Glitch_Present>(), 20));
+                npcLoot.Add(ItemDropRule.ByCondition(new MobilePresentCondition(), ModContent.ItemType<Mobile_Glitch_Present>(), 20));
                 break;
                 case NPCID.SlimeRibbonGreen:
-                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Mobile_Glitch_Present>(), 20));
+                npcLoot.Add(ItemDropRule.ByCondition(new MobilePresentCondition(), ModContent.ItemType<Mobile_Glitch_Present>(), 20));
                 break;
                 case NPCID.SlimeRibbonRed:
-                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Mobile_Glitch_Present>(), 30));
+                npcLoot.Add(ItemDropRule.ByCondition(new MobilePresentCondition(), ModContent.ItemType<Mobile_Glitch_Present>(), 30));
                 break;
                 case NPCID.SlimeRibbonWhite:
-                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Mobile_Glitch_Present>(), 40));
+                npcLoot.Add(ItemDropRule.ByCondition(new MobilePresentCondition(), ModContent.ItemType<Mobile_Glitch_Present>(), 40));
                 break;
                 case NPCID.SlimeRibbonYellow:
-                npcLoot.Add(ItemDropRule.Common(ModContent.ItemType<Mobile_Glitch_Present>(), 50));
+                npcLoot.Add(ItemDropRule.ByCondition(new MobilePresentCondition(), ModContent.ItemType<Mobile_Glitch_Present>(), 50));
                 break;
             }
 		}
@@ -564,17 +564,17 @@ namespace EpikV2.NPCs
     }
     public class MobilePresentCondition : IItemDropRuleCondition {
         public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents;
-        public bool CanShowItemDropInUI() => true;
+        public bool CanShowItemDropInUI() => EpikConfig.Instance.AncientPresents;
         public string GetConditionDescription() => "";
     }
     public class MobilePresentXmasCondition : IItemDropRuleCondition {
-        public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents;
-        public bool CanShowItemDropInUI() => true;
-        public string GetConditionDescription() => "";
+        public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents && !Main.snowMoon && Main.xMas;
+        public bool CanShowItemDropInUI() => EpikConfig.Instance.AncientPresents && !Main.snowMoon && Main.xMas;
+        public string GetConditionDescription() => "During Christmas";
     }
     public class MobilePresentFrostMoonCondition : IItemDropRuleCondition {
-        public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents;
-        public bool CanShowItemDropInUI() => true;
-        public string GetConditionDescription() => "";
+        public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents && Main.snowMoon;
+        public bool CanShowItemDropInUI() => EpikConfig.Instance.AncientPresents && Main.snowMoon;
+        public string GetConditionDescription() => "During the frost moon";
     }
 }

@@ -99,6 +99,9 @@ namespace EpikV2.Items {
 				});
 			}
 		}
+		public override void PostReforge(Item item) {
+			if (item.netID == ItemID.GoldenKey) item.netID = item.type = ItemID.Keybrand;
+		}
 		public override void OnHitNPC(Item item, Player player, NPC target, int damage, float knockBack, bool crit) {
 			if (PrefixLoader.GetPrefix(item.prefix) is IMeleeHitPrefix meleeHitPrefix) {
 				meleeHitPrefix.OnMeleeHitNPC(player, item, target, damage, knockBack, crit);
