@@ -32,6 +32,9 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults(Item item) {
 			RefreshCatgirlMeme(item);
+			if (EpikConfig.Instance.EveryNon14Vers) {
+				item.canBePlacedInVanityRegardlessOfConditions = true;
+			}
 		}
 		public void InitCatgirlMeme(Item item) {
 			if (item.type == ItemID.CatEars && nOwO is null) {

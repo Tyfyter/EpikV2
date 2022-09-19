@@ -518,6 +518,10 @@ public static float ShimmerCalc(float val) {
 		[Label("Boundless Luck")]
 		[DefaultValue(true)]
 		public bool RedLuck = true;
+
+		[Label("Equip Any Accessory in Vanity Slots")]
+		[DefaultValue(true)]
+		public bool EveryNon14Vers = true;
 	}
 	[Label("Client Settings")]
 	public class EpikClientConfig : ModConfig {
