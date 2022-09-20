@@ -521,7 +521,7 @@ public static float ShimmerCalc(float val) {
 
 		[Label("Equip Any Accessory in Vanity Slots")]
 		[DefaultValue(true)]
-		public bool EveryNon14Vers = true;
+		public bool ThatFixFromNextUpdate = true;
 	}
 	[Label("Client Settings")]
 	public class EpikClientConfig : ModConfig {

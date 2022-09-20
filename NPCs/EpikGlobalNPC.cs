@@ -140,10 +140,62 @@ namespace EpikV2.NPCs
                     return false;
                 }
                 break;
+                case NPCID.IlluminantBat:
+                if (npc.ai[0] == 0) {
+                    if (npc.ai[1] >= 200) {
+                        npc.ai[3]++;
+                        if (Main.rand.Next(1, 5) < npc.ai[3]) {
+                            npc.ai[3] = 0;
+                            npc.ai[0] = 1;
+                            npc.netUpdate = true;
+							for (int i = (int)Math.Ceiling(npc.life / 20f); i-->0;) {
+                                NPC.NewNPCDirect(
+                                    npc.GetSource_FromAI(),
+                                    (int)npc.Center.X,
+                                    (int)npc.Center.Y,
+                                    NPCID.IlluminantBat,
+                                    ai0:-1,
+                                    ai3:npc.whoAmI
+                                ).velocity += new Vector2(6, 0).RotatedBy(Main.rand.NextFloat(TwoPi));
+							}
+                        }
+                    }
+                } else if (npc.ai[0] == 1) {
+                    npc.hide = true;
+                    npc.chaseable = false;
+                    if (++npc.ai[3] >= 200) {
+                        npc.ai[3] = 0;
+                        npc.ai[0] = 0;
+                        npc.hide = false;
+                        npc.chaseable = true;
+                        npc.netUpdate = true;
+                    }
+                } else if (npc.ai[0] == -1) {
+                    NPC parent = Main.npc[(int)npc.ai[3]];
+                    if (npc.realLife == -1) npc.netUpdate = true;
+                    npc.realLife = (int)npc.ai[3];
+                    npc.scale = 0.75f;
+                    npc.lifeMax = 20;
+                    npc.life = npc.lifeMax;
+                    npc.defense = 0;
+                    npc.velocity = Vector2.Lerp(npc.velocity, parent.Center - npc.Center, (float)Math.Pow(Clamp((parent.ai[3] - 175) / 25, 0.01f, 1), 2));
+                    npc.target = parent.target;
+                    if (parent.ai[3] > 175) {
+                        npc.noTileCollide = true;
+					}
+                    if (parent.ai[0] != 1 || !parent.active) {
+                        npc.active = false;
+					}
+                }
+                //if (npc.HasPlayerTarget) Main.player[npc.target].chatOverhead.NewMessage($"{npc.ai[0]}\n{npc.ai[1]}\n{npc.ai[2]}\n{npc.ai[3]}\n{npc.aiAction}\n                           ", 5);
+                break;
             }
             return true;
         }
-        public override void AI(NPC npc){
+		public override bool SpecialOnKill(NPC npc) {
+			return npc.type == NPCID.IlluminantBat && npc.ai[0] == -1;
+		}
+		public override void AI(NPC npc){
 			if(suppressorHits>0){
 				suppressorHits-=(float)Math.Ceiling(suppressorHits/5f)/(npc.wet?3f:5f);
 				//npc.StrikeNPC(SuppressorHits/(npc.coldDamage?10:5), 0, 0);
@@ -285,7 +337,6 @@ namespace EpikV2.NPCs
 			}
 		}
         public override void UpdateLifeRegen(NPC npc, ref int damage) {
-
 			if (celestialFlames) {
 				if (npc.lifeRegen > 0) {
 					npc.lifeRegen = 0;
@@ -323,6 +374,34 @@ namespace EpikV2.NPCs
                 }
             }
         }
+		public override bool StrikeNPC(NPC npc, ref double damage, int defense, ref float knockback, int hitDirection, ref bool crit) {
+			if (npc.type == NPCID.IlluminantBat && npc.ai[0] == -1) {
+                NPC parent = Main.npc[npc.realLife];
+                if (damage < 10 && npc.life > damage) {
+                    parent.life -= (int)damage;
+				} else {
+                    damage = npc.lifeMax;
+                    parent.life -= npc.lifeMax;
+                    parent.checkDead();
+                    npc.life = 0;
+                    npc.realLife = -1;
+                    npc.checkDead();
+                }
+				if (Main.netMode != NetmodeID.Server) {
+                    if (npc.life > 0) {
+                        for (int num336 = 0; num336 < damage / npc.lifeMax * 50.0; num336++) {
+                            Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.UndergroundHallowedEnemies, 0f, 0f, 200).velocity *= 1.5f;
+                        }
+                    } else {
+                        for (int num338 = 0; num338 < 50; num338++) {
+                            Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.UndergroundHallowedEnemies, hitDirection, 0f, 200).velocity *= 1.5f;
+                        }
+                    }
+                }
+                return false;
+            }
+            return true;
+		}
 		public override void DrawEffects(NPC npc, ref Color drawColor) {
 			if (celestialFlames) {
                 drawColor = drawColor.MultiplyRGBA(new Color(230, 240, 255, 100));
@@ -346,20 +425,18 @@ namespace EpikV2.NPCs
         }
         public override bool? CanHitNPC(NPC npc, NPC target){
             if(jaded || scorpioTime>0)return false;
+            if (npc.type == NPCID.IlluminantBat && npc.ai[0] == 1) return false;
             return base.CanHitNPC(npc, target);
         }
 
-        public override bool? CanBeHitByProjectile(NPC target, Projectile projectile)
-        {
-            if (target.type == NPCID.Bunny || target.type == NPCID.BunnySlimed || target.type == NPCID.BunnyXmas || target.type == NPCID.GoldBunny || target.type == NPCID.PartyBunny || target.type == NPCID.CorruptBunny || target.type == NPCID.CrimsonBunny)
-            {
-                return false;
-            }
+        public override bool? CanBeHitByProjectile(NPC target, Projectile projectile) {
+            if (target.type == NPCID.IlluminantBat && target.ai[0] == 1) return false;
             return base.CanBeHitByProjectile(target, projectile);
         }
 
 		public override bool CanHitPlayer(NPC npc, Player target, ref int cooldownSlot){
             if(jaded || scorpioTime>0)return false;
+            if (npc.type == NPCID.IlluminantBat && npc.ai[0] == 1) return false;
 			return base.CanHitPlayer(npc, target, ref cooldownSlot);
         }
         public override void SetBestiary(NPC npc, BestiaryDatabase database, BestiaryEntry bestiaryEntry) {
@@ -474,7 +551,7 @@ namespace EpikV2.NPCs
             }
         }
         public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor) {
-            if(jaded) {
+            if (jaded) {
                 npc.frame = freezeFrame;
                 Shaders.jadeShader.Parameters["uProgress"].SetValue(jadeFrames/(float)Math.Ceiling(Math.Sqrt((npc.frame.Width*npc.frame.Width)+(npc.frame.Height*npc.frame.Height))));
                 spriteBatch.Restart(SpriteSortMode.Immediate, effect:Shaders.jadeShader);

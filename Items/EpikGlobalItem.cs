@@ -22,7 +22,7 @@ namespace EpikV2.Items {
 			if (context is RecipeCreationContext) {
 				InitCatgirlMeme(item);
 			} else if(context is not InitializationContext) {
-				EpikV2.instance.Logger.Info("cat ears created in unknown context: "+context);
+				EpikV2.instance.Logger.Info("cat ears created in unknown context: " + context);
 			}
 		}
 		public override void OnSpawn(Item item, IEntitySource source) {
@@ -32,7 +32,7 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults(Item item) {
 			RefreshCatgirlMeme(item);
-			if (EpikConfig.Instance.EveryNon14Vers) {
+			if (EpikConfig.Instance.ThatFixFromNextUpdate) {
 				item.canBePlacedInVanityRegardlessOfConditions = true;
 			}
 		}
