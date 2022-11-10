@@ -109,6 +109,9 @@ namespace EpikV2 {
 			ChatManager.Register<CatgirlMemeHandler>(new string[]{
 				"herb"
 			});
+			ChatManager.Register<StrikethroughHandler>(new string[]{
+				"strike"
+			});
 			ModeSwitchHotkey = KeybindLoader.RegisterKeybind(this, "Change Item Mode", "Mouse5");
 
 			Detour.Player.SlopingCollision += EpikPlayer.SlopingCollision;
@@ -560,6 +563,16 @@ public static float ShimmerCalc(float val) {
 					);
 				}
 			}
+		}
+		public override void AddRecipes() {
+			Recipe recipe = Recipe.Create(ItemID.BottledWater);
+			recipe.AddIngredient(ItemID.Bottle);
+			recipe.AddCondition(new Recipe.Condition(
+				Terraria.Localization.NetworkText.FromLiteral("In rain"),
+				(_) => 
+				Main.LocalPlayer.GetModPlayer<EpikPlayer>().wetTime > 0
+			));
+			recipe.Register();
 		}
 		public override void PostAddRecipes(){
 			EpikIntegration.EnabledMods.CheckEnabled();

@@ -100,6 +100,10 @@ namespace EpikV2 {
         public bool imbueCursedInferno = false;
         public bool imbueIchor = false;
         public int? switchBackSlot = 0;
+        private int[] buffIndecies;
+        public int[] BuffIndecies => buffIndecies ??= BuffID.Sets.Factory.CreateIntSet(-1);
+        public int activeBuffs = 0;
+        private bool oldWet = false;
 
         public static BitsBytes ItemChecking;
 
@@ -381,8 +385,97 @@ namespace EpikV2 {
             }
             Player.statLifeMax2 -= (int)organRearrangement;
         }
-        //public static const rope_deb_412 = 0.1f;
-        public override void PreUpdateMovement() {
+		public override void PostUpdateBuffs() {
+            buffIndecies = BuffID.Sets.Factory.CreateIntSet(-1);
+            activeBuffs = 0;
+            for (int i = 0; i < Player.buffType.Length; i++) {
+                if (Player.buffTime[i] > 0) {
+                    buffIndecies[Player.buffType[i]] = i;
+                    activeBuffs++;
+                }
+            }
+		}
+		public override void PostUpdateMiscEffects() {
+			if (Player.wet) {
+                Player.AddBuff(BuffID.Wet, 600);
+			}
+            Player.AdjTiles();
+            bool adjCampfire = Player.adjTile[TileID.Campfire];
+            bool changeCampfire = adjCampfire != Player.oldAdjTile[TileID.Campfire];
+            bool changeWet = !Main.expertMode && (Player.wet || Player.dripping) != oldWet;
+            const float warmCoefficient = 0.5f;
+            const float wetCoefficient = 1.5f;
+            int buffsProcessed = 0;
+            for (int buffType = 0; buffType < buffIndecies.Length; buffType++) {
+                int buffIndex = buffIndecies[buffType];
+                if (buffIndex >= 0) {
+                    buffsProcessed++;
+                    float timeMult = 1f;
+                    switch (buffType) {
+                        case BuffID.Chilled:
+                        case BuffID.Frozen:
+                        case BuffID.Frostburn:
+                        case BuffID.Frostburn2:
+						if (changeCampfire) {
+							if (adjCampfire) {
+                                timeMult *= warmCoefficient;
+                            } else {
+                                timeMult /= warmCoefficient;
+                            }
+                        }
+                        if (changeWet) {
+                            if (oldWet) {
+                                timeMult /= wetCoefficient;
+                            } else {
+                                timeMult *= wetCoefficient;
+                            }
+                        }
+                        break;
+                    }
+                    Player.buffTime[buffIndex] = (int)(Player.buffTime[buffIndex] * timeMult);
+                }
+				if (buffsProcessed >= activeBuffs) {
+                    break;
+				}
+            }
+            oldWet = Player.wet || Player.dripping;
+            if (Player.dripping) {
+				if (!Player.wet && Main.rand.NextBool(4)) {
+                    Vector2 position = Player.position;
+                    position.X -= 2f;
+                    position.Y -= 2f;
+                    if (Main.rand.NextBool(2)) {
+                        Dust dust20 = Dust.NewDustDirect(position, Player.width + 4, Player.height + 2, DustID.Wet, 0f, 0f, 50, default(Color), 0.8f);
+                        if (Main.rand.NextBool(2)) {
+                            dust20.alpha += 25;
+                        }
+                        if (Main.rand.NextBool(2)) {
+                            dust20.alpha += 25;
+                        }
+                        dust20.noLight = true;
+                        dust20.velocity *= 0.2f;
+                        dust20.velocity.Y += 0.2f;
+                        dust20.velocity += Player.velocity;
+                    } else {
+                        Dust dust21 = Dust.NewDustDirect(position, Player.width + 8, Player.height + 8, DustID.Wet, 0f, 0f, 50, default(Color), 1.1f);
+                        if (Main.rand.NextBool(2)) {
+                            dust21.alpha += 25;
+                        }
+                        if (Main.rand.NextBool(2)) {
+                            dust21.alpha += 25;
+                        }
+                        dust21.noLight = true;
+                        dust21.noGravity = true;
+                        dust21.velocity *= 0.2f;
+                        dust21.velocity.Y += 1f;
+                        dust21.velocity += Player.velocity;
+                    }
+                }
+                Player.dripping = false;
+            }
+		}
+		//public static const rope_deb_412 = 0.1f;
+		public override void PreUpdateMovement() {
             if(ropeTarg >= 0) {//ropeVel.HasValue&&
                 Player.fallStart = (int)(Player.position.Y / 16f);
                 Projectile projectile = Main.projectile[ropeTarg];
@@ -591,55 +684,45 @@ namespace EpikV2 {
             return true;
         }
         public override void PostUpdateRunSpeeds() {
-            if(oily) {
-                //if(PlayerInput.Triggers.JustPressed.Jump)SayNetMode();
-                //Dust dust;
-                //dust = Main.dust[];
-                Dust.NewDust(Player.position, Player.width, Player.height, DustID.Water_Desert, 0f, 0f, 0, default, 1f);
-	            //dust.shader = GameShaders.Armor.GetSecondaryShader(3, Main.LocalPlayer);
-                bool wet = Player.wet;
-                Vector2 dist;
-                Rain rain;
-                if(Main.netMode!=NetmodeID.SinglePlayer||EpikWorld.Raining)for(int i = 0; i < Main.maxRain&&!wet; i++) {
-                    rain = Main.rain[i];
-                    if(rain.active) {
-                        dist = new Vector2(2, 40).RotatedBy(rain.rotation);
-                        Vector2 rainPos = new Vector2(rain.position.X,rain.position.Y)+new Vector2(Math.Min(dist.X,0),Math.Min(dist.Y,0));
-                        if(Player.Hitbox.Intersects(new Rectangle((int)rainPos.X, (int)rainPos.Y, (int)Math.Abs(dist.X),(int)Math.Abs(dist.Y)))) {
-                            wet = true;
-                            break;
-                        }
+            //if(PlayerInput.Triggers.JustPressed.Jump)SayNetMode();
+            //Dust dust;
+            //dust = Main.dust[];
+            if (oily) Dust.NewDust(Player.position, Player.width, Player.height, DustID.Water_Desert, 0f, 0f, 0, default, 1f);
+	        //dust.shader = GameShaders.Armor.GetSecondaryShader(3, Main.LocalPlayer);
+            bool wet = Player.wet;
+            Vector2 dist;
+            Rain rain;
+            if (Main.netMode!=NetmodeID.SinglePlayer||EpikWorld.Raining)for(int i = 0; i < Main.maxRain&&!wet; i++) {
+                rain = Main.rain[i];
+                if(rain.active) {
+                    dist = new Vector2(2, 40).RotatedBy(rain.rotation);
+                    Vector2 rainPos = new Vector2(rain.position.X,rain.position.Y)+new Vector2(Math.Min(dist.X,0),Math.Min(dist.Y,0));
+                    if(Player.Hitbox.Intersects(new Rectangle((int)rainPos.X, (int)rainPos.Y, (int)Math.Abs(dist.X),(int)Math.Abs(dist.Y)))) {
+                        wet = true;
+                        break;
                     }
                 }
-                //if(PlayerInput.Triggers.JustPressed.Jump)SendMessage(wet+" "+wetTime+" "+EpikWorld.raining);
-                if(Main.netMode!=NetmodeID.SinglePlayer&&Player.wingTimeMax != (wet?60:0)) {
-                    ModPacket packet = Mod.GetPacket(3);
-                    packet.Write(EpikV2.PacketType.wetUpdate);
-                    packet.Write((byte)Player.whoAmI);
-                    packet.Write(wet);
-                    packet.Send();
-                }
-                //int wtm = player.wingTimeMax;
-                //byte wett = wetTime;
-                //float wt = player.wingTime;
-                //int wl = player.wingsLogic;
-			    Player.wingTimeMax = wet?60:0;
-                if(wet)wetTime = 60;
-                if(wetTime>0) {
+            }
+            //if(PlayerInput.Triggers.JustPressed.Jump)SendMessage(wet+" "+wetTime+" "+EpikWorld.raining);
+            if (oily && Main.netMode!=NetmodeID.SinglePlayer && Player.wingTimeMax != (wet?60:0)) {
+                ModPacket packet = Mod.GetPacket(3);
+                packet.Write(EpikV2.PacketType.wetUpdate);
+                packet.Write((byte)Player.whoAmI);
+                packet.Write(wet);
+                packet.Send();
+            }
+            //int wtm = player.wingTimeMax;
+            //byte wett = wetTime;
+            //float wt = player.wingTime;
+            //int wl = player.wingsLogic;
+            if (wet) wetTime = 60;
+			if (oily) {
+                Player.wingTimeMax = wet ? 60 : 0;
+                if (wetTime > 0) {
                     Player.wingTime = 60;
                 } else {
                     Player.wingsLogic = 0;
                 }
-                /*if(wtm!=player.wingTimeMax||wett!=wetTime||wt!=player.wingTime||wl!=player.wingsLogic) {
-                    ModPacket packet = mod.GetPacket();
-                    packet.Write((byte)0);
-                    packet.Write((byte)player.whoAmI);
-                    packet.Write(player.wingTimeMax);
-                    packet.Write(wetTime);
-                    packet.Write((double)player.wingTime);
-                    packet.Write(player.wingsLogic);
-                    packet.Send();
-                }*/
             }
         }
         public override void SetControls(){

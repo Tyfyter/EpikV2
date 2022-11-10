@@ -52,7 +52,7 @@ namespace EpikV2.Items {
 			recipe.AddIngredient(ItemID.GuideVoodooDoll);
 			recipe.AddTile(TileID.TinkerersWorkbench);
 			recipe.AddCondition(new Recipe.Condition(
-				Terraria.Localization.NetworkText.FromLiteral("This kills the Guide"),
+				Terraria.Localization.NetworkText.FromLiteral("This kills the [strike:crab] Guide"),
 				(r) => NPC.AnyNPCs(NPCID.Guide)
 			));
 			recipe.AddOnCraftCallback((r, item, _) => {

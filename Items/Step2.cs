@@ -3,6 +3,7 @@ using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
 using Terraria.ID;
 using Microsoft.Xna.Framework;
+using Terraria.DataStructures;
 
 namespace EpikV2.Items
 {
@@ -14,6 +15,7 @@ namespace EpikV2.Items
             Tooltip.SetDefault("Equip to cover yourself in oil");
 			//Tooltip.SetDefault("Allows flight and slow fall while in water");
 			SacrificeTotal = 1;
+			ArmorIDs.Wing.Sets.Stats[Item.wingSlot] = new WingStats(flyTime:0);
 		}
 
 		public override void SetDefaults() {
