@@ -387,6 +387,7 @@ public static float ShimmerCalc(float val) {
 			drawAfterNPCs = null;
 			EpikWorld.Sacrifices = null;
 			HellforgeRecipes = null;
+			MiscUtils.Unload();
 			//filterMapQueue.Clear();
 			//filterMapQueue = null;
 		}
