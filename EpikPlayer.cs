@@ -399,7 +399,7 @@ namespace EpikV2 {
 			if (Player.wet) {
                 Player.AddBuff(BuffID.Wet, 600);
 			}
-            Player.AdjTiles();
+            if (Player.position.X > 4 * 16 && Player.position.Y > 3 * 16) Player.AdjTiles();
             bool adjCampfire = Player.adjTile[TileID.Campfire];
             bool changeCampfire = adjCampfire != Player.oldAdjTile[TileID.Campfire];
             bool changeWet = !Main.expertMode && (Player.wet || Player.dripping) != oldWet;

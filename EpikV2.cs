@@ -225,8 +225,10 @@ namespace EpikV2 {
 				}
 				return Main.rand.Next(range);
 			};
+			Detour.Projectile.GetLastPrismHue += Projectile_GetLastPrismHue;
+			Detour.Projectile.GetFairyQueenWeaponsColor += Projectile_GetFairyQueenWeaponsColor;
 		}
-
+		#region monomod
 		private int PopupText_NewText_AdvancedPopupRequest_Vector2(Detour.PopupText.orig_NewText_AdvancedPopupRequest_Vector2 orig, AdvancedPopupRequest request, Vector2 position) {
 			if (nextPopupText is null) {
 				nextPopupText = new PopupText();
@@ -349,7 +351,52 @@ namespace EpikV2 {
 			}
 			return orig(inv, context, slot, checkItem);
 		}
-
+		private float Projectile_GetLastPrismHue(Detour.Projectile.orig_GetLastPrismHue orig, Projectile self, float laserIndex, ref float laserLuminance, ref float laserAlphaMultiplier) {
+			if (Main.player[self.owner].active && IsSpecialName(Main.player[self.owner].name, 0)) {
+				switch ((int)laserIndex) {
+					case 0:
+					laserLuminance = 0.68f;
+					return 0.79f;
+					case 1:
+					laserLuminance = 0.73f;
+					return 0.54f;
+					case 2:
+					laserLuminance = 6.8f;
+					return 0.79f;
+					case 3:
+					laserLuminance = 0.82f;
+					return 0.15f;
+					case 4:
+					laserLuminance = 0.69f;
+					return 0.11f;
+					case 5:
+					laserLuminance = 0.77f;
+					return 0.92f;
+				}
+			}
+			return orig(self, laserIndex, ref laserLuminance, ref laserAlphaMultiplier);
+		}
+		private Color Projectile_GetFairyQueenWeaponsColor(Detour.Projectile.orig_GetFairyQueenWeaponsColor orig, Projectile self, float alphaChannelMultiplier, float lerpToWhite, float? rawHueOverride) {
+			if (Main.player[self.owner].active && IsSpecialName(Main.player[self.owner].name, 0)) {
+				int hueIndex = (int)((rawHueOverride ?? self.ai[1]) * 6);
+				switch (hueIndex) {
+					case 0:
+					return new Color(176, 124, 191);
+					case 1:
+					return new Color(141, 217, 247);
+					case 2:
+					return new Color(224, 224, 224);
+					case 3:
+					return new Color(252, 243, 141);
+					case 4:
+					return new Color(252, 179, 61);
+					case 5:
+					return new Color(250, 162, 199);
+				}
+			}
+			return orig(self, alphaChannelMultiplier, lerpToWhite, rawHueOverride);
+		}
+		#endregion monomod
 		/*
 private void Main_OnPostDraw(GameTime obj) {
    if(filterMapQueue is null) {
@@ -487,6 +534,14 @@ public static float ShimmerCalc(float val) {
 				TextureAssets.GlowMask = glowMasks;
 				return (short)(glowMasks.Length - 1);
 			} else return 0;
+		}
+		public static bool IsSpecialName(string name, int nameType) {
+			string lowerName = name.ToLower();
+			switch (nameType) {
+				case 0:
+				return lowerName.EndsWith("faust") || lowerName == "jennifer";
+			}
+			return false;
 		}
 	}
 	[Label("Settings")]
