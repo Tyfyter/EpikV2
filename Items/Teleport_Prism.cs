@@ -33,7 +33,7 @@ namespace EpikV2.Items {
 			Item.CloneDefaults(ItemID.FlowerofFire);
 			Item.damage = 190;
 			Item.DamageType = DamageClass.Magic;
-			Item.mana = 20;
+			Item.mana = 16;
 			Item.width = 36;
 			Item.height = 76;
 			Item.useStyle = ItemUseStyleID.Shoot;
@@ -114,6 +114,10 @@ namespace EpikV2.Items {
 				for (int i = 0; i < Main.maxNPCs; i++) {
 					Collision.CheckAABBvLineCollision(Main.npc[i].position, Main.npc[i].Size, Projectile.Center, Projectile.Center + Projectile.velocity * length, 16, ref length);
 				}
+				Collision.CheckAABBvLineCollision(new Vector2(0, 0), new Vector2(16, Main.maxTilesY * 16), Projectile.Center, Projectile.Center + Projectile.velocity * length, 16, ref length);
+				Collision.CheckAABBvLineCollision(new Vector2(Main.maxTilesX - 16, 0), new Vector2(16, Main.maxTilesY * 16), Projectile.Center, Projectile.Center + Projectile.velocity * length, 16, ref length);
+				Collision.CheckAABBvLineCollision(new Vector2(0, 0), new Vector2(Main.maxTilesX * 16, 16), Projectile.Center, Projectile.Center + Projectile.velocity * length, 16, ref length);
+				Collision.CheckAABBvLineCollision(new Vector2(0, Main.maxTilesY - 16), new Vector2(16, 0), Projectile.Center, Projectile.Center + Projectile.velocity * length, 16, ref length);
 				Projectile.ai[0] = Math.Max(length, 180);
 			} else {
 				if (Projectile.timeLeft < 2) {
