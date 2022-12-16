@@ -101,6 +101,9 @@ namespace EpikV2.Items {
 					OverrideColor = new Color(0, 0, 0, 1f)
 				});
 			}
+			if (EpikConfig.Instance.ThatFixFromNextUpdate) {
+				tooltips.RemoveAll((line) => line.Name.Equals("VanityLegal"));
+			}
 		}
 		public override void PostReforge(Item item) {
 			if (item.netID == ItemID.GoldenKey) item.netID = item.type = ItemID.Keybrand;
