@@ -121,6 +121,9 @@ namespace EpikV2.Items {
 					player.altFunctionUse = 0;
 					//player
 					if (Item.ModItem is Biome_Key newKey) newKey.holdUp = true;
+					if (Main.netMode != NetmodeID.SinglePlayer) {
+						NetMessage.SendData(MessageID.SyncEquipment, -1, -1, null, player.whoAmI, player.selectedItem);
+					}
 				}
 			}else if (Item.useStyle == ItemUseStyleID.HoldUp) {
 				if (player.itemTimeMax != 19) {
@@ -214,6 +217,12 @@ namespace EpikV2.Items {
 		}
 		public override void LoadData(TagCompound tag) {
 			if (tag.TryGet("keyValuePairs", out TagCompound kvp)) keyValuePairs = new(kvp);
+		}
+		public override void NetSend(BinaryWriter writer) {
+			writer.Write(holdUp);
+		}
+		public override void NetReceive(BinaryReader reader) {
+			holdUp = reader.ReadBoolean();
 		}
 	}
 	#region forest

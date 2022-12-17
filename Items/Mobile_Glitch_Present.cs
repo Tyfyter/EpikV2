@@ -104,10 +104,16 @@ namespace EpikV2.Items {
 				}
 			}
 			int prefix = Main.rand.NextBool(20) ? ModContent.PrefixType<Frogged_Prefix>() : -1;
-			Item.NewItem(player.GetSource_OpenItem(item.type), player.Center, new Vector2(), random, Main.rand.Next(1, Math.Max(Math.Min(item.maxStack/Main.rand.Next(1,10), 500), 1)), false, prefix, true);
-            if(random == ItemID.UnluckyYarn) {
-			    Item.NewItem(player.GetSource_OpenItem(item.type), player.Center, new Vector2(), ItemID.MiniNukeI, 1, false, prefix, true);
-            }
-        }
+			int itemIndex = Item.NewItem(player.GetSource_OpenItem(item.type), player.Center, new Vector2(), random, Main.rand.Next(1, Math.Max(Math.Min(item.maxStack/Main.rand.Next(1,10), 500), 1)), false, prefix, true);
+			if (Main.netMode == NetmodeID.MultiplayerClient) {
+				NetMessage.SendData(MessageID.SyncItem, -1, -1, null, itemIndex, 1f);
+			}
+			if (random == ItemID.UnluckyYarn) {
+				itemIndex = Item.NewItem(player.GetSource_OpenItem(item.type), player.Center, new Vector2(), ItemID.MiniNukeI, 1, false, prefix, true);
+				if (Main.netMode == NetmodeID.MultiplayerClient) {
+					NetMessage.SendData(MessageID.SyncItem, -1, -1, null, itemIndex, 1f);
+				}
+			}
+		}
 	}
 }

@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -68,7 +69,7 @@ namespace EpikV2.Items {
 			Item.glowMask = customGlowMask;
 		}
 
-		void SetStats(Player player, bool broken) {
+		void SetStats(Player player, bool broken, bool fromNet = false) {
 			if (broken) {
 				Item.DamageType = Damage_Classes.Spellsword;
 				Item.noMelee = true;
@@ -94,6 +95,9 @@ namespace EpikV2.Items {
 			if (this.broken != broken) {
 				this.broken = broken;
 				UpdateAnimationFrames();
+			}
+			if (Main.netMode != NetmodeID.SinglePlayer && !fromNet) {
+				NetMessage.SendData(MessageID.SyncEquipment, -1, -1, null, player.whoAmI, player.selectedItem);
 			}
 		}
 		public override bool? UseItem(Player player) {
@@ -164,6 +168,13 @@ namespace EpikV2.Items {
 
 			value = new DrawData(TextureAssets.GlowMask[customGlowMask].Value, new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y)), frame, new Color(250, 250, 250, item.alpha), drawPlayer.itemRotation, new Vector2(frame.Width * 0.5f - frame.Width * 0.5f * drawPlayer.direction, frame.Height), scale, spriteEffects, 0);
 			drawInfo.DrawDataCache.Add(value);
+		}
+		public override void NetSend(BinaryWriter writer) {
+			writer.Write(Main.myPlayer);
+			writer.Write(broken);
+		}
+		public override void NetReceive(BinaryReader reader) {
+			SetStats(Main.player[reader.ReadInt32()], reader.ReadBoolean(), fromNet:true);
 		}
 	}
 	public class Obsidian_Spellsword_P : ModProjectile {
