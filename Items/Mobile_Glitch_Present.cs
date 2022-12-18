@@ -88,8 +88,19 @@ namespace EpikV2.Items {
 				realRare += offset;
 			}
 			if (EpikConfig.Instance.BalancedAncientPresents && realRare > targetRare && random != ItemID.Drax) {
-				if(!EpikConfig.Instance.TooGoodAncientPresents) Main.NewText($"whoa, look at this cool [i:{random}] you missed out on 'cause of the \"remotely balanced ancient presents\" setting, it had a rarity of [c/{(realRare >= ItemRarityID.Count? RarityLoader.GetRarity(realRare).RarityColor.Hex3() : Terraria.GameContent.UI.ItemRarity.GetColor(realRare).Hex3())}:{realRare}] out of [c/{Terraria.GameContent.UI.ItemRarity.GetColor((int)targetRare).Hex3()}:{targetRare}]");
-				goto retry;
+				switch (random) {
+					case ItemID.GPS:
+					case ItemID.REK:
+					case ItemID.GoblinTech:
+					case ItemID.FishFinder:
+					case ItemID.PDA:
+					case ItemID.CellPhone:
+					break;
+
+					default:
+					if (!EpikConfig.Instance.TooGoodAncientPresents) Main.NewText($"whoa, look at this cool [i:{random}] you missed out on 'cause of the \"remotely balanced ancient presents\" setting, it had a rarity of [c/{(realRare >= ItemRarityID.Count ? RarityLoader.GetRarity(realRare).RarityColor.Hex3() : Terraria.GameContent.UI.ItemRarity.GetColor(realRare).Hex3())}:{realRare}] out of [c/{Terraria.GameContent.UI.ItemRarity.GetColor((int)targetRare).Hex3()}:{targetRare}]");
+					goto retry;
+				}
 			}
 			if (targetRare > RarityLoader.RarityCount - 1) {
 				targetRare = RarityLoader.RarityCount - 1;

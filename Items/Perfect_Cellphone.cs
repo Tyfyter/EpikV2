@@ -27,10 +27,13 @@ namespace EpikV2.Items {
 		public override void Unload() {
 			Phone_Types = null;
 		}
+		protected void SetName(string name) {
+			DisplayName.SetDefault($"Perfect Cellphone ({name})");
+			Tooltip.SetDefault("<switch> to change modes\nIf you listen closely, you can hear screaming and something about \"power levels\"'");
+		}
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Perfect Cellphone (Home)");
-			Tooltip.SetDefault("<right> to change modes");
-            SacrificeTotal = 1;
+			SetName("Home");
+			SacrificeTotal = 1;
 			Phone_Types = new List<int> {
 				Type,
 				ItemType<Perfect_Cellphone_World>(),
@@ -42,7 +45,7 @@ namespace EpikV2.Items {
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.CellPhone);
             Item.value = 1000000;
-            Item.rare = ItemRarityID.Purple;
+            Item.rare = ItemRarityID.LightRed;
 			Item.UseSound = SoundID.Item129.WithPitchRange(-1, -1);
 		}
 		public override void UpdateInventory(Player player) {
@@ -132,6 +135,7 @@ namespace EpikV2.Items {
 			foreach (TooltipLine line in tooltips) {
 				line.Text = line.Text.Replace("<switch>", text);
 			}
+			tooltips[0].OverrideColor = Colors.RarityDarkPurple * (Main.mouseTextColor / 255f);
 		}
 		public override void AddRecipes() {
 			if (Type == ItemType<Perfect_Cellphone>()) {
@@ -148,9 +152,7 @@ namespace EpikV2.Items {
 	}
 	public class Perfect_Cellphone_World : Perfect_Cellphone {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Perfect Cellphone (Spawn)");
-			Tooltip.SetDefault("<right> to change modes");
-			SacrificeTotal = 1;
+			SetName("Spawn");
 		}
 		protected override void Teleport(Player player) {
 			Vector2 newPos = new Point(Main.spawnTileX, Main.spawnTileY).ToWorldCoordinates(8f, 0f) - new Vector2(player.width / 2, player.height);
@@ -166,9 +168,7 @@ namespace EpikV2.Items {
 	}
 	public class Perfect_Cellphone_Ocean : Perfect_Cellphone {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Perfect Cellphone (Ocean)");
-			Tooltip.SetDefault("<right> to change modes");
-			SacrificeTotal = 1;
+			SetName("Ocean");
 		}
 		protected override void SpawnDust(int frame, Vector2 position, int width, int height, float speedX = 0, float speedY = 0, int alpha = 0, float scale = 1) {
 			Vector2 value = Vector2.UnitY.RotatedBy(frame * (MathHelper.Pi * 2f) / 30f) * new Vector2(15f, 0f);
@@ -182,14 +182,16 @@ namespace EpikV2.Items {
 			dust.fadeIn = 1.1f;
 		}
 		protected override void Teleport(Player player) {
-			player.MagicConch();
+			if (Main.netMode == NetmodeID.SinglePlayer) {
+				player.DemonConch();
+			} else if (Main.netMode == NetmodeID.MultiplayerClient && player.whoAmI == Main.myPlayer) {
+				NetMessage.SendData(MessageID.RequestTeleportationByServer, -1, -1, null, 1);
+			}
 		}
 	}
 	public class Perfect_Cellphone_Hell : Perfect_Cellphone {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Perfect Cellphone (Hell)");
-			Tooltip.SetDefault("<right> to change modes");
-			SacrificeTotal = 1;
+			SetName("Hell");
 		}
 		protected override void SpawnDust(int frame, Vector2 position, int width, int height, float speedX = 0, float speedY = 0, int alpha = 0, float scale = 1) {
 			Vector2 value = Vector2.UnitY.RotatedBy(frame * (MathHelper.Pi * 2f) / 30f) * new Vector2(15f, 0f);
@@ -203,14 +205,16 @@ namespace EpikV2.Items {
 			dust.fadeIn = 1.1f;
 		}
 		protected override void Teleport(Player player) {
-			player.DemonConch();
+			if (Main.netMode == NetmodeID.SinglePlayer) {
+				player.DemonConch();
+			} else if (Main.netMode == NetmodeID.MultiplayerClient && player.whoAmI == Main.myPlayer) {
+				NetMessage.SendData(MessageID.RequestTeleportationByServer, -1, -1, null, 2);
+			}
 		}
 	}
 	public class Perfect_Cellphone_Return : Perfect_Cellphone {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Perfect Cellphone (Return)");
-			Tooltip.SetDefault("<right> to change modes");
-			SacrificeTotal = 1;
+			SetName("Return");
 		}
 		protected override void SpawnDust(int frame, Vector2 position, int width, int height, float speedX = 0, float speedY = 0, int alpha = 0, float scale = 1) {
 			Dust dust = Dust.NewDustDirect(position, width, height, DustID.MagicMirror, 0, 0, alpha, Color.Purple, scale);
