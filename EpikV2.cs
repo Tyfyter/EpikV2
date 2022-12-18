@@ -227,6 +227,42 @@ namespace EpikV2 {
 			};
 			Detour.Projectile.GetLastPrismHue += Projectile_GetLastPrismHue;
 			Detour.Projectile.GetFairyQueenWeaponsColor += Projectile_GetFairyQueenWeaponsColor;
+			Detour.Player.HasUnityPotion += (orig, self) => {
+				for (int i = 0; i < Main.InventorySlotsTotal; i++) {
+					if (self.inventory[i].stack > 0 && (self.inventory[i].type == ItemID.WormholePotion || self.inventory[i].ModItem is Perfect_Cellphone)) {
+						return true;
+					}
+				}
+				return false;
+			};
+			Detour.Player.TakeUnityPotion += (orig, self) => {
+				for (int i = 0; i < Main.InventorySlotsTotal; i++) {
+					if (self.inventory[i].stack > 0) {
+						if (self.inventory[i].type == ItemID.WormholePotion) {
+							if (ItemLoader.ConsumeItem(self.inventory[i], self)) {
+								self.inventory[i].stack--;
+							}
+							if (self.inventory[i].stack <= 0) {
+								self.inventory[i].SetDefaults();
+							}
+							return;
+						}
+						if (self.inventory[i].ModItem is Perfect_Cellphone) {
+							return;
+						}
+					}
+				}
+			};
+			/*Detour.GameContent.TeleportPylonsSystem.IsPlayerNearAPylon += (orig, player) => {
+				if (EpikConfig.Instance.PerfectCellPylon) {
+					for (int i = 0; i < Main.InventorySlotsTotal; i++) {
+						if (player.inventory[i].stack > 0 && player.inventory[i].ModItem is Perfect_Cellphone) {
+							return true;
+						}
+					}
+				}
+				return orig(player);
+			};*/
 		}
 		#region monomod
 		private int PopupText_NewText_AdvancedPopupRequest_Vector2(Detour.PopupText.orig_NewText_AdvancedPopupRequest_Vector2 orig, AdvancedPopupRequest request, Vector2 position) {
@@ -581,6 +617,10 @@ public static float ShimmerCalc(float val) {
 		[Label("Equip Any Accessory in Vanity Slots")]
 		[DefaultValue(true)]
 		public bool ThatFixFromNextUpdate = true;
+
+		/*[Label("Perfect Cellphone allows pylon teleportation")]
+		[DefaultValue(true)]
+		public bool PerfectCellPylon = true;*/
 	}
 	[Label("Client Settings")]
 	public class EpikClientConfig : ModConfig {

@@ -121,7 +121,7 @@ namespace EpikV2.Items {
 					player.altFunctionUse = 0;
 					//player
 					if (Item.ModItem is Biome_Key newKey) newKey.holdUp = true;
-					if (Main.netMode != NetmodeID.SinglePlayer) {
+					if (Main.netMode != NetmodeID.SinglePlayer && player is not null) {
 						NetMessage.SendData(MessageID.SyncEquipment, -1, -1, null, player.whoAmI, player.selectedItem);
 					}
 				}
