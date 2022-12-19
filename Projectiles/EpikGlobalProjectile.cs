@@ -44,10 +44,19 @@ namespace EpikV2.Projectiles {
                 Utils.Swap(ref projectile.friendly, ref projectile.hostile);
             }
         }
+		public override bool PreAI(Projectile projectile) {
+			if (projectile.type == ProjectileID.RainbowWhip && EpikV2.IsSpecialName(Main.player[projectile.owner].name, 0)) {
+                EpikV2.KaleidoscopeColorType = 1;
+            }
+            return true;
+		}
 		public override void AI(Projectile projectile) {
             if (prefix is IProjectileAIPrefix aiPrefix) {
                 aiPrefix.OnProjectileAI(projectile);
             }
+        }
+		public override void PostAI(Projectile projectile) {
+            EpikV2.KaleidoscopeColorType = 0;
         }
 		public override void ModifyHitNPC(Projectile projectile, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
             if (prefix is IProjectileHitPrefix hitPrefix) {
@@ -60,9 +69,12 @@ namespace EpikV2.Projectiles {
             }
         }
 		public override bool PreDraw(Projectile projectile, ref Color drawColor) {
-            if(jade) {
+            if (jade) {
                 Lighting.AddLight(projectile.Center, 0, 1, 0.5f);
 			    Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect:Shaders.jadeDyeShader.Shader);
+            }
+            if (projectile.type == ProjectileID.RainbowWhip && EpikV2.IsSpecialName(Main.player[projectile.owner].name, 0)) {
+                EpikV2.KaleidoscopeColorType = 2;
             }
             return true;
         }
@@ -70,6 +82,7 @@ namespace EpikV2.Projectiles {
             if(jade) {
                 Main.spriteBatch.Restart();
             }
+            EpikV2.KaleidoscopeColorType = 0;
         }
     }
 }
