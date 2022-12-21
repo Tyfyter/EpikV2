@@ -61,22 +61,10 @@ namespace EpikV2.Items {
 	}
 	public class Teleport_Prism_P : ModProjectile {
 		public override string Texture => "EpikV2/Items/Burning_Ambition";
-		public Triangle Hitbox {
-			get {
-				Vector2 direction = Vector2.Normalize(Projectile.velocity);
-				Vector2 side = direction.RotatedBy(MathHelper.PiOver2);
-				float zMult = (30 - Projectile.ai[0]) / 30;
-				if (zMult < 0.01f) {
-					zMult = 0.01f;
-				}
-				Vector2 @base = Projectile.Center + direction * 196 * zMult;
-				side *= zMult * zMult;
-				return new Triangle(Projectile.Center, @base + side * 64, @base - side * 64);
-			}
-		}
 		protected override bool CloneNewInstances => true;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Teleport_Prism_P");
+			ProjectileID.Sets.DrawScreenCheckFluff[Type] = 16 * 8400;
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
@@ -100,8 +88,13 @@ namespace EpikV2.Items {
 			}
 			if (!Projectile.friendly) {
 				if (!owner.channel || (Projectile.timeLeft < 16 && !owner.CheckMana(owner.HeldItem, owner.HeldItem.mana / 4, true))) {
-					Projectile.timeLeft = 30;
-					Projectile.friendly = true;
+					if (Projectile.ai[1] > 30) {
+						Projectile.timeLeft = 30;
+						Projectile.friendly = true;
+					} else {
+						Projectile.Kill();
+					}
+
 				} else {
 					if (Projectile.timeLeft < 16) {
 						Projectile.timeLeft = 30;
@@ -121,10 +114,13 @@ namespace EpikV2.Items {
 				Projectile.ai[0] = Math.Max(length, 180);
 			} else {
 				if (Projectile.timeLeft < 2) {
-					owner.Teleport(Projectile.Center + Projectile.velocity * (Projectile.ai[0] - 16) - owner.Size / 2);
-					Projectile.position += Projectile.Size / 2;
+					Vector2 targetPos = Projectile.Center + Projectile.velocity * (Projectile.ai[0] - 16);
+					TeleportEffect(owner.Hitbox);
+					owner.Teleport(targetPos - owner.Size / 2, -1);
+					TeleportEffect(owner.Hitbox);
+					SoundEngine.PlaySound(SoundID.Item36, targetPos);
 					Projectile.Size *= 16;
-					Projectile.position -= Projectile.Size / 2;
+					Projectile.Center = targetPos;
 				}
 			}
 			owner.itemAnimation = 2;
@@ -133,7 +129,25 @@ namespace EpikV2.Items {
 			owner.itemRotation = (float)Math.Atan2(Projectile.velocity.Y * owner.direction, Projectile.velocity.X * owner.direction);
 			Projectile.Center = owner.MountedCenter;
 		}
+		static void TeleportEffect(Rectangle effectRect) {
+			int dustCount = effectRect.Width * effectRect.Height / 5;
+			Vector2 pos = effectRect.TopLeft();
+			for (int i = 0; i < dustCount; i++) {
+				Dust dust = Dust.NewDustDirect(pos, effectRect.Width, effectRect.Height, DustID.Teleporter);
+				dust.scale = Main.rand.Next(20, 70) * 0.01f;
+				if (i < 10) {
+					dust.scale += 0.25f;
+				}
+				if (i < 5) {
+					dust.scale += 0.25f;
+				}
+			}
+		}
 		public override bool PreDraw(ref Color lightColor) {
+			Vector2 widthCompensation = new Vector2(64, 64);
+			if (!Collision.CheckAABBvLineCollision(Main.Camera.ScaledPosition - widthCompensation, Main.Camera.ScaledSize + widthCompensation * 2, Projectile.Center, Projectile.Center + Projectile.velocity * (Projectile.ai[0] - 16))) {
+				return false;
+			}
 			BlendState bs = new() {
 				ColorDestinationBlend = Blend.One
 			};

@@ -117,6 +117,37 @@ namespace EpikV2.Items {
 		}
 		public void SelectItem(int slotIndex) {
 			if (slotIndex < Phone_Types.Count) {
+				SoundEngine.PlaySound(SoundID.Item129.WithPitchRange(1, 1).WithVolumeScale(0.75f));
+				switch (slotIndex) {
+					case 2:
+					switch (Main.rand.Next(0, 3)) {
+						case 0:
+						SoundEngine.PlaySound(SoundID.Item85.WithPitchOffset(-1f).WithPitchVarience(0));
+						break;
+						case 1:
+						SoundEngine.PlaySound(SoundID.Item86.WithPitchOffset(-1f).WithPitchVarience(0));
+						break;
+						case 2:
+						SoundEngine.PlaySound(SoundID.Item87.WithPitchOffset(-1f).WithPitchVarience(0));
+						break;
+					}
+					break;
+					case 3:
+					switch (Main.rand.Next(0, 2)) {
+						case 0:
+						SoundEngine.PlaySound(SoundID.Item103);
+						break;
+						case 1:
+						SoundEngine.PlaySound(SoundID.Item104);
+						break;
+					}
+					break;
+					case 4:
+					SoundEngine.PlaySound(SoundID.Item79.WithPitchOffset(-1f).WithPitchVarience(0));
+					break;
+					default:
+					break;
+				}
 				Item.SetDefaults(GetSlotContents(slotIndex));
 			}
 			Main.LocalPlayer.GetModPlayer<EpikPlayer>().switchBackSlot = Main.LocalPlayer.selectedItem;
@@ -183,7 +214,7 @@ namespace EpikV2.Items {
 		}
 		protected override void Teleport(Player player) {
 			if (Main.netMode == NetmodeID.SinglePlayer) {
-				player.DemonConch();
+				player.MagicConch();
 			} else if (Main.netMode == NetmodeID.MultiplayerClient && player.whoAmI == Main.myPlayer) {
 				NetMessage.SendData(MessageID.RequestTeleportationByServer, -1, -1, null, 1);
 			}
