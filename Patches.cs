@@ -218,7 +218,7 @@ namespace EpikV2 {
 				case 1:
 				return GetName0ColorsSaturated((int)(Hue * 6)) * (a / 255f);
 				case 2:
-				return Color.Lerp(GetName0ColorsSaturated((int)hueIndex), GetName0ColorsSaturated(((int)hueIndex + 1) % 6), ((hueIndex % 1) - 0.9f) * 10f) * (a / 255f);
+				return Color.Lerp(GetName0ColorsSaturated((int)hueIndex % 6), GetName0ColorsSaturated(((int)hueIndex + 1) % 6), ((hueIndex % 1) - 0.9f) * 10f) * (a / 255f);
 				default:
 				return Main.hslToRgb(Hue, Saturation, Luminosity, a);
 			}
@@ -374,10 +374,23 @@ namespace EpikV2 {
 		private Color Projectile_GetFairyQueenWeaponsColor(Detour.Projectile.orig_GetFairyQueenWeaponsColor orig, Projectile self, float alphaChannelMultiplier, float lerpToWhite, float? rawHueOverride) {
 			if (Main.player[self.owner].active && IsSpecialName(Main.player[self.owner].name, 0)) {
 				float hueIndex = ((rawHueOverride ?? self.ai[1]) * 6);
-				if (self.type == ProjectileID.EmpressBlade) {
-					return Color.Lerp(GetName0Colors((int)hueIndex), GetName0Colors(((int)hueIndex + 1) % 6), hueIndex % 1);
+				switch (self.type) {
+					case ProjectileID.EmpressBlade:
+					return Color.Lerp(GetName0ColorsSaturated((int)hueIndex % 6), GetName0ColorsSaturated(((int)hueIndex + 1) % 6), hueIndex % 1);
+					
+					case ProjectileID.PiercingStarlight:
+					if (Main.player[self.owner].GetModPlayer<EpikPlayer>().altNameColors.HasFlag(AltNameColorTypes.Starlight)) {
+						return GetName0ColorsSaturated(Main.rand.NextBool(2, 5) ? 1 : 0);
+					} else {
+						return GetName0ColorsSaturated((int)hueIndex);
+					}
+
+					case ProjectileID.FairyQueenMagicItemShot:
+					return GetName0ColorsSaturated((int)hueIndex);
+
+					default:
+					return GetName0Colors((int)hueIndex);
 				}
-				return GetName0Colors((int)hueIndex);
 			}
 			return orig(self, alphaChannelMultiplier, lerpToWhite, rawHueOverride);
 		}

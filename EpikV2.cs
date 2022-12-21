@@ -130,6 +130,7 @@ namespace EpikV2 {
 
 		public override void HandlePacket(BinaryReader reader, int whoAmI) {
 			byte type = reader.ReadByte();
+			bool altHandle = false;
 			if(Main.netMode == NetmodeID.Server) {
 				ModPacket packet;
 				switch(type) {
@@ -156,6 +157,10 @@ namespace EpikV2 {
 					packet.Write(reader.ReadInt32());
 					packet.Write(reader.ReadSingle());
 					packet.Send();
+					break;
+
+					case PacketType.playerSync:
+					altHandle = true;
 					break;
 
 					case PacketType.topHatCard:
@@ -199,8 +204,26 @@ namespace EpikV2 {
 					Main.LocalPlayer.GetModPlayer<EpikPlayer>().empressTime = 5;
 					break;
 
+					case PacketType.playerSync:
+					altHandle = true;
+					break;
+
 					default:
 					Logger.WarnFormat("EpikV2: Unknown Message type: {0}", type);
+					break;
+				}
+			}
+			if (altHandle) {
+				switch (type) {
+					case PacketType.playerSync:
+					byte playerindex = reader.ReadByte();
+					EpikPlayer epikPlayer = Main.player[playerindex].GetModPlayer<EpikPlayer>();
+					epikPlayer.ReceivePlayerSync(reader);
+
+					if (Main.netMode == NetmodeID.Server) {
+						// Forward the changes to the other clients
+						epikPlayer.SyncPlayer(-1, whoAmI, false);
+					}
 					break;
 				}
 			}
@@ -212,6 +235,7 @@ namespace EpikV2 {
 			public const byte npcHP = 3;
 			public const byte topHatCard = 4;
 			public const byte empressDeath = 5;
+			public const byte playerSync = 6;
 		}
 		public static short SetStaticDefaultsGlowMask(ModItem modItem) {
 			if (Main.netMode!=NetmodeID.Server) {
@@ -284,6 +308,22 @@ namespace EpikV2 {
 		[Tooltip("Reduces intentional jitter in some elements\nOn by default for the sake of players with photosensitive epilepsy")]
 		[DefaultValue(JitterTypes.All)]
 		public JitterTypes reduceJitter = JitterTypes.All;
+
+		[Label("Alternate Name Colors")]
+		[DefaultValue(AltNameColorTypes.None)]
+		public AltNameColorTypes AltNameColors {
+			get {
+				if (Main.LocalPlayer.active && Main.LocalPlayer.GetModPlayer<EpikPlayer>() is EpikPlayer epikPlayer) {
+					return epikPlayer.altNameColors;
+				}
+				return AltNameColorTypes.None;
+			}
+			set {
+				if (Main.LocalPlayer.active && Main.LocalPlayer.GetModPlayer<EpikPlayer>() is EpikPlayer epikPlayer) {
+					epikPlayer.altNameColors = value;
+				}
+			}
+		}
 	}
 	[Flags]
 	public enum JitterTypes : byte {
@@ -291,6 +331,12 @@ namespace EpikV2 {
 		Tooltip =	0b00000001,
 		LSD		=	0b00000010,
 		All		=	0b11111111
+	}
+	[Flags]
+	public enum AltNameColorTypes : byte {
+		None = 0b00000000,
+		Starlight = 0b00000001,
+		All = 0b11111111
 	}
 	public class EpikWorld : ModSystem {
 		//public static int GolemTime = 0;

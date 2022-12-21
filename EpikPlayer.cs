@@ -20,6 +20,8 @@ using EpikV2.NPCs;
 using static EpikV2.Resources;
 using EpikV2.Tiles;
 using Terraria.Graphics.Effects;
+using Terraria.ModLoader.IO;
+using System.IO;
 
 namespace EpikV2 {
     public class EpikPlayer : ModPlayer {
@@ -104,6 +106,7 @@ namespace EpikV2 {
         public int[] BuffIndecies => buffIndecies ??= BuffID.Sets.Factory.CreateIntSet(-1);
         public int activeBuffs = 0;
         private bool oldWet = false;
+        public AltNameColorTypes altNameColors = AltNameColorTypes.None;
 
         public static BitsBytes ItemChecking;
 
@@ -929,7 +932,39 @@ namespace EpikV2 {
 		internal void rearrangeOrgans(float rearrangement) {
             organRearrangement = Math.Max(organRearrangement, rearrangement);
         }
-        /*internal static PlayerLayer MarionetteStringLayer(int marionetteDeathTime) => new PlayerLayer("EpikV2", "MarionetteStringLayer", null, delegate (PlayerDrawInfo drawInfo) {
+
+        public override void SyncPlayer(int toWho, int fromWho, bool newPlayer) {
+            if (Main.netMode == NetmodeID.SinglePlayer) return;
+            ModPacket packet = Mod.GetPacket();
+            packet.Write(EpikV2.PacketType.playerSync);
+            packet.Write((byte)Player.whoAmI);
+            packet.Write((byte)altNameColors);
+            packet.Send(toWho, fromWho);
+        }
+
+        // Called in ExampleMod.Networking.cs
+        public void ReceivePlayerSync(BinaryReader reader) {
+            altNameColors = (AltNameColorTypes)reader.ReadByte();
+        }
+
+        public override void clientClone(ModPlayer clientClone) {
+            EpikPlayer clone = clientClone as EpikPlayer;
+            clone.altNameColors = altNameColors;
+        }
+
+        public override void SendClientChanges(ModPlayer clientPlayer) {
+            EpikPlayer clone = clientPlayer as EpikPlayer;
+
+            if (altNameColors != clone.altNameColors)
+                SyncPlayer(toWho: -1, fromWho: Main.myPlayer, newPlayer: false);
+        }
+        public override void SaveData(TagCompound tag) {
+            tag["altNameColors"] = (byte)altNameColors;
+		}
+		public override void LoadData(TagCompound tag) {
+            if (tag.TryGet("altNameColors", out byte altNameColors)) this.altNameColors = (AltNameColorTypes)altNameColors;
+		}
+		/*internal static PlayerLayer MarionetteStringLayer(int marionetteDeathTime) => new PlayerLayer("EpikV2", "MarionetteStringLayer", null, delegate (PlayerDrawInfo drawInfo) {
             Vector2 size = drawInfo.drawPlayer.Size;
             Vector2 position = drawInfo.position;
             Vector2 handPos = GetOnHandPos(drawInfo.drawPlayer.bodyFrame);
@@ -961,8 +996,8 @@ namespace EpikV2 {
             data.shader = shaderID;
             Main.playerDrawData.Insert(0, data);
         });*/
-        /*public override void PostHurt(bool pvp, bool quiet, double damage, int hitDirection, bool crit) {
+		/*public override void PostHurt(bool pvp, bool quiet, double damage, int hitDirection, bool crit) {
             damage_taken = (int)damage;
         }*/
-    }
+	}
 }
