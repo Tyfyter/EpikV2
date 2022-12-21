@@ -13,6 +13,7 @@ using static Microsoft.Xna.Framework.MathHelper;
 using static EpikV2.Resources;
 using EpikV2.Modifiers;
 using EpikV2.NPCs;
+using Tyfyter.Utils;
 
 namespace EpikV2.Projectiles {
     public class EpikGlobalProjectile : GlobalProjectile {
@@ -23,6 +24,16 @@ namespace EpikV2.Projectiles {
         public ModPrefix prefix;
         public bool controledNPCProjectile = false;
 		public override void OnSpawn(Projectile projectile, IEntitySource source) {
+			if (projectile.type == ProjectileID.ConfettiGun && projectile.damage == 0) {
+                projectile.damage = 1;
+                projectile.friendly = true;
+                projectile.knockBack = 24;
+                if (source is EntitySource_Wiring) {
+                    projectile.hostile = true;
+                    projectile.trap = true;
+                    projectile.knockBack *= 2;
+                }
+            }
 			if (source is EntitySource_ItemUse itemUseSource) {
                 prefix = PrefixLoader.GetPrefix(itemUseSource.Item.prefix);
 
@@ -68,6 +79,19 @@ namespace EpikV2.Projectiles {
                 hitPrefix.OnProjectileHitNPC(projectile, target, damage, knockback, crit);
             }
         }
+		public override bool? Colliding(Projectile projectile, Rectangle projHitbox, Rectangle targetHitbox) {
+            if (projectile.type == ProjectileID.ConfettiGun) {
+                Vector2 center = projHitbox.Center();
+                Vector2 velPerp0 = projectile.velocity.MatrixMult(Vector2.UnitY, -Vector2.UnitX);
+                Vector2 velPerp1 = projectile.velocity.MatrixMult(Vector2.UnitY, Vector2.UnitX);
+                Vector2 velPerp2 = projectile.velocity.MatrixMult(-Vector2.UnitX, Vector2.UnitY);
+                Vector2 @base = center + projectile.velocity * 8;
+                return new Triangle(center, @base + velPerp0 * 3, @base + velPerp0 * -3).Intersects(targetHitbox) ||
+                    new Triangle(center, @base + velPerp1 * 3, @base + velPerp1 * -3).Intersects(targetHitbox) ||
+                    new Triangle(center, @base + velPerp2 * 3, @base + velPerp2 * -3).Intersects(targetHitbox);
+            }
+			return null;
+		}
 		public override bool PreDraw(Projectile projectile, ref Color drawColor) {
             if (jade) {
                 Lighting.AddLight(projectile.Center, 0, 1, 0.5f);
