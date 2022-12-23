@@ -19,9 +19,6 @@ using static Tyfyter.Utils.MiscUtils;
 namespace EpikV2.Items {
 	//inspired by a dream I had on the night of November 18th 2022
 	//in which a blue fictional character known for her outstanding speed gave it up for magic and gained the ability to teleport
-	/// TODO: add teleportation
-	/// TODO: add endpoint tapering
-	/// TODO: maybe fix animation, it's supposed to be more of a "beams rotate into place while extending but catch on the corners" rather than whatever this is
 	public class Teleport_Prism : ModItem {
 		public override string Texture => "EpikV2/Items/Burning_Ambition";
 		public override void SetStaticDefaults() {

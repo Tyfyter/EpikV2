@@ -103,7 +103,8 @@ namespace EpikV2.Items {
 			return clone;
 		}
 		protected override bool CloneNewInstances => true;
-		internal List<Particle> particles;
+		List<Particle> particles;
+		internal List<Particle> Particles => particles ??= new List<Particle>();
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Burning Avaritia");
 		}
@@ -123,15 +124,12 @@ namespace EpikV2.Items {
 		}
 		public override void AI() {
 			Player owner = Main.player[Projectile.owner];
-			if (particles is null) {
-				particles = new List<Particle>();
-			}
 			if (Projectile.owner == Main.myPlayer) {
 				Projectile.velocity = Vector2.Normalize(Main.MouseWorld - owner.MountedCenter);
 			}
 			if (Projectile.timeLeft > 30) {
 				float dist = Main.rand.NextFloat(float.Epsilon, 1);
-				particles.Add(new Particle(dist * 196, new PolarVec2(Main.rand.NextFloat(32, 64) * dist, Main.rand.NextFloat(MathHelper.TwoPi))));
+				Particles.Add(new Particle(dist * 196, new PolarVec2(Main.rand.NextFloat(32, 64) * dist, Main.rand.NextFloat(MathHelper.TwoPi))));
 			} else if (Projectile.ai[0] == 0) {
 				if (!owner.channel || (Projectile.timeLeft < 16 && !owner.CheckMana(owner.HeldItem, owner.HeldItem.mana / 4 + (int)(Projectile.localAI[0] * 2), true))) {
 					Projectile.timeLeft = 30;
@@ -163,8 +161,8 @@ namespace EpikV2.Items {
 			Vector2 direction = Vector2.Normalize(Projectile.velocity);
 			Vector2 side = direction.RotatedBy(MathHelper.PiOver2);
 			Vector2 origin = Projectile.Center - Main.screenPosition;
-			for (int i = 0; i < particles.Count; i++) {
-				Particle particle = particles[i];
+			for (int i = 0; i < Particles.Count; i++) {
+				Particle particle = Particles[i];
 				float rot = (Projectile.rotation + particle.position.Theta) % MathHelper.TwoPi;
 				double sin = Math.Sin(rot);
 				if (sin > 0 == back || particle.age < factor - 1) {

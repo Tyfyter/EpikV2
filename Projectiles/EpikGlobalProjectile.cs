@@ -73,10 +73,21 @@ namespace EpikV2.Projectiles {
             if (prefix is IProjectileHitPrefix hitPrefix) {
                 hitPrefix.ModifyProjectileHitNPC(projectile, target, ref damage, ref knockback, ref crit, ref hitDirection);
             }
-}
-		public override void OnHitNPC(Projectile projectile, NPC target, int damage, float knockback, bool crit) {
+        }
+        public override void OnHitPvp(Projectile projectile, Player target, int damage, bool crit) {
+            OnHitPlayer(projectile, target, damage, crit);
+        }
+        public override void OnHitPlayer(Projectile projectile, Player target, int damage, bool crit) {
+            if (projectile.type == ProjectileID.ConfettiGun && !target.noKnockback) {
+                target.velocity = projectile.velocity.SafeNormalize(default) * projectile.knockBack * 0.5f;
+            }
+        }
+        public override void OnHitNPC(Projectile projectile, NPC target, int damage, float knockback, bool crit) {
             if (prefix is IProjectileHitPrefix hitPrefix) {
                 hitPrefix.OnProjectileHitNPC(projectile, target, damage, knockback, crit);
+            }
+			if (projectile.type == ProjectileID.ConfettiGun) {
+                target.velocity = Vector2.Lerp(target.oldVelocity, projectile.velocity.SafeNormalize(default) * knockback * target.knockBackResist, Math.Max(1, target.knockBackResist));
             }
         }
 		public override bool? Colliding(Projectile projectile, Rectangle projHitbox, Rectangle targetHitbox) {
