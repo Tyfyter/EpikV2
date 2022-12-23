@@ -107,6 +107,7 @@ namespace EpikV2 {
         public int activeBuffs = 0;
         private bool oldWet = false;
         public AltNameColorTypes altNameColors = AltNameColorTypes.None;
+        public bool noKnockbackOnce = false;
 
         public static BitsBytes ItemChecking;
 
@@ -623,6 +624,10 @@ namespace EpikV2 {
         public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource, ref int cooldownCounter) {
             bool canDodge = true;
             bool canReduce = true;
+            if (noKnockbackOnce) {
+                hitDirection = 0;
+                noKnockbackOnce = false;
+            }
             if (marionetteDeathTime>0) {
                 return false;
             }
