@@ -14,8 +14,10 @@ namespace EpikV2.Items {
 	public class Sovereign_Crown : ModItem {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Sovereign Crown");
-			Tooltip.SetDefault("25% increased melee and minion damage\n"+
-                               "Increases your max number of minions by 1\n"+
+			Tooltip.SetDefault("25% increased melee and minion damage\n" +
+                               "15% increased melee range\n" +
+                               "25% increased whip range\n" +
+                               "Increases your max number of minions by 1\n" +
                                "'Heavy is the head that wears the crown'");
             ArmorIDs.Head.Sets.DrawHatHair[Item.headSlot] = true;
             SacrificeTotal = 1;
@@ -31,6 +33,8 @@ namespace EpikV2.Items {
 		public override void UpdateEquip(Player player){
 			player.GetDamage(DamageClass.Melee) += 0.25f;
 			player.GetDamage(DamageClass.Summon) += 0.25f;
+            player.GetModPlayer<EpikPlayer>().meleeSize *= 1.15f;
+            player.whipRangeMultiplier *= 1.25f;
             player.maxMinions += 1;
             if(Main.netMode != NetmodeID.SinglePlayer) {
 			    if (player.whoAmI != Main.myPlayer) {

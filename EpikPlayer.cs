@@ -101,6 +101,7 @@ namespace EpikV2 {
         public bool imbueShadowflame = false;
         public bool imbueCursedInferno = false;
         public bool imbueIchor = false;
+        public float meleeSize = 1;
         public int? switchBackSlot = 0;
         private int[] buffIndecies;
         public int[] BuffIndecies => buffIndecies ??= BuffID.Sets.Factory.CreateIntSet(-1);
@@ -171,6 +172,7 @@ namespace EpikV2 {
             imbueShadowflame = false;
             imbueCursedInferno = false;
             imbueIchor = false;
+            meleeSize = 1;
             if (marionetteDeathTime>0) {
                 Player.statLife = 0;
                 Player.breath = Player.breathMax;
@@ -285,6 +287,11 @@ namespace EpikV2 {
                 break;
             }
 			return false;
+		}
+		public override void ModifyItemScale(Item item, ref float scale) {
+			if (item.CountsAsClass(DamageClass.Melee) && !item.noMelee) {
+                scale *= meleeSize;
+			}
 		}
 		public override void ModifyHitNPC(Item item, NPC target, ref int damage, ref float knockback, ref bool crit) {
             if(target.HasBuff(Sovereign_Debuff.ID)) {

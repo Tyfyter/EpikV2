@@ -345,6 +345,7 @@ namespace EpikV2 {
 		public static List<int> Sacrifices { get => sacrifices; set => sacrifices = value; }
 		public static bool Raining { get => raining; set => raining = value; }
 		int timeManipMode;
+		public float timeManipDanger;
 		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
 			if (EpikV2.modeSwitchHotbarActive) {
 				int hotbarIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Hotbar"));
@@ -389,14 +390,29 @@ namespace EpikV2 {
 			for (int i = 0; i < Sacrifices.Count; i++) {
 				Main.townNPCCanSpawn[Sacrifices[i]] = false;
 			}
+			const int dayLength = 86400;
+			const int maxDanger = dayLength * 2;
 			switch (timeManipMode) {
 				case 1:
 				Main.xMas = true;
+				timeManipDanger = Math.Min(timeManipDanger + (float)Main.dayRate, maxDanger);
 				break;
+
 				case 2:
 				Main.halloween = true;
+				timeManipDanger = Math.Min(timeManipDanger + (float)Main.dayRate, maxDanger);
+				break;
+
+				case 3:
+				case 4:
+				timeManipDanger = Math.Max(timeManipDanger - 0.333f, 0);
+				break;
+
+				default:
+				timeManipDanger = Math.Max(timeManipDanger - (float)Main.dayRate * 2, 0);
 				break;
 			}
+			EpikV2.timeManipDanger = timeManipDanger;
 		}
 		public override void ModifyTimeRate(ref double timeRate, ref double tileUpdateRate, ref double eventUpdateRate) {
 			switch (timeManipMode) {

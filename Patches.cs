@@ -195,6 +195,14 @@ namespace EpikV2 {
 			};*/
 			ILMod.Main.DrawWhip_RainbowWhip += Main_DrawWhip_RainbowWhip;
 			ILMod.Projectile.AI_165_Whip += Projectile_AI_165_Whip;
+			Detour.NPC.ScaleStats_UseStrengthMultiplier += NPC_ScaleStats_UseStrengthMultiplier;
+		}
+		internal static float timeManipDanger;
+		private void NPC_ScaleStats_UseStrengthMultiplier(Detour.NPC.orig_ScaleStats_UseStrengthMultiplier orig, NPC self, float strength) {
+			const int maxStrength = 86400 * 2;
+			strength *= 1 + (timeManipDanger / maxStrength);
+			orig(self, strength);
+			self.strengthMultiplier = strength;
 		}
 
 		private void Main_DrawWhip_RainbowWhip(ILContext il) {

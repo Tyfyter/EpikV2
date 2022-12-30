@@ -88,6 +88,19 @@ namespace EpikV2.Items {
 				NetMessage.SendData(MessageID.SyncEquipment, -1, -1, null, Main.LocalPlayer.whoAmI, Main.LocalPlayer.selectedItem);
 			}
 		}
+		public override void AddRecipes() {
+			Recipe recipe = CreateRecipe();
+			recipe.AddIngredient(ItemID.GoldWatch);
+			recipe.AddIngredient(ModContent.ItemType<Psychodelic_Potion>());
+			recipe.AddTile(TileID.DemonAltar);
+			recipe.Register();
+
+			recipe = CreateRecipe();
+			recipe.AddIngredient(ItemID.PlatinumWatch);
+			recipe.AddIngredient(ModContent.ItemType<Psychodelic_Potion>());
+			recipe.AddTile(TileID.DemonAltar);
+			recipe.Register();
+		}
 		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
 			int itemID = GetSlotContents(mode);
 			if (itemID < 0 || itemID == Type) {

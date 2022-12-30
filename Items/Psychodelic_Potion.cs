@@ -25,6 +25,7 @@ namespace EpikV2.Items {
             Item.healMana = 0;
             Item.buffType = High_Buff.ID;
             Item.buffTime = 60 * 60 * 10;
+            Item.value *= 10;
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type);

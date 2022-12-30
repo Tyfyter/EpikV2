@@ -615,6 +615,21 @@ namespace EpikV2.NPCs
                 break;
             }
         }
+        public override void SetupTravelShop(int[] shop, ref int nextSlot) {
+            Player player = null;
+            for (int j = 0; j < 255; j++) {
+                Player currentPlayer = Main.player[j];
+                if (currentPlayer.active && (player == null || player.luck < currentPlayer.luck)) {
+                    player = currentPlayer;
+                }
+            }
+            if (player == null) {
+                player = new Player();
+            }
+            if (Main.GetMoonPhase() == Terraria.Enums.MoonPhase.Full || player.RollLuck(7) == 0) {
+                shop[nextSlot++] = ModContent.ItemType<Totally_Not_Shimmer>();
+            }
+        }
         public void SetBounceTime(int time, int count = 1) {
             bounceTime = time;
             bounces = count;

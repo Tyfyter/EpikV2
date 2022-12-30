@@ -8,7 +8,7 @@ using Terraria.DataStructures;
 namespace EpikV2.Items
 {
 	[AutoloadEquip(EquipType.Wings)]
-	public class Step2 : ModItem{
+	public class Step2 : ModItem {
 
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Step 2");
