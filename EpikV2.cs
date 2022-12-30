@@ -344,6 +344,7 @@ namespace EpikV2 {
 		private static bool raining;
 		public static List<int> Sacrifices { get => sacrifices; set => sacrifices = value; }
 		public static bool Raining { get => raining; set => raining = value; }
+		int timeManipMode;
 		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
 			if (EpikV2.modeSwitchHotbarActive) {
 				int hotbarIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Hotbar"));
@@ -388,6 +389,24 @@ namespace EpikV2 {
 			for (int i = 0; i < Sacrifices.Count; i++) {
 				Main.townNPCCanSpawn[Sacrifices[i]] = false;
 			}
+			switch (timeManipMode) {
+				case 1:
+				Main.xMas = true;
+				break;
+				case 2:
+				Main.halloween = true;
+				break;
+			}
+		}
+		public override void ModifyTimeRate(ref double timeRate, ref double tileUpdateRate, ref double eventUpdateRate) {
+			switch (timeManipMode) {
+				case 3:
+				timeRate *= 0.333f;
+				break;
+				case 4:
+				timeRate *= 3f;
+				break;
+			}
 		}
 		public override void PostUpdateWorld() {
 			//if(GolemTime>0)GolemTime--;
@@ -416,6 +435,23 @@ namespace EpikV2 {
 					vines.nodes = vineNodes[i];
 				}
 			}
+		}
+		public bool CanSetTimeManipMode(int mode) {
+			if (timeManipMode == 3 && (Main.snowMoon || Main.pumpkinMoon) && (mode == 0 || mode == 4)) {
+				return false;
+			}
+			return true;
+		}
+		public void SetTimeManipMode(int mode) {
+			switch (timeManipMode) {
+				case 1:
+				Main.checkXMas();
+				break;
+				case 2:
+				Main.checkHalloween();
+				break;
+			}
+			timeManipMode = mode;
 		}
 		public override void PostWorldGen() {
 			ChestLootCache[] lootCaches = ChestLootCache.BuildCaches();
