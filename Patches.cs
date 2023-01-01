@@ -196,6 +196,31 @@ namespace EpikV2 {
 			ILMod.Main.DrawWhip_RainbowWhip += Main_DrawWhip_RainbowWhip;
 			ILMod.Projectile.AI_165_Whip += Projectile_AI_165_Whip;
 			Detour.NPC.ScaleStats_UseStrengthMultiplier += NPC_ScaleStats_UseStrengthMultiplier;
+			Detour.Player.UpdateBiomes += (orig, self) => {
+				orig(self);
+				ProcessModBiomes(self);
+			};
+		}
+		FieldInfo _modBiomeFlags;
+		FieldInfo _ModBiomeFlags => _modBiomeFlags ??= typeof(Player).GetField("modBiomeFlags", BindingFlags.NonPublic | BindingFlags.Instance);
+		[JITWhenModsEnabled("AltLibrary")]
+		void ProcessModBiomes(Player player) {
+			if (EpikIntegration.ModEvilBiomes.Count > 0 && player.GetModPlayer<EpikPlayer>().drugPotion) {
+				BitArray modBiomeFlags = (BitArray)_ModBiomeFlags.GetValue(player);
+				bool inABiome = player.ZoneCorrupt || player.ZoneCrimson;
+				for (int i = 0; !inABiome && i < EpikIntegration.ModEvilBiomes.Count; i++) {
+					if (modBiomeFlags[EpikIntegration.ModEvilBiomes[i].Type]) {
+						inABiome = true;
+					}
+				}
+				if (inABiome) {
+					player.ZoneCorrupt ^= true;
+					player.ZoneCrimson ^= true;
+					for (int i = 0; i < EpikIntegration.ModEvilBiomes.Count; i++) {
+						modBiomeFlags[EpikIntegration.ModEvilBiomes[i].Type] ^= true;
+					}
+				}
+			}
 		}
 		internal static float timeManipDanger;
 		private void NPC_ScaleStats_UseStrengthMultiplier(Detour.NPC.orig_ScaleStats_UseStrengthMultiplier orig, NPC self, float strength) {

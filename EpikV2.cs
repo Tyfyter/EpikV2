@@ -73,6 +73,10 @@ namespace EpikV2 {
 				switch (args[0]) {
 					case "GetInfoStringForBugReport":
 					return "testing: why didn't I choose a mod with any static non-resource data to test this with?";
+
+					case "AddModEvilBiome":
+					EpikIntegration.ModEvilBiomes.Add((ModBiome)args[1]);
+					return null;
 				}
 			}
 			return null;
@@ -500,18 +504,25 @@ namespace EpikV2 {
 		public override bool IsBiomeActive(Player player) {
 			bool high = player.GetModPlayer<EpikPlayer>().drugPotion;
 			if (high) {
+				ProcessBiomes(player);
+			}
+			return high;
+		}
+
+		static void ProcessBiomes(Player player) {
+			if (EpikIntegration.ModEvilBiomes.Count <= 0) {
 				bool corrupt = player.ZoneCorrupt;
 				player.ZoneCorrupt = player.ZoneCrimson;
 				player.ZoneCrimson = corrupt;
 			}
-			return high;
 		}
 		public override void SpecialVisuals(Player player, bool isActive) {
-			ScreenShaderData shader = Filters.Scene["EpikV2:LessD"].GetShader();
-			float val = (float)((Math.Sin(Main.GlobalTimeWrappedHourly * MathHelper.Pi)) + 1f) / 2;
+			string shaderName = EpikClientConfig.Instance.reduceJitter.HasFlag(JitterTypes.LSD) ? "EpikV2:LessD" : "EpikV2:LSD";
+			ScreenShaderData shader = Filters.Scene[shaderName].GetShader();
+			float val = (float)(Math.Sin(Main.GlobalTimeWrappedHourly * MathHelper.Pi) + 1f) / 2;
 			shader.UseIntensity(shader.Intensity + val / 30f);
 			shader.UseOpacity(val);
-			player.ManageSpecialBiomeVisuals(EpikClientConfig.Instance.reduceJitter.HasFlag(JitterTypes.LSD) ? "EpikV2:LessD" : "EpikV2:LSD", isActive);
+			player.ManageSpecialBiomeVisuals(shaderName, isActive);
 		}
 	}
 	public class PartyBiome : ModBiome {

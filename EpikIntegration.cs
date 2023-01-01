@@ -9,7 +9,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace EpikV2 {
-	public class EpikIntegration {
+	public class EpikIntegration : ILoadable {
 		public static class EnabledMods {
 			public static bool RecipeBrowser { get; private set; } = false;
 			public static bool Origins { get; private set; } = false;
@@ -24,6 +24,14 @@ namespace EpikV2 {
 				Origins = ModLoader.TryGetMod("Origins", out _);
 				GraphicsLib = ModLoader.TryGetMod("GraphicsLib", out _);
 			}
+		}
+		public static List<ModBiome> ModEvilBiomes { get; private set; }
+
+		public void Load(Mod mod) {
+			ModEvilBiomes = new List<ModBiome>();
+		}
+		public void Unload() {
+			ModEvilBiomes = null;
 		}
 		internal static void AddRecipeBrowserIntegration() {
 			/*
