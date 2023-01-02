@@ -2,12 +2,15 @@
 using EpikV2.Items.Debugging;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
+using ReLogic.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.GameContent;
 using Terraria.Graphics.Effects;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
@@ -18,6 +21,7 @@ namespace EpikV2 {
     public static class Resources {
         public static TextureCache Textures { get; internal set; }
         public static ShaderCache Shaders { get; internal set; }
+        public static FontCache Fonts { get; internal set; }
         public class TextureCache {
             public TextureCache() {
                 pixelTexture = Request<Texture2D>("EpikV2/Textures/Pixel");
@@ -182,6 +186,30 @@ namespace EpikV2 {
             public Asset<Texture2D> nebulaDistortionTexture;
             public Asset<Texture2D> testDistortionTexture;
             //public Effect trailShader;
+        }
+        public class FontCache {
+            FieldInfo _spriteCharacters;
+            FieldInfo _defaultCharacterData;
+            public FontCache() {
+                _spriteCharacters = typeof(DynamicSpriteFont).GetField("_spriteCharacters", BindingFlags.NonPublic | BindingFlags.Instance);
+                _defaultCharacterData = typeof(DynamicSpriteFont).GetField("_defaultCharacterData", BindingFlags.NonPublic | BindingFlags.Instance);
+            }
+            DynamicSpriteFont unkerned;
+            public DynamicSpriteFont Unkerned {
+                get {
+                    if (unkerned is null) {
+                        if (FontAssets.MouseText.IsLoaded) {
+                            DynamicSpriteFont baseFont = FontAssets.MouseText.Value;
+                            unkerned = new DynamicSpriteFont(-2, baseFont.LineSpacing, baseFont.DefaultCharacter);
+                            _spriteCharacters.SetValue(unkerned, _spriteCharacters.GetValue(baseFont));
+                            _defaultCharacterData.SetValue(unkerned, _defaultCharacterData.GetValue(baseFont));
+                        } else {
+                            return FontAssets.MouseText.Value;
+                        }
+                    }
+                    return unkerned;
+				}
+            }
         }
         public struct InvalidArmorShader {
             public readonly int shader;

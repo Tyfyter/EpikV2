@@ -106,6 +106,7 @@ namespace EpikV2 {
 				//GameShaders.Armor.BindShader(ModContent.ItemType<Motion_Blur_Dye>(), motionBlurShader);
 
 				Textures = new TextureCache();
+				Fonts = new FontCache();
 				drawAfterNPCs = new List<IDrawAfterNPCs>();
 				//mappedFilter = new Filter(new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/MappedShade")), "MappedShade"), EffectPriority.High);
 				//filterMapQueue = new SpriteBatchQueue();
@@ -124,6 +125,7 @@ namespace EpikV2 {
 			instance = null;
 			Textures = null;
 			Shaders = null;
+			Fonts = null;
 			drawAfterNPCs = null;
 			EpikWorld.Sacrifices = null;
 			HellforgeRecipes = null;
