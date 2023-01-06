@@ -875,6 +875,9 @@ namespace EpikV2 {
         public static bool IsPowerOfTwo(byte x) {
             return x != 0 && (x & (x - 1)) == 0;
         }
+        public static bool IsPowerOfTwo(ulong x) {
+            return x != 0 && (x & (x - 1)) == 0;
+        }
         public static void RemoveInvalidIndices(List<int> indices, Vector2[] vertices) {
             int i = 0;
 			while (i < indices.Count) {

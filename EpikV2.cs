@@ -41,6 +41,8 @@ using EpikV2.UI;
 using Newtonsoft.Json;
 using Terraria.ModLoader.Config.UI;
 using System.Globalization;
+using Terraria.GameContent.UI.Elements;
+using Terraria.ModLoader.UI;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -406,21 +408,82 @@ namespace EpikV2 {
 		public override bool IsDefined(Type attributeType, bool inherit) => true;
 		#endregion go no further, for here madness lies
 	}
-	public abstract class FlagEnumConfigElement<T> : ConfigElement<T> where T : Enum {
+	public abstract class FlagEnumConfigElement<T> : ConfigElement<T> where T : struct, Enum {
+		protected bool collapsed = false;
+		protected bool pendingChanges = false;
+		protected UIImage collapseButton;
+		protected UIImage expandButton;
+		protected bool skipOnBind = false;
 		public override void OnBind() {
 			base.OnBind();
+			if (skipOnBind) return;
+			SetupList();
+			pendingChanges = true;
+
+			Type type = Assembly.GetAssembly(typeof(UIImage))
+				.GetType("Terraria.ModLoader.Config.UI.UIModConfigHoverImage");
+			ConstructorInfo ctor = type.GetConstructors().First();
+
+			collapseButton = (UIImage)ctor.Invoke(new object[]{ ExpandedTexture, "Collapse" });
+			collapseButton.Top.Set(4f, 0f);
+			collapseButton.Left.Set(-52f, 1f);
+			collapseButton.OnClick += delegate {
+				collapsed = !collapsed;
+				pendingChanges = true;
+			};
+
+			expandButton = (UIImage)ctor.Invoke(new object[] { CollapsedTexture, "Expand" });
+			expandButton.Top.Set(4f, 0f);
+			expandButton.Left.Set(-52f, 1f);
+			expandButton.OnClick += delegate {
+				collapsed = !collapsed;
+				pendingChanges = true;
+			};
+		}
+		public override void Update(GameTime gameTime) {
+			base.Update(gameTime);
+			if (!pendingChanges) return;
+			pendingChanges = false;
+			float oldHeight = Height.Pixels;
+			if (collapsed) {
+				RemoveAllChildren();
+				Height.Pixels = 34;
+				Append(expandButton);
+			} else {
+				RemoveAllChildren();
+				SetupList();
+				Append(collapseButton);
+			}
+			float diff = Height.Pixels - oldHeight;
+			bool afterThis = false;
+			foreach (UIElement sibling in this.Parent.Parent.Children) {
+				if (afterThis) {
+					sibling.Children.First().Top.Pixels += diff;
+				} else if (sibling.Children.First() == this) {
+					afterThis = true;
+				}
+			}
+		}
+		protected void SetupList() {
+			RemoveAllChildren();
 
 			Type enumType = Value.GetType();
 			var values = Enum.GetValues(typeof(T));
 
 			int index = 0;
 			int top = 34;
-			foreach (byte flag in values) {
-				if (!EpikExtensions.IsPowerOfTwo(flag)) continue;
+			foreach (T flag in values) {
+				if (!EpikExtensions.IsPowerOfTwo(Convert.ToUInt64(flag))) continue;
 				var wrap = ConfigManager.WrapIt(
 					this,
 					ref top,
-					new PropertyFieldWrapper(new FakePropertyInfo(GetName(flag), SetFunction(flag), GetFunction(flag))),
+					new PropertyFieldWrapper(
+						new FakePropertyInfo(
+							GetName(flag),
+							SetFunction(flag),
+							GetFunction(flag)
+						)
+					),
 					Value,
 					index, index: index);
 				wrap.Item1.Width.Pixels -= 16;
@@ -430,28 +493,24 @@ namespace EpikV2 {
 			Height.Pixels += 6;
 			Recalculate();
 		}
-		protected abstract string GetName(byte flag);
-		protected abstract Action<bool> SetFunction(byte flag);
-		protected abstract Func<bool> GetFunction(byte flag);
-		protected override void DrawSelf(SpriteBatch spriteBatch) {
-			base.DrawSelf(spriteBatch);
+		protected virtual string GetName(T flag) {
+			return Enum.GetName(flag);
 		}
+		protected abstract Action<bool> SetFunction(T flag);
+		protected abstract Func<bool> GetFunction(T flag);
 	}
 	internal class JitterTypesElement : FlagEnumConfigElement<JitterTypes> {
-		protected override string GetName(byte flag) {
-			return Enum.GetName((JitterTypes)flag);
-		}
-		protected override Action<bool> SetFunction(byte flag) {
+		protected override Action<bool> SetFunction(JitterTypes flag) {
 			return (value) => {
 				if (value) {
-					Value |= (JitterTypes)flag;
+					Value |= flag;
 				} else {
-					Value &= (JitterTypes)~flag;
+					Value &= ~flag;
 				}
 			};
 		}
-		protected override Func<bool> GetFunction(byte flag) {
-			return () => Value.HasFlag((JitterTypes)flag);
+		protected override Func<bool> GetFunction(JitterTypes flag) {
+			return () => Value.HasFlag(flag);
 		}
 	}
 	[Flags]
@@ -462,20 +521,32 @@ namespace EpikV2 {
 		All		=	0b11111111
 	}
 	internal class AltNameColorTypesElement : FlagEnumConfigElement<AltNameColorTypes> {
-		protected override string GetName(byte flag) {
-			return Enum.GetName((AltNameColorTypes)flag);
+		public override void OnBind() {
+			if (!(Main.LocalPlayer?.active ?? false)) {
+				skipOnBind = true;
+				base.OnBind();
+				this.TooltipFunction = () => {
+					return "This setting is per-player and can't be displayed unless one is selected";
+				};
+			} else {
+				base.OnBind();
+			}
 		}
-		protected override Action<bool> SetFunction(byte flag) {
+		public override void Update(GameTime gameTime) {
+			if (!(Main.LocalPlayer?.active ?? false)) pendingChanges = false;
+			base.Update(gameTime);
+		}
+		protected override Action<bool> SetFunction(AltNameColorTypes flag) {
 			return (value) => {
 				if (value) {
-					Value |= (AltNameColorTypes)flag;
+					Value |= flag;
 				} else {
-					Value &= (AltNameColorTypes)~flag;
+					Value &= ~flag;
 				}
 			};
 		}
-		protected override Func<bool> GetFunction(byte flag) {
-			return () => Value.HasFlag((AltNameColorTypes)flag);
+		protected override Func<bool> GetFunction(AltNameColorTypes flag) {
+			return () => Value.HasFlag(flag);
 		}
 	}
 	[Flags]
