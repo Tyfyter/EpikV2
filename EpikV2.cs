@@ -39,6 +39,8 @@ using Terraria.GameContent.Drawing;
 using Terraria.Graphics.Renderers;
 using EpikV2.UI;
 using Newtonsoft.Json;
+using Terraria.ModLoader.Config.UI;
+using System.Globalization;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -59,8 +61,8 @@ namespace EpikV2 {
 		public static ModKeybind ModeSwitchHotkey { get; private set; }
 		public static bool modeSwitchHotbarActive;
 		public static Filter mappedFilter {
-			get=>Filters.Scene["EpikV2:FilterMapped"];
-			set=>Filters.Scene["EpikV2:FilterMapped"] = value;
+			get => Filters.Scene["EpikV2:FilterMapped"];
+			set => Filters.Scene["EpikV2:FilterMapped"] = value;
 		}
 		public static SpriteBatchQueue filterMapQueue;
 		public static ArmorShaderData alphaMapShader;
@@ -138,9 +140,9 @@ namespace EpikV2 {
 		public override void HandlePacket(BinaryReader reader, int whoAmI) {
 			byte type = reader.ReadByte();
 			bool altHandle = false;
-			if(Main.netMode == NetmodeID.Server) {
+			if (Main.netMode == NetmodeID.Server) {
 				ModPacket packet;
-				switch(type) {
+				switch (type) {
 					case PacketType.wetUpdate:
 					packet = GetPacket(3);
 					packet.Write(PacketType.wetUpdate);
@@ -172,7 +174,7 @@ namespace EpikV2 {
 
 					case PacketType.topHatCard:
 					NPC target = Main.npc[reader.ReadInt32()];
-					EpikExtensions.DropItemForNearbyTeammates(target.position, target.Size, reader.ReadInt32(), ModContent.ItemType<Ace_Heart>()+Main.rand.Next(4));
+					EpikExtensions.DropItemForNearbyTeammates(target.position, target.Size, reader.ReadInt32(), ModContent.ItemType<Ace_Heart>() + Main.rand.Next(4));
 					break;
 
 					default:
@@ -180,12 +182,12 @@ namespace EpikV2 {
 					break;
 				}
 			} else {
-				switch(type) {
+				switch (type) {
 					case PacketType.wetUpdate:
 					Player player = Main.player[reader.ReadByte()];
 					bool wet = reader.ReadBoolean();
 					player.wingTimeMax = wet ? 60 : 0;
-					if(wet)player.wingTime = 60;//*/
+					if (wet) player.wingTime = 60;//*/
 					break;
 
 					case PacketType.golemDeath:
@@ -202,7 +204,7 @@ namespace EpikV2 {
 					Logger.InfoFormat("received npc hp update packet");
 					NPC npc = Main.npc[reader.ReadByte()];
 					npc.lifeMax = Math.Min(npc.lifeMax, reader.ReadInt32());
-					if(npc.life > npc.lifeMax)npc.life = npc.lifeMax;
+					if (npc.life > npc.lifeMax) npc.life = npc.lifeMax;
 					npc.GetGlobalNPC<EpikGlobalNPC>().organRearrangement = Math.Max(npc.GetGlobalNPC<EpikGlobalNPC>().organRearrangement, reader.ReadSingle());
 					break;
 
@@ -245,12 +247,12 @@ namespace EpikV2 {
 			public const byte playerSync = 6;
 		}
 		public static short SetStaticDefaultsGlowMask(ModItem modItem) {
-			if (Main.netMode!=NetmodeID.Server) {
+			if (Main.netMode != NetmodeID.Server) {
 				Asset<Texture2D>[] glowMasks = new Asset<Texture2D>[TextureAssets.GlowMask.Length + 1];
 				for (int i = 0; i < TextureAssets.GlowMask.Length; i++) {
 					glowMasks[i] = TextureAssets.GlowMask[i];
 				}
-				glowMasks[^1] = ModContent.Request<Texture2D>(modItem.Texture+"_Glow");
+				glowMasks[^1] = ModContent.Request<Texture2D>(modItem.Texture + "_Glow");
 				TextureAssets.GlowMask = glowMasks;
 				return (short)(glowMasks.Length - 1);
 			} else return 0;
@@ -336,10 +338,12 @@ namespace EpikV2 {
 		[Label("Reduce Jitter")]
 		[Tooltip("Reduces intentional jitter in some elements\nOn by default for the sake of players with photosensitive epilepsy")]
 		[DefaultValue(JitterTypes.All)]
+		[CustomModConfigItem(typeof(JitterTypesElement))]
 		public JitterTypes reduceJitter = JitterTypes.All;
 
 		[Label("Alternate Name Colors")]
 		[DefaultValue(AltNameColorTypes.None)]
+		[CustomModConfigItem(typeof(AltNameColorTypesElement))]
 		public AltNameColorTypes AltNameColors {
 			get {
 				if (Main.LocalPlayer.active && Main.LocalPlayer.GetModPlayer<EpikPlayer>() is EpikPlayer epikPlayer) {
@@ -354,6 +358,102 @@ namespace EpikV2 {
 			}
 		}
 	}
+	#region flags
+	public class FakePropertyInfo : PropertyInfo {
+		public override PropertyAttributes Attributes { get; }
+		readonly Action<bool> set;
+		readonly Func<bool> get;
+		readonly string name;
+		public override string Name => name;
+		internal FakePropertyInfo(string name, Action<bool> set, Func<bool> get) : base() {
+			this.name = name ?? "";
+			this.set = set;
+			this.get = get;
+		}
+		public override object GetValue(object obj, BindingFlags invokeAttr, Binder binder, object[] index, CultureInfo culture) {
+			return get?.Invoke();
+		}
+		public override void SetValue(object obj, object value, BindingFlags invokeAttr, Binder binder, object[] index, CultureInfo culture) {
+			if (set is not null) set((bool)value);
+		}
+		#region go no further, for here madness lies
+		public override bool CanRead => true;
+		public override bool CanWrite => true;
+		public override Type PropertyType => typeof(bool);
+		public override Type DeclaringType { get; }
+		public override Type ReflectedType { get; }
+
+		public override MethodInfo[] GetAccessors(bool nonPublic) {
+			return new MethodInfo[0];
+		}
+
+		public override object[] GetCustomAttributes(bool inherit) {
+			return new Attribute[0];
+		}
+
+		public override object[] GetCustomAttributes(Type attributeType, bool inherit) {
+			return new Attribute[0];
+		}
+
+		public override MethodInfo GetGetMethod(bool nonPublic) => get.Method;
+
+		public override ParameterInfo[] GetIndexParameters() {
+			return new ParameterInfo[0];
+		}
+
+		public override MethodInfo GetSetMethod(bool nonPublic) => set.Method;
+
+		public override bool IsDefined(Type attributeType, bool inherit) => true;
+		#endregion go no further, for here madness lies
+	}
+	public abstract class FlagEnumConfigElement<T> : ConfigElement<T> where T : Enum {
+		public override void OnBind() {
+			base.OnBind();
+
+			Type enumType = Value.GetType();
+			var values = Enum.GetValues(typeof(T));
+
+			int index = 0;
+			int top = 34;
+			foreach (byte flag in values) {
+				if (!EpikExtensions.IsPowerOfTwo(flag)) continue;
+				var wrap = ConfigManager.WrapIt(
+					this,
+					ref top,
+					new PropertyFieldWrapper(new FakePropertyInfo(GetName(flag), SetFunction(flag), GetFunction(flag))),
+					Value,
+					index, index: index);
+				wrap.Item1.Width.Pixels -= 16;
+				Append(wrap.Item1);
+				index++;
+			}
+			Height.Pixels += 6;
+			Recalculate();
+		}
+		protected abstract string GetName(byte flag);
+		protected abstract Action<bool> SetFunction(byte flag);
+		protected abstract Func<bool> GetFunction(byte flag);
+		protected override void DrawSelf(SpriteBatch spriteBatch) {
+			base.DrawSelf(spriteBatch);
+		}
+	}
+	internal class JitterTypesElement : FlagEnumConfigElement<JitterTypes> {
+		protected override string GetName(byte flag) {
+			return Enum.GetName((JitterTypes)flag);
+		}
+		protected override Action<bool> SetFunction(byte flag) {
+			return (value) => {
+				if (value) {
+					Value |= (JitterTypes)flag;
+				} else {
+					Value &= (JitterTypes)~flag;
+				}
+			};
+		}
+		protected override Func<bool> GetFunction(byte flag) {
+			return () => Value.HasFlag((JitterTypes)flag);
+		}
+	}
 	[Flags]
 	public enum JitterTypes : byte {
 		None	=	0b00000000,
@@ -361,12 +461,31 @@ namespace EpikV2 {
 		LSD		=	0b00000010,
 		All		=	0b11111111
 	}
+	internal class AltNameColorTypesElement : FlagEnumConfigElement<AltNameColorTypes> {
+		protected override string GetName(byte flag) {
+			return Enum.GetName((AltNameColorTypes)flag);
+		}
+		protected override Action<bool> SetFunction(byte flag) {
+			return (value) => {
+				if (value) {
+					Value |= (AltNameColorTypes)flag;
+				} else {
+					Value &= (AltNameColorTypes)~flag;
+				}
+			};
+		}
+		protected override Func<bool> GetFunction(byte flag) {
+			return () => Value.HasFlag((AltNameColorTypes)flag);
+		}
+	}
 	[Flags]
 	public enum AltNameColorTypes : byte {
 		None = 0b00000000,
 		Starlight = 0b00000001,
 		All = 0b11111111
 	}
+
+	#endregion flags
 	public class EpikWorld : ModSystem {
 		//public static int GolemTime = 0;
 		private static List<int> sacrifices;

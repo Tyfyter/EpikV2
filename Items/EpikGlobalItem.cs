@@ -67,7 +67,7 @@ namespace EpikV2.Items {
 			}
 		}
 		public override void UpdateEquip(Item item, Player player) {
-			if (nOwO??false) {
+			if (nOwO ?? false) {
                 player.GetDamage(DamageClass.Magic) *= 1.5f;
                 player.ghostHeal = true;
                 player.ghostHurt = true;
