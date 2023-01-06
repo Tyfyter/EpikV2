@@ -38,6 +38,7 @@ using Terraria.GameContent.Events;
 using Terraria.GameContent.Drawing;
 using Terraria.Graphics.Renderers;
 using EpikV2.UI;
+using Newtonsoft.Json;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -301,6 +302,28 @@ namespace EpikV2 {
 		[DefaultValue(true)]
 		public bool ThatFixFromNextUpdate = true;
 
+		[Label("NPC Changes")]
+		public NPCChangesConfig npcChangesConfig = new NPCChangesConfig();
+		public class NPCChangesConfig : ModConfig {
+			public override ConfigScope Mode => ConfigScope.ServerSide;
+			public override bool Autoload(ref string name) => false;
+
+			[Label("Illuminant Slimes")]
+			[DefaultValue(true)]
+			public bool IlluminantSlime = true;
+
+			[Label("Illuminant Bats")]
+			[DefaultValue(true)]
+			public bool IlluminantBats = true;
+
+			[Label("Hemogoblin Shark")]
+			[DefaultValue(true)]
+			public bool GoblinShark = true;
+
+			[Label("Dreadnautilus")]
+			[DefaultValue(true)]
+			public bool BloodNautilus = true;
+		}
 		/*[Label("Perfect Cellphone allows pylon teleportation")]
 		[DefaultValue(true)]
 		public bool PerfectCellPylon = true;*/
