@@ -26,6 +26,34 @@ namespace EpikV2.Items {
             return true;
         }
         public override void RightClick(Player player) {
+			static bool ShouldSkipRarityCheck(Player player, int random) {
+				switch (random) {
+					case ItemID.GPS:
+					if (player.accCompass != 0 && player.accWatch == 3 && player.accDepthMeter != 0) break;
+					return true;
+
+					case ItemID.REK:
+					if (player.accThirdEye && player.accCritterGuide && player.accJarOfSouls) break;
+					return true;
+
+					case ItemID.GoblinTech:
+					if (player.accDreamCatcher && player.accStopwatch && player.accOreFinder) break;
+					return true;
+
+					case ItemID.FishFinder:
+					if (player.accWeatherRadio && player.accFishFinder && player.accCalendar) break;
+					return true;
+
+					case ItemID.PDA:
+					case ItemID.CellPhone:
+					if (player.accCompass != 0 && player.accWatch == 3 && player.accDepthMeter != 0 &&
+						player.accThirdEye && player.accCritterGuide && player.accJarOfSouls &&
+						player.accDreamCatcher && player.accStopwatch && player.accOreFinder && 
+						player.accWeatherRadio && player.accFishFinder && player.accCalendar) break;
+					return true;
+				}
+				return false;
+			}
 			float targetRare = float.PositiveInfinity;
 			if (EpikConfig.Instance.BalancedAncientPresents || EpikConfig.Instance.TooGoodAncientPresents) {
 				targetRare = ItemRarityID.Blue;
@@ -73,45 +101,36 @@ namespace EpikV2.Items {
 			retry:
 			int random = Main.rand.NextBool(ItemLoader.ItemCount) ? ItemID.Drax : Main.rand.Next(1, ItemLoader.ItemCount);
 			Item item = new(random);
-			int realRare = item.rare;
-			if (realRare >= ItemRarityID.Count) {
-				int offset = 0;
-				while (realRare >= ItemRarityID.Count) {
-					realRare = RarityLoader.GetRarity(realRare).GetPrefixedRarity(-1, 0.95f);
-					if (realRare == item.rare) {
-						realRare = 0;
-						offset = 0;
-						break;
+			if (!ShouldSkipRarityCheck(player, random)) {
+				int realRare = item.rare;
+				if (realRare >= ItemRarityID.Count) {
+					int offset = 0;
+					while (realRare >= ItemRarityID.Count) {
+						realRare = RarityLoader.GetRarity(realRare).GetPrefixedRarity(-1, 0.95f);
+						if (realRare == item.rare) {
+							realRare = 0;
+							offset = 0;
+							break;
+						}
+						offset++;
 					}
-					offset++;
+					realRare += offset;
 				}
-				realRare += offset;
-			}
-			if (EpikConfig.Instance.BalancedAncientPresents && realRare > targetRare && random != ItemID.Drax) {
-				switch (random) {
-					case ItemID.GPS:
-					case ItemID.REK:
-					case ItemID.GoblinTech:
-					case ItemID.FishFinder:
-					case ItemID.PDA:
-					case ItemID.CellPhone:
-					break;
-
-					default:
+				if (EpikConfig.Instance.BalancedAncientPresents && realRare > targetRare && random != ItemID.Drax) {
 					if (!EpikConfig.Instance.TooGoodAncientPresents) Main.NewText($"whoa, look at this cool [i:{random}] you missed out on 'cause of the \"remotely balanced ancient presents\" setting, it had a rarity of [c/{(realRare >= ItemRarityID.Count ? RarityLoader.GetRarity(realRare).RarityColor.Hex3() : Terraria.GameContent.UI.ItemRarity.GetColor(realRare).Hex3())}:{realRare}] out of [c/{Terraria.GameContent.UI.ItemRarity.GetColor((int)targetRare).Hex3()}:{targetRare}]");
 					goto retry;
 				}
-			}
-			if (targetRare > RarityLoader.RarityCount - 1) {
-				targetRare = RarityLoader.RarityCount - 1;
-			}
-			if (realRare > ItemRarityID.Count && RarityLoader.GetRarity(realRare).GetPrefixedRarity(-1, 0.95f) == realRare) {
-				realRare = (int)targetRare;
-			}
-			if (EpikConfig.Instance.TooGoodAncientPresents && random != ItemID.Drax) {
-				if (realRare > targetRare) realRare = (int)targetRare;
-				if (player.RollLuckInverted((int)((targetRare - realRare) * 12)) != 0) {//(realRare >= -1 || player.RollLuck(5) == 0) && 
-					goto retry;
+				if (targetRare > RarityLoader.RarityCount - 1) {
+					targetRare = RarityLoader.RarityCount - 1;
+				}
+				if (realRare > ItemRarityID.Count && RarityLoader.GetRarity(realRare).GetPrefixedRarity(-1, 0.95f) == realRare) {
+					realRare = (int)targetRare;
+				}
+				if (EpikConfig.Instance.TooGoodAncientPresents && random != ItemID.Drax) {
+					if (realRare > targetRare) realRare = (int)targetRare;
+					if (player.RollLuckInverted((int)((targetRare - realRare) * 12)) != 0) {//(realRare >= -1 || player.RollLuck(5) == 0) &&
+						goto retry;
+					}
 				}
 			}
 			int prefix = Main.rand.NextBool(20) ? ModContent.PrefixType<Frogged_Prefix>() : -1;
