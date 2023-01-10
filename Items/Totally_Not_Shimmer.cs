@@ -20,11 +20,6 @@ namespace EpikV2.Items {
 			Item.shoot = ModContent.ProjectileType<Totally_Not_Shimmer_P>();
 			Item.value = Item.buyPrice(gold:15);
 		}
-		public override void AddRecipes() {
-			Recipe recipe = Recipe.Create(Type, 10);
-			recipe.AddIngredient(ItemID.BottledWater, 10);
-			recipe.Register();
-		}
 	}
 	public class Totally_Not_Shimmer_P : ModProjectile {
 		public override string Texture => base.Texture.Substring(0, base.Texture.Length - 2);

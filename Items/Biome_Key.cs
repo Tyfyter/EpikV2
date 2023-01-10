@@ -204,7 +204,8 @@ namespace EpikV2.Items {
 			}
 			recipe.AddTile(TileID.MythrilAnvil);
 			recipe.Register();
-        }
+		}
+		public override bool WeaponPrefix() => false;
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
 			return player.altFunctionUse != 2;
 		}
@@ -727,14 +728,8 @@ namespace EpikV2.Items {
 				mult = 0;
 			}
 		}
-		public override int ChoosePrefix(UnifiedRandom rand) {
-			if (Item.noUseGraphic) {
-				Item.noUseGraphic = false;
-				Item.Prefix(-2);
-				Item.noUseGraphic = true;
-			}
-			return Item.prefix;
-		}
+		public override bool MeleePrefix() => Main.rand.NextBool();
+		public override bool MagicPrefix() => true;
 	}
 	public class Biome_Key_Hallow_Stab : ModProjectile {
 		public override string Texture => "EpikV2/Items/Biome_Key_Hallow";
@@ -958,6 +953,8 @@ namespace EpikV2.Items {
 			Item.noUseGraphic = true;
 			Item.noMelee = true;
 		}
+		public override bool MeleePrefix() => Main.rand.NextBool();
+		public override bool RangedPrefix() => true;
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
 			if (!base.Shoot(player, source, position, velocity, type, damage, knockback)) {
 				return false;
@@ -1754,5 +1751,5 @@ namespace EpikV2.Items {
 			}, Projectile.owner);
 		}
 	}
-	public record Biome_Key_Data(int WeaponID,int KeyID,int TileID, int TileFrameX);
+	public record Biome_Key_Data(int WeaponID, int KeyID, int TileID, int TileFrameX);
 }
