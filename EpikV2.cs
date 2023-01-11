@@ -737,7 +737,9 @@ namespace EpikV2 {
 			float val = (float)(Math.Sin(Main.GlobalTimeWrappedHourly * MathHelper.Pi) + 1f) / 2;
 			shader.UseIntensity(shader.Intensity + val / 30f);
 			shader.UseOpacity(val);
+			//shader.UseImage(EpikV2.instance.Assets.Request<Texture2D>("Textures/DSTNoise", AssetRequestMode.ImmediateLoad).Value, 0, SamplerState.LinearWrap);
 			player.ManageSpecialBiomeVisuals(shaderName, isActive);
+			player.ManageSpecialBiomeVisuals(EpikClientConfig.Instance.reduceJitter.HasFlag(JitterTypes.LSD) ? "EpikV2:LSD" : "EpikV2:LessD", false);
 		}
 	}
 	public class PartyBiome : ModBiome {

@@ -156,6 +156,9 @@ namespace EpikV2 {
 
                 Filters.Scene["EpikV2:LSD"] = new Filter(new ScreenShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/LSD", AssetRequestMode.ImmediateLoad).Value), "LSD"), EffectPriority.High);
                 Filters.Scene["EpikV2:LessD"] = new Filter(new ScreenShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/LSD", AssetRequestMode.ImmediateLoad).Value), "LessD"), EffectPriority.High);
+                Filter dst_lsd = new Filter(new ScreenShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/DST_LSD", AssetRequestMode.ImmediateLoad).Value), "DST_LSD"), EffectPriority.High);
+                dst_lsd.GetShader().UseImage(mod.Assets.Request<Texture2D>("Textures/DSTNoise", AssetRequestMode.ImmediateLoad).Value, 0, SamplerState.LinearWrap);
+                Filters.Scene["EpikV2:DST_LSD"] = dst_lsd;
 
                 InvalidArmorShaders = new List<InvalidArmorShader> {
                     new InvalidArmorShader(EpikV2.starlightShaderID, EpikV2.dimStarlightShaderID),
