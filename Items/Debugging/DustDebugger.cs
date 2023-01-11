@@ -13,12 +13,11 @@ using Terraria.Audio;
 
 namespace EpikV2.Items.Debugging {
 
-    public class SoundDebugger : ModItem, IScrollableItem {
-        int id = 1;
-        SoundStyle soundStyle;
-        public override string Texture => "EpikV2/Items/Ace_Black_Diamond";
+    public class DustDebugger : ModItem, IScrollableItem {
+        int id = 0;
+        public override string Texture => "EpikV2/Items/Ashen_Mark_3";
         public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Sound Debugger");
+		    DisplayName.SetDefault("Dust Debugger");
 		}
 
         public override void SetDefaults() {
@@ -33,22 +32,23 @@ namespace EpikV2.Items.Debugging {
             Item.rare = ItemRarityID.LightPurple;
             Item.UseSound = null;
         }
-		public override bool? UseItem(Player player) {
-            if (soundStyle == default) return false;
-            SoundEngine.PlaySound(soundStyle);
-            player.chatOverhead.NewMessage("Item" + id, 30);
-			return true;
-		}
-
+		public override void HoldItem(Player player) {
+            Vector2 position;
+			if (player.whoAmI == Main.myPlayer) {
+                position = Main.MouseWorld;
+			} else {
+                position = player.MountedCenter - new Vector2(0, 64);
+            }
+            Dust.NewDust(position, 0, 0, id);
+            Main.LocalPlayer.chatOverhead.NewMessage(id + "", 5);
+        }
 		public void Scroll(int direction) {
             id += direction;
-			if (id < 1) {
-                id = SoundID.ItemSoundCount - 1;
-            } else if (id >= SoundID.ItemSoundCount) {
-                id = 1;
+			if (id < 0) {
+                id = DustID.Count;
+            } else if (id > DustID.Count) {
+                id = 0;
             }
-            soundStyle = (SoundStyle)typeof(SoundID).GetField("Item" + id).GetValue(null);
-            Main.LocalPlayer.chatOverhead.NewMessage("Item" + id, 30);
         }
 	}
 }
