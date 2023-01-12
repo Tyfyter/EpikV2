@@ -314,7 +314,12 @@ namespace EpikV2.NPCs
 				}
 			}
 		}
-
+		public override void EditSpawnRate(Player player, ref int spawnRate, ref int maxSpawns) {
+            const int maxStrength = 86400 * 2;
+            float dangerFactor = 1 + (timeManipDanger / maxStrength) * 0.5f;
+            spawnRate = (int)(spawnRate / dangerFactor);
+            maxSpawns = (int)(maxSpawns * dangerFactor);
+        }
 		public override void SpawnNPC(int npc, int tileX, int tileY){
 			if(Main.npc[npc].SpawnedFromStatue && Main.rand.NextBool(29)){
 				Main.npc[npc].SpawnedFromStatue = false;

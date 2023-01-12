@@ -224,8 +224,10 @@ namespace EpikV2 {
 		}
 		internal static float timeManipDanger;
 		private void NPC_ScaleStats_UseStrengthMultiplier(Detour.NPC.orig_ScaleStats_UseStrengthMultiplier orig, NPC self, float strength) {
-			const int maxStrength = 86400 * 2;
-			strength *= 1 + (timeManipDanger / maxStrength);
+			if (Main.netMode != NetmodeID.MultiplayerClient) {
+				const int maxStrength = 86400 * 2;
+				strength += (timeManipDanger / maxStrength) * (Main.masterMode ? 0.3f : (Main.expertMode ? 0.4f : 0.5f));
+			}
 			orig(self, strength);
 			self.strengthMultiplier = strength;
 		}
