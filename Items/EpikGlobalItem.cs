@@ -12,6 +12,7 @@ using System.Diagnostics;
 using Terraria.DataStructures;
 using Terraria.GameContent.ItemDropRules;
 using EpikV2.Modifiers;
+using System.IO;
 
 namespace EpikV2.Items {
     public partial class EpikGlobalItem : GlobalItem {
@@ -38,7 +39,7 @@ namespace EpikV2.Items {
 		}
 		public void InitCatgirlMeme(Item item) {
 			if (item.type == ItemID.CatEars && nOwO is null) {
-				if (!Main.gameMenu && !IsFakeSetDefaults() && Main.LocalPlayer.RollLuck(25) == 0) {
+				if (!Main.gameMenu && !IsFakeSetDefaults() && Main.LocalPlayer.RollLuck(13) == 0) {
 					Main.NewText("[herb:-1]");
 					nOwO = true;
 				} else {
@@ -61,6 +62,7 @@ namespace EpikV2.Items {
 			return false;
 		}
 		public void RefreshCatgirlMeme(Item item) {
+			//if (item.type != ItemID.CatEars) nOwO = null;
 			if (nOwO ?? false) {
 				item.vanity = false;
 				item.defense += 12;
@@ -149,6 +151,27 @@ namespace EpikV2.Items {
 					rule.rules = rules.ToArray();
 				}
 				break;
+
+				case ItemID.Present: {
+					SequentialRulesNotScalingWithLuckRule rule = (SequentialRulesNotScalingWithLuckRule)itemLoot.Get(false).First(rule => rule is SequentialRulesNotScalingWithLuckRule);
+					var rules = rule.rules.ToList();
+					rules.Insert(
+						rules.FindIndex(r => r is CommonDropNotScalingWithLuck nslRule && nslRule.itemId == ItemID.Eggnog),
+						ItemDropRule.NotScalingWithLuck(ModContent.ItemType<Mobile_Glitch_Present>(), 13)
+					);
+					rule.rules = rules.ToArray();
+				}
+				break;
+			}
+		}
+		public override void NetSend(Item item, BinaryWriter writer) {
+			if (item.type == ItemID.CatEars) {
+				writer.Write(nOwO ?? false);
+			}
+		}
+		public override void NetReceive(Item item, BinaryReader reader) {
+			if (item.type == ItemID.CatEars) {
+				nOwO = reader.ReadBoolean();
 			}
 		}
 	}

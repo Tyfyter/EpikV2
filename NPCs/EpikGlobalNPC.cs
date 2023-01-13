@@ -265,6 +265,12 @@ namespace EpikV2.NPCs
                 case NPCID.SlimeRibbonYellow:
                 npcLoot.Add(ItemDropRule.ByCondition(new MobilePresentCondition(), ModContent.ItemType<Mobile_Glitch_Present>(), 50));
                 break;
+                case NPCID.ZombieXmas:
+                npcLoot.Add(ItemDropRule.ByCondition(new MobilePresentCondition(), ModContent.ItemType<Mobile_Glitch_Present>(), 40));
+                break;
+                case NPCID.ZombieSweater:
+                npcLoot.Add(ItemDropRule.ByCondition(new MobilePresentCondition(), ModContent.ItemType<Mobile_Glitch_Present>(), 40));
+                break;
             }
 		}
 		public override void OnKill(NPC npc){

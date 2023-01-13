@@ -34,8 +34,13 @@ namespace EpikV2.Modifiers {
 		}
 		public void OnProjectileSpawn(Projectile projectile, IEntitySource source) {
 			if (Main.rand.NextBool(4)) {
-				NPC.NewNPCDirect(source, projectile.Center, NPCID.Frog).velocity = projectile.velocity * (projectile.extraUpdates + 1);
+				int frogIndex = NPC.NewNPC(source, (int)projectile.Center.X, (int)projectile.Center.Y, NPCID.Frog);
+				Main.npc[frogIndex].velocity = projectile.velocity * (projectile.extraUpdates + 1);
 				projectile.active = false;
+				if (Main.netMode == NetmodeID.MultiplayerClient) {
+					NetMessage.SendData(MessageID.SyncNPC, number: frogIndex);
+					NetMessage.SendData(MessageID.SyncProjectile, number: projectile.whoAmI);
+				}
 			}
 		}
 		public override float RollChance(Item item) => item.shoot > ProjectileID.None ? 0.75f : 0;

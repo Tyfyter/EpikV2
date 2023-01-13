@@ -14,6 +14,8 @@ using static EpikV2.Resources;
 using EpikV2.Modifiers;
 using EpikV2.NPCs;
 using Tyfyter.Utils;
+using Terraria.ModLoader.IO;
+using System.IO;
 
 namespace EpikV2.Projectiles {
     public class EpikGlobalProjectile : GlobalProjectile {
@@ -23,16 +25,11 @@ namespace EpikV2.Projectiles {
         [CloneByReference]
         public ModPrefix prefix;
         public bool controledNPCProjectile = false;
+        byte partyCannonEffect = 0;
 		public override void OnSpawn(Projectile projectile, IEntitySource source) {
 			if (projectile.type == ProjectileID.ConfettiGun && projectile.damage == 0) {
-                projectile.damage = 1;
-                projectile.friendly = true;
-                projectile.knockBack = 24;
-                if (source is EntitySource_Wiring) {
-                    projectile.hostile = true;
-                    projectile.trap = true;
-                    projectile.knockBack *= 2;
-                }
+                partyCannonEffect = ((source is EntitySource_Wiring) ? (byte)2 : (byte)1);
+                ApplyPartyCannonEffect(projectile, partyCannonEffect);
             }
 			if (source is EntitySource_ItemUse itemUseSource) {
                 prefix = PrefixLoader.GetPrefix(itemUseSource.Item.prefix);
@@ -44,7 +41,7 @@ namespace EpikV2.Projectiles {
 				if (parentSource.Entity is Projectile parentProjectile) {
                     EpikGlobalProjectile parentGlobalProjectile = parentProjectile.GetGlobalProjectile<EpikGlobalProjectile>();
                     prefix = parentGlobalProjectile.prefix;
-
+                    
                     if (prefix is IOnSpawnProjectilePrefix spawnPrefix) {
                         spawnPrefix.OnProjectileSpawn(projectile, source);
                     }
@@ -53,6 +50,19 @@ namespace EpikV2.Projectiles {
             }
             if (controledNPCProjectile && projectile.hostile) {
                 Utils.Swap(ref projectile.friendly, ref projectile.hostile);
+            }
+        }
+
+		static void ApplyPartyCannonEffect(Projectile projectile, byte level) {
+			if (level > 0) {
+                projectile.damage = 1;
+                projectile.friendly = true;
+                projectile.knockBack = 24;
+				if (level > 1) {
+                    projectile.hostile = true;
+                    projectile.trap = true;
+                    projectile.knockBack *= 2;
+                }
             }
         }
 		public override bool PreAI(Projectile projectile) {
@@ -129,5 +139,13 @@ namespace EpikV2.Projectiles {
             }
             EpikV2.KaleidoscopeColorType = 0;
         }
-    }
+		public override void SendExtraAI(Projectile projectile, BitWriter bitWriter, BinaryWriter binaryWriter) {
+            binaryWriter.Write(prefix.Type);
+            binaryWriter.Write(partyCannonEffect);
+		}
+		public override void ReceiveExtraAI(Projectile projectile, BitReader bitReader, BinaryReader binaryReader) {
+            prefix = PrefixLoader.GetPrefix(binaryReader.ReadInt32());
+            ApplyPartyCannonEffect(projectile, partyCannonEffect = binaryReader.ReadByte());
+        }
+	}
 }
