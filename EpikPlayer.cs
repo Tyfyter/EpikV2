@@ -281,7 +281,7 @@ namespace EpikV2 {
                 case Terraria.UI.ItemSlot.Context.EquipPet:
                 case Terraria.UI.ItemSlot.Context.EquipGrapple: {
                     if (Main.LocalPlayer.armor[slot].ModItem is Parasitic_Accessory paras) {
-                        return timeSinceRespawn > 300 && !paras.CanRemove(Main.LocalPlayer);
+                        return !paras.CanRemove(Main.LocalPlayer);
                     }
                 }
                 break;

@@ -27,6 +27,7 @@ namespace EpikV2.Items {
 			}
 		}
 		public virtual bool CanRemove(Player player) {
+			if (player.GetModPlayer<EpikPlayer>().timeSinceRespawn <= 300) return true;
 			player.Hurt(PlayerDeathReason.ByPlayer(player.whoAmI), 100, 0);
 			return player.statLife > 0;
 		}

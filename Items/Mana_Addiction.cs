@@ -32,6 +32,13 @@ namespace EpikV2.Items {
 				player.GetAttackSpeed(DamageClass.Magic) *= 1.1f;
 			}
 		}
+		public override void AddRecipes() {
+			Recipe recipe = CreateRecipe();
+			recipe.AddIngredient(ItemID.ManaCrystal);
+			recipe.AddIngredient(ItemID.SoulofNight, 8);
+			recipe.AddTile(TileID.DemonAltar);
+			recipe.Register();
+		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			base.ModifyTooltips(tooltips);
 			if (Main.LocalPlayer.GetModPlayer<EpikPlayer>().manaAdictionEquipped) {
@@ -47,6 +54,7 @@ namespace EpikV2.Items {
 			}
 		}
 		public override bool CanRemove(Player player) {
+			if (player.GetModPlayer<EpikPlayer>().timeSinceRespawn <= 300) return true;
 			return player.CheckMana(Item, 60, pay: true);
 		}
 		public override Color? GetAlpha(Color lightColor) {

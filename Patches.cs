@@ -40,6 +40,7 @@ using Terraria.GameContent.Drawing;
 using Terraria.Graphics.Renderers;
 using EpikV2.UI;
 using Terraria.Audio;
+using MonoMod.RuntimeDetour.HookGen;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -200,7 +201,12 @@ namespace EpikV2 {
 				orig(self);
 				ProcessModBiomes(self);
 			};
+			HookEndpointManager.Add(typeof(AprilFools).GetMethod("CheckAprilFools", BindingFlags.Public | BindingFlags.Static), 
+				(hook_CheckAprilFools)((orig) => (timeManipAltMode == 1) || orig())
+			);
 		}
+		delegate bool hook_CheckAprilFools(orig_CheckAprilFools orig);
+		delegate bool orig_CheckAprilFools();
 		FieldInfo _modBiomeFlags;
 		FieldInfo _ModBiomeFlags => _modBiomeFlags ??= typeof(Player).GetField("modBiomeFlags", BindingFlags.NonPublic | BindingFlags.Instance);
 		[JITWhenModsEnabled("AltLibrary")]
@@ -223,6 +229,7 @@ namespace EpikV2 {
 			}
 		}
 		internal static float timeManipDanger;
+		internal static float timeManipAltMode;
 		private void NPC_ScaleStats_UseStrengthMultiplier(Detour.NPC.orig_ScaleStats_UseStrengthMultiplier orig, NPC self, float strength) {
 			if (Main.netMode != NetmodeID.MultiplayerClient) {
 				const int maxStrength = 86400 * 2;
@@ -337,7 +344,7 @@ namespace EpikV2 {
 					}
 				}
 			}
-			if (item?.ModItem is Parasitic_Accessory paras && (Main.LocalPlayer.GetModPlayer<EpikPlayer>().timeSinceRespawn > 300 && !paras.CanRemove(Main.LocalPlayer))) {
+			if (item?.ModItem is Parasitic_Accessory paras && !paras.CanRemove(Main.LocalPlayer)) {
 				return true;
 			}
 			return orig(type);
@@ -373,7 +380,7 @@ namespace EpikV2 {
 					case ItemSlot.Context.EquipMount:
 					case ItemSlot.Context.EquipPet:
 					case ItemSlot.Context.EquipGrapple: {
-						if (Main.LocalPlayer.armor[slot].ModItem is Parasitic_Accessory paras && (Main.LocalPlayer.GetModPlayer<EpikPlayer>().timeSinceRespawn > 300 && !paras.CanRemove(Main.LocalPlayer))) {
+						if (Main.LocalPlayer.armor[slot].ModItem is Parasitic_Accessory paras && !paras.CanRemove(Main.LocalPlayer)) {
 							return -1;
 						}
 					}

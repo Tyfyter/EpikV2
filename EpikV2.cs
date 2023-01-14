@@ -611,6 +611,7 @@ namespace EpikV2 {
 			}
 			const int dayLength = 86400;
 			const int maxDanger = dayLength * 2;
+			int timeManipAltMode = 0;
 			switch (timeManipMode) {
 				case 1:
 				Main.xMas = true;
@@ -630,8 +631,19 @@ namespace EpikV2 {
 				default:
 				timeManipDanger = Math.Max(timeManipDanger - (float)Main.dayRate * 2, 0);
 				break;
+
+				case 5:// April fools
+				timeManipAltMode = 1;
+				break;
 			}
 			EpikV2.timeManipDanger = timeManipDanger;
+			EpikV2.timeManipAltMode = timeManipAltMode;
+		}
+		public override void NetSend(BinaryWriter writer) {
+			writer.Write(timeManipMode);
+		}
+		public override void NetReceive(BinaryReader reader) {
+			timeManipMode = reader.ReadInt32();
 		}
 		public override void ModifyTimeRate(ref double timeRate, ref double tileUpdateRate, ref double eventUpdateRate) {
 			switch (timeManipMode) {
