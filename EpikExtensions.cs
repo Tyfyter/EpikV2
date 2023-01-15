@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -836,6 +837,21 @@ namespace EpikV2 {
         public static void RestartWithLiteralNull(this SpriteBatch spriteBatch, SpriteSortMode sortMode = SpriteSortMode.Deferred, BlendState blendState = null, SamplerState samplerState = null, DepthStencilState depthStencilState = null, RasterizerState rasterizerState = null, Effect effect = null, Matrix? transformMatrix = null) {
             spriteBatch.End();
             spriteBatch.Begin(sortMode, blendState, samplerState, depthStencilState, rasterizerState, effect, transformMatrix ?? Main.GameViewMatrix.TransformationMatrix);
+        }
+        public static void WriteList(this BinaryWriter writer, List<int> list) {
+            int capacity = list.Count;
+            writer.Write(capacity);
+            for (int i = 0; i < capacity; i++) {
+                writer.Write(list[i]);
+            }
+        }
+        public static List<int> ReadInt32List(this BinaryReader reader) {
+            int capacity = reader.ReadInt32();
+            List<int> output = new List<int>(capacity);
+			for (int i = 0; i < capacity; i++) {
+                output.Add(reader.ReadInt32());
+			}
+            return output;
         }
         public static void SayNetMode() {
             switch(Main.netMode) {
