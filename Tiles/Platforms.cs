@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent.Creative;
 using Terraria.GameContent.ObjectInteractions;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -16,6 +17,7 @@ namespace EpikV2.Tiles {
 		public override string Texture => "Terraria/Images/Item_" + BaseTypeID;
 		public abstract int BaseTypeID { get; }
 		public override void SetStaticDefaults() {
+			SacrificeTotal = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[BaseTypeID];
 			///TODO: this once 1.4.4
 			//ItemID.Sets.DrawUnsafeIndicator[Type] = true;
 		}
