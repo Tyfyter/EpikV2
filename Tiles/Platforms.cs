@@ -123,7 +123,7 @@ namespace EpikV2.Tiles {
 			AddMapEntry(new Color(178, 114, 68));
 
 			DustType = DustID.Ice;
-			ItemDrop = ModContent.ItemType<Sticky_Honey_Platform_Item>();
+			ItemDrop = ModContent.ItemType<Sandy_Sandstone_Platform_Item>();
 		}
 
 		public override void PostSetDefaults() => Main.tileNoSunLight[Type] = false;
