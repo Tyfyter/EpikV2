@@ -25,6 +25,7 @@ using System.IO;
 
 namespace EpikV2 {
     public class EpikPlayer : ModPlayer {
+		#region fields
 		public bool readtooltips = false;
         public int tempint = 0;
         public int light_shots = 0;
@@ -246,9 +247,7 @@ namespace EpikV2 {
 		public override void OnRespawn(Player player) {
             timeSinceRespawn = 0;
         }
-        public override bool CanBeHitByNPC(NPC npc, ref int cooldownSlot) {
-            return npcImmuneFrames[npc.whoAmI] == 0;
-        }
+        #endregion
         public override void PostUpdate() {
             light_shots = 0;
             if(noAttackCD) {
@@ -288,6 +287,8 @@ namespace EpikV2 {
             }
 			return false;
 		}
+		#region combat
+		#region attacking
 		public override void ModifyItemScale(Item item, ref float scale) {
 			if (item.CountsAsClass(DamageClass.Melee) && !item.noMelee) {
                 scale *= meleeSize;
@@ -319,6 +320,132 @@ namespace EpikV2 {
             }
             if(marionetteDeathTime>0)damage /= 2;
         }
+        public override void ModifyShootStats(Item item, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
+            int marionettePullTime = marionetteDeathTime - (marionetteDeathTimeMax - 20);
+            if (marionettePullTime > 0) {
+                position.Y -= (float)Math.Pow(2, marionettePullTime - 10);
+                position.Y += marionettePullTime;
+            }
+        }
+        public override void OnHitNPC(Item item, NPC target, int damage, float knockback, bool crit) {
+            OnStrikeNPC(target, damage, knockback, crit, item.CountsAsClass);
+        }
+        public override void OnHitNPCWithProj(Projectile proj, NPC target, int damage, float knockback, bool crit) {
+            OnStrikeNPC(target, damage, knockback, crit, proj.CountsAsClass);
+        }
+        public void OnStrikeNPC(NPC target, int damage, float knockback, bool crit, Func<DamageClass, bool> classCheck = null) {
+            classCheck ??= (dc) => false;
+            if (wormToothNecklace && (crit || Main.rand.NextBool(3))) {
+                target.AddBuff(BuffID.CursedInferno, Main.rand.Next(150, 300));
+			}
+            if (ichorNecklace && (crit || Main.rand.NextBool(3))) {
+                target.AddBuff(BuffID.Ichor, Main.rand.Next(180, 360));
+			}
+            if(magiciansHat && (classCheck(DamageClass.Magic) || classCheck(DamageClass.Summon)) && target.type!=NPCID.TargetDummy) {
+                AddMagiciansHatDamage(target, damage);
+            }
+            if(championsHelm && (classCheck(DamageClass.Melee) || classCheck(DamageClass.Ranged)) && target.type!=NPCID.TargetDummy) {
+                AddChampionsHelmDamage(target, (int)(classCheck(DamageClass.Melee) ? (damage * 1.5f):(damage + 20)));
+            }
+            if (imbueDaybreak) {
+                target.AddBuff(BuffID.Daybreak, Main.rand.Next(60, 90));
+            }
+            if (imbueShadowflame) {
+                target.AddBuff(BuffID.ShadowFlame, Main.rand.Next(480, 600));
+            }
+            if (imbueCursedInferno) {
+                target.AddBuff(BuffID.CursedInferno, Main.rand.Next(180, 360));
+            }
+            if (imbueIchor) {
+                target.AddBuff(BuffID.Ichor, Main.rand.Next(480, 600));
+            }
+        }
+        void OrionExplosion() {
+            Projectile explosion = Projectile.NewProjectileDirect(Player.GetSource_None(), Player.Bottom, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 80, 12.5f, Player.whoAmI, 1, 1);
+            Vector2 exPos = explosion.Center;
+            explosion.height*=8;
+            explosion.width*=8;
+            explosion.Center = exPos;
+            explosion.DamageType = DamageClass.Default;
+            SoundEngine.PlaySound(SoundID.Item14, exPos);
+        }
+		#endregion
+		#region receiving
+		public override bool CanBeHitByNPC(NPC npc, ref int cooldownSlot) {
+            return npcImmuneFrames[npc.whoAmI] == 0;
+        }
+        public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource, ref int cooldownCounter) {
+            bool canDodge = true;
+            bool canReduce = true;
+            if (noKnockbackOnce) {
+                hitDirection = 0;
+                noKnockbackOnce = false;
+            }
+            if (marionetteDeathTime>0) {
+                return false;
+            }
+            if(machiavellianMasquerade&&damage>Player.statLife) {
+                marionetteDeathTime = 1;
+                marionetteDeathReason = damageSource;
+                Player.statLife = 0;
+                return false;
+            }
+            if (damageSource.SourceCustomReason == Red_Star_Pendant.DeathReason(Player).SourceCustomReason) {
+                playSound = false;
+                customDamage = true;
+                canDodge = false;
+                canReduce = false;
+                //return true;
+            }
+            if (clubBuff && canReduce) {
+                damage -= damage / (magiciansHat ? 10 : 20);
+            }
+            if (shieldBuff && canReduce) {
+                damage /= 2;
+                int index = Player.FindBuffIndex(Shield_Buff.ID);
+                if (index > -1) Player.DelBuff(index);
+            }
+            if (dracoDash!=0) return !canDodge;
+            if(orionDash>0) {
+                Player.immuneTime = 15;
+                Projectile explosion = Projectile.NewProjectileDirect(Player.GetSource_None(), Player.Center, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 40, 12.5f, Player.whoAmI);
+                explosion.height*=7;
+                explosion.width*=7;
+                explosion.Center = Player.Center;
+                explosion.DamageType = DamageClass.Default;
+                return !canDodge;
+            }
+            if (damageSource.SourceOtherIndex == OtherDeathReasonID.Fall) {
+				if (Player.miscEquips[4].type == Spring_Boots.ID) {
+                    damage /= 2;
+				} else if (Player.miscEquips[4].type == Lucky_Spring_Boots.ID || Player.miscEquips[4].type == Orion_Boots.ID) {
+                    damage = 0;
+                    return false;
+				}
+            }
+            if(damage<Player.statLife) return true;
+			if (!ChargedGem()) {
+                return true;
+			}
+            for(int i = 0; i < Player.inventory.Length; i++) {
+                ModItem mI = Player.inventory[i]?.ModItem;
+                if (mI?.Mod == EpikV2.instance) {
+                    if (mI is AquamarineMaterial) {
+                        Player.inventory[i].type = ItemID.LargeEmerald;
+                        Player.inventory[i].SetDefaults(ItemID.LargeEmerald);
+                    } else if (mI is SunstoneMaterial) {
+                        Player.inventory[i].type = ItemID.LargeAmber;
+                        Player.inventory[i].SetDefaults(ItemID.LargeAmber);
+                    } else if (mI is MoonlaceMaterial) {
+                        Player.inventory[i].type = ItemID.LargeDiamond;
+                        Player.inventory[i].SetDefaults(ItemID.LargeDiamond);
+                    }
+                }
+            }
+            return true;
+        }
+        #endregion
+        #endregion
         public override void OnMissingMana(Item item, int neededMana) {
             if(redStar) {
                 int neededHealth = neededMana;
@@ -346,10 +473,6 @@ namespace EpikV2 {
                 EpikV2.modeSwitchHotbarActive = false;
             }
         }
-        /*
-        public override void UpdateBiomeVisuals() {
-            player.ManageSpecialBiomeVisuals("EpikV2:FilterMapped", true, player.Center);
-        }//*/
         public override void UpdateBadLifeRegen() {
 			if (manaWithdrawal) {
 				if (Player.lifeRegen > -10) {
@@ -598,15 +721,6 @@ namespace EpikV2 {
             }
             epikPlayer.collide = (x,y);
         }
-        void OrionExplosion() {
-            Projectile explosion = Projectile.NewProjectileDirect(Player.GetSource_None(), Player.Bottom, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 80, 12.5f, Player.whoAmI, 1, 1);
-            Vector2 exPos = explosion.Center;
-            explosion.height*=8;
-            explosion.width*=8;
-            explosion.Center = exPos;
-            explosion.DamageType = DamageClass.Default;
-            SoundEngine.PlaySound(SoundID.Item14, exPos);
-        }
         public bool CheckFloatMana(Item item, float amount = -1, bool blockQuickMana = false) {
             if (amount <= -1) {
                 amount = Player.GetManaCost(item);
@@ -625,76 +739,6 @@ namespace EpikV2 {
             partialManaCost -= intManaCost;
             if (intManaCost > 0) {
                 return Player.CheckMana(intManaCost, true, blockQuickMana);
-            }
-            return true;
-        }
-        public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource, ref int cooldownCounter) {
-            bool canDodge = true;
-            bool canReduce = true;
-            if (noKnockbackOnce) {
-                hitDirection = 0;
-                noKnockbackOnce = false;
-            }
-            if (marionetteDeathTime>0) {
-                return false;
-            }
-            if(machiavellianMasquerade&&damage>Player.statLife) {
-                marionetteDeathTime = 1;
-                marionetteDeathReason = damageSource;
-                Player.statLife = 0;
-                return false;
-            }
-            if (damageSource.SourceCustomReason == Red_Star_Pendant.DeathReason(Player).SourceCustomReason) {
-                playSound = false;
-                customDamage = true;
-                canDodge = false;
-                canReduce = false;
-                //return true;
-            }
-            if (clubBuff && canReduce) {
-                damage -= damage / (magiciansHat ? 10 : 20);
-            }
-            if (shieldBuff && canReduce) {
-                damage /= 2;
-                int index = Player.FindBuffIndex(Shield_Buff.ID);
-                if (index > -1) Player.DelBuff(index);
-            }
-            if (dracoDash!=0) return !canDodge;
-            if(orionDash>0) {
-                Player.immuneTime = 15;
-                Projectile explosion = Projectile.NewProjectileDirect(Player.GetSource_None(), Player.Center, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 40, 12.5f, Player.whoAmI);
-                explosion.height*=7;
-                explosion.width*=7;
-                explosion.Center = Player.Center;
-                explosion.DamageType = DamageClass.Default;
-                return !canDodge;
-            }
-            if (damageSource.SourceOtherIndex == OtherDeathReasonID.Fall) {
-				if (Player.miscEquips[4].type == Spring_Boots.ID) {
-                    damage /= 2;
-				} else if (Player.miscEquips[4].type == Lucky_Spring_Boots.ID || Player.miscEquips[4].type == Orion_Boots.ID) {
-                    damage = 0;
-                    return false;
-				}
-            }
-            if(damage<Player.statLife) return true;
-			if (!ChargedGem()) {
-                return true;
-			}
-            for(int i = 0; i < Player.inventory.Length; i++) {
-                ModItem mI = Player.inventory[i]?.ModItem;
-                if (mI?.Mod == EpikV2.instance) {
-                    if (mI is AquamarineMaterial) {
-                        Player.inventory[i].type = ItemID.LargeEmerald;
-                        Player.inventory[i].SetDefaults(ItemID.LargeEmerald);
-                    } else if (mI is SunstoneMaterial) {
-                        Player.inventory[i].type = ItemID.LargeAmber;
-                        Player.inventory[i].SetDefaults(ItemID.LargeAmber);
-                    } else if (mI is MoonlaceMaterial) {
-                        Player.inventory[i].type = ItemID.LargeDiamond;
-                        Player.inventory[i].SetDefaults(ItemID.LargeDiamond);
-                    }
-                }
             }
             return true;
         }
@@ -774,6 +818,7 @@ namespace EpikV2 {
         public override void PostItemCheck() {
             ItemChecking[Player.whoAmI] = false;
         }
+		#region fishing
 		public override void ModifyFishingAttempt(ref FishingAttempt attempt) {
 			if (EpikConfig.Instance.LuckyFish && Player.luck != 0) {
                 int chanceUncommon = 300 / attempt.fishingLevel;
@@ -826,47 +871,8 @@ namespace EpikV2 {
                     EpikV2.nextPopupText = new MinisharkPopupText();
 				}
 			}
-		}
-		public override void ModifyShootStats(Item item, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
-            int marionettePullTime = marionetteDeathTime - (marionetteDeathTimeMax - 20);
-            if (marionettePullTime > 0) {
-                position.Y -= (float)Math.Pow(2, marionettePullTime - 10);
-                position.Y += marionettePullTime;
-            }
         }
-        public override void OnHitNPC(Item item, NPC target, int damage, float knockback, bool crit) {
-            OnStrikeNPC(target, damage, knockback, crit, item.CountsAsClass);
-        }
-        public override void OnHitNPCWithProj(Projectile proj, NPC target, int damage, float knockback, bool crit) {
-            OnStrikeNPC(target, damage, knockback, crit, proj.CountsAsClass);
-        }
-        public void OnStrikeNPC(NPC target, int damage, float knockback, bool crit, Func<DamageClass, bool> classCheck = null) {
-            classCheck ??= (dc) => false;
-            if (wormToothNecklace && (crit || Main.rand.NextBool(3))) {
-                target.AddBuff(BuffID.CursedInferno, Main.rand.Next(150, 300));
-			}
-            if (ichorNecklace && (crit || Main.rand.NextBool(3))) {
-                target.AddBuff(BuffID.Ichor, Main.rand.Next(180, 360));
-			}
-            if(magiciansHat && (classCheck(DamageClass.Magic) || classCheck(DamageClass.Summon)) && target.type!=NPCID.TargetDummy) {
-                AddMagiciansHatDamage(target, damage);
-            }
-            if(championsHelm && (classCheck(DamageClass.Melee) || classCheck(DamageClass.Ranged)) && target.type!=NPCID.TargetDummy) {
-                AddChampionsHelmDamage(target, (int)(classCheck(DamageClass.Melee) ? (damage * 1.5f):(damage + 20)));
-            }
-            if (imbueDaybreak) {
-                target.AddBuff(BuffID.Daybreak, Main.rand.Next(60, 90));
-            }
-            if (imbueShadowflame) {
-                target.AddBuff(BuffID.ShadowFlame, Main.rand.Next(480, 600));
-            }
-            if (imbueCursedInferno) {
-                target.AddBuff(BuffID.CursedInferno, Main.rand.Next(180, 360));
-            }
-            if (imbueIchor) {
-                target.AddBuff(BuffID.Ichor, Main.rand.Next(480, 600));
-            }
-        }
+        #endregion
         public void AddMagiciansHatDamage(NPC target, int damage) {
             magiciansHatDamage += damage;
             if(target.life<0)magiciansHatDamage += damage;
@@ -888,6 +894,7 @@ namespace EpikV2 {
             Player.lifeRegenTime += damage * 2;
             Player.lifeRegenCount += damage;
         }
+		#region visuals
 		public override void ModifyDrawInfo(ref PlayerDrawSet drawInfo) {
             if(Player.whoAmI == Main.myPlayer)Ashen_Glaive_P.drawCount = 0;
             if(Player.head == Champions_Helm.ArmorID) {
@@ -941,10 +948,12 @@ namespace EpikV2 {
              */
             renderedOldVelocity = Player.velocity;
         }
+		#endregion
 		internal void rearrangeOrgans(float rearrangement) {
             organRearrangement = Math.Max(organRearrangement, rearrangement);
         }
 
+        #region data management (networking/IO)
         public override void SyncPlayer(int toWho, int fromWho, bool newPlayer) {
             if (Main.netMode == NetmodeID.SinglePlayer) return;
             ModPacket packet = Mod.GetPacket();
@@ -953,17 +962,13 @@ namespace EpikV2 {
             packet.Write((byte)altNameColors);
             packet.Send(toWho, fromWho);
         }
-
-        // Called in ExampleMod.Networking.cs
         public void ReceivePlayerSync(BinaryReader reader) {
             altNameColors = (AltNameColorTypes)reader.ReadByte();
         }
-
         public override void clientClone(ModPlayer clientClone) {
             EpikPlayer clone = clientClone as EpikPlayer;
             clone.altNameColors = altNameColors;
         }
-
         public override void SendClientChanges(ModPlayer clientPlayer) {
             EpikPlayer clone = clientPlayer as EpikPlayer;
 
@@ -976,6 +981,8 @@ namespace EpikV2 {
 		public override void LoadData(TagCompound tag) {
             if (tag.TryGet("altNameColors", out byte altNameColors)) this.altNameColors = (AltNameColorTypes)altNameColors;
 		}
+		#endregion
+
 		/*internal static PlayerLayer MarionetteStringLayer(int marionetteDeathTime) => new PlayerLayer("EpikV2", "MarionetteStringLayer", null, delegate (PlayerDrawInfo drawInfo) {
             Vector2 size = drawInfo.drawPlayer.Size;
             Vector2 position = drawInfo.position;
@@ -1008,8 +1015,5 @@ namespace EpikV2 {
             data.shader = shaderID;
             Main.playerDrawData.Insert(0, data);
         });*/
-		/*public override void PostHurt(bool pvp, bool quiet, double damage, int hitDirection, bool crit) {
-            damage_taken = (int)damage;
-        }*/
 	}
 }
