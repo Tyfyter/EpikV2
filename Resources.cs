@@ -50,7 +50,7 @@ namespace EpikV2 {
             public AutoCastingAsset<Texture2D> distTestTexture1;
             public AutoCastingAsset<Texture2D> BreakpointGlow;
             Asset<Texture2D> breakpointArrowGlow;
-            public AutoCastingAsset<Texture2D> BreakpointArrowGlow => breakpointArrowGlow??(breakpointArrowGlow = Request<Texture2D>("EpikV2/Items/Breakpoint_Arrow_Glowmask"));
+            public AutoCastingAsset<Texture2D> BreakpointArrowGlow => breakpointArrowGlow ??= Request<Texture2D>("EpikV2/Items/Breakpoint_Arrow_Glowmask");
         }
         public struct ExtraTexture {
             public readonly Texture2D texture;

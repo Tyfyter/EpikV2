@@ -22,7 +22,7 @@ namespace EpikV2.Items {
 		}
 	}
 	public class Totally_Not_Shimmer_P : ModProjectile {
-		public override string Texture => base.Texture.Substring(0, base.Texture.Length - 2);
+		public override string Texture => base.Texture[0..^2];
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Jar of Unspecified Purplish Liquid");
 		}

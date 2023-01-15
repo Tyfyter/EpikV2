@@ -386,21 +386,21 @@ namespace EpikV2 {
 		public override Type ReflectedType { get; }
 
 		public override MethodInfo[] GetAccessors(bool nonPublic) {
-			return new MethodInfo[0];
+			return Array.Empty<MethodInfo>();
 		}
 
 		public override object[] GetCustomAttributes(bool inherit) {
-			return new Attribute[0];
+			return Array.Empty<Attribute>();
 		}
 
 		public override object[] GetCustomAttributes(Type attributeType, bool inherit) {
-			return new Attribute[0];
+			return Array.Empty<Attribute>();
 		}
 
 		public override MethodInfo GetGetMethod(bool nonPublic) => get.Method;
 
 		public override ParameterInfo[] GetIndexParameters() {
-			return new ParameterInfo[0];
+			return Array.Empty<ParameterInfo>();
 		}
 
 		public override MethodInfo GetSetMethod(bool nonPublic) => set.Method;
