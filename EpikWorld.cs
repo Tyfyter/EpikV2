@@ -1,5 +1,6 @@
 ﻿using EpikV2.Items;
 using EpikV2.UI;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,6 +24,8 @@ namespace EpikV2 {
 		private static bool raining;
 		public static List<int> Sacrifices { get => sacrifices; set => sacrifices = value; }
 		public static bool Raining { get => raining; set => raining = value; }
+		private HashSet<Point> naturalChests;
+		public HashSet<Point> NaturalChests => naturalChests ??= new HashSet<Point>();
 		int timeManipMode;
 		public float timeManipDanger;
 		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
@@ -172,6 +175,8 @@ namespace EpikV2 {
 		}
 		public override void SaveWorldData(TagCompound tag) {
 			tag.Add("sacrifices", Sacrifices);
+			tag.Add("worldVersion", (int)WorldVersion.RecordNaturalChests);
+			tag.Add("naturalChests", NaturalChests.Select(Utils.ToVector2).ToList());
 		}
 		public override void LoadWorldData(TagCompound tag) {
 			if (!tag.ContainsKey("sacrifices")) {
@@ -183,9 +188,24 @@ namespace EpikV2 {
 			} catch (Exception) {
 				Sacrifices = new List<int>() { };
 			}
+			if (tag.TryGet("naturalChests", out List<Vector2> worldNaturalChests)) {
+				naturalChests = worldNaturalChests.Select(Utils.ToPoint).ToHashSet();
+			}
+			tag.TryGet("worldVersion", out int lastVersion);
+			if ((WorldVersion)lastVersion < WorldVersion.RecordNaturalChests) {
+				for (int i = 0; i < Main.maxChests; i++) {
+					if (Main.chest[i] is Chest chest) {
+						NaturalChests.Add(new Point(chest.x, chest.y));
+					}
+				}
+			}
 		}
 		public static bool IsDevName(string name) {
 			return name is "Jennifer" or "Asher";
 		}
+	}
+	public enum WorldVersion {
+		Unversioned,
+		RecordNaturalChests
 	}
 }

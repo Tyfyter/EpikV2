@@ -25,7 +25,7 @@ using System.IO;
 
 namespace EpikV2 {
     public class EpikPlayer : ModPlayer {
-		#region fields
+		#region fields/defaults
 		public bool readtooltips = false;
         public int tempint = 0;
         public int light_shots = 0;
@@ -110,6 +110,7 @@ namespace EpikV2 {
         private bool oldWet = false;
         public AltNameColorTypes altNameColors = AltNameColorTypes.None;
         public bool noKnockbackOnce = false;
+        public int triangleManuscriptIndex = -1;
 
         public static BitsBytes ItemChecking;
 
