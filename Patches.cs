@@ -204,6 +204,19 @@ namespace EpikV2 {
 			HookEndpointManager.Add(typeof(AprilFools).GetMethod("CheckAprilFools", BindingFlags.Public | BindingFlags.Static), 
 				(hook_CheckAprilFools)((orig) => (timeManipAltMode == 1) || orig())
 			);
+			Detour.Chest.DestroyChest += (orig, x, y) => {
+				if (orig(x, y)) {
+					try {
+						ModContent.GetInstance<EpikWorld>().NaturalChests.Remove(new Point(x, y));
+					} finally {}
+					return true;
+				}
+				return false;
+			};
+			Detour.Chest.DestroyChestDirect += (orig, x, y, id) => {
+				ModContent.GetInstance<EpikWorld>().NaturalChests.Remove(new Point(x, y));
+				orig(x, y, id);
+			};
 		}
 		delegate bool hook_CheckAprilFools(orig_CheckAprilFools orig);
 		delegate bool orig_CheckAprilFools();

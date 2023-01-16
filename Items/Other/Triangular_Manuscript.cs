@@ -11,6 +11,7 @@ using Terraria.Graphics;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.Utilities;
 using Tyfyter.Utils;
 
 namespace EpikV2.Items.Other {
@@ -49,7 +50,7 @@ namespace EpikV2.Items.Other {
 		public override string Texture => "EpikV2/Items/Other/Triangular_Manuscript";
         public static int ID { get; private set; }
         const int lifetime = Main.maxChests + 60;
-        List<SelectableItem> items;
+        Dictionary<int, SelectableItem> items;
         public override void SetStaticDefaults() {
             ID = Type;
         }
@@ -69,32 +70,51 @@ namespace EpikV2.Items.Other {
 					if (ModContent.GetInstance<EpikWorld>().NaturalChests.Contains(new Point(chest.x, chest.y))) {
                         Item loot = chest.item.FirstOrDefault(i => !i.IsAir);
                         if (loot is not null) {
-                            items.Add(new SelectableItem() {
-                                position = Projectile.position,
-                                chestPos = new Vector2(chest.x * 16, chest.y * 16),
-                                velocity = ((Vector2)new PolarVec2(
-                                    Main.rand.NextFloat(14, 18),
-                                    Main.rand.NextFloat(MathHelper.PiOver4, -MathHelper.Pi - MathHelper.PiOver4))
-                                ) * new Vector2(1, 0.5f),
-                                item = loot
-                            });
+                            Vector2 chestPos = new(chest.x * 16, chest.y * 16);
+                            if (items.TryGetValue(loot.type, out SelectableItem item)) {
+                                item.chestPositions.Add(chestPos, 1000.0 / (chestPos - Projectile.position).Length());
+							} else {
+                                items.Add(loot.type, new SelectableItem() {
+                                    position = Projectile.position,
+                                    chestPositions = new WeightedRandom<Vector2>(Main.rand,
+                                        new Tuple<Vector2, double>(chestPos, 1000.0 / (chestPos - Projectile.position).Length())
+                                    ),
+                                    velocity = ((Vector2)new PolarVec2(
+                                        Main.rand.NextFloat(10, 18),
+                                        Main.rand.NextFloat(MathHelper.PiOver4, -MathHelper.Pi - MathHelper.PiOver4))
+                                    ) * new Vector2(1, 0.5f),
+                                    item = loot
+                                });
+                            }
                         }
                     }
 				}
 			}
 			if (Projectile.numUpdates == -1) {
                 Player player = Main.player[Projectile.owner];
-				for (int i = 0; i < items.Count; i++) {
-                    SelectableItem item = items[i];
+                SelectableItem[] itemValues = items.Values.ToArray();
+				for (int i = 0; i < itemValues.Length; i++) {
+                    SelectableItem item = itemValues[i];
+                    for (int j = 0; j < itemValues.Length; j++) {
+                        if (i == j) continue;
+                        SelectableItem other = itemValues[j];
+                        Vector2 itemDiff = other.position - item.position;
+                        float itemDist = itemDiff.Length();
+						if (itemDist > 0 && itemDist < 16) {
+                            itemDiff = (itemDiff / itemDist) * 0.1f;
+                            item.velocity -= itemDiff;
+                            other.velocity += itemDiff;
+						}
+                    }
                     item.position += item.velocity;
                     item.velocity *= 0.95f;
                     item.age++;
                     Vector2 position = item.GetPosition();
-                    int width = item.item.width;
-                    int height = item.item.height;
+                    int width = item.item.width + 4;
+                    int height = item.item.height + 4;
                     Rectangle itemHitbox = new Rectangle((int)position.X - width / 2, (int)position.Y - height / 2, width, height);
                     if (Terraria.GameInput.PlayerInput.Triggers.JustPressed.MouseLeft && itemHitbox.Contains(Main.MouseWorld.ToPoint())) {
-                        Triangular_Manuscript.SpawnGuidingSpirit(item.position, item.chestPos + new Vector2(16, 16));
+                        Triangular_Manuscript.SpawnGuidingSpirit(item.position, item.chestPositions.Get() + new Vector2(16, 16));
                         Projectile.Kill();
                         break;
 					}
@@ -102,11 +122,12 @@ namespace EpikV2.Items.Other {
 			}
 		}
 		public override void PostDraw(Color lightColor) {
-            for (int i = 0; i < items.Count; i++) {
-                SelectableItem item = items[i];
+            SelectableItem[] itemValues = items.Values.ToArray();
+            for (int i = 0; i < itemValues.Length; i++) {
+                SelectableItem item = itemValues[i];
                 Vector2 position = item.GetPosition() - Main.screenPosition;
-                int width = item.item.width;
-                int height = item.item.height;
+                int width = item.item.width + 4;
+                int height = item.item.height + 4;
                 Rectangle itemHitbox = new Rectangle((int)position.X - width / 2, (int)position.Y - height / 2, width, height);
                 Main.DrawItemIcon(
                     Main.spriteBatch,
@@ -120,7 +141,7 @@ namespace EpikV2.Items.Other {
         public class SelectableItem {
             public Vector2 position;
             public Vector2 velocity;
-            public Vector2 chestPos;
+            public WeightedRandom<Vector2> chestPositions;
             public int age;
             public Item item;
             public Vector2 GetPosition() => position + new Vector2(0, (float)Math.Sin(age * 0.025f) * 8f);
@@ -142,6 +163,7 @@ namespace EpikV2.Items.Other {
                 Projectile.velocity = Vector2.Zero;
                 return;
 			}
+            Projectile.timeLeft = 60;
             Vector2 diff = new Vector2(Projectile.ai[0], Projectile.ai[1]) - Projectile.position;
             float dist = diff.Length();
             const float speed = 6f;
@@ -149,9 +171,22 @@ namespace EpikV2.Items.Other {
                 Projectile.velocity = diff;
                 Projectile.ai[0] = -1;
             } else {
-                Projectile.velocity = diff.RotatedBy((GetWallDistOffset(Projectile.timeLeft / 6f) + GetWallDistOffset((Projectile.timeLeft - 6) / 6f)) * 0.125f) * (speed / dist);
+                Projectile.frame++;
+                Projectile.velocity = diff.RotatedBy((GetWallDistOffset(Projectile.frame / 6f) + GetWallDistOffset((Projectile.frame - 6) / 6f)) * 0.125f) * (speed / dist);
             }
             EpikExtensions.AngularSmoothing(ref Projectile.rotation, Projectile.velocity.ToRotation(), 0.1f);
+            Player owner = Main.player[Projectile.owner];
+            Vector2 ownerDiff = Projectile.position - owner.Center;
+            float ownerDist = ownerDiff.Length();
+            const float range = 320;
+            if (ownerDist > range) {
+                for (int i = 0; i < Projectile.oldPos.Length; i++) {
+                    Projectile.oldPos[i] -= Projectile.velocity;
+                }
+                float factor = (ownerDist - range) * 0.025f;
+
+                Projectile.position -= (ownerDiff / ownerDist) * (factor * factor);
+            }
         }
         /// <summary>
         /// When I wrote this code, only God knew how it worked, that fact has not changed
@@ -218,7 +253,7 @@ namespace EpikV2.Items.Other {
                 lerpValue *= Math.Min((positions[index] - positions[index - 1]).LengthSquared(), 1);
             }
             num *= 1f - (1f - lerpValue) * (1f - lerpValue);
-            return MathHelper.Lerp(32f, 48f, num);
+            return MathHelper.Lerp(0f, MathHelper.Lerp(64f, 48f, num), num);
         }
     }
     /*[JITWhenModsEnabled("Origins")]
