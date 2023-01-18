@@ -93,9 +93,9 @@ namespace EpikV2.Items.Accessories {
 				break;
 			}
 			if (dashVelocity != default) {
-				dashVelocity = dashVelocity.SafeNormalize(default);
+				dashVelocity += dashVelocity.SafeNormalize(default);
 				epikPlayer.empressDashTime = 12;
-				epikPlayer.empressDashVelocity = dashVelocity * 2.5f;
+				epikPlayer.empressDashVelocity = dashVelocity * 1.5f;
 				epikPlayer.empressDashCount--;
 				Terraria.Audio.SoundEngine.PlaySound(SoundID.Item103.WithPitch(1), player.Center);
 			}

@@ -651,7 +651,7 @@ namespace EpikV2 {
                     Player.position.Y += Player.height;
                     Player.width = 0;
                     Player.height = 0;
-                }
+				}
             } else {
                 if (empressDashCooldown < EoL_Dash.dash_cooldown) {
                     empressDashFrame = 0;
