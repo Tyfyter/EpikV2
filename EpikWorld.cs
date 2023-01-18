@@ -19,6 +19,9 @@ using static Tyfyter.Utils.ChestLootCache.LootQueueMode;
 
 namespace EpikV2 {
 	public class EpikWorld : ModSystem {
+		public const WorldVersion current_world_version = WorldVersion.RecordNaturalChests;
+		public const WorldCreationVersion current_world_creation_version = WorldCreationVersion.Unversioned;
+		WorldCreationVersion creationVersion;
 		//public static int GolemTime = 0;
 		private static List<int> sacrifices;
 		private static bool raining;
@@ -177,11 +180,13 @@ namespace EpikV2 {
 					NaturalChests.Add(new Point(chest.x, chest.y));
 				}
 			}
+			creationVersion = current_world_creation_version;
 		}
 		public override void SaveWorldData(TagCompound tag) {
 			tag.Add("sacrifices", Sacrifices);
-			tag.Add("worldVersion", (int)WorldVersion.RecordNaturalChests);
+			tag.Add("worldVersion", (int)current_world_version);
 			tag.Add("naturalChests", NaturalChests.Select(Utils.ToVector2).ToList());
+			tag.Add("creationVersion", (int)creationVersion);
 		}
 		public override void LoadWorldData(TagCompound tag) {
 			if (!tag.ContainsKey("sacrifices")) {
@@ -204,6 +209,7 @@ namespace EpikV2 {
 					}
 				}
 			}
+			creationVersion = (WorldCreationVersion)tag.SafeGet<int>("creationVersion");
 		}
 		public static bool IsDevName(string name) {
 			return name is "Jennifer" or "Asher";
@@ -212,5 +218,9 @@ namespace EpikV2 {
 	public enum WorldVersion {
 		Unversioned,
 		RecordNaturalChests
+	}
+	public enum WorldCreationVersion {
+		Unversioned,
+		TriangularManuscript
 	}
 }
