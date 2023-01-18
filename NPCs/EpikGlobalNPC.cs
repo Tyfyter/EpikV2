@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EpikV2.Buffs;
 using EpikV2.Items;
+using EpikV2.Items.Accessories;
 using EpikV2.Projectiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -270,6 +271,10 @@ namespace EpikV2.NPCs
                 break;
                 case NPCID.ZombieSweater:
                 npcLoot.Add(ItemDropRule.ByCondition(new MobilePresentCondition(), ModContent.ItemType<Mobile_Glitch_Present>(), 40));
+                break;
+
+                case NPCID.HallowBoss:
+                npcLoot.Add(ItemDropRule.MasterModeDropOnAllPlayers(ModContent.ItemType<EoL_Dash>(), 3));
                 break;
             }
 		}

@@ -172,6 +172,11 @@ namespace EpikV2 {
 				(CHANGE_QUEUE, ChestID.Ice),
 				(ENQUEUE, ModContent.ItemType<Frost_Band_Vanity>())
 			);
+			for (int i = 0; i < Main.maxChests; i++) {
+				if (Main.chest[i] is Chest chest) {
+					NaturalChests.Add(new Point(chest.x, chest.y));
+				}
+			}
 		}
 		public override void SaveWorldData(TagCompound tag) {
 			tag.Add("sacrifices", Sacrifices);

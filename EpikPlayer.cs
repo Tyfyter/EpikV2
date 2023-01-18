@@ -22,6 +22,8 @@ using EpikV2.Tiles;
 using Terraria.Graphics.Effects;
 using Terraria.ModLoader.IO;
 using System.IO;
+using EpikV2.Layers;
+using EpikV2.Items.Accessories;
 
 namespace EpikV2 {
     public class EpikPlayer : ModPlayer {
@@ -102,6 +104,13 @@ namespace EpikV2 {
         public bool imbueShadowflame = false;
         public bool imbueCursedInferno = false;
         public bool imbueIchor = false;
+        public int empressDashTime = 0;
+        public Vector2 empressDashVelocity;
+        public int empressDashCooldown = 0;
+        public int empressDashCount = 3;
+        public float empressDashFrame = 0;
+        public bool empressIgnoreTiles = false;
+        public bool dashHotkey = false;
         public float meleeSize = 1;
         public int? switchBackSlot = 0;
         private int[] buffIndecies;
@@ -244,12 +253,25 @@ namespace EpikV2 {
                 ownedSpikeHooks[i] = -1;
             }
             timeSinceRespawn++;
+            if (empressDashCooldown > 0) {
+                empressDashCooldown--;
+				if (empressDashCooldown < 45) {
+					if (empressDashCooldown <= 0) {
+                        empressDashCount = 3;
+					} else {
+                        empressDashCount = 0;
+                    }
+				}
+            }
+            empressIgnoreTiles = false;
         }
 		public override void OnRespawn(Player player) {
             timeSinceRespawn = 0;
         }
-        #endregion
-        public override void PostUpdate() {
+		#endregion
+		public override void PreUpdate() {
+        }
+		public override void PostUpdate() {
             light_shots = 0;
             if(noAttackCD) {
                 Player.attackCD = 0;
@@ -473,6 +495,7 @@ namespace EpikV2 {
 			} else {
                 EpikV2.modeSwitchHotbarActive = false;
             }
+            dashHotkey = EpikV2.DashHotkey.JustPressed;
         }
         public override void UpdateBadLifeRegen() {
 			if (manaWithdrawal) {
@@ -611,6 +634,34 @@ namespace EpikV2 {
 		}
 		//public static const rope_deb_412 = 0.1f;
 		public override void PreUpdateMovement() {
+            bool updateEmpressFrame = false;
+            if (empressDashTime > 0) {
+                Player.velocity = empressDashVelocity * (Math.Min(empressDashTime * 2, 9.5f) + 0.5f * (empressDashCount + 1));
+                Player.SetImmuneTimeForAllTypes(5);
+                Player.immuneNoBlink = true;
+                empressDashTime--;
+                empressDashCooldown = EoL_Dash.dash_cooldown + EoL_Dash.dash_redash_cooldown;
+                Player.releaseDown = true;
+                Player.releaseUp = true;
+                Player.releaseRight = true;
+                Player.releaseLeft = true;
+                updateEmpressFrame = true;
+				if (empressIgnoreTiles) {
+                    Player.position.X += Player.width / 2;
+                    Player.position.Y += Player.height;
+                    Player.width = 0;
+                    Player.height = 0;
+                }
+            } else {
+                if (empressDashCooldown < EoL_Dash.dash_cooldown) {
+                    empressDashFrame = 0;
+				} else {
+                    updateEmpressFrame = true;
+				}
+			}
+			if (updateEmpressFrame) {
+                empressDashFrame = (empressDashFrame + 6f / 11f) % 11;
+            }
             if(ropeTarg >= 0) {//ropeVel.HasValue&&
                 Player.fallStart = (int)(Player.position.Y / 16f);
                 Projectile projectile = Main.projectile[ropeTarg];
@@ -812,7 +863,13 @@ namespace EpikV2 {
                 }
             }
         }
-        public override bool PreItemCheck() {
+		public override bool CanUseItem(Item item) {
+			if (empressDashTime > 0) {
+                return false;
+			}
+			return true;
+		}
+		public override bool PreItemCheck() {
             ItemChecking[Player.whoAmI] = true;
             return true;
         }
@@ -939,6 +996,13 @@ namespace EpikV2 {
 				foreach (var layer in PlayerDrawLayerLoader.Layers) {
                     layer.Hide();
 				}
+            }
+            if (empressDashTime != 0 || empressDashCooldown >= EoL_Dash.dash_cooldown) {
+                foreach (var layer in PlayerDrawLayerLoader.Layers) {
+					if (layer is not EoL_Dash_Layer) {
+                        layer.Hide();
+                    }
+                }
             }
             /*
             if(marionetteDeathTime>0) {

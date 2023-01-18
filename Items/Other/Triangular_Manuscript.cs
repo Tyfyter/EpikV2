@@ -18,6 +18,7 @@ namespace EpikV2.Items.Other {
 	public class Triangular_Manuscript : ModItem {
         static DrawAnimation animation;
         public override void SetStaticDefaults() {
+            DisplayName.SetDefault("Triangular Manuscript");
             Main.RegisterItemAnimation(Type, animation = new DrawAnimationManual(3));
             SacrificeTotal = 1;
         }
@@ -61,7 +62,9 @@ namespace EpikV2.Items.Other {
 		public override void AI() {
             int index = lifetime - Projectile.timeLeft;
 			if (index > Main.maxChests) {
-                Projectile.timeLeft = lifetime - Main.maxChests;
+                if (items.Count > 0) {
+                    Projectile.timeLeft = lifetime - Main.maxChests;
+                }
 			} else {
 				if (items is null) {
                     items = new();
@@ -100,7 +103,7 @@ namespace EpikV2.Items.Other {
                         SelectableItem other = itemValues[j];
                         Vector2 itemDiff = other.position - item.position;
                         float itemDist = itemDiff.Length();
-						if (itemDist > 0 && itemDist < 16) {
+						if (itemDist > 0 && itemDist < 24) {
                             itemDiff = (itemDiff / itemDist) * 0.1f;
                             item.velocity -= itemDiff;
                             other.velocity += itemDiff;
@@ -157,16 +160,32 @@ namespace EpikV2.Items.Other {
 		}
 		public override void SetDefaults() {
             Projectile.tileCollide = false;
+            Projectile.ownerHitCheck = false;
 		}
 		public override void AI() {
 			if (Projectile.ai[0] < 0) {
                 Projectile.velocity = Vector2.Zero;
                 return;
 			}
+            Player owner = Main.player[Projectile.owner];
+            Rectangle ownerHitbox = owner.Hitbox;
+            ownerHitbox.Inflate(20, 20);
+            if (ownerHitbox.Contains(Projectile.position.ToPoint()) && owner.GetModPlayer<EpikPlayer>().empressDashCooldown > 45) {
+                Projectile.ownerHitCheck = true;
+            }
+            float speed = 6f;
+            if (Projectile.ownerHitCheck) {
+                EpikPlayer epikPlayer = owner.GetModPlayer<EpikPlayer>();
+                epikPlayer.empressDashTime = 2;
+                epikPlayer.empressIgnoreTiles = true;
+                owner.Center = Projectile.position;
+                epikPlayer.empressDashVelocity = owner.velocity = default;
+                owner.gravity = 0;
+                speed = 18f;
+            }
             Projectile.timeLeft = 60;
             Vector2 diff = new Vector2(Projectile.ai[0], Projectile.ai[1]) - Projectile.position;
             float dist = diff.Length();
-            const float speed = 6f;
 			if (dist < speed) {
                 Projectile.velocity = diff;
                 Projectile.ai[0] = -1;
@@ -175,7 +194,6 @@ namespace EpikV2.Items.Other {
                 Projectile.velocity = diff.RotatedBy((GetWallDistOffset(Projectile.frame / 6f) + GetWallDistOffset((Projectile.frame - 6) / 6f)) * 0.125f) * (speed / dist);
             }
             EpikExtensions.AngularSmoothing(ref Projectile.rotation, Projectile.velocity.ToRotation(), 0.1f);
-            Player owner = Main.player[Projectile.owner];
             Vector2 ownerDiff = Projectile.position - owner.Center;
             float ownerDist = ownerDiff.Length();
             const float range = 320;
@@ -224,6 +242,8 @@ namespace EpikV2.Items.Other {
     public struct Spirit_Drawer {
         private static VertexStrip _vertexStrip = new VertexStrip();
         private Vector2[] positions;
+        Color color0;
+        Color color1;
         public void Draw(Projectile proj) {
             MiscShaderData miscShaderData = GameShaders.Misc["RainbowRod"];
             miscShaderData.UseSaturation(-2.8f);
@@ -234,13 +254,34 @@ namespace EpikV2.Items.Other {
                 positions[i] = proj.oldPos[i * 6];
 			}
             positions = proj.oldPos;
+            if (proj.ownerHitCheck) {
+				switch (EpikV2.GetSpecialNameType(Main.player[0].name)) {
+                    case 0: {
+                        float vfxTime = (float)((Main.timeForVisualEffects / 120f) % 1f);
+                        Color c0 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6) % 6);
+                        Color c1 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6 + 1) % 6);
+                        Color c2 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6 + 2) % 6);
+                        color0 = Color.Lerp(c0, c1, (vfxTime * 6) % 1);
+                        color1 = Color.Lerp(c1, c2, (vfxTime * 6) % 1);
+                        break;
+                    }
+
+					default:
+                    color0 = Main.DiscoColor;
+                    color1 = new Color(Main.DiscoB, Main.DiscoR, Main.DiscoG);
+                    break;
+                }
+			} else {
+                color0 = Color.Blue;
+                color1 = Color.White;
+			}
             _vertexStrip.PrepareStripWithProceduralPadding(positions, proj.oldRot, StripColors, StripWidth, -Main.screenPosition + proj.Size / 2f);
             _vertexStrip.DrawTrail();
             Main.pixelShader.CurrentTechnique.Passes[0].Apply();
         }
 
         private Color StripColors(float progressOnStrip) {
-            Color result = Color.Lerp(Color.Blue, Color.White, Utils.GetLerpValue(-0.2f, 0.5f, progressOnStrip, clamped: true)) * (1f - Utils.GetLerpValue(0f, 0.98f, progressOnStrip));
+            Color result = Color.Lerp(color0, color1, Utils.GetLerpValue(-0.2f, 0.5f, progressOnStrip, clamped: true)) * (1f - Utils.GetLerpValue(0f, 0.98f, progressOnStrip));
             result.A = 0;
             return result;
         }

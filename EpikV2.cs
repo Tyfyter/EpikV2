@@ -60,8 +60,11 @@ namespace EpikV2 {
 		public static int laserBowShaderID;
 		public static int chimeraShaderID;
 		public static int opaqueChimeraShaderID;
+		public static int empressWingsShaderID;
+		public static int empressWingsShaderAltID;
 		public static ModKeybind ModeSwitchHotkey { get; private set; }
 		public static bool modeSwitchHotbarActive;
+		public static ModKeybind DashHotkey { get; private set; }
 		public static Filter mappedFilter {
 			get => Filters.Scene["EpikV2:FilterMapped"];
 			set => Filters.Scene["EpikV2:FilterMapped"] = value;
@@ -123,6 +126,7 @@ namespace EpikV2 {
 				"strike"
 			});
 			ModeSwitchHotkey = KeybindLoader.RegisterKeybind(this, "Change Item Mode", "Mouse5");
+			DashHotkey = KeybindLoader.RegisterKeybind(this, "Use Dash", "Mouse4");
 			ApplyPatches();
 		}
 
@@ -132,6 +136,8 @@ namespace EpikV2 {
 			Shaders = null;
 			Fonts = null;
 			drawAfterNPCs = null;
+			ModeSwitchHotkey = null;
+			DashHotkey = null;
 			EpikWorld.Sacrifices = null;
 			HellforgeRecipes = null;
 			MiscUtils.Unload();
@@ -266,6 +272,13 @@ namespace EpikV2 {
 				return lowerName.EndsWith("faust") || lowerName == "jennifer";
 			}
 			return false;
+		}
+		public static int GetSpecialNameType(string name) {
+			string lowerName = name.ToLower();
+			if (lowerName.EndsWith("faust") || lowerName == "jennifer") {
+				return 0;
+			}
+			return -1;
 		}
 	}
 	[Label("Settings")]

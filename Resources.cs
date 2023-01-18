@@ -1,4 +1,5 @@
 ﻿using EpikV2.Items;
+using EpikV2.Items.Accessories;
 using EpikV2.Items.Debugging;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -106,6 +107,13 @@ namespace EpikV2 {
                 laserBowOverlayShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/LaserBow", AssetRequestMode.ImmediateLoad).Value), "LaserBow");
                 chimeraShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", AssetRequestMode.ImmediateLoad).Value), "Chimerebos");
                 opaqueChimeraShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", AssetRequestMode.ImmediateLoad).Value), "ChimerebosOpaque");
+                
+                empressWingsShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Mask", AssetRequestMode.ImmediateLoad).Value), "EmpressWings");
+                empressWingsShader.UseImage("Images/Extra_156");
+
+                empressWingsShaderAlt = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Mask", AssetRequestMode.ImmediateLoad).Value), "EmpressWings");
+                altRainbowTexture = mod.Assets.Request<Texture2D>("Textures/Rainbow", AssetRequestMode.ImmediateLoad);
+                empressWingsShaderAlt.UseNonVanillaImage(altRainbowTexture);
 
                 GameShaders.Armor.BindShader(ItemType<Jade_Dye>(), jadeDyeShader);
                 GameShaders.Armor.BindShader(ItemType<Heatwave_Dye>(), fireDyeShader);
@@ -160,6 +168,12 @@ namespace EpikV2 {
                 dst_lsd.GetShader().UseImage(mod.Assets.Request<Texture2D>("Textures/DSTNoise", AssetRequestMode.ImmediateLoad).Value, 0, SamplerState.LinearWrap);
                 Filters.Scene["EpikV2:DST_LSD"] = dst_lsd;
 
+                GameShaders.Armor.BindShader(ItemType<EoL_Dash>(), empressWingsShader);
+                EpikV2.empressWingsShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<EoL_Dash>());
+
+                GameShaders.Armor.BindShader(ItemType<SoundDebugger>(), empressWingsShaderAlt);
+                EpikV2.empressWingsShaderAltID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<SoundDebugger>());
+
                 InvalidArmorShaders = new List<InvalidArmorShader> {
                     new InvalidArmorShader(EpikV2.starlightShaderID, EpikV2.dimStarlightShaderID),
                     new InvalidArmorShader(EpikV2.brightStarlightShaderID, EpikV2.dimStarlightShaderID),
@@ -186,7 +200,10 @@ namespace EpikV2 {
             public ArmorShaderData laserBowOverlayShader;
             public ArmorShaderData chimeraShader;
             public ArmorShaderData opaqueChimeraShader;
+            public ArmorShaderData empressWingsShader;
+            public ArmorShaderData empressWingsShaderAlt;
             public Asset<Texture2D> nebulaDistortionTexture;
+            public Asset<Texture2D> altRainbowTexture;
             public Asset<Texture2D> testDistortionTexture;
             //public Effect trailShader;
         }

@@ -449,7 +449,7 @@ namespace EpikV2 {
 			}
 			return orig(self, alphaChannelMultiplier, lerpToWhite, rawHueOverride);
 		}
-		static Color GetName0Colors(int hueIndex) {
+		public static Color GetName0Colors(int hueIndex) {
 			switch (hueIndex) {
 				case 0:
 				return new Color(176, 124, 191);
@@ -466,7 +466,7 @@ namespace EpikV2 {
 			}
 			return new Color(0, 0, 0);
 		}
-		static Color GetName0ColorsSaturated(int hueIndex) {
+		public static Color GetName0ColorsSaturated(int hueIndex) {
 			switch (hueIndex) {
 				case 0:
 				return new Color(169, 90, 191);
