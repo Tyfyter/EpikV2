@@ -10,8 +10,8 @@ using Terraria.ModLoader;
 
 namespace EpikV2.Items.Accessories {
 	public class EoL_Dash : ModItem {
-		public const int dash_cooldown = 75;
-		public const int dash_redash_cooldown = 15;
+		public const int dash_cooldown = 65;
+		public const int dash_redash_cooldown = 25;
 		public override string Texture => "Terraria/Images/Item_" + ItemID.EmpressFlightBooster;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("<PH> Refraction Ensign");
@@ -93,9 +93,9 @@ namespace EpikV2.Items.Accessories {
 				break;
 			}
 			if (dashVelocity != default) {
-				dashVelocity += dashVelocity.SafeNormalize(default);
+				dashVelocity += dashVelocity.SafeNormalize(default) * 0.5f;
 				epikPlayer.empressDashTime = 12;
-				epikPlayer.empressDashVelocity = dashVelocity * 1.5f;
+				epikPlayer.empressDashVelocity = dashVelocity * 2f;
 				epikPlayer.empressDashCount--;
 				Terraria.Audio.SoundEngine.PlaySound(SoundID.Item103.WithPitch(1), player.Center);
 			}

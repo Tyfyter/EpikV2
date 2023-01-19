@@ -255,9 +255,20 @@ namespace EpikV2 {
             timeSinceRespawn++;
             if (empressDashCooldown > 0) {
                 empressDashCooldown--;
-				if (empressDashCooldown < 45) {
+				if (empressDashCooldown < EoL_Dash.dash_cooldown) {
 					if (empressDashCooldown <= 0) {
                         empressDashCount = 3;
+						if (Player.whoAmI == Main.myPlayer) {
+							SoundEngine.PlaySound(SoundID.Item4.WithPitch(-0.5f));
+							ArmorShaderData shader = GameShaders.Armor.GetShaderFromItemId(ItemID.HallowBossDye);
+							for (int i = 0; i < 5; i++) {
+								int num3 = Dust.NewDust(Player.position, Player.width, Player.height, DustID.ManaRegeneration, 0f, 0f, 255, default(Color), (float)Main.rand.Next(20, 26) * 0.1f);
+								Main.dust[num3].noLight = true;
+								Main.dust[num3].noGravity = true;
+								Main.dust[num3].velocity *= 0.5f;
+								Main.dust[num3].shader = shader;
+							}
+						}
 					} else {
                         empressDashCount = 0;
                     }
@@ -641,10 +652,6 @@ namespace EpikV2 {
                 Player.immuneNoBlink = true;
                 empressDashTime--;
                 empressDashCooldown = EoL_Dash.dash_cooldown + EoL_Dash.dash_redash_cooldown;
-                Player.releaseDown = true;
-                Player.releaseUp = true;
-                Player.releaseRight = true;
-                Player.releaseLeft = true;
                 updateEmpressFrame = true;
 				if (empressIgnoreTiles) {
                     Player.position.X += Player.width / 2;
@@ -973,7 +980,7 @@ namespace EpikV2 {
                     drawInfo.cLegs = invalidShader.fallbackShader;
             }
 
-            if(marionetteDeathTime > 0) {
+			if (marionetteDeathTime > 0) {
                 float fadeTime = (255-(marionetteDeathTime * 10f))/255f;
                 Color fadeColor = new Color(fadeTime,fadeTime,fadeTime,fadeTime);
                 drawInfo.colorHair = drawInfo.colorHair.MultiplyRGBA(fadeColor);
@@ -1003,7 +1010,7 @@ namespace EpikV2 {
                         layer.Hide();
                     }
                 }
-            }
+			}
             /*
             if(marionetteDeathTime>0) {
                 PlayerLayer layer = MarionetteStringLayer(marionetteDeathTime);
@@ -1020,6 +1027,7 @@ namespace EpikV2 {
 
         #region data management (networking/IO)
         public override void SyncPlayer(int toWho, int fromWho, bool newPlayer) {
+			return;
             if (Main.netMode == NetmodeID.SinglePlayer) return;
             ModPacket packet = Mod.GetPacket();
             packet.Write(EpikV2.PacketType.playerSync);
