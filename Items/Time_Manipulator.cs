@@ -119,6 +119,10 @@ namespace EpikV2.Items {
 			0);
 			return false;
 		}
+		public override void ModifyTooltips(List<TooltipLine> tooltips) {
+			EpikGlobalItem.ReplaceTooltipPlaceholders(tooltips, EpikGlobalItem.TooltipPlaceholder.ModeSwitch);
+			tooltips[0].OverrideColor = Colors.RarityDarkPurple * (Main.mouseTextColor / 255f);
+		}
 		public override void NetSend(BinaryWriter writer) {
 			writer.Write(mode);
 		}

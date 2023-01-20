@@ -13,6 +13,7 @@ using Terraria.DataStructures;
 using Terraria.GameContent.ItemDropRules;
 using EpikV2.Modifiers;
 using System.IO;
+using Terraria.GameInput;
 
 namespace EpikV2.Items {
     public partial class EpikGlobalItem : GlobalItem {
@@ -163,6 +164,33 @@ namespace EpikV2.Items {
 				}
 				break;
 			}
+		}
+		public static void ReplaceTooltipPlaceholders(List<TooltipLine> tooltips, TooltipPlaceholder tooltipPlaceholders) {
+			List<(string key, string replacement)> replacements = new();
+			if (tooltipPlaceholders.HasFlag(TooltipPlaceholder.ModeSwitch)) {
+				InputMode inputMode = InputMode.Keyboard;
+				switch (PlayerInput.CurrentInputMode) {
+					case InputMode.XBoxGamepad:
+					inputMode = InputMode.XBoxGamepad;
+					break;
+					case InputMode.XBoxGamepadUI:
+					inputMode = InputMode.XBoxGamepad;
+					break;
+				}
+				replacements.Add((
+					"<switch>",
+					EpikV2.ModeSwitchHotkey.GetAssignedKeys(inputMode).FirstOrDefault() ?? "Mode switch hotkey"
+				));
+			}
+			foreach (TooltipLine line in tooltips) {
+				for (int i = 0; i < replacements.Count; i++) {
+					line.Text = line.Text.Replace(replacements[i].key, replacements[i].replacement);
+				}
+			}
+		}
+		[Flags]
+		public enum TooltipPlaceholder {
+			ModeSwitch = 0b00000001
 		}
 		public override void NetSend(Item item, BinaryWriter writer) {
 			if (item.type == ItemID.CatEars) {

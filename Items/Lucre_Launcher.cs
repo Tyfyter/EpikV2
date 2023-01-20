@@ -105,7 +105,7 @@ namespace EpikV2.Items {
         }
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Lucre Launcher");
-		    Tooltip.SetDefault("It's pay to win\nScroll while holding<Torch> to change coin type\nRight click to load in coins");
+		    Tooltip.SetDefault("It's pay to win\nScroll while holding<Torch> or use <switch> to change coin type\nRight click to load in coins");
             ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
             SacrificeTotal = 1;
             if (Main.netMode == NetmodeID.Server)return;
@@ -223,6 +223,7 @@ namespace EpikV2.Items {
                     //tooltip.overrideColor = CoinColor;
                 }
             }
+			EpikGlobalItem.ReplaceTooltipPlaceholders(tooltips, EpikGlobalItem.TooltipPlaceholder.ModeSwitch);
         }
         public override bool CanUseItem(Player player) {
             if(player.altFunctionUse == 2) {

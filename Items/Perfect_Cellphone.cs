@@ -61,6 +61,7 @@ namespace EpikV2.Items {
 			player.accStopwatch = true;
 			player.accCompass = 1;
 			player.accDepthMeter = 1;
+			player.GetModPlayer<EpikPlayer>().showLuck = true;
 		}
 		protected virtual void Teleport(Player player) {
 			player.Spawn(PlayerSpawnContext.RecallFromItem);
@@ -153,19 +154,7 @@ namespace EpikV2.Items {
 			Main.LocalPlayer.GetModPlayer<EpikPlayer>().switchBackSlot = Main.LocalPlayer.selectedItem;
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
-			InputMode inputMode = InputMode.Keyboard;
-			switch (PlayerInput.CurrentInputMode) {
-				case InputMode.XBoxGamepad:
-				inputMode = InputMode.XBoxGamepad;
-				break;
-				case InputMode.XBoxGamepadUI:
-				inputMode = InputMode.XBoxGamepad;
-				break;
-			}
-			string text = EpikV2.ModeSwitchHotkey.GetAssignedKeys(inputMode).FirstOrDefault() ?? "Mode switch hotkey";
-			foreach (TooltipLine line in tooltips) {
-				line.Text = line.Text.Replace("<switch>", text);
-			}
+			EpikGlobalItem.ReplaceTooltipPlaceholders(tooltips, EpikGlobalItem.TooltipPlaceholder.ModeSwitch);
 			tooltips[0].OverrideColor = Colors.RarityDarkPurple * (Main.mouseTextColor / 255f);
 		}
 		public override void AddRecipes() {

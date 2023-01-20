@@ -57,10 +57,9 @@ namespace EpikV2.Items.Other {
 		}
 		public override void SetDefaults() {
 			Projectile.tileCollide = false;
-			Projectile.timeLeft = lifetime;
+			Projectile.timeLeft = 15;
 		}
 		public override void AI() {
-			Projectile.timeLeft = lifetime;
 			Point tilePos = Projectile.position.ToTileCoordinates();
 			Tile tile = Main.tile[tilePos];
 			Player owner = Main.player[Projectile.owner];
@@ -87,6 +86,7 @@ namespace EpikV2.Items.Other {
 
 				case 0: {
 					if (tile.HasTile && tile.TileType == TileID.Statues && tile.TileFrameX >= 36 * 49 && tile.TileFrameX < 36 * 50) {
+						Projectile.velocity = default;
 						if (channel && epikPlayer.CheckFloatMana(owner.HeldItem, 0.5f)) {
 							if (channelTarget == 0) {
 								channelTarget = 1;
@@ -95,7 +95,8 @@ namespace EpikV2.Items.Other {
 							}
 						}
 					} else {
-						Projectile.Kill();
+						Projectile.velocity = new Vector2(owner.direction * 8, 0);
+						return;
 					}
 					break;
 				}
@@ -154,8 +155,8 @@ namespace EpikV2.Items.Other {
 					}
 					if (channelTarget == 0) {
 						channelTarget = 4;
-						channelRate = 0.0015f;
-						channelCost = 2.5f;
+						channelRate = 0.003f;
+						channelCost = 5f;
 					}
 					goto case 1;
 				}
@@ -196,11 +197,16 @@ namespace EpikV2.Items.Other {
 			}
 			if (channelTarget != 0) {
 				if (channel && epikPlayer.CheckFloatMana(owner.HeldItem, channelCost)) {
+					owner.itemTime = 2;
+					owner.itemAnimation = 2;
+					owner.manaRegenDelay = 5;
 					if ((Projectile.ai[0] += channelRate) >= channelTarget) {
+						owner.channel = false;
 						Projectile.ai[0] = channelTarget;
 					}
 				}
 			}
+			Projectile.timeLeft = lifetime;
 		}
 	}
 
@@ -258,7 +264,7 @@ namespace EpikV2.Items.Other {
 					for (int j = 0; j < itemValues.Length; j++) {
 						if (i == j) continue;
 						SelectableItem other = itemValues[j];
-						Vector2 itemDiff = other.position - item.position;
+						Vector2 itemDiff = other.GetPosition() - item.GetPosition();
 						float itemDist = itemDiff.Length();
 						if (itemDist > 0 && itemDist < 24) {
 							itemDiff = (itemDiff / itemDist) * 0.1f;

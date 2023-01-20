@@ -10,7 +10,8 @@ using Terraria.ModLoader;
 
 namespace EpikV2.Items.Accessories {
 	public class EoL_Dash : ModItem {
-		public const int dash_cooldown = 65;
+		public const int dash_cooldown_boss_increase = 260;
+		public const int dash_cooldown = 75;
 		public const int dash_redash_cooldown = 25;
 		public override string Texture => "Terraria/Images/Item_" + ItemID.EmpressFlightBooster;
 		public override void SetStaticDefaults() {
@@ -24,7 +25,8 @@ namespace EpikV2.Items.Accessories {
 		public override void UpdateEquip(Player player) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			bool oneTap = false;
-			if (epikPlayer.empressDashCooldown > 0) {
+			int dashCooldownEnd = Main.CurrentFrameFlags.AnyActiveBossNPC ? -dash_cooldown_boss_increase : 0;
+			if (epikPlayer.empressDashCooldown > dashCooldownEnd) {
 				if (epikPlayer.empressDashCount == 0 || epikPlayer.empressDashTime > 0) {
 					return;
 				}

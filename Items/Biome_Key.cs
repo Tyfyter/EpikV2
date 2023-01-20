@@ -29,7 +29,7 @@ namespace EpikV2.Items {
 		Dictionary<string, object> keyValuePairs;
 		public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Biome Key ");
-			Tooltip.SetDefault("<right> to change modes");
+			Tooltip.SetDefault("<right> or <switch> to change modes");
             SacrificeTotal = 1;
 		}
 		public virtual void SetNormalAnimation() {
@@ -208,6 +208,10 @@ namespace EpikV2.Items {
 		public override bool WeaponPrefix() => false;
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
 			return player.altFunctionUse != 2;
+		}
+		public override void ModifyTooltips(List<TooltipLine> tooltips) {
+			EpikGlobalItem.ReplaceTooltipPlaceholders(tooltips, EpikGlobalItem.TooltipPlaceholder.ModeSwitch);
+			tooltips[0].OverrideColor = Colors.RarityDarkPurple * (Main.mouseTextColor / 255f);
 		}
 		public override void SaveData(TagCompound tag) {
 			TagCompound kvp = new();

@@ -111,6 +111,7 @@ namespace EpikV2 {
         public float empressDashFrame = 0;
         public bool empressIgnoreTiles = false;
         public bool dashHotkey = false;
+		public bool showLuck = true;
         public float meleeSize = 1;
         public int? switchBackSlot = 0;
         private int[] buffIndecies;
@@ -183,7 +184,8 @@ namespace EpikV2 {
             imbueShadowflame = false;
             imbueCursedInferno = false;
             imbueIchor = false;
-            meleeSize = 1;
+			showLuck = false;
+			meleeSize = 1;
             if (marionetteDeathTime>0) {
                 Player.statLife = 0;
                 Player.breath = Player.breathMax;
@@ -253,10 +255,11 @@ namespace EpikV2 {
                 ownedSpikeHooks[i] = -1;
             }
             timeSinceRespawn++;
-            if (empressDashCooldown > 0) {
+			int dashCooldownEnd = Main.CurrentFrameFlags.AnyActiveBossNPC ? -EoL_Dash.dash_cooldown_boss_increase : 0;
+			if (empressDashCooldown > dashCooldownEnd) {
                 empressDashCooldown--;
 				if (empressDashCooldown < EoL_Dash.dash_cooldown) {
-					if (empressDashCooldown <= 0) {
+					if (empressDashCooldown <= dashCooldownEnd) {
                         empressDashCount = 3;
 						if (Player.whoAmI == Main.myPlayer) {
 							SoundEngine.PlaySound(SoundID.Item4.WithPitch(-0.5f));
@@ -273,7 +276,9 @@ namespace EpikV2 {
                         empressDashCount = 0;
                     }
 				}
-            }
+			} else if (empressDashCount < 3) {
+				empressDashCount = 3;
+			}
             empressIgnoreTiles = false;
         }
 		public override void OnRespawn(Player player) {
@@ -900,7 +905,7 @@ namespace EpikV2 {
                 bool rare = Main.rand.NextBool(chanceRare);
                 bool veryrare = Main.rand.NextBool(chanceVeryRare);
                 bool legendary = Main.rand.NextBool(chanceLegendary);
-                bool crate = Player.cratePotion && Main.rand.Next(100) < 20;
+                bool crate = Player.cratePotion && Player.RollLuck(100) < 20;
 
                 if (Player.luck > 0f) {
                     if (Main.rand.NextFloat() < Player.luck) {
@@ -910,6 +915,19 @@ namespace EpikV2 {
                         attempt.legendary |= legendary;
                         attempt.crate |= crate;
                     }
+					if (Player.RollLuck(300) < attempt.fishingLevel) {
+						if (attempt.veryrare) {
+							attempt.legendary = true;
+						} else if (attempt.rare) {
+							attempt.veryrare = true;
+						} else if (attempt.uncommon) {
+							attempt.rare = true;
+						} else if (attempt.common) {
+							attempt.uncommon = true;
+						} else {
+							attempt.common = true;
+						}
+					}
                 } else if (Player.luck < 0f && Main.rand.NextFloat() < 0f - Player.luck) {
                     int chanceCommon = 150 / attempt.fishingLevel;
                     if (chanceCommon < 2) {
@@ -937,8 +955,11 @@ namespace EpikV2 {
 				}
 			}
         }
-        #endregion
-        public void AddMagiciansHatDamage(NPC target, int damage) {
+		public override void ModifyLuck(ref float luck) {
+			luck += Player.luckPotion * 0.1f;
+		}
+		#endregion
+		public void AddMagiciansHatDamage(NPC target, int damage) {
             magiciansHatDamage += damage;
             if(target.life<0)magiciansHatDamage += damage;
             if(magiciansHatDamage>magiciansHatDamageThreshhold) {
