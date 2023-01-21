@@ -19,7 +19,7 @@ namespace EpikV2.Items.Accessories {
 			return Main.LocalPlayer.GetModPlayer<EpikPlayer>().showLuck;
 		}
 		public override string DisplayValue() {
-			return $"{Main.LocalPlayer.luck * 100:##}% Luck";
+			return $"{Main.LocalPlayer.luck * 100:#0}% Luck";
 		}
 	}
 }

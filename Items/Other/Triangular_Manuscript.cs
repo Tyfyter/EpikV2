@@ -405,8 +405,8 @@ namespace EpikV2.Items.Other {
 	public struct Spirit_Drawer {
 		private static VertexStrip _vertexStrip = new VertexStrip();
 		private Vector2[] positions;
-		Color color0;
-		Color color1;
+		private Color color0;
+		private Color color1;
 		public void Draw(Projectile proj) {
 			MiscShaderData miscShaderData = GameShaders.Misc["RainbowRod"];
 			miscShaderData.UseSaturation(-2.8f);

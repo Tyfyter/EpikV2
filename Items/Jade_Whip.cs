@@ -19,7 +19,7 @@ namespace EpikV2.Items {
 	public class Jade_Whip : ModItem {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.RainbowWhip;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Name TBD");
+			DisplayName.SetDefault("<PH> Jade Whip");
 			Tooltip.SetDefault("Summon tag damage and crit chance benefit from bonuses");
 			SacrificeTotal = 1;
 		}
@@ -28,17 +28,11 @@ namespace EpikV2.Items {
 			Item.DefaultToWhip(ModContent.ProjectileType<Jade_Whip_P>(), 20, 2, 4, 27);
 			Item.DamageType = Damage_Classes.Melee_Summon;
 			Item.damage = 120;
+			Item.value = Item.sellPrice(gold:9);
+			Item.autoReuse = true;
 			Item.rare = ItemRarityID.Purple;
 		}
-		public override int ChoosePrefix(UnifiedRandom rand) {
-			if (Item.noUseGraphic) {
-				Item.noUseGraphic = false;
-				Item.Prefix(-2);
-				Item.noUseGraphic = true;
-				return Item.prefix;
-			}
-			return -1;
-		}
+		public override bool MeleePrefix() => true;
 		public override void AddRecipes() {
 			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(AquamarineMaterial.id);
@@ -78,6 +72,7 @@ namespace EpikV2.Items {
 			Projectile.DefaultToWhip();
 			Projectile.DamageType = Damage_Classes.Melee_Summon;
 			Projectile.WhipSettings.Segments = 20;
+			Projectile.timeLeft = 3600;
 		}
 
 		private float Timer {
@@ -86,7 +81,7 @@ namespace EpikV2.Items {
 		}
 
 		public override void AI() {
-			Projectile.WhipSettings.RangeMultiplier = 1.1f * Projectile.scale * (Projectile.ai[1] == 2 ? 1.5f : 1);
+			Projectile.WhipSettings.RangeMultiplier = 1.4f * Projectile.scale * (Projectile.ai[1] == 2 ? 1.5f : 1);
 			Player owner = Main.player[Projectile.owner];
 			Projectile.rotation = Projectile.velocity.ToRotation() + MathHelper.PiOver2; // Without PiOver2, the rotation would be off by 90 degrees counterclockwise.
 

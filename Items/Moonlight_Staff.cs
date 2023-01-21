@@ -172,8 +172,8 @@ namespace EpikV2.Items {
             Vector2 targetCenter = Projectile.Center;
             int oldTarget = (int)Projectile.localAI[0];
             int target = 0;
-            bool foundTarget = false;
-            if(oldTarget>=0&&!Main.npc[oldTarget].active) {
+			bool foundTarget = false;
+            if(oldTarget >= 0 && !Main.npc[oldTarget].active) {
                 Projectile.localAI[0] = oldTarget = -1;
             }
 
@@ -193,13 +193,12 @@ namespace EpikV2.Items {
                         NPC npc = Main.npc[i];
                         if(npc.CanBeChasedBy()) {
                             float between = Vector2.Distance(npc.Center, Projectile.Center);
-                            bool closest = Vector2.Distance(Projectile.Center, targetCenter) > between;
                             bool inRange = between < distanceFromTarget;
-                            if((closest && inRange) || !foundTarget) {
-                                distanceFromTarget = between;
-                                targetCenter = npc.Center;
-                                target = npc.whoAmI;
-                                foundTarget = true;
+                            if(inRange && Collision.CanHitLine(Projectile.position, Projectile.width, Projectile.height, npc.position, npc.width, npc.height)) {
+								distanceFromTarget = between;
+								targetCenter = npc.Center;
+								target = npc.whoAmI;
+								foundTarget = true;
                             }
                         }
                     }
@@ -368,19 +367,37 @@ namespace EpikV2.Items {
     public struct Moonlace_Drawer {
         private static VertexStrip _vertexStrip = new VertexStrip();
         private Vector2[] positions;
-        public void Draw(Projectile proj) {
+		private Color color0;
+		private Color color1;
+		public void Draw(Projectile proj) {
             MiscShaderData miscShaderData = GameShaders.Misc["RainbowRod"];
             miscShaderData.UseSaturation(-2.8f);
             miscShaderData.UseOpacity(4f);
             miscShaderData.Apply();
             positions = proj.oldPos;
-            _vertexStrip.PrepareStripWithProceduralPadding(positions, proj.oldRot, StripColors, StripWidth, -Main.screenPosition + proj.Size / 2f);
+			switch (EpikV2.GetSpecialNameType(Main.player[0].name)) {
+				case 0: {
+					float vfxTime = (float)((Main.timeForVisualEffects / 120f) % 1f);
+					Color c0 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6) % 6);
+					Color c1 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6 + 1) % 6);
+					Color c2 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6 + 2) % 6);
+					color0 = Color.Lerp(c0, c1, (vfxTime * 6) % 1);
+					color1 = Color.Lerp(c1, c2, (vfxTime * 6) % 1);
+					break;
+				}
+
+				default:
+				color0 = Color.White;
+				color1 = Color.Black;
+				break;
+			}
+			_vertexStrip.PrepareStripWithProceduralPadding(positions, proj.oldRot, StripColors, StripWidth, -Main.screenPosition + proj.Size / 2f);
             _vertexStrip.DrawTrail();
             Main.pixelShader.CurrentTechnique.Passes[0].Apply();
         }
 
         private Color StripColors(float progressOnStrip) {
-            Color result = Color.Lerp(Color.White, Color.Black, Utils.GetLerpValue(-0.2f, 0.5f, progressOnStrip, clamped: true)) * (1f - Utils.GetLerpValue(0f, 0.98f, progressOnStrip));
+            Color result = Color.Lerp(color0, color1, Utils.GetLerpValue(-0.2f, 0.5f, progressOnStrip, clamped: true)) * (1f - Utils.GetLerpValue(0f, 0.98f, progressOnStrip));
             result.A = 0;
             return result;
         }

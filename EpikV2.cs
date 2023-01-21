@@ -141,6 +141,7 @@ namespace EpikV2 {
 			EpikWorld.Sacrifices = null;
 			HellforgeRecipes = null;
 			MiscUtils.Unload();
+			//TextureAssets.Item[ItemID.HighTestFishingLine] = Main.Assets.Request<Texture2D>("Images/Item_" + ItemID.HighTestFishingLine, AssetRequestMode.DoNotLoad);
 			//filterMapQueue.Clear();
 			//filterMapQueue = null;
 		}
