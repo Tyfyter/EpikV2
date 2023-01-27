@@ -1048,7 +1048,7 @@ namespace EpikV2 {
 
         #region data management (networking/IO)
         public override void SyncPlayer(int toWho, int fromWho, bool newPlayer) {
-			return;
+			//return;
             if (Main.netMode == NetmodeID.SinglePlayer) return;
             ModPacket packet = Mod.GetPacket();
             packet.Write(EpikV2.PacketType.playerSync);

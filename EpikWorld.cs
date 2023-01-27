@@ -1,4 +1,5 @@
 ﻿using EpikV2.Items;
+using EpikV2.Items.Other;
 using EpikV2.UI;
 using Microsoft.Xna.Framework;
 using System;
@@ -22,6 +23,7 @@ namespace EpikV2 {
 		public const WorldVersion current_world_version = WorldVersion.RecordNaturalChests;
 		public const WorldCreationVersion current_world_creation_version = WorldCreationVersion.Unversioned;
 		WorldCreationVersion creationVersion;
+		public static WorldCreationVersion WorldCreationVersion => ModContent.GetInstance<EpikWorld>().creationVersion;
 		//public static int GolemTime = 0;
 		private static List<int> sacrifices;
 		private static bool raining;
@@ -173,7 +175,9 @@ namespace EpikV2 {
 			ChestLootCache.ApplyLootQueue(lootCaches,
 				(SWITCH_MODE, MODE_ADD),
 				(CHANGE_QUEUE, ChestID.Ice),
-				(ENQUEUE, ModContent.ItemType<Frost_Band_Vanity>())
+				(ENQUEUE, ModContent.ItemType<Frost_Band_Vanity>()),
+				(CHANGE_QUEUE, ChestID.GoldLocked),
+				(ENQUEUE, ModContent.ItemType<Triangular_Manuscript>())
 			);
 			for (int i = 0; i < Main.maxChests; i++) {
 				if (Main.chest[i] is Chest chest) {

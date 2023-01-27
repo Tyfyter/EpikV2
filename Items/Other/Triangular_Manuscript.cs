@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using EpikV2.Items.Accessories;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -316,14 +317,18 @@ namespace EpikV2.Items.Other {
 	public class Guiding_Spirit : ModProjectile {
 		public override string Texture => "Terraria/Images/Misc/Perlin";
 		public static int ID { get; private set; }
+		internal List<Vector2> trailPos;
+		internal List<float> trailRot;
 		public override void SetStaticDefaults() {
 			ProjectileID.Sets.TrailCacheLength[Type] = 30;
 			ProjectileID.Sets.TrailingMode[Type] = 3;
+			ProjectileID.Sets.DrawScreenCheckFluff[Type] = 16 * 8400;
 			ID = Type;
 		}
 		public override void SetDefaults() {
 			Projectile.tileCollide = false;
 			Projectile.ownerHitCheck = false;
+			Projectile.friendly = false;
 		}
 		public override void AI() {
 			if (Projectile.ai[0] < 0) {
@@ -331,14 +336,35 @@ namespace EpikV2.Items.Other {
 				return;
 			}
 			Player owner = Main.player[Projectile.owner];
-			Rectangle ownerHitbox = owner.Hitbox;
-			ownerHitbox.Inflate(20, 20);
-			if (ownerHitbox.Contains(Projectile.position.ToPoint()) && owner.GetModPlayer<EpikPlayer>().empressDashCooldown > 45) {
-				Projectile.ownerHitCheck = true;
+			EpikPlayer epikPlayer = owner.GetModPlayer<EpikPlayer>();
+			bool empressDashing = epikPlayer.empressDashCooldown > EoL_Dash.dash_cooldown;
+			if (empressDashing && !Projectile.ownerHitCheck && !Projectile.friendly) {
+				Rectangle ownerHitbox = owner.Hitbox;
+				ownerHitbox.Inflate(20, 20);
+				if (ownerHitbox.Contains(Projectile.position.ToPoint())) {
+					Projectile.ownerHitCheck = true;
+				} else {
+					for (int i = 0; i < trailPos.Count; i++) {
+						if (ownerHitbox.Contains(trailPos[i].ToPoint())) {
+							Projectile.friendly = true;
+							Projectile.NewProjectile(
+								Projectile.GetSource_FromAI(),
+								owner.Center,
+								default,
+								Guiding_Spirit_Reach.ID,
+								0,
+								0,
+								Main.myPlayer,
+								Projectile.whoAmI,
+								i
+							);
+							break;
+						}
+					}
+				}
 			}
 			float speed = 6f;
 			if (Projectile.ownerHitCheck) {
-				EpikPlayer epikPlayer = owner.GetModPlayer<EpikPlayer>();
 				epikPlayer.empressDashTime = 2;
 				epikPlayer.empressIgnoreTiles = true;
 				owner.Center = Projectile.position;
@@ -357,7 +383,7 @@ namespace EpikV2.Items.Other {
 				Projectile.velocity = diff.RotatedBy((GetWallDistOffset(Projectile.frame / 6f) + GetWallDistOffset((Projectile.frame - 6) / 6f)) * 0.125f) * (speed / dist);
 			}
 			EpikExtensions.AngularSmoothing(ref Projectile.rotation, Projectile.velocity.ToRotation(), 0.1f);
-			Vector2 ownerDiff = Projectile.position - owner.Center;
+			/*Vector2 ownerDiff = Projectile.position - owner.Center;
 			float ownerDist = ownerDiff.Length();
 			const float range = 320;
 			if (ownerDist > range) {
@@ -367,7 +393,108 @@ namespace EpikV2.Items.Other {
 				float factor = (ownerDist - range) * 0.025f;
 
 				Projectile.position -= (ownerDiff / ownerDist) * (factor * factor);
+			}*/
+			if (Projectile.owner == Main.myPlayer) {
+				if (Projectile.localAI[1] > 0) {
+					Projectile.localAI[1] = 0;
+				}
+				if (++Projectile.localAI[0] > 5) {
+					Projectile.localAI[0] = 0;
+					Projectile.localAI[1] = 1;
+					if (trailPos is null) trailPos = new List<Vector2>(1000);
+					if (trailRot is null) trailRot = new List<float>(1000);
+					if (trailPos.Count >= 1000) trailPos.RemoveAt(999);
+					if (trailRot.Count >= 1000) trailRot.RemoveAt(999);
+					trailPos.Insert(0, Projectile.position);
+					trailRot.Insert(0, Projectile.rotation);
+				}
 			}
+		}
+		/// <summary>
+		/// When I wrote this code, only God knew how it worked, that fact has not changed
+		/// </summary>
+		/// <param name="value">the x value along the mostly continuous function</param>
+		/// <returns>mostly continuous noise based on the value of x, may have some near-looping period</returns>
+		public static float GetWallDistOffset(float value) {
+			float x = value * 0.4f;
+			float halfx = x * 0.5f;
+			float quarx = x * 0.5f;
+			if (value < 0) {
+				float nx0 = (float)-Math.Min(Math.Pow(-halfx % 3, halfx % 5), 2);
+				halfx += 0.5f;
+				float nx1;
+				if (halfx < 0) {
+					nx1 = (float)-Math.Min(Math.Pow(-halfx % 3, halfx % 5), 2);
+				} else {
+					nx1 = (float)Math.Min(Math.Pow(halfx % 3, halfx % 5), 2);
+				}
+				float nx2 = nx0 * (float)(-Math.Min(Math.Pow(-quarx % 3, quarx % 5), 2) + 0.5f);
+				return nx0 - nx2 + nx1;
+			}
+			float fx0 = (float)Math.Min(Math.Pow(halfx % 3, halfx % 5), 2);
+			halfx += 0.5f;
+			float fx1 = (float)Math.Min(Math.Pow(halfx % 3, halfx % 5), 2);
+			float fx2 = fx0 * (float)(Math.Min(Math.Pow(quarx % 3, quarx % 5), 2) + 0.5f);
+			return fx0 - fx2 + fx1;
+		}
+		public override bool PreDraw(ref Color lightColor) {
+			if (Projectile.owner == Main.myPlayer && (trailPos?.Count??0) > 1) {
+				default(Spirit_Drawer_Faint).Draw(Projectile, trailPos.ToArray(), trailRot.ToArray());
+			}
+			default(Spirit_Drawer).Draw(Projectile);
+			return false;
+		}
+	}
+	public class Guiding_Spirit_Reach : ModProjectile {
+		public override string Texture => "Terraria/Images/Misc/Perlin";
+		public static int ID { get; private set; }
+		public override void SetStaticDefaults() {
+			ProjectileID.Sets.TrailCacheLength[Type] = 30;
+			ProjectileID.Sets.TrailingMode[Type] = 3;
+			ID = Type;
+		}
+		public override void SetDefaults() {
+			Projectile.tileCollide = false;
+			Projectile.ownerHitCheck = false;
+		}
+		public override void AI() {
+			if (Projectile.owner != Main.myPlayer) return;
+			if (Projectile.ai[0] < 0) {
+				Projectile.velocity = Vector2.Zero;
+				return;
+			}
+			Player owner = Main.player[Projectile.owner];
+			Projectile ownerProj = Main.projectile[(int)Projectile.ai[0]];
+			if (ownerProj.ModProjectile is not Guiding_Spirit ownerSpirit) return;
+
+			const float speed = 18f;
+
+			EpikPlayer epikPlayer = owner.GetModPlayer<EpikPlayer>();
+			epikPlayer.empressDashTime = 2;
+			epikPlayer.empressIgnoreTiles = true;
+			owner.Center = Projectile.position;
+			epikPlayer.empressDashVelocity = owner.velocity = default;
+			owner.gravity = 0;
+			if (ownerProj.localAI[1] > 0) {
+				Projectile.ai[1]++;
+			}
+
+			Projectile.timeLeft = 60;
+			Vector2 diff = ownerSpirit.trailPos[(int)Projectile.ai[1]] - Projectile.position;
+			float dist = diff.Length();
+			if (dist < speed) {
+				Projectile.velocity = diff;
+				Projectile.ai[1]--;
+				if (Projectile.ai[1] < 0) {
+					ownerProj.ownerHitCheck = true;
+					ownerProj.friendly = false;
+					Projectile.Kill();
+				}
+			} else {
+				Projectile.frame++;
+				Projectile.velocity = diff * (speed / dist);
+			}
+			EpikExtensions.AngularSmoothing(ref Projectile.rotation, Projectile.velocity.ToRotation(), 0.1f);
 		}
 		/// <summary>
 		/// When I wrote this code, only God knew how it worked, that fact has not changed
@@ -412,10 +539,6 @@ namespace EpikV2.Items.Other {
 			miscShaderData.UseSaturation(-2.8f);
 			miscShaderData.UseOpacity(4f);
 			miscShaderData.Apply();
-			positions = new Vector2[proj.oldPos.Length / 6];
-			for (int i = 0; i < positions.Length; i++) {
-				positions[i] = proj.oldPos[i * 6];
-			}
 			positions = proj.oldPos;
 			if (proj.ownerHitCheck) {
 				switch (EpikV2.GetSpecialNameType(Main.player[0].name)) {
@@ -459,6 +582,61 @@ namespace EpikV2.Items.Other {
 			num *= 1f - (1f - lerpValue) * (1f - lerpValue);
 			return MathHelper.Lerp(0f, MathHelper.Lerp(64f, 48f, num), num);
 		}
+	}
+	[StructLayout(LayoutKind.Sequential, Size = 1)]
+	public struct Spirit_Drawer_Faint {
+		private static VertexStrip _vertexStrip = new VertexStrip();
+		private Vector2[] positions;
+		private Color color0;
+		private Color color1;
+		public void Draw(Projectile proj, Vector2[] oldPos, float[] oldRot) {
+			MiscShaderData miscShaderData = GameShaders.Misc["RainbowRod"];
+			miscShaderData.UseSaturation(-2.8f);
+			miscShaderData.UseOpacity(4f);
+			miscShaderData.Apply();
+			positions = oldPos;
+			if (proj.ownerHitCheck) {
+				switch (EpikV2.GetSpecialNameType(Main.player[0].name)) {
+					case 0: {
+						float vfxTime = (float)((Main.timeForVisualEffects / 120f) % 1f);
+						Color c0 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6) % 6);
+						Color c1 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6 + 1) % 6);
+						Color c2 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6 + 2) % 6);
+						color0 = Color.Lerp(c0, c1, (vfxTime * 6) % 1);
+						color1 = Color.Lerp(c1, c2, (vfxTime * 6) % 1);
+						break;
+					}
+
+					default:
+					color0 = Main.DiscoColor;
+					color1 = new Color(Main.DiscoB, Main.DiscoR, Main.DiscoG);
+					break;
+				}
+			} else {
+				color0 = Color.Blue;
+				color1 = Color.White;
+			}
+			_vertexStrip.PrepareStripWithProceduralPadding(positions, oldRot, StripColors, StripWidth, -Main.screenPosition + proj.Size / 2f);
+			_vertexStrip.DrawTrail();
+			Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+		}
+
+		private Color StripColors(float progressOnStrip) {
+			Color result = Color.Lerp(color0, color1, Utils.GetLerpValue(-0.2f, 0.5f, progressOnStrip, clamped: true)) * (1f - Utils.GetLerpValue(0f, 0.98f, progressOnStrip)) * 0.25f;
+			result.A = 0;
+			return result * (float)Math.Min(Math.Pow(progressOnStrip, 2) * 10, 1);
+		}
+		private float StripWidth(float progressOnStrip) => 64f;
+		/*private float StripWidth(float progressOnStrip) {
+			float num = 1f;
+			int index = (int)(progressOnStrip * positions.Length);
+			float lerpValue = Utils.GetLerpValue(0f, 0.2f, progressOnStrip, clamped: true);
+			if (index > 1 && positions.Length > index) {
+				lerpValue *= Math.Min((positions[index] - positions[index - 1]).LengthSquared(), 1);
+			}
+			num *= 1f - (1f - lerpValue) * (1f - lerpValue);
+			return MathHelper.Lerp(0f, MathHelper.Lerp(256f, 192f, num), num);
+		}*/
 	}
 	/*[JITWhenModsEnabled("Origins")]
 	public class Triangular_Manuscript_Quest : Origins.Questing.Quest {

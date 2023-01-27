@@ -4,6 +4,7 @@ using System.Linq;
 using EpikV2.Buffs;
 using EpikV2.Items;
 using EpikV2.Items.Accessories;
+using EpikV2.Items.Other;
 using EpikV2.Projectiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -276,6 +277,10 @@ namespace EpikV2.NPCs
                 case NPCID.HallowBoss:
                 npcLoot.Add(ItemDropRule.MasterModeDropOnAllPlayers(ModContent.ItemType<EoL_Dash>(), 3));
                 break;
+
+				case NPCID.Clothier:
+				npcLoot.Add(ItemDropRule.ByCondition(new TriangularManuscriptCondition(), ModContent.ItemType<Triangular_Manuscript>()));
+				break;
             }
 		}
 		public override void OnKill(NPC npc){
@@ -436,5 +441,10 @@ namespace EpikV2.NPCs
         public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents && Main.snowMoon;
         public bool CanShowItemDropInUI() => EpikConfig.Instance.AncientPresents && Main.snowMoon;
         public string GetConditionDescription() => "During the frost moon";
-    }
+	}
+	public class TriangularManuscriptCondition : IItemDropRuleCondition {
+		public bool CanDrop(DropAttemptInfo info) => info.npc.AnyInteractions() && EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscript;
+		public bool CanShowItemDropInUI() => EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscript;
+		public string GetConditionDescription() => "In worlds created before v0.3.7, must be killed by a player";
+	}
 }
