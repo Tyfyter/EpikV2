@@ -43,6 +43,8 @@ using Terraria.ModLoader.Config.UI;
 using System.Globalization;
 using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader.UI;
+using Terraria.Localization;
+using Terraria.GameContent.NetModules;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -186,6 +188,54 @@ namespace EpikV2 {
 					EpikExtensions.DropItemForNearbyTeammates(target.position, target.Size, reader.ReadInt32(), ModContent.ItemType<Ace_Heart>() + Main.rand.Next(4));
 					break;
 
+					case PacketType.requestChestSync: {
+						int chestIndex = reader.ReadInt16();
+						for (int i = 0; i < Chest.maxItems; i++) {
+							NetMessage.TrySendData(32, whoAmI, -1, null, chestIndex, i);
+						}
+						break;
+					}
+
+					case PacketType.requestChestFirstItemSync: {
+						int chestIndex = reader.ReadInt16();
+						Chest chest = Main.chest[chestIndex];
+						bool sent = false;
+						for (int i = 0; i < Chest.maxItems; i++) {
+							if (chest.item[i]?.IsAir == false) {
+								NetMessage.TrySendData(32, whoAmI, -1, null, chestIndex, i);
+								sent = true;
+								break;
+							}
+						}
+						if (!sent) {
+							NetMessage.TrySendData(32, whoAmI, -1, null, chestIndex, 0);
+						}
+						break;
+					}
+
+					case PacketType.requestUpdateForManuscriptSeek: {
+						int chestIndex = reader.ReadInt16();
+						int projIndex = reader.ReadInt16();
+						Chest chest = Main.chest[chestIndex];
+						bool sent = false;
+						for (int i = 0; i < Chest.maxItems; i++) {
+							if (chest.item[i]?.IsAir == false) {
+								NetMessage.TrySendData(32, whoAmI, -1, null, chestIndex, i);
+								sent = true;
+								NetTextModule.SerializeServerMessage(NetworkText.FromLiteral("found item " + chest.item[i].Name), Color.White);
+								break;
+							}
+						}
+						if (!sent) {
+							packet = GetPacket();
+							packet.Write(EpikV2.PacketType.addManuscriptAI);
+							packet.Write((short)projIndex);
+							packet.Send(whoAmI);
+							NetTextModule.SerializeServerMessage(NetworkText.FromLiteral("failed"), Color.White);
+						}
+						break;
+					}
+
 					default:
 					Logger.WarnFormat("EpikV2: Unknown Message type: {0}", type);
 					break;
@@ -226,6 +276,16 @@ namespace EpikV2 {
 					altHandle = true;
 					break;
 
+					case PacketType.addManuscriptAI: {
+						Projectile proj = Main.projectile[reader.ReadInt16()];
+						proj.ai[0]++;
+						Main.NewText(proj.ai[0]);
+						if (proj.ModProjectile is Items.Other.Triangular_Manuscript_Seek_P trangle) {
+							trangle.request = true;
+						}
+						break;
+					}
+
 					default:
 					Logger.WarnFormat("EpikV2: Unknown Message type: {0}", type);
 					break;
@@ -254,6 +314,10 @@ namespace EpikV2 {
 			public const byte topHatCard = 4;
 			public const byte empressDeath = 5;
 			public const byte playerSync = 6;
+			public const byte requestChestSync = 7;
+			public const byte requestChestFirstItemSync = 8;
+			public const byte requestUpdateForManuscriptSeek = 9;
+			public const byte addManuscriptAI = 9;
 		}
 		public static short SetStaticDefaultsGlowMask(ModItem modItem) {
 			if (Main.netMode != NetmodeID.Server) {

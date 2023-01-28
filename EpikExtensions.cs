@@ -844,16 +844,32 @@ namespace EpikV2 {
             for (int i = 0; i < capacity; i++) {
                 writer.Write(list[i]);
             }
-        }
-        public static List<int> ReadInt32List(this BinaryReader reader) {
+		}
+		public static void WriteList(this BinaryWriter writer, List<Point> list) {
+			int capacity = list.Count;
+			writer.Write(capacity);
+			for (int i = 0; i < capacity; i++) {
+				writer.Write(list[i].X);
+				writer.Write(list[i].Y);
+			}
+		}
+		public static List<int> ReadInt32List(this BinaryReader reader) {
             int capacity = reader.ReadInt32();
-            List<int> output = new List<int>(capacity);
+            List<int> output = new(capacity);
 			for (int i = 0; i < capacity; i++) {
                 output.Add(reader.ReadInt32());
 			}
             return output;
-        }
-        public static void SayNetMode() {
+		}
+		public static List<Point> ReadPoint32List(this BinaryReader reader) {
+			int capacity = reader.ReadInt32();
+			List<Point> output = new(capacity);
+			for (int i = 0; i < capacity; i++) {
+				output.Add(new Point(reader.ReadInt32(), reader.ReadInt32()));
+			}
+			return output;
+		}
+		public static void SayNetMode() {
             switch(Main.netMode) {
                 case NetmodeID.Server:
                 NetTextModule.SerializeServerMessage(NetworkText.FromLiteral("Server"), Color.White);

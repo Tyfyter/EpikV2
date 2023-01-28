@@ -197,6 +197,7 @@ namespace EpikV2.Items.Other {
 				}
 			}
 			if (channelTarget != 0) {
+				channelRate *= 10;
 				if (channel && epikPlayer.CheckFloatMana(owner.HeldItem, channelCost)) {
 					owner.itemTime = 2;
 					owner.itemAnimation = 2;
@@ -216,6 +217,7 @@ namespace EpikV2.Items.Other {
 		public static int ID { get; private set; }
 		const int lifetime = Main.maxChests + 60;
 		Dictionary<int, SelectableItem> items;
+		internal bool request = true;
 		public override void SetStaticDefaults() {
 			ID = Type;
 		}
@@ -224,7 +226,7 @@ namespace EpikV2.Items.Other {
 			Projectile.timeLeft = lifetime;
 		}
 		public override void AI() {
-			int index = lifetime - Projectile.timeLeft;
+			int index = (int)Projectile.ai[0];//lifetime - Projectile.timeLeft;
 			if (index > Main.maxChests) {
 				if (items.Count > 0) {
 					Projectile.timeLeft = lifetime - Main.maxChests;
@@ -235,7 +237,20 @@ namespace EpikV2.Items.Other {
 				}
 				if (Main.chest[index] is Chest chest) {
 					if (ModContent.GetInstance<EpikWorld>().NaturalChests.Contains(new Point(chest.x, chest.y))) {
-						Item loot = chest.item.FirstOrDefault(i => !i.IsAir);
+						if (chest.item[0] is null && Main.netMode == NetmodeID.MultiplayerClient) {
+							if (request) {
+								request = false;
+								ModPacket packet = Mod.GetPacket();
+								packet.Write(EpikV2.PacketType.requestUpdateForManuscriptSeek);
+								packet.Write((short)index);
+								packet.Write((short)Projectile.whoAmI);
+								packet.Send(-1, Projectile.owner);
+							}
+						} else {
+							Projectile.ai[0]++;
+							request = true;
+						}
+						Item loot = chest.item.FirstOrDefault(i => i?.IsAir == false);
 						if (loot is not null) {
 							Vector2 chestPos = new(chest.x * 16, chest.y * 16);
 							if (items.TryGetValue(loot.type, out SelectableItem item)) {
@@ -254,7 +269,24 @@ namespace EpikV2.Items.Other {
 								});
 							}
 						}
+					} else {
+						Projectile.ai[0]++;
 					}
+				} else if(Main.netMode == NetmodeID.MultiplayerClient) {
+					if (request) {
+						request = false;
+						ModPacket packet = Mod.GetPacket();
+						packet.Write(EpikV2.PacketType.requestUpdateForManuscriptSeek);
+						packet.Write((short)index);
+						packet.Write((short)Projectile.whoAmI);
+						packet.Send(-1, Projectile.owner);
+					}
+					if (++Projectile.ai[1] > 600) {
+						Projectile.ai[1] = 0;
+						Projectile.ai[0]++;
+					}
+				} else {
+					Projectile.ai[0]++;
 				}
 			}
 			if (Projectile.numUpdates == -1) {
@@ -281,8 +313,13 @@ namespace EpikV2.Items.Other {
 					int height = item.item.height + 4;
 					Rectangle itemHitbox = new Rectangle((int)position.X - width / 2, (int)position.Y - height / 2, width, height);
 					if (Terraria.GameInput.PlayerInput.Triggers.JustPressed.MouseLeft && itemHitbox.Contains(Main.MouseWorld.ToPoint())) {
-						Triangular_Manuscript.SpawnGuidingSpirit(item.position, item.chestPositions.Get() + new Vector2(16, 16));
-						Projectile.Kill();
+						if (Main.netMode == NetmodeID.SinglePlayer) {
+							Triangular_Manuscript.SpawnGuidingSpirit(item.position, item.chestPositions.Get() + new Vector2(16, 16));
+							Projectile.Kill();
+						} else {
+							Triangular_Manuscript.SpawnGuidingSpirit(item.position, item.chestPositions.Get() + new Vector2(16, 16));
+							Projectile.Kill();
+						}
 						break;
 					}
 				}

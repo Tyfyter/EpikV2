@@ -110,10 +110,12 @@ namespace EpikV2 {
 		public override void NetSend(BinaryWriter writer) {
 			writer.Write(timeManipMode);
 			writer.WriteList(Sacrifices);
+			writer.WriteList(naturalChests.ToList());
 		}
 		public override void NetReceive(BinaryReader reader) {
 			timeManipMode = reader.ReadInt32();
 			Sacrifices = reader.ReadInt32List();
+			naturalChests = reader.ReadPoint32List().ToHashSet();
 		}
 		public override void ModifyTimeRate(ref double timeRate, ref double tileUpdateRate, ref double eventUpdateRate) {
 			switch (timeManipMode) {
