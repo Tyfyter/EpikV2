@@ -32,6 +32,10 @@ namespace EpikV2.Items.Other {
 			Item.channel = true;
 			Item.consumable = false;
 		}
+		public override bool? UseItem(Player player) {
+			player.GetModPlayer<EpikPlayer>().triedTriangleManuscript = true;
+			return null;
+		}
 		public override bool CanShoot(Player player) {
 			return player.ownedProjectileCounts[Item.shoot] <= 0;
 		}
@@ -193,6 +197,7 @@ namespace EpikV2.Items.Other {
 							Projectile.owner
 						);
 					}
+					owner.GetModPlayer<EpikPlayer>().usedTriangleManuscript = true;
 					goto case -1;
 				}
 			}
@@ -217,16 +222,29 @@ namespace EpikV2.Items.Other {
 		public static int ID { get; private set; }
 		const int lifetime = Main.maxChests + 60;
 		Dictionary<int, SelectableItem> items;
-		internal bool request = true;
+		internal Queue<int> updatedChests;
 		public override void SetStaticDefaults() {
 			ID = Type;
 		}
 		public override void SetDefaults() {
 			Projectile.tileCollide = false;
 			Projectile.timeLeft = lifetime;
+			if (updatedChests is null && Main.netMode == NetmodeID.MultiplayerClient) {
+				updatedChests = new Queue<int>();
+				for (int i = 0; i < Main.maxChests; i++) {
+					if (Main.chest[i] is Chest curr && curr.item[0] is not null) {
+						updatedChests.Enqueue(i);
+					}
+				}
+
+				ModPacket packet = Mod.GetPacket();
+				packet.Write(EpikV2.PacketType.manuscriptSeekUpdate);
+				packet.Write((short)Projectile.whoAmI);
+				packet.Send();
+			}
 		}
 		public override void AI() {
-			int index = (int)Projectile.ai[0];//lifetime - Projectile.timeLeft;
+			int index = lifetime - Projectile.timeLeft;
 			if (index > Main.maxChests) {
 				if (items.Count > 0) {
 					Projectile.timeLeft = lifetime - Main.maxChests;
@@ -235,58 +253,33 @@ namespace EpikV2.Items.Other {
 				if (items is null) {
 					items = new();
 				}
-				if (Main.chest[index] is Chest chest) {
-					if (ModContent.GetInstance<EpikWorld>().NaturalChests.Contains(new Point(chest.x, chest.y))) {
-						if (chest.item[0] is null && Main.netMode == NetmodeID.MultiplayerClient) {
-							if (request) {
-								request = false;
-								ModPacket packet = Mod.GetPacket();
-								packet.Write(EpikV2.PacketType.requestUpdateForManuscriptSeek);
-								packet.Write((short)index);
-								packet.Write((short)Projectile.whoAmI);
-								packet.Send(-1, Projectile.owner);
-							}
-						} else {
-							Projectile.ai[0]++;
-							request = true;
-						}
-						Item loot = chest.item.FirstOrDefault(i => i?.IsAir == false);
-						if (loot is not null) {
-							Vector2 chestPos = new(chest.x * 16, chest.y * 16);
-							if (items.TryGetValue(loot.type, out SelectableItem item)) {
-								item.chestPositions.Add(chestPos, 1000.0 / (chestPos - Projectile.position).Length());
-							} else {
-								items.Add(loot.type, new SelectableItem() {
-									position = Projectile.position,
-									chestPositions = new WeightedRandom<Vector2>(Main.rand,
-										new Tuple<Vector2, double>(chestPos, 1000.0 / (chestPos - Projectile.position).Length())
-									),
-									velocity = ((Vector2)new PolarVec2(
-										Main.rand.NextFloat(10, 18),
-										Main.rand.NextFloat(MathHelper.PiOver4, -MathHelper.Pi - MathHelper.PiOver4))
-									) * new Vector2(1, 0.5f),
-									item = loot
-								});
+				if (Main.netMode == NetmodeID.MultiplayerClient) {
+					index = updatedChests.Count > 0 ? updatedChests.Dequeue() : -1;
+				}
+				if (index > -1) {
+					if (Main.chest[index] is Chest chest) {
+						if (ModContent.GetInstance<EpikWorld>().NaturalChests.Contains(new Point(chest.x, chest.y))) {
+							Item loot = chest.item.FirstOrDefault(i => i?.IsAir == false);
+							if (loot is not null) {
+								Vector2 chestPos = new(chest.x * 16, chest.y * 16);
+								if (items.TryGetValue(loot.type, out SelectableItem item)) {
+									item.chestPositions.Add(chestPos, 1000.0 / (chestPos - Projectile.position).Length());
+								} else {
+									items.Add(loot.type, new SelectableItem() {
+										position = Projectile.position,
+										chestPositions = new WeightedRandom<Vector2>(Main.rand,
+											new Tuple<Vector2, double>(chestPos, 1000.0 / (chestPos - Projectile.position).Length())
+										),
+										velocity = ((Vector2)new PolarVec2(
+											Main.rand.NextFloat(10, 18),
+											Main.rand.NextFloat(MathHelper.PiOver4, -MathHelper.Pi - MathHelper.PiOver4))
+										) * new Vector2(1, 0.5f),
+										item = loot
+									});
+								}
 							}
 						}
-					} else {
-						Projectile.ai[0]++;
 					}
-				} else if(Main.netMode == NetmodeID.MultiplayerClient) {
-					if (request) {
-						request = false;
-						ModPacket packet = Mod.GetPacket();
-						packet.Write(EpikV2.PacketType.requestUpdateForManuscriptSeek);
-						packet.Write((short)index);
-						packet.Write((short)Projectile.whoAmI);
-						packet.Send(-1, Projectile.owner);
-					}
-					if (++Projectile.ai[1] > 600) {
-						Projectile.ai[1] = 0;
-						Projectile.ai[0]++;
-					}
-				} else {
-					Projectile.ai[0]++;
 				}
 			}
 			if (Projectile.numUpdates == -1) {
@@ -324,8 +317,13 @@ namespace EpikV2.Items.Other {
 					}
 				}
 			}
+			if (++Projectile.frameCounter > 2) {
+				Projectile.frameCounter = 0;
+				Dust.NewDustDirect(Projectile.position - new Vector2(12, 12), 20, 4, DustID.BoneTorch).velocity.Y -= 1;
+			}
 		}
 		public override void PostDraw(Color lightColor) {
+			if (items.Values is null) return;
 			SelectableItem[] itemValues = items.Values.ToArray();
 			for (int i = 0; i < itemValues.Length; i++) {
 				SelectableItem item = itemValues[i];
@@ -675,8 +673,17 @@ namespace EpikV2.Items.Other {
 			return MathHelper.Lerp(0f, MathHelper.Lerp(256f, 192f, num), num);
 		}*/
 	}
-	/*[JITWhenModsEnabled("Origins")]
+	[JITWhenModsEnabled("Origins")]
+	[ExtendsFromMod("Origins")]
 	public class Triangular_Manuscript_Quest : Origins.Questing.Quest {
-
-	}*/
+		public override void SetStaticDefaults() {
+			NameKey = "Mods.EpikV2.Origins.Quests.Triangular_Manuscript.Name";
+		}
+		public override bool ShowInJournal() {
+			return Main.LocalPlayer.GetModPlayer<EpikPlayer>().triedTriangleManuscript;
+		}
+		public override string GetJournalPage() {
+			return "beezechurger";
+		}
+	}
 }

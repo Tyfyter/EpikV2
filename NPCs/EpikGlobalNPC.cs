@@ -443,8 +443,8 @@ namespace EpikV2.NPCs
         public string GetConditionDescription() => "During the frost moon";
 	}
 	public class TriangularManuscriptCondition : IItemDropRuleCondition {
-		public bool CanDrop(DropAttemptInfo info) => info.npc.AnyInteractions() && EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscript;
+		public bool CanDrop(DropAttemptInfo info) => Main.dayTime && info.npc.AnyInteractions() && EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscript;
 		public bool CanShowItemDropInUI() => EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscript;
-		public string GetConditionDescription() => "In worlds created before v0.3.7, must be killed by a player";
+		public string GetConditionDescription() => "In worlds created before v0.3.7\nmust be killed by a player\nmust be killed during the day";
 	}
 }

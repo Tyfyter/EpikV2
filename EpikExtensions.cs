@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.Audio;
+using Terraria.Chat;
 using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameContent.NetModules;
@@ -18,6 +19,7 @@ using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.Net;
 using Terraria.Utilities;
 using Tyfyter.Utils;
 
@@ -885,7 +887,7 @@ namespace EpikV2 {
         public static void SendMessage(string text) {
             switch(Main.netMode) {
                 case NetmodeID.Server:
-                NetTextModule.SerializeServerMessage(NetworkText.FromLiteral(text), Color.White);
+				ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral(text), Color.White);
                 break;
                 case NetmodeID.MultiplayerClient:
                 Main.NewText(text);

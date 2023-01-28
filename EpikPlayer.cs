@@ -121,8 +121,10 @@ namespace EpikV2 {
         public AltNameColorTypes altNameColors = AltNameColorTypes.None;
         public bool noKnockbackOnce = false;
         public int triangleManuscriptIndex = -1;
+		public bool usedTriangleManuscript = false;
+		public bool triedTriangleManuscript = false;
 
-        public static BitsBytes ItemChecking;
+		public static BitsBytes ItemChecking;
 
         public override void ResetEffects() {
             //majesticWings = false;
@@ -1071,9 +1073,13 @@ namespace EpikV2 {
         }
         public override void SaveData(TagCompound tag) {
             tag["altNameColors"] = (byte)altNameColors;
+			tag["usedTriangleManuscript"] = usedTriangleManuscript;
+			tag["triedTriangleManuscript"] = triedTriangleManuscript;
 		}
 		public override void LoadData(TagCompound tag) {
             if (tag.TryGet("altNameColors", out byte altNameColors)) this.altNameColors = (AltNameColorTypes)altNameColors;
+			tag.TryGet("usedTriangleManuscript", out usedTriangleManuscript);
+			tag.TryGet("triedTriangleManuscript", out triedTriangleManuscript);
 		}
 		#endregion
 

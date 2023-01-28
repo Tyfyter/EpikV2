@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace EpikV2.Items.Other {
@@ -20,6 +21,12 @@ namespace EpikV2.Items.Other {
 			Item.useStyle = ItemUseStyleID.Swing;
 			Item.useAnimation = 10;
 			Item.useTime = 10;
+		}
+		public override void AddRecipes() {
+			CreateRecipe()
+			.AddIngredient(ItemID.ArmorPolish)
+			.AddCondition(NetworkText.FromKey("Mods.EpikV2.RecipeCondition.UsedTriangularManuscript"), (_) => Main.LocalPlayer.GetModPlayer<EpikPlayer>().usedTriangleManuscript)
+			.Register();
 		}
 		public override bool? UseItem(Player player) {
 			if (player.whoAmI == Main.myPlayer) {
@@ -47,11 +54,15 @@ namespace EpikV2.Items.Other {
 		public override void SetDefaults() {
 			Item.width = 30;
 			Item.height = 26;
-			Item.maxStack = 999;
-			Item.consumable = true;
 			Item.useStyle = ItemUseStyleID.Swing;
 			Item.useAnimation = 10;
 			Item.useTime = 10;
+		}
+		public override void AddRecipes() {
+			CreateRecipe()
+			.AddIngredient(ItemID.Cobweb)
+			.AddCondition(NetworkText.FromKey("Mods.EpikV2.RecipeCondition.UsedTriangularManuscript"), (_) => Main.LocalPlayer.GetModPlayer<EpikPlayer>().usedTriangleManuscript)
+			.Register();
 		}
 		public override bool? UseItem(Player player) {
 			if (player.whoAmI == Main.myPlayer) {

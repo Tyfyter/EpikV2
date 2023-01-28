@@ -214,24 +214,27 @@ namespace EpikV2 {
 					}
 
 					case PacketType.requestUpdateForManuscriptSeek: {
-						int chestIndex = reader.ReadInt16();
-						int projIndex = reader.ReadInt16();
-						Chest chest = Main.chest[chestIndex];
-						bool sent = false;
-						for (int i = 0; i < Chest.maxItems; i++) {
-							if (chest.item[i]?.IsAir == false) {
-								NetMessage.TrySendData(32, whoAmI, -1, null, chestIndex, i);
-								sent = true;
-								NetTextModule.SerializeServerMessage(NetworkText.FromLiteral("found item " + chest.item[i].Name), Color.White);
-								break;
+						short projIndex = reader.ReadInt16();
+						HashSet<Point> naturalChests = ModContent.GetInstance<EpikWorld>().NaturalChests;
+						for (int chestIndex = 0; chestIndex < Chest.maxItems; chestIndex++) {
+							Chest chest = Main.chest[chestIndex];
+							if (!naturalChests.Contains(new Point(chest.x, chest.y))) continue;
+							for (int i = 0; i < Chest.maxItems; i++) {
+								if (chest.item[i]?.IsAir == false) {
+									packet = GetPacket();
+
+									packet.Write(EpikV2.PacketType.manuscriptSeekUpdate);
+									packet.Write((short)projIndex);
+									packet.Write((short)chestIndex);
+									packet.Write((int)chest.x);
+									packet.Write((int)chest.y);
+									packet.Write((byte)i);
+									ItemIO.Send(chest.item[i], packet, writeStack: true);
+
+									packet.Send(whoAmI);
+									break;
+								}
 							}
-						}
-						if (!sent) {
-							packet = GetPacket();
-							packet.Write(EpikV2.PacketType.addManuscriptAI);
-							packet.Write((short)projIndex);
-							packet.Send(whoAmI);
-							NetTextModule.SerializeServerMessage(NetworkText.FromLiteral("failed"), Color.White);
 						}
 						break;
 					}
@@ -276,12 +279,25 @@ namespace EpikV2 {
 					altHandle = true;
 					break;
 
-					case PacketType.addManuscriptAI: {
+					case PacketType.manuscriptSeekUpdate: {
 						Projectile proj = Main.projectile[reader.ReadInt16()];
-						proj.ai[0]++;
-						Main.NewText(proj.ai[0]);
+						int chestIndex = reader.ReadInt16();
+						int chestX = reader.ReadInt32();
+						int chestY = reader.ReadInt32();
+						int itemIndex = reader.ReadByte();
+						if (chestIndex >= 0 && chestIndex < 8000) {
+							if (Main.chest[chestIndex] == null) {
+								Main.chest[chestIndex] = new Chest();
+								Main.chest[chestIndex].x = chestX;
+								Main.chest[chestIndex].y = chestY;
+							}
+							if (Main.chest[chestIndex].item[itemIndex] == null) {
+								Main.chest[chestIndex].item[itemIndex] = new Item();
+							}
+							ItemIO.Receive(Main.chest[chestIndex].item[itemIndex], reader, readStack: true);
+						}
 						if (proj.ModProjectile is Items.Other.Triangular_Manuscript_Seek_P trangle) {
-							trangle.request = true;
+							trangle.updatedChests.Enqueue(chestIndex);
 						}
 						break;
 					}
@@ -317,7 +333,7 @@ namespace EpikV2 {
 			public const byte requestChestSync = 7;
 			public const byte requestChestFirstItemSync = 8;
 			public const byte requestUpdateForManuscriptSeek = 9;
-			public const byte addManuscriptAI = 9;
+			public const byte manuscriptSeekUpdate = 9;
 		}
 		public static short SetStaticDefaultsGlowMask(ModItem modItem) {
 			if (Main.netMode != NetmodeID.Server) {

@@ -1,13 +1,16 @@
 ﻿Mods: {
-	EpikV2:{
-		ItemName:{
+	EpikV2: {
+		ItemName: {
 			Party_Pylon_Item: Party Pylon
 		}
-		MapObject:{
+		MapObject: {
 			Party_Pylon_Tile: Party Pylon (Inactive)
 		}
-		BiomeName:{
+		BiomeName: {
 			PartyPseudoBiome: Parties
+		}
+		RecipeCondition: {
+			UsedTriangularManuscript: Arcane knowledge
 		}
 	}
 }
