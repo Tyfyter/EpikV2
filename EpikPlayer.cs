@@ -115,6 +115,8 @@ namespace EpikV2 {
 		public const float vixi_luck_max = 0.1f;
 		public float vixiLuck = -0.2f;
 		public bool holdingVixi = false;
+		public int meleeComboIndex = 0;
+		public int meleeComboTime = 0;
 		public bool showLuck = true;
         public float meleeSize = 1;
         public int? switchBackSlot = 0;
@@ -286,6 +288,11 @@ namespace EpikV2 {
 				empressDashCount = 3;
 			}
             empressIgnoreTiles = false;
+			if (meleeComboTime > 0) {
+				meleeComboTime--;
+			} else {
+				meleeComboIndex = 0;
+			}
         }
 		public override void OnRespawn(Player player) {
             timeSinceRespawn = 0;
@@ -334,6 +341,11 @@ namespace EpikV2 {
 		}
 		#region combat
 		#region attacking
+		public int IncrementMeleeCombo(int comboTime, int maxCombo) {
+			meleeComboIndex %= maxCombo;
+			meleeComboTime = comboTime;
+			return ++meleeComboIndex;
+		}
 		public override void ModifyItemScale(Item item, ref float scale) {
 			if (item.CountsAsClass(DamageClass.Melee) && !item.noMelee) {
                 scale *= meleeSize;
@@ -341,7 +353,7 @@ namespace EpikV2 {
 		}
 		public override void ModifyHitNPC(Item item, NPC target, ref int damage, ref float knockback, ref bool crit) {
             if(target.HasBuff(Sovereign_Debuff.ID)) {
-                damage += (int)Math.Min(8, (target.defense- Player.GetArmorPenetration(item.DamageType)) /2);
+                damage += (int)Math.Min(8, (target.defense - Player.GetArmorPenetration(item.DamageType)) / 2);
             }
             if(spadeBuff) {
                 if(magiciansHat&&(item.CountsAsClass(DamageClass.Magic) || item.CountsAsClass(DamageClass.Summon))) {
