@@ -20,7 +20,7 @@ namespace EpikV2.Items {
                                "Increases your max number of minions by 1\n" +
                                "'Heavy is the head that wears the crown'");
             ArmorIDs.Head.Sets.DrawHatHair[Item.headSlot] = true;
-            SacrificeTotal = 1;
+			SacrificeTotal = 1;
         }
 		public override void SetDefaults() {
 			Item.width = 20;

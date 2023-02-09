@@ -101,7 +101,7 @@ namespace EpikV2.Items {
 			retry:
 			int random = Main.rand.NextBool(ItemLoader.ItemCount) ? ItemID.Drax : Main.rand.Next(1, ItemLoader.ItemCount);
 			Item item = new(random);
-			if (!ShouldSkipRarityCheck(player, random)) {
+			if (item.rare != ItemRarityID.Quest && item.rare != ItemRarityID.Expert && item.rare != ItemRarityID.Master && !ShouldSkipRarityCheck(player, random)) {
 				int realRare = item.rare;
 				if (realRare >= ItemRarityID.Count) {
 					int offset = 0;

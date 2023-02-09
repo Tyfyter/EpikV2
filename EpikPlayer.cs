@@ -111,6 +111,10 @@ namespace EpikV2 {
         public float empressDashFrame = 0;
         public bool empressIgnoreTiles = false;
         public bool dashHotkey = false;
+		public const float vixi_luck_min = -0.2f;
+		public const float vixi_luck_max = 0.1f;
+		public float vixiLuck = -0.2f;
+		public bool holdingVixi = false;
 		public bool showLuck = true;
         public float meleeSize = 1;
         public int? switchBackSlot = 0;
@@ -959,6 +963,13 @@ namespace EpikV2 {
         }
 		public override void ModifyLuck(ref float luck) {
 			luck += Player.luckPotion * 0.1f;
+			if (holdingVixi) {
+				holdingVixi = false;
+				luck += vixiLuck;
+				EpikExtensions.LinearSmoothing(ref vixiLuck, vixi_luck_min, (vixi_luck_max - vixi_luck_min) / (60f * 10));
+			} else {
+				vixiLuck = vixi_luck_min;
+			}
 		}
 		#endregion
 		public void AddMagiciansHatDamage(NPC target, int damage) {
