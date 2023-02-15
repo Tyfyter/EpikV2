@@ -508,9 +508,9 @@ private void Main_OnPostDraw(GameTime obj) {
    Main.instance.GraphicsDevice.SetRenderTarget(null);
 
    mappedFilter.GetShader().UseImage(filterMapTarget, 2);
-}
-public static float ShimmerCalc(float val) {
-   return 0.5f+MathHelper.Clamp(val/16f, -0.5f, 0.5f);
 }//*/
+		public static float ShimmerCalc(float val) {
+		   return 0.5f+MathHelper.Clamp(val/16f, -0.5f, 0.5f);
+		}
 	}
 }

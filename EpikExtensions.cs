@@ -65,20 +65,6 @@ namespace EpikV2 {
             set => _bytes[index / 8][index % 8] = value;
         }
     }
-    public class SpriteBatchQueue : List<DrawData> {
-        public SpriteBatchQueue() : base(){}
-        public SpriteBatchQueue(List<DrawData> drawDatas) : base(drawDatas){}
-
-        public int? shaderOverride = null;
-
-        public void DrawTo(SpriteBatch spriteBatch) {
-            DrawData data;
-            for(int i = 0; i < Count; i++) {
-                data = this[i];
-                data.Draw(spriteBatch);
-            }
-        }
-    }
     /*public class SpriteBatchQueue : List<(Texture2D texture, Vector2 position, Rectangle? sourceRectangle, Color color, float rotation, Vector2 origin, Vector2 scale, SpriteEffects effects, float layerDepth)>{
         public void Add(Texture2D texture, Vector2 position, Color color) {
             Add((texture, position, null, color, 0, default, Vector2.One, SpriteEffects.None, 0f));

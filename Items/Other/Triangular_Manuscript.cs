@@ -202,7 +202,7 @@ namespace EpikV2.Items.Other {
 				}
 			}
 			if (channelTarget != 0) {
-				channelRate *= 10;
+				//channelRate *= 10;
 				if (channel && epikPlayer.CheckFloatMana(owner.HeldItem, channelCost)) {
 					owner.itemTime = 2;
 					owner.itemAnimation = 2;
@@ -410,9 +410,10 @@ namespace EpikV2.Items.Other {
 			Projectile.timeLeft = 60;
 			Vector2 diff = new Vector2(Projectile.ai[0], Projectile.ai[1]) - Projectile.position;
 			float dist = diff.Length();
+			const float despawn_range = 320 * 320;
 			if (dist < speed) {
 				Projectile.velocity = diff;
-				Projectile.ai[0] = -1;
+				if ((Projectile.position - owner.Center).LengthSquared() < despawn_range) Projectile.ai[0] = -1;
 			} else {
 				Projectile.frame++;
 				Projectile.velocity = diff.RotatedBy((GetWallDistOffset(Projectile.frame / 6f) + GetWallDistOffset((Projectile.frame - 6) / 6f)) * 0.125f) * (speed / dist);

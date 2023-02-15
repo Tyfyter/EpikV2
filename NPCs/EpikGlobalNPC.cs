@@ -418,7 +418,7 @@ namespace EpikV2.NPCs
         }
     }
 	public class KilledByPlayerCondition : IItemDropRuleCondition {
-        public bool CanDrop(DropAttemptInfo info) => info.npc.lastInteraction == info.player.whoAmI;
+        public bool CanDrop(DropAttemptInfo info) => info.npc?.lastInteraction == info.player?.whoAmI;
         public bool CanShowItemDropInUI() => true;
         public string GetConditionDescription() => "";
     }

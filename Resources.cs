@@ -168,7 +168,9 @@ namespace EpikV2 {
                 dst_lsd.GetShader().UseImage(mod.Assets.Request<Texture2D>("Textures/DSTNoise", AssetRequestMode.ImmediateLoad).Value, 0, SamplerState.LinearWrap);
                 Filters.Scene["EpikV2:DST_LSD"] = dst_lsd;
 
-                GameShaders.Armor.BindShader(ItemType<EoL_Dash>(), empressWingsShader);
+				Filters.Scene["EpikV2:FilterMapped"] = new Filter(new ScreenShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/MappedShade", AssetRequestMode.ImmediateLoad).Value), "MappedShade"), EffectPriority.VeryHigh);
+
+				GameShaders.Armor.BindShader(ItemType<EoL_Dash>(), empressWingsShader);
                 EpikV2.empressWingsShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<EoL_Dash>());
 
                 GameShaders.Armor.BindShader(ItemType<SoundDebugger>(), empressWingsShaderAlt);

@@ -24,8 +24,8 @@ float4 MappedShade(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COL
 	float4 map = tex2D(uImage3, coords);
 	float2 c = coords;
 	float v = map.r*4;
-	c.x += cos(uTime*-2)*v/uScreenResolution.x;
-	c.y += sin(uTime)*v/uScreenResolution.y;
+	//c.x += cos(uTime*-2)*v/uScreenResolution.x;
+	//c.y += sin(uTime)*v/uScreenResolution.y;
 	
 	float vx = (map.g*32)-16;
 	float vy = (map.b*32)-16;

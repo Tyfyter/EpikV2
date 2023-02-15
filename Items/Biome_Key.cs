@@ -24,6 +24,23 @@ using static Terraria.ModLoader.ModContent;
 namespace EpikV2.Items {
     public abstract class Biome_Key : ModItem, IMultiModeItem {
 		public static List<Biome_Key_Data> Biome_Keys { get; internal set; }
+		public static List<List<int>> Biome_Key_Alternates { get; internal set; }
+		public static void AddAlternate(int altType, int groupType = -1) {
+			if (groupType != -1) {
+				for (int i = 0; i < Biome_Key_Alternates.Count; i++) {
+					for (int j = 0; j < Biome_Key_Alternates[i].Count; j++) {
+						if (Biome_Key_Alternates[i][j] == groupType) {
+							Biome_Key_Alternates[i].Add(altType);
+							return;
+						}
+					}
+				}
+			} else {
+				Biome_Key_Alternates.Add(new() { altType });
+				return;
+			}
+			Biome_Key_Alternates.Add(new() { altType, groupType });
+		}
 		public bool holdUp = false;
 		public static int? forcedSwitchIndex = null;
 		Dictionary<string, object> keyValuePairs;

@@ -50,6 +50,15 @@ namespace EpikV2.Items {
 			}
 		}
 		public static void DecraftItem(Item item) {
+			for (int i = 0; i < Biome_Key.Biome_Key_Alternates.Count; i++) {
+				for (int j = 0; j < Biome_Key.Biome_Key_Alternates[i].Count; j++) {
+					if (Biome_Key.Biome_Key_Alternates[i][j] == item.type) {
+						item.type = Biome_Key.Biome_Key_Alternates[i][(j + 1) % Biome_Key.Biome_Key_Alternates[i].Count];
+						NetMessage.SendData(MessageID.SyncItem, -1, -1, null, item.whoAmI);
+						return;
+					}
+				}
+			}
 			bool foundRecipe = false;
 			Recipe recipe = null;
 			for (int i = 0; i < Main.recipe.Length; i++) {

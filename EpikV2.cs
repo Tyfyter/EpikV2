@@ -67,11 +67,7 @@ namespace EpikV2 {
 		public static ModKeybind ModeSwitchHotkey { get; private set; }
 		public static bool modeSwitchHotbarActive;
 		public static ModKeybind DashHotkey { get; private set; }
-		public static Filter mappedFilter {
-			get => Filters.Scene["EpikV2:FilterMapped"];
-			set => Filters.Scene["EpikV2:FilterMapped"] = value;
-		}
-		public static SpriteBatchQueue filterMapQueue;
+
 		public static ArmorShaderData alphaMapShader;
 		public static int alphaMapShaderID;
 		internal static List<IDrawAfterNPCs> drawAfterNPCs;
@@ -86,6 +82,10 @@ namespace EpikV2 {
 
 					case "AddModEvilBiome":
 					EpikIntegration.ModEvilBiomes.Add((ModBiome)args[1]);
+					return null;
+
+					case "AddBiomeKeyAlt":
+					Biome_Key.AddAlternate((int)args[1], args.Length > 2 ? (int)args[1] : -1);
 					return null;
 				}
 			}
@@ -104,6 +104,9 @@ namespace EpikV2 {
 			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Jungle>(), ItemID.JungleKey, TileID.Containers, 828));
 			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Frozen>(), ItemID.FrozenKey, TileID.Containers, 972));
 			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Desert>(), ItemID.DungeonDesertKey, TileID.Containers2, 468));
+
+			Biome_Key.Biome_Key_Alternates = new();
+			Biome_Key.AddAlternate(ItemID.CorruptionKey, ItemID.CrimsonKey);
 
 			Logging.IgnoreExceptionContents("at EpikV2.Items.Burning_Ambition_Smelter.AI() in EpikV2\\Items\\Burning_Ambition.cs:line 472");
 			Logging.IgnoreExceptionContents("at EpikV2.Items.Haligbrand_P.HandleGraphicsLibIntegration()");
@@ -141,6 +144,8 @@ namespace EpikV2 {
 			ModeSwitchHotkey = null;
 			DashHotkey = null;
 			EpikWorld.Sacrifices = null;
+			Biome_Key.Biome_Keys = null;
+			Biome_Key.Biome_Key_Alternates = null;
 			HellforgeRecipes = null;
 			MiscUtils.Unload();
 			//TextureAssets.Item[ItemID.HighTestFishingLine] = Main.Assets.Request<Texture2D>("Images/Item_" + ItemID.HighTestFishingLine, AssetRequestMode.DoNotLoad);
