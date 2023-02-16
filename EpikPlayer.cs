@@ -119,7 +119,10 @@ namespace EpikV2 {
 		public int meleeComboTime = 0;
 		public bool showLuck = true;
         public float meleeSize = 1;
-        public int? switchBackSlot = 0;
+		float nearbyNameDist = 0;
+		public void SetNearbyNameDist(float dist) => nearbyNameDist = Math.Max(nearbyNameDist, dist);
+		public float NearbyNameDistSQ => nearbyNameDist * nearbyNameDist;
+		public int? switchBackSlot = 0;
         private int[] buffIndecies;
         public int[] BuffIndecies => buffIndecies ??= BuffID.Sets.Factory.CreateIntSet(-1);
         public int activeBuffs = 0;
@@ -194,7 +197,8 @@ namespace EpikV2 {
             imbueIchor = false;
 			showLuck = false;
 			meleeSize = 1;
-            if (marionetteDeathTime>0) {
+			nearbyNameDist = 0;
+			if (marionetteDeathTime>0) {
                 Player.statLife = 0;
                 Player.breath = Player.breathMax;
                 if(++marionetteDeathTime>marionetteDeathTimeMax||!machiavellianMasquerade) {

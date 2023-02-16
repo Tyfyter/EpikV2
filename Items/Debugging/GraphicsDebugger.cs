@@ -19,7 +19,6 @@ namespace EpikV2.Items.Debugging {
         public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Graphics Debugger");
 		}
-
         public override void SetDefaults() {
             Item.damage = 60;
             Item.width = 24;

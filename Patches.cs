@@ -41,6 +41,11 @@ using Terraria.Graphics.Renderers;
 using EpikV2.UI;
 using Terraria.Audio;
 using MonoMod.RuntimeDetour.HookGen;
+using ILClosePlayersOverlay = IL.Terraria.GameContent.UI.NewMultiplayerClosePlayersOverlay;
+using Mono.Cecil.Cil;
+using ReLogic.Graphics;
+using Mono.Cecil;
+using ParameterAttributes = Mono.Cecil.ParameterAttributes;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -201,14 +206,14 @@ namespace EpikV2 {
 				orig(self);
 				ProcessModBiomes(self);
 			};
-			HookEndpointManager.Add(typeof(AprilFools).GetMethod("CheckAprilFools", BindingFlags.Public | BindingFlags.Static), 
+			HookEndpointManager.Add(typeof(AprilFools).GetMethod("CheckAprilFools", BindingFlags.Public | BindingFlags.Static),
 				(hook_CheckAprilFools)((orig) => (timeManipAltMode == 1) || orig())
 			);
 			Detour.Chest.DestroyChest += (orig, x, y) => {
 				if (orig(x, y)) {
 					try {
 						ModContent.GetInstance<EpikWorld>().NaturalChests.Remove(new Point(x, y));
-					} finally {}
+					} finally { }
 					return true;
 				}
 				return false;
@@ -217,7 +222,10 @@ namespace EpikV2 {
 				ModContent.GetInstance<EpikWorld>().NaturalChests.Remove(new Point(x, y));
 				orig(x, y, id);
 			};
+			ILClosePlayersOverlay.PlayerOffScreenCache.ctor += PlayerOffScreenCache_ctor;
+			ILClosePlayersOverlay.PlayerOffScreenCache.DrawPlayerDistance += PlayerOffScreenCache_DrawPlayerDistance;
 		}
+
 		delegate bool hook_CheckAprilFools(orig_CheckAprilFools orig);
 		delegate bool orig_CheckAprilFools();
 		FieldInfo _modBiomeFlags;
@@ -482,6 +490,58 @@ namespace EpikV2 {
 				return new Color(250, 117, 172);
 			}
 			return new Color(0, 0, 0);
+		}
+		private void PlayerOffScreenCache_ctor(ILContext il) {
+			ILCursor c = new ILCursor(il);
+			FieldReference __player;
+			if (!c.TryGotoNext(MoveType.After, (ins) => {
+				if(ins.Match(OpCodes.Stfld, out __player) && __player.Name == "player") {
+					_player = __player;
+					return true;
+				}
+				return false;
+			})) ;
+		}
+		static FieldReference _player;
+		private void PlayerOffScreenCache_DrawPlayerDistance(ILContext il) {
+			if (_player is null) return;
+			ILCursor c = new ILCursor(il);
+			ILCursor c2 = c.Clone();
+			FieldReference distanceString = default;
+			if (c2.TryGotoNext(MoveType.Before, (ins) => ins.Match(OpCodes.Ldfld, out distanceString))) {
+				if (c.TryGotoNext(MoveType.Before, (ins) => ins.Match(OpCodes.Ldc_R4))) {
+					c.Emit(OpCodes.Ldarg_0);
+					c.Emit(OpCodes.Ldarg_0);
+					c.Emit(OpCodes.Ldfld, distanceString);
+					c.Emit(OpCodes.Ldarg_0);
+					c.Emit(OpCodes.Ldfld, _player);
+					c.EmitDelegate<Func<string, Player, string>>(ApplyDistSymbol);
+					c.Emit(OpCodes.Stfld, distanceString);
+				}
+			}
+		}
+		internal static string ApplyDistSymbol(string distText, Player otherPlayer) {
+			int nearbyType = 0;
+			float dist = otherPlayer.DistanceSQ(Main.LocalPlayer.Center);
+			if (dist < otherPlayer.GetModPlayer<EpikPlayer>().NearbyNameDistSQ) {
+				nearbyType |= 1;
+			}
+			if (dist < Main.LocalPlayer.GetModPlayer<EpikPlayer>().NearbyNameDistSQ) {
+				nearbyType |= 2;
+			}
+			string iconText = "";
+			switch (nearbyType) {
+				case 1:
+				iconText = "¤";
+				break;
+				case 2:
+				iconText = "ѳ";
+				break;
+				case 3:
+				iconText = "߷";
+				break;
+			}
+			return iconText + distText + iconText;
 		}
 		/*
 private void Main_OnPostDraw(GameTime obj) {

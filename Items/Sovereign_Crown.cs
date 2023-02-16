@@ -12,6 +12,7 @@ namespace EpikV2.Items {
     //It feels only fitting that there should be two.
     [AutoloadEquip(EquipType.Head)]
 	public class Sovereign_Crown : ModItem {
+		public const float range = 1200f;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Sovereign Crown");
 			Tooltip.SetDefault("25% increased melee and minion damage\n" +
@@ -33,15 +34,17 @@ namespace EpikV2.Items {
 		public override void UpdateEquip(Player player){
 			player.GetDamage(DamageClass.Melee) += 0.25f;
 			player.GetDamage(DamageClass.Summon) += 0.25f;
-            player.GetModPlayer<EpikPlayer>().meleeSize *= 1.15f;
-            player.whipRangeMultiplier *= 1.25f;
+			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			epikPlayer.meleeSize *= 1.15f;
+			epikPlayer.SetNearbyNameDist(range);
+			player.whipRangeMultiplier *= 1.25f;
             player.maxMinions += 1;
             if(Main.netMode != NetmodeID.SinglePlayer) {
 			    if (player.whoAmI != Main.myPlayer) {
                     Player localPlayer = Main.player[Main.myPlayer];
 					float xDiff = player.MountedCenter.X - localPlayer.MountedCenter.X;
 					float yDiff = player.MountedCenter.Y - localPlayer.MountedCenter.Y;
-                    if((float)Math.Sqrt(xDiff * xDiff + yDiff * yDiff) < 800f) {
+                    if(xDiff + yDiff < range * range) {
                         if(localPlayer.team == player.team && player.team != 0) {
                             localPlayer.AddBuff(Sovereign_Buff.ID, 20);
                         } else if(localPlayer.hostile && player.hostile){
@@ -57,7 +60,7 @@ namespace EpikV2.Items {
 					float xDiff = player.MountedCenter.X - npc.Center.X;
 					float yDiff = player.MountedCenter.Y - npc.Center.Y;
                     if((float)Math.Sqrt(xDiff * xDiff + yDiff * yDiff) < 800f) {
-                        if(npc.townNPC || npc.friendly) {
+                        if(npc.townNPC || npc.friendly || npc.CountsAsACritter) {
                             npc.AddBuff(Sovereign_Buff.ID, 20);
                         } else {
                             npc.AddBuff(Sovereign_Debuff.ID, 20);
