@@ -29,10 +29,10 @@ namespace EpikV2 {
                 distTestTexture0 = Request<Texture2D>("EpikV2/Textures/40x40");
                 distTestTexture1 = Request<Texture2D>("EpikV2/Textures/40x40Dist");
                 ExtraHeadTextures = new List<ExtraTexture> {
-                    new ExtraTexture(Request<Texture2D>("EpikV2/Items/Machiavellian_Masquerade_Head_Overlay").Value,
+                    new ExtraTexture(Request<Texture2D>("EpikV2/Items/Armor/Machiavellian_Masquerade_Head_Overlay").Value,
                         GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveGoldDye)),
 
-                    new ExtraTexture(Request<Texture2D>("EpikV2/Items/Machiavellian_Masquerade_Head").Value)
+                    new ExtraTexture(Request<Texture2D>("EpikV2/Items/Armor/Machiavellian_Masquerade_Head").Value)
                 };
                 ExtraNeckTextures = new List<ExtraTexture> {
                     new ExtraTexture(Request<Texture2D>("EpikV2/Items/Worm_Tooth_Torc_Neck_Flame").Value,

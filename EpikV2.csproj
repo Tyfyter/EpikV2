@@ -14,6 +14,9 @@
     <Reference Include="Origins">
       <HintPath>..\ModAssemblies\Origins_v0.5.1.dll</HintPath>
     </Reference>
+    <Reference Include="ThoriumMod">
+      <HintPath>..\ModAssemblies\ThoriumMod.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec Command="cd $(ProjectDir)\effects&#xD;&#xA;CheckFXCompile.exe" />

@@ -16,6 +16,7 @@ namespace EpikV2.Items {
 			DisplayName.SetDefault("Black Mana Crystal");
 			Tooltip.SetDefault("Increases magic damage by 30%\n10% increased magic weapon speed");
 			SacrificeTotal = 1;
+			EpikV2.AddBalanceRarityOverride(Type, ItemRarityID.Pink);
 		}
 		public override void UpdateEquip(Player player) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();

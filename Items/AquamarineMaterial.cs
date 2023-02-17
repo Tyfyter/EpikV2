@@ -12,7 +12,7 @@ namespace EpikV2.Items {
 	public class AquamarineMaterial : ModItem {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeEmerald;
 		protected override bool CloneNewInstances => true;
-		public static int id = 0;
+		public static int id { get; private set; }
 		public int time = 3600;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Charged Emerald");
@@ -51,7 +51,7 @@ namespace EpikV2.Items {
 	public class SunstoneMaterial : ModItem {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeAmber;
 		protected override bool CloneNewInstances => true;
-		public static int id = 0;
+		public static int id { get; private set; }
 		public const int hitpoints = 300;
 		public int hp = hitpoints;
 		public override void SetStaticDefaults() {
@@ -94,11 +94,11 @@ namespace EpikV2.Items {
 	}
 	public class SanguineMaterial : ModItem {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeRuby;
-		public static int id = 0;
+		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Sanguine Ruby");
 			Tooltip.SetDefault("You are a horrible person.\n100% filled");
-			id = Item.type;
+			ID = Item.type;
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.LargeRuby);
@@ -139,7 +139,7 @@ namespace EpikV2.Items {
 				epikPlayer.sacrifice = 0;
 				charge++;
 				if(charge>=3) {
-					Item.type = SanguineMaterial.id;
+					Item.type = SanguineMaterial.ID;
 					Item.SetDefaults(Item.type);
 				}
 			}
@@ -149,7 +149,7 @@ namespace EpikV2.Items {
 	public class MoonlaceMaterial : ModItem {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeDiamond;
 		protected override bool CloneNewInstances => true;
-		public static int id = 0;
+		public static int id { get; private set; }
 		public int time = 0;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Radiant Diamond");

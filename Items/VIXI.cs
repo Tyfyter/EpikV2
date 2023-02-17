@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using EpikV2.NPCs;
 using EpikV2.Projectiles;
+using EpikV2.Rarities;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;

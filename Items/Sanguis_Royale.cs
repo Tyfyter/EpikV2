@@ -38,7 +38,7 @@ namespace EpikV2.Items {
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type);
-            recipe.AddIngredient(SanguineMaterial.id);
+            recipe.AddIngredient(SanguineMaterial.ID);
             recipe.AddTile(TileID.DemonAltar);
             recipe.Register();
         }

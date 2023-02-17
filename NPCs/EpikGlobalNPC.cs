@@ -4,6 +4,7 @@ using System.Linq;
 using EpikV2.Buffs;
 using EpikV2.Items;
 using EpikV2.Items.Accessories;
+using EpikV2.Items.Armor;
 using EpikV2.Items.Other;
 using EpikV2.Projectiles;
 using Microsoft.Xna.Framework;
@@ -343,7 +344,7 @@ namespace EpikV2.NPCs
 		}
         public override void EditSpawnPool(IDictionary<int, float> pool, NPCSpawnInfo spawnInfo) {
             if(NPC.downedGolemBoss&&!spawnInfo.Sky&&!spawnInfo.SafeRangeX&&!spawnInfo.PlayerSafe&&!pool.ContainsKey(NPCID.CultistArcherWhite)) {
-                pool.Add(NPCID.CultistArcherWhite,0.02f);
+                pool.Add(NPCID.CultistArcherWhite,0.002f);
             }
 			if ((spawnInfo.Player.ZoneCorrupt || spawnInfo.Player.ZoneCrimson || spawnInfo.Sky) && spawnInfo.Player.GetModPlayer<EpikPlayer>().drugPotion) {
                 pool.Add(ModContent.NPCType<Wrong_Spawn_NPC>(), 4);

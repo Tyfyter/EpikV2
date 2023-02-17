@@ -1,11 +1,13 @@
 using System;
+using System.Collections.Generic;
+using EpikV2.Rarities;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-namespace EpikV2.Items {
+namespace EpikV2.Items.Armor {
     //
     //                     a crown for the true,
     //The crown of the sovereign,
@@ -27,7 +29,7 @@ namespace EpikV2.Items {
 			Item.width = 20;
 			Item.height = 16;
 			Item.value = 5000000;
-			Item.rare = ItemRarityID.Quest;
+			Item.rare = GoldRarity.ID;
 			Item.maxStack = 1;
             Item.defense = 12;
 		}
@@ -69,9 +71,9 @@ namespace EpikV2.Items {
                 }
             }
 		}
-        public override void AddRecipes() {
+		public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type);
-            recipe.AddIngredient(SanguineMaterial.id, 1);
+            recipe.AddIngredient(SanguineMaterial.ID, 1);
 			recipe.AddIngredient(ItemID.GoldCrown, 1);
 			recipe.AddIngredient(ItemID.HallowedBar, 5);
 			recipe.AddTile(TileID.MythrilAnvil);

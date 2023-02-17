@@ -49,7 +49,7 @@ namespace EpikV2.Items
             Item.value = 100000;
             Item.rare = ItemRarityID.Purple;
             Item.autoReuse = true;
-            Item.shoot = ProjectileID.HeatRay;
+            Item.shoot = ProjectileType<Laser_Arrow>();
             Item.shootSpeed = 12.5f;
 			Item.scale = 0.85f;
 			Item.useAmmo = AmmoID.Arrow;
@@ -63,38 +63,36 @@ namespace EpikV2.Items
             recipe.AddTile(TileID.DemonAltar);
             recipe.Register();
         }
-        public override int ChoosePrefix(UnifiedRandom rand) {
-            if (Item.DamageType == Damage_Classes.Ranged_Magic) {
-                Item.DamageType = rand.NextBool() ? DamageClass.Ranged : DamageClass.Magic;
-                Item.Prefix(-2);
-                Item.DamageType = Damage_Classes.Ranged_Magic;
-                return Item.prefix;
-            }
-            return -1;
-        }
-
-        public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
+		public override bool RangedPrefix() => Main.rand.NextBool();
+		public override bool MagicPrefix() => true;
+		public override bool CanConsumeAmmo(Item ammo, Player player) => nextShotTime + 1f >= shotDelay;
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
             if (player.controlUseItem) {
                 player.itemTime = 1;
                 player.itemAnimation = 2;
                 nextShotTime += 1f;
+				bool shot = false;
                 if (nextShotTime >= shotDelay) {
                     nextShotTime -= shotDelay;
                     Vector2 perturbedSpeed = velocity.RotatedByRandom((shotDelay - 3) / 60f);
-                    Projectile.NewProjectileDirect(source, position, perturbedSpeed, ProjectileType<Laser_Arrow>(), damage, knockBack, player.whoAmI, 0, 0);
+                    Projectile.NewProjectileDirect(source, position, perturbedSpeed, Item.shoot, damage, knockBack, player.whoAmI, 0, 0);
                     SoundEngine.PlaySound(SoundID.Item5, position);
                     SoundEngine.PlaySound(SoundID.Item75, position);
-                }
+					shot = true;
+
+				}
 				if (shotDelay > 5f) {
                     shotDelay -= 10f / Item.useTime;
                 }
-            } else {
-                shotDelay = Item.useTime * 0.25f;
-                nextShotTime = shotDelay;
-                player.itemAnimation = 2;
-                player.itemTime = 2;
-            }
-            return false;
+				if (!shot || player.GetModPlayer<EpikPlayer>().CheckFloatMana(Item, player.GetManaCost(Item) / 25f)) {
+					return false;
+				}
+			}
+			shotDelay = Item.useTime * 0.25f;
+			nextShotTime = shotDelay;
+			player.itemAnimation = 2;
+			player.itemTime = 2;
+			return false;
         }
         public void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Color lightColor, Vector2 drawOrigin) {
             Player drawPlayer = drawInfo.drawPlayer;

@@ -45,6 +45,8 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.ModLoader.UI;
 using Terraria.Localization;
 using Terraria.GameContent.NetModules;
+using EpikV2.CrossMod;
+using EpikV2.Items.Armor;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -73,6 +75,9 @@ namespace EpikV2 {
 		internal static List<IDrawAfterNPCs> drawAfterNPCs;
 		internal static HashSet<Recipe> HellforgeRecipes;
 		internal static PopupText nextPopupText;
+		internal static Dictionary<int, int> itemRarityOverrides;
+		internal static Dictionary<int, int> rarityTiers;
+		internal static List<Func<float>> modRarityChecks;
 		//public static MotionArmorShaderData motionBlurShader;
 		public override object Call(params object[] args) {
 			if (args.Length > 0) {
@@ -84,9 +89,33 @@ namespace EpikV2 {
 					EpikIntegration.ModEvilBiomes.Add((ModBiome)args[1]);
 					return null;
 
+					case "AddBiomeKey":
+					Biome_Key.Biome_Keys.Add(new Biome_Key_Data(
+						(int)args[1],
+						(int)args[2],
+						(int)args[3],
+						(int)args[4]));
+					if (args.Length > 5) Biome_Key.AddAlternate((int)args[2], (int)args[5]);
+					return null;
+
 					case "AddBiomeKeyAlt":
 					Biome_Key.AddAlternate((int)args[1], args.Length > 2 ? (int)args[1] : -1);
 					return null;
+
+					case "AddBalanceRarityOverride":
+					AddBalanceRarityOverride((int)args[1], (int)args[2]);
+					return null;
+
+					case "AddBalanceRarityTier":
+					AddBalanceRarityTier((int)args[1], (int)args[2]);
+					return null;
+
+					case "AddBalanceRarityCheck":
+					AddBalanceRarityCheck((Func<float>)args[1]);
+					return null;
+
+					case "GetBalanceRarity":
+					return GetBalanceRarity((Item)args[1]);
 				}
 			}
 			return null;
@@ -94,8 +123,14 @@ namespace EpikV2 {
 		public override void Load() {
 			instance = this;
 			EpikWorld.Sacrifices = new List<int>() { };
+			itemRarityOverrides ??= new();
+			rarityTiers ??= new();
+			modRarityChecks ??= new();
+			itemRarityOverrides.Add(ItemID.FishronBossBag, ItemRarityID.LightPurple);
+			itemRarityOverrides.Add(ItemID.CultistBossBag, ItemRarityID.Cyan);
+			itemRarityOverrides.Add(ItemID.MoonLordBossBag, ItemRarityID.Purple);
 			EpikPlayer.ItemChecking = new BitsBytes(32);
-
+			List<Biome_Key_Data> preregisteredKeys = Biome_Key.Biome_Keys;
 			Biome_Key.Biome_Keys = new List<Biome_Key_Data>();
 			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Forest>(), ItemID.GoldenKey, TileID.Containers, 72));
 			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Corrupt>(), ItemID.CorruptionKey, TileID.Containers, 864));
@@ -104,8 +139,9 @@ namespace EpikV2 {
 			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Jungle>(), ItemID.JungleKey, TileID.Containers, 828));
 			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Frozen>(), ItemID.FrozenKey, TileID.Containers, 972));
 			Biome_Key.Biome_Keys.Add(new Biome_Key_Data(ModContent.ItemType<Biome_Key_Desert>(), ItemID.DungeonDesertKey, TileID.Containers2, 468));
+			if (preregisteredKeys is not null) Biome_Key.Biome_Keys.AddRange(preregisteredKeys);
 
-			Biome_Key.Biome_Key_Alternates = new();
+			Biome_Key.Biome_Key_Alternates ??= new();
 			Biome_Key.AddAlternate(ItemID.CorruptionKey, ItemID.CrimsonKey);
 
 			Logging.IgnoreExceptionContents("at EpikV2.Items.Burning_Ambition_Smelter.AI() in EpikV2\\Items\\Burning_Ambition.cs:line 472");
@@ -146,13 +182,17 @@ namespace EpikV2 {
 			EpikWorld.Sacrifices = null;
 			Biome_Key.Biome_Keys = null;
 			Biome_Key.Biome_Key_Alternates = null;
+			itemRarityOverrides = null;
+			rarityTiers = null;
 			HellforgeRecipes = null;
 			MiscUtils.Unload();
 			//TextureAssets.Item[ItemID.HighTestFishingLine] = Main.Assets.Request<Texture2D>("Images/Item_" + ItemID.HighTestFishingLine, AssetRequestMode.DoNotLoad);
 			//filterMapQueue.Clear();
 			//filterMapQueue = null;
 		}
-
+		public override void PostSetupContent() {
+			Sets.SetupPostContentSampleSets();
+		}
 		public override void HandlePacket(BinaryReader reader, int whoAmI) {
 			byte type = reader.ReadByte();
 			bool altHandle = false;
@@ -365,6 +405,25 @@ namespace EpikV2 {
 				return 0;
 			}
 			return -1;
+		}
+		public static void AddBalanceRarityOverride(int itemType, int rarity) {
+			itemRarityOverrides ??= new();
+			itemRarityOverrides.Add(itemType, rarity);
+		}
+		public static void AddBalanceRarityTier(int rarityType, int tier) {
+			rarityTiers ??= new();
+			rarityTiers.Add(rarityType, tier);
+		}
+		public static void AddBalanceRarityCheck(Func<float> check) {
+			modRarityChecks ??= new();
+			modRarityChecks.Add(check);
+		}
+		public static int GetBalanceRarity(Item item) {
+			EpikV2.itemRarityOverrides ??= new();
+			EpikV2.rarityTiers ??= new();
+			if (EpikV2.itemRarityOverrides.TryGetValue(item.type, out int rareOverride)) return rareOverride;
+			if (EpikV2.rarityTiers.TryGetValue(item.OriginalRarity, out int rareEquivalent)) return rareEquivalent;
+			return item.OriginalRarity;
 		}
 	}
 	[Label("Settings")]

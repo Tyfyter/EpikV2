@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EpikV2.Modifiers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,7 +11,6 @@ using Terraria.ModLoader;
 namespace EpikV2.Items {
 	public class Mobile_Glitch_Present : ModItem {
         public override string Texture => "Terraria/Images/Item_1869";
-
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Ancient Mobile Present");
 			Tooltip.SetDefault("Both does and does not contain a dead cat");
@@ -63,6 +63,7 @@ namespace EpikV2.Items {
 				if (NPC.downedBoss2) targetRare += 0.5f;
 				if (NPC.downedGoblins) targetRare += 0.5f;
 				if (NPC.downedDeerclops) targetRare += 0.5f;
+				if (Main.expertMode) targetRare += 0.5f;
 				if (targetRare > ItemRarityID.Green) {
 					if (targetRare < 7) {
 						targetRare = ItemRarityID.Green;
@@ -74,7 +75,7 @@ namespace EpikV2.Items {
 					targetRare += 1;//green or orange
 				}
 				if (Main.hardMode) {
-					targetRare = ItemRarityID.LightRed;
+					targetRare = ItemRarityID.LightRed + 0.5f;
 				}
 				if (NPC.downedQueenSlime) targetRare += 0.5f;
 				if (NPC.downedPirates) targetRare += 0.5f;
@@ -83,9 +84,9 @@ namespace EpikV2.Items {
 					if (NPC.downedQueenSlime && NPC.downedPirates) {
 						targetRare = ItemRarityID.Lime;
 					} else if (NPC.downedQueenSlime || NPC.downedPirates) {
-						targetRare = ItemRarityID.LightPurple;
+						targetRare = ItemRarityID.LightPurple + 0.5f;
 					} else {
-						targetRare = ItemRarityID.Pink;
+						targetRare = ItemRarityID.Pink + 0.5f;
 					}
 				}
 				if (NPC.downedPlantBoss) {
@@ -95,15 +96,18 @@ namespace EpikV2.Items {
 					targetRare = ItemRarityID.Cyan;
 				}
 				if (NPC.downedMoonlord) {
-					targetRare = float.PositiveInfinity;
+					targetRare = ItemRarityID.Red + 0.5f;
 				}
+				if (Main.expertMode) targetRare += 0.5f;
+				targetRare = EpikV2.modRarityChecks.Select(v => v()).Append(targetRare).Max();
 			}
+			//targetRare = MathF.Floor(targetRare);
 			retry:
 			int random = Main.rand.NextBool(ItemLoader.ItemCount) ? ItemID.Drax : Main.rand.Next(1, ItemLoader.ItemCount);
 			Item item = new(random);
 			if (item.rare != ItemRarityID.Quest && item.rare != ItemRarityID.Expert && item.rare != ItemRarityID.Master && !ShouldSkipRarityCheck(player, random)) {
-				int realRare = item.rare;
-				if (realRare >= ItemRarityID.Count) {
+				int realRare = EpikV2.GetBalanceRarity(item);
+				/*if (realRare >= ItemRarityID.Count) {
 					int offset = 0;
 					while (realRare >= ItemRarityID.Count) {
 						realRare = RarityLoader.GetRarity(realRare).GetPrefixedRarity(-1, 0.95f);
@@ -115,7 +119,7 @@ namespace EpikV2.Items {
 						offset++;
 					}
 					realRare += offset;
-				}
+				}*/
 				if (EpikConfig.Instance.BalancedAncientPresents && realRare > targetRare && random != ItemID.Drax) {
 					if (!EpikConfig.Instance.TooGoodAncientPresents) Main.NewText($"whoa, look at this cool [i:{random}] you missed out on 'cause of the \"remotely balanced ancient presents\" setting, it had a rarity of [c/{(realRare >= ItemRarityID.Count ? RarityLoader.GetRarity(realRare).RarityColor.Hex3() : Terraria.GameContent.UI.ItemRarity.GetColor(realRare).Hex3())}:{realRare}] out of [c/{Terraria.GameContent.UI.ItemRarity.GetColor((int)targetRare).Hex3()}:{targetRare}]");
 					goto retry;
@@ -123,11 +127,11 @@ namespace EpikV2.Items {
 				if (targetRare > RarityLoader.RarityCount - 1) {
 					targetRare = RarityLoader.RarityCount - 1;
 				}
-				if (realRare > ItemRarityID.Count && RarityLoader.GetRarity(realRare).GetPrefixedRarity(-1, 0.95f) == realRare) {
+				/*if (realRare > ItemRarityID.Count && RarityLoader.GetRarity(realRare).GetPrefixedRarity(-1, 0.95f) == realRare) {
 					realRare = (int)targetRare;
-				}
+				}*/
 				if (EpikConfig.Instance.TooGoodAncientPresents && random != ItemID.Drax) {
-					if (realRare > targetRare) realRare = (int)targetRare;
+					if (realRare > targetRare) realRare = (int)Math.Floor(targetRare);
 					if (player.RollLuckInverted((int)((targetRare - realRare) * 12)) != 0) {//(realRare >= -1 || player.RollLuck(5) == 0) &&
 						goto retry;
 					}

@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using System;
 using Terraria.DataStructures;
+using EpikV2.Rarities;
 
 namespace EpikV2.Items {
 	public abstract class Parasitic_Accessory : ModItem {
@@ -34,15 +35,5 @@ namespace EpikV2.Items {
 		public static float GetColorValue(float value) {
 			return ((value - 173) / 82f);
 		}
-	}
-	public class CursedRarity : ModRarity {
-		public static string RarityName => "Cursed";
-		public static byte RarityAnimationFrames => 5;
-		public static int ID { get; private set; }
-		public override Color RarityColor => Color.Lerp(Color.Purple, Color.Crimson, Parasitic_Accessory.GetColorValue(Main.mouseTextColor));
-		public override void SetStaticDefaults() {
-			ID = Type;
-		}
-		public override int GetPrefixedRarity(int offset, float valueMult) => Type;
 	}
 }

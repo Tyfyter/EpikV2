@@ -12,7 +12,7 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Tyfyter.Utils;
-using static EpikV2.EpikIntegration;
+using static EpikV2.CrossMod.EpikIntegration;
 
 namespace EpikV2.Items {
 	public class Haligbrand : ModItem {

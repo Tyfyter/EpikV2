@@ -31,7 +31,7 @@ namespace EpikV2.Items {
             Item.value = 100000;
             Item.rare = ItemRarityID.Purple;
             Item.autoReuse = true;
-            Item.shoot = ProjectileID.HeatRay;
+            Item.shoot = ProjectileType<AquamarineShot>();
             Item.shootSpeed = 12.5f;
 			Item.scale = 0.85f;
 			Item.useAmmo = AmmoID.Arrow;
@@ -45,7 +45,7 @@ namespace EpikV2.Items {
 
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
 			Vector2 perturbedSpeed = velocity.RotatedBy(-player.direction/18d);
-			(Projectile.NewProjectileDirect(source, position, perturbedSpeed, ProjectileType<AquamarineShot>(), damage, knockBack, player.whoAmI, 0, 0).ModProjectile as AquamarineShot)?.init(player.direction, damage);
+			(Projectile.NewProjectileDirect(source, position, perturbedSpeed, Item.shoot, damage, knockBack, player.whoAmI, 0, 0).ModProjectile as AquamarineShot)?.init(player.direction, damage);
 			return false;
 		}
     }

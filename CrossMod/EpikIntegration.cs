@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Terraria.ID;
 using Terraria.ModLoader;
 
-namespace EpikV2 {
+namespace EpikV2.CrossMod {
 	public class EpikIntegration : ILoadable {
 		public static class EnabledMods {
 			public static bool RecipeBrowser { get; private set; } = false;

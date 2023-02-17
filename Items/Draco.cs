@@ -12,6 +12,7 @@ using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
 //using Origins.Projectiles;
 using System.IO;
+using EpikV2.CrossMod;
 
 #pragma warning disable 672
 namespace EpikV2.Items {

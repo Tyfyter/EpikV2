@@ -13,7 +13,6 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Tyfyter.Utils;
-using static EpikV2.EpikIntegration;
 
 namespace EpikV2.Items {
 	public class Pyrkasivar: ModItem {

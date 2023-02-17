@@ -13,7 +13,6 @@ using System.Collections.Generic;
 using static Tyfyter.Utils.MiscUtils;
 using System.Diagnostics;
 using Terraria.Graphics.Effects;
-using static EpikV2.EpikIntegration;
 using System.IO;
 using Terraria.Graphics;
 using System.Runtime.InteropServices;

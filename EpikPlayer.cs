@@ -24,6 +24,7 @@ using Terraria.ModLoader.IO;
 using System.IO;
 using EpikV2.Layers;
 using EpikV2.Items.Accessories;
+using EpikV2.Items.Armor;
 
 namespace EpikV2 {
     public class EpikPlayer : ModPlayer {

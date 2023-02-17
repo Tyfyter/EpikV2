@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using EpikV2.Rarities;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.Audio;
@@ -8,9 +9,9 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Tyfyter.Utils;
-using static EpikV2.Items.Magicians_Top_Hat;
+using static EpikV2.Items.Armor.Magicians_Top_Hat;
 
-namespace EpikV2.Items {
+namespace EpikV2.Items.Armor {
     [AutoloadEquip(EquipType.Head)]
 	public class Magicians_Top_Hat : ModItem {
         public static int RealArmorID { get; internal set; }
@@ -18,7 +19,7 @@ namespace EpikV2.Items {
 		public override void Load() {
             if (Main.netMode == NetmodeID.Server) return;
             ArmorID = EquipLoader.AddEquipTexture(Mod, "EpikV2/Items/Step2_Wings", EquipType.Head, name: "Magicians_Top_Hat_Fake");
-            RealArmorID = EquipLoader.AddEquipTexture(Mod, "EpikV2/Items/Magicians_Top_Hat_Head", EquipType.Head, name: "Magicians_Top_Hat_Real");
+            RealArmorID = EquipLoader.AddEquipTexture(Mod, "EpikV2/Items/Armor/Magicians_Top_Hat_Head", EquipType.Head, name: "Magicians_Top_Hat_Real");
         }
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Magicians Top Hat");
@@ -34,7 +35,7 @@ namespace EpikV2.Items {
 			Item.width = 20;
 			Item.height = 16;
 			Item.value = 5000000;
-			Item.rare = ItemRarityID.Quest;
+			Item.rare = GoldRarity.ID;
 			Item.maxStack = 1;
             Item.defense = 2;
 		}
@@ -45,7 +46,7 @@ namespace EpikV2.Items {
             player.GetModPlayer<EpikPlayer>().magiciansHat = true;
 		}
         public override void ModifyTooltips(List<TooltipLine> tooltips) {
-            foreach(TooltipLine line in tooltips) {
+			foreach (TooltipLine line in tooltips) {
                 if(line.Text.Contains("<pro>")) {//line.Name.Equals("Tooltip2")
                     line.Text = line.Text.Replace("<pro>", Main.LocalPlayer.Male?"his":"her");
                     break;
@@ -54,7 +55,7 @@ namespace EpikV2.Items {
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type);
-            recipe.AddIngredient(SanguineMaterial.id, 1);
+            recipe.AddIngredient(SanguineMaterial.ID, 1);
 			recipe.AddIngredient(ItemID.TopHat, 1);
 			recipe.AddIngredient(ItemID.BlackFairyDust, 1);
 			recipe.AddTile(TileID.Loom);
@@ -138,13 +139,14 @@ namespace EpikV2.Items {
                 Projectile.NewProjectile(source, position, velocity, type, damage, knockBack, player.whoAmI, -1);
                 return false;
             }
-            public override void GrabRange(Player player, ref int grabRange) {
+			public override void GrabRange(Player player, ref int grabRange) {
+				grabRange *= 2;
                 if(player.GetModPlayer<EpikPlayer>().magiciansHat) {
                     grabRange *= 2;
                 }
             }
-            public override bool OnPickup(Player player) {
-                Item.maxStack = 999;
+			public override bool CanStackInWorld(Item item2) => false;
+			public override bool OnPickup(Player player) {
                 switch(PickupType(player)) {
                     default:
                     PickupEffect(player);
@@ -162,7 +164,9 @@ namespace EpikV2.Items {
                 }
             }
             public override void Update(ref float gravity, ref float maxFallSpeed) {
-                Item.maxStack = 1;
+				if (Item.timeSinceItemSpawned > 900) {
+					Item.TurnToAir();
+				}
             }
             protected byte PickupType(Player player) {
                 if(player.GetModPlayer<EpikPlayer>().magiciansHat) {

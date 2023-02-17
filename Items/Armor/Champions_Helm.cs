@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using EpikV2.Rarities;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
-namespace EpikV2.Items {
+namespace EpikV2.Items.Armor {
     [AutoloadEquip(EquipType.Head)]
 	public class Champions_Helm : ModItem {
         public static int ArmorID { get; private set; }
@@ -22,7 +23,7 @@ namespace EpikV2.Items {
 			Item.width = 20;
 			Item.height = 16;
 			Item.value = 5000000;
-			Item.rare = ItemRarityID.Quest;
+			Item.rare = GoldRarity.ID;
 			Item.maxStack = 1;
             Item.defense = 20;
 		}
@@ -34,7 +35,7 @@ namespace EpikV2.Items {
             player.GetModPlayer<EpikPlayer>().championsHelm = true;
 		}
         public override void ModifyTooltips(List<TooltipLine> tooltips) {
-            foreach(TooltipLine line in tooltips) {
+			foreach (TooltipLine line in tooltips) {
                 if(line.Name.Equals("Tooltip2")) {
                     line.Text = line.Text.Replace(",", " —");
                     break;
@@ -51,7 +52,7 @@ namespace EpikV2.Items {
             for(int i0 = 0; i0 < helmets.Length; i0++) {
                 for(int i1 = 0; i1 < bars.Length; i1++) {
                     recipe = Recipe.Create(Type);
-                    recipe.AddIngredient(SanguineMaterial.id, 1);
+                    recipe.AddIngredient(SanguineMaterial.ID, 1);
                     recipe.AddIngredient(helmets[i0], 1);
                     recipe.AddIngredient(bars[i1], 5);
                     recipe.AddTile(TileID.MythrilAnvil);

@@ -1,4 +1,5 @@
-﻿using EpikV2.Items;
+﻿using EpikV2.CrossMod;
+using EpikV2.Items;
 using EpikV2.Items.Other;
 using EpikV2.UI;
 using Microsoft.Xna.Framework;

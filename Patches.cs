@@ -46,6 +46,7 @@ using Mono.Cecil.Cil;
 using ReLogic.Graphics;
 using Mono.Cecil;
 using ParameterAttributes = Mono.Cecil.ParameterAttributes;
+using EpikV2.CrossMod;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -224,6 +225,17 @@ namespace EpikV2 {
 			};
 			ILClosePlayersOverlay.PlayerOffScreenCache.ctor += PlayerOffScreenCache_ctor;
 			ILClosePlayersOverlay.PlayerOffScreenCache.DrawPlayerDistance += PlayerOffScreenCache_DrawPlayerDistance;
+			HookEndpointManager.Add(
+				typeof(ModContent).GetMethod("ResizeArrays", BindingFlags.NonPublic | BindingFlags.Static),
+				(Action<Action<bool>, bool>)((Action<bool> orig, bool unloading) => {
+					orig(unloading);
+					if (unloading) {
+						Sets.Unload();
+					} else {
+						Sets.ResizeArrays();
+					}
+				})
+			);
 		}
 
 		delegate bool hook_CheckAprilFools(orig_CheckAprilFools orig);

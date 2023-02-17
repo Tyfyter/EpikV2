@@ -1,4 +1,5 @@
 ﻿using EpikV2.Items;
+using EpikV2.Items.Armor;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
