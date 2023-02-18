@@ -34,12 +34,7 @@ namespace EpikV2.CrossMod {
 			On.Terraria.Player.ApplyItemTime += Player_ApplyItemTime;
 			HookEndpointManager.Add(
 				typeof(BardItem).GetMethod("ModifyEmpowermentPool", BindingFlags.Public | BindingFlags.Instance),
-				(ModifyEmpowermentPool_hook)((ModifyEmpowermentPool_orig orig, BardItem self, Player player, Player target, EmpowermentPool empPool) => {
-					orig(self, player, target, empPool);
-					if (player.GetModPlayer<EpikThoriumPlayer>().apollosLaurels) {
-						empPool.Add<SolarRejuvenation>((byte)Math.Min(player.GetModPlayer<ThoriumPlayer>().healBonus / 2, 255));
-					}
-				})
+				(ModifyEmpowermentPool_hook)BardItem_ModifyEmpowermentPool
 			);
 		}
 
@@ -76,6 +71,12 @@ namespace EpikV2.CrossMod {
 				if (Main.LocalPlayer.DistanceSQ(self.Center) <= range * range) {
 					Main.LocalPlayer.GetModPlayer<EpikThoriumPlayer>().ApplyApollosLaurelsHealing(bard.healBonus, 300 + bard.bardBuffDuration);
 				}
+			}
+		}
+		private static void BardItem_ModifyEmpowermentPool(ModifyEmpowermentPool_orig orig, BardItem self, Player player, Player target, EmpowermentPool empPool) {
+			orig(self, player, target, empPool);
+			if (player.GetModPlayer<EpikThoriumPlayer>().apollosLaurels) {
+				empPool.Add<SolarRejuvenation>((byte)Math.Min(player.GetModPlayer<ThoriumPlayer>().healBonus / 2, 255));
 			}
 		}
 		public void ApplyApollosLaurelsHealing(int strength, int duration) {
