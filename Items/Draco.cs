@@ -31,7 +31,8 @@ namespace EpikV2.Items {
         }
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.NebulaBlaze);
-            Item.knockBack = 5f;
+			Item.DamageType = EpikIntegration.GetExplosiveVersion(DamageClass.Magic);
+			Item.knockBack = 5f;
             Item.useTime = 30;
             Item.useAnimation = 30;
             Item.mana = 100;
@@ -118,7 +119,8 @@ namespace EpikV2.Items {
         public override void SetDefaults() {
             if(Fired)return;
             Projectile.CloneDefaults(ProjectileID.NebulaBlaze2);
-            Projectile.extraUpdates = 1;
+			Projectile.DamageType = EpikIntegration.GetExplosiveVersion(DamageClass.Magic);
+			Projectile.extraUpdates = 1;
             Projectile.tileCollide = false;
             Projectile.aiStyle = 0;
             Projectile.timeLeft = 3600;

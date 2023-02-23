@@ -983,7 +983,7 @@ namespace EpikV2 {
 			if (holdingVixi) {
 				holdingVixi = false;
 				luck += vixiLuck;
-				EpikExtensions.LinearSmoothing(ref vixiLuck, vixi_luck_min, (vixi_luck_max - vixi_luck_min) / (60f * 10));
+				EpikExtensions.LinearSmoothing(ref vixiLuck, vixi_luck_min, (vixi_luck_max - vixi_luck_min) / (60f * 30));
 			} else {
 				vixiLuck = vixi_luck_min;
 			}

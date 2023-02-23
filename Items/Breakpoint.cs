@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using EpikV2.CrossMod;
 using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -25,7 +26,7 @@ namespace EpikV2.Items {
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.WoodenBow);
             Item.damage = 147;
-			Item.DamageType = DamageClass.Ranged;
+			Item.DamageType = EpikIntegration.GetExplosiveVersion(DamageClass.Ranged);
             Item.width = 36;
             Item.height = 76;
             Item.useStyle = ItemUseStyleID.Shoot;
@@ -78,7 +79,8 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
-            Projectile.usesLocalNPCImmunity = true;
+			Projectile.DamageType = EpikIntegration.GetExplosiveVersion(DamageClass.Ranged);
+			Projectile.usesLocalNPCImmunity = true;
             Projectile.width = 12;
             Projectile.height = 12;
             Projectile.localNPCHitCooldown = 15;

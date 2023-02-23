@@ -11,6 +11,7 @@ using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
 using static EpikV2.EpikExtensions;
 using Terraria.Utilities;
+using EpikV2.CrossMod;
 
 namespace EpikV2.Items {
     [AutoloadEquip(EquipType.HandsOn)]
@@ -37,7 +38,7 @@ namespace EpikV2.Items {
             Item.CloneDefaults(ItemID.PhoenixBlaster);
             Item.handOnSlot = h;
             Item.damage = 235;
-			Item.DamageType = Damage_Classes.Ranged_Melee_Speed;
+			Item.DamageType = EpikIntegration.GetExplosiveVersion(Damage_Classes.Ranged_Melee_Speed);
             Item.noUseGraphic = false;
             Item.noMelee = false;
             Item.width = 32;
