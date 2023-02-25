@@ -76,7 +76,7 @@ namespace EpikV2 {
 		}
 		public override void PostUpdateTime() {
 			for (int i = 0; i < Sacrifices.Count; i++) {
-				Main.townNPCCanSpawn[Sacrifices[i]] = false;
+				if (Sacrifices[i] < Main.townNPCCanSpawn.Length) Main.townNPCCanSpawn[Sacrifices[i]] = false;
 			}
 			const int dayLength = 86400;
 			const int maxDanger = dayLength * 2;
@@ -190,18 +190,33 @@ namespace EpikV2 {
 			creationVersion = current_world_creation_version;
 		}
 		public override void SaveWorldData(TagCompound tag) {
-			tag.Add("sacrifices", Sacrifices);
+			tag.Add("sacrifices", Sacrifices.Select(v => {
+				if (v < NPCID.Count) {
+					return $"Terraria:{NPCID.Search.GetName(v)}";
+				} else {
+					ModNPC npc = NPCLoader.GetNPC(v);
+					return $"{npc.Mod.Name}:{npc.Name}";
+				}
+			}).ToList());
 			tag.Add("worldVersion", (int)current_world_version);
 			tag.Add("naturalChests", NaturalChests.Select(Utils.ToVector2).ToList());
 			tag.Add("creationVersion", (int)creationVersion);
 		}
 		public override void LoadWorldData(TagCompound tag) {
-			if (!tag.ContainsKey("sacrifices")) {
+			if (tag.TryGet("sacrifices", out List<string> _sacrifices)) {
+				Sacrifices = _sacrifices.Select(s => {
+					string[] segs = s.Split(':');
+					if (segs[0] == "Terraria") {
+						return NPCID.Search.GetId(segs[1]);
+					} else if(ModContent.TryFind(segs[0], segs[1], out ModNPC npc)) {
+						return npc.Type;
+					}
+					return -1;
+				}).ToList();
+			} else {
 				Sacrifices = new List<int>() { };
-				return;
 			}
 			try {
-				Sacrifices = tag.Get<List<int>>("sacrifices");
 			} catch (Exception) {
 				Sacrifices = new List<int>() { };
 			}
