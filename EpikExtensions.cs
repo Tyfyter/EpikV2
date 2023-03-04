@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -110,8 +111,58 @@ namespace EpikV2 {
     public class AdvancedPopupText : PopupText {
         public virtual bool PreUpdate(int whoAmI) => true;
         public virtual void PostUpdate(int whoAmI) { }
-    }
-    public static class EpikExtensions {
+	}
+	public class FastFieldInfo<TParent, T> {
+		public readonly FieldInfo field;
+		Func<TParent, T> getter;
+		Action<TParent, T> setter;
+		public FastFieldInfo(string name, BindingFlags bindingFlags, bool init = false) {
+			field = typeof(TParent).GetField(name, bindingFlags);
+			if (init) {
+				getter = CreateGetter();
+				setter = CreateSetter();
+			}
+		}
+		public FastFieldInfo(FieldInfo field, bool init = false) {
+			this.field = field;
+			if (init) {
+				getter = CreateGetter();
+				setter = CreateSetter();
+			}
+		}
+		public T GetValue(TParent parent) {
+			return (getter ??= CreateGetter())(parent);
+		}
+		public void SetValue(TParent parent, T value) {
+			(setter ??= CreateSetter())(parent, value);
+		}
+		private Func<TParent, T> CreateGetter() {
+			if (field.FieldType != typeof(T)) throw new InvalidOperationException($"type of {field.Name} does not match provided type {typeof(T)}");
+			string methodName = field.ReflectedType.FullName + ".get_" + field.Name;
+			DynamicMethod getterMethod = new DynamicMethod(methodName, typeof(T), new Type[] { typeof(TParent) }, true);
+			ILGenerator gen = getterMethod.GetILGenerator();
+
+			gen.Emit(OpCodes.Ldarg_0);
+			gen.Emit(OpCodes.Ldfld, field);
+			gen.Emit(OpCodes.Ret);
+
+			return (Func<TParent, T>)getterMethod.CreateDelegate(typeof(Func<TParent, T>));
+		}
+		private Action<TParent, T> CreateSetter() {
+			if (field.FieldType != typeof(T)) throw new InvalidOperationException($"type of {field.Name} does not match provided type {typeof(T)}");
+			string methodName = field.ReflectedType.FullName + ".set_" + field.Name;
+			DynamicMethod setterMethod = new DynamicMethod(methodName, null, new Type[] { typeof(TParent), typeof(T) }, true);
+			ILGenerator gen = setterMethod.GetILGenerator();
+
+			gen.Emit(OpCodes.Ldarg_0);
+			gen.Emit(OpCodes.Ldarg_1);
+			gen.Emit(OpCodes.Stfld, field);
+			gen.Emit(OpCodes.Ret);
+
+			return (Action<TParent, T>)setterMethod.CreateDelegate(typeof(Action<TParent, T>));
+		}
+	}
+	public static class EpikExtensions {
         public static AutoCastingAsset<Texture2D> RequestTexture(this Mod mod, string name) => mod.Assets.Request<Texture2D>(name);
         public static SoundStyle WithPitch(this SoundStyle soundStyle, float pitch) {
             soundStyle.Pitch = pitch;

@@ -7,11 +7,15 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.DataStructures;
+using Terraria.Graphics;
+using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
 using ThoriumMod;
 using ThoriumMod.Empowerments;
 using ThoriumMod.Items;
+using Tyfyter.Utils;
 
 namespace EpikV2.CrossMod {
 	[ExtendsFromMod("ThoriumMod")]
@@ -19,28 +23,35 @@ namespace EpikV2.CrossMod {
 		ThoriumPlayer ThoriumPlayer => Player.GetModPlayer<ThoriumPlayer>();
 		public bool apollosLaurels = false;
 		public bool radiantArrows = false;
+		public int apollosLaurelsRefreshTime = 0;
 		public int apollosLaurelsHealTime = 0;
 		public int apollosLaurelsHealStrength = 0;
+		public int apollosLaurelsGlowTime = 0;
 		static ApplyEmpowerment_Delegate ApplyEmpowerment;
 		internal delegate bool ApplyEmpowerment_Delegate(ThoriumPlayer bard, ThoriumPlayer target, byte type, byte level, short duration);
 		internal delegate void ModifyEmpowermentPool_hook(ModifyEmpowermentPool_orig orig, BardItem self, Player player, Player target, EmpowermentPool empPool);
 		internal delegate void ModifyEmpowermentPool_orig(BardItem self, Player player, Player target, EmpowermentPool empPool);
+		static FastFieldInfo<ThoriumPlayer, EmpowermentData> Empowerments;
 		public override void Load() {
 			ApplyEmpowerment = typeof(EmpowermentLoader)
 				.GetMethod("ApplyEmpowerment", BindingFlags.NonPublic | BindingFlags.Static, new Type[] {
 					typeof(ThoriumPlayer), typeof(ThoriumPlayer), typeof(byte), typeof(byte), typeof(short)
 				})
 				.CreateDelegate<ApplyEmpowerment_Delegate>();
+			Empowerments = new("Empowerments", BindingFlags.NonPublic | BindingFlags.Instance);
 			On.Terraria.Player.ApplyItemTime += Player_ApplyItemTime;
 			HookEndpointManager.Add(
 				typeof(BardItem).GetMethod("ModifyEmpowermentPool", BindingFlags.Public | BindingFlags.Instance),
 				(ModifyEmpowermentPool_hook)BardItem_ModifyEmpowermentPool
 			);
+			On.Terraria.Graphics.Renderers.LegacyPlayerRenderer.DrawPlayerInternal += LegacyPlayerRenderer_DrawPlayerInternal;
 		}
 
 		public override void Unload() {
 			ApplyEmpowerment = null;
+			Empowerments = null;
 			On.Terraria.Player.ApplyItemTime -= Player_ApplyItemTime;
+			On.Terraria.Graphics.Renderers.LegacyPlayerRenderer.DrawPlayerInternal -= LegacyPlayerRenderer_DrawPlayerInternal;
 		}
 		public override void ResetEffects() {
 			apollosLaurels = false;
@@ -50,16 +61,37 @@ namespace EpikV2.CrossMod {
 			} else {
 				apollosLaurelsHealStrength = 0;
 			}
+			if (apollosLaurelsRefreshTime < 60) {
+				apollosLaurelsRefreshTime++;
+			}
+			if (apollosLaurelsGlowTime > 0) {
+				Lighting.AddLight(Player.MountedCenter, Color.Orange.ToVector3());
+				apollosLaurelsGlowTime--;
+			}
 		}
 		public override void OnHitNPCWithProj(Projectile proj, NPC target, int damage, float knockback, bool crit) {
-			if (apollosLaurels && Sets.IsArrow[proj.type]) {
-				float range = 500 + ThoriumPlayer.bardRangeBoost;
+			if (apollosLaurels && Sets.IsArrow[proj.type]) {// && target.type != NPCID.TargetDummy
+				ThoriumPlayer thoriumPlayer = ThoriumPlayer;
+				float range = 500 + thoriumPlayer.bardRangeBoost;
 				if (Main.LocalPlayer.DistanceSQ(Player.Center) <= range * range) {
-					EmpowermentTimer timer = ThoriumPlayer.GetEmpTimer<EmpowermentProlongation>();
-					if (timer.delay <= 0) {
-						ApplyEmpowerment(ThoriumPlayer, Main.LocalPlayer.GetModPlayer<ThoriumPlayer>(), EmpowermentLoader.EmpowermentType<EmpowermentProlongation>(), 1, 0);
-						timer.delay = 50;
+					short baseDuration = (short)((300 + thoriumPlayer.bardBuffDuration) * thoriumPlayer.bardBuffDurationX);
+					bool applyGlow = false;
+					foreach (EmpowermentTimer timer in Empowerments.GetValue(Main.LocalPlayer.GetModPlayer<ThoriumPlayer>()).Timers) {
+						if (timer.level > 0 && timer.timer > 0 && timer.timer < baseDuration) {
+							short dur = (short)(timer.timer + apollosLaurelsRefreshTime + 5);
+							timer.timer = dur < baseDuration ? dur : baseDuration;
+							applyGlow = true;
+						}
 					}
+					apollosLaurelsRefreshTime = 0;
+					if (applyGlow) Main.LocalPlayer.GetModPlayer<EpikThoriumPlayer>().apollosLaurelsGlowTime = 60;
+					/*EmpowermentTimer timer = ThoriumPlayer.GetEmpTimer<EmpowermentProlongation>();
+					if (timer.delay <= 0) {
+						int diff = apollosLaurelsRefreshTime - 60;
+						ApplyEmpowerment(ThoriumPlayer, Main.LocalPlayer.GetModPlayer<ThoriumPlayer>(), EmpowermentLoader.EmpowermentType<EmpowermentProlongation>(), 1, 0);
+						timer.delay = (short)(60 - diff);
+						apollosLaurelsRefreshTime = 0;
+					}*/
 				}
 			}
 		}
@@ -83,6 +115,40 @@ namespace EpikV2.CrossMod {
 			if (strength >= apollosLaurelsHealStrength) {
 				apollosLaurelsHealStrength = strength;
 				apollosLaurelsHealTime = duration;
+			}
+		}
+		public override void ModifyDrawInfo(ref PlayerDrawSet drawInfo) {
+			if (isDrawingShadyDupes) drawInfo.weaponDrawOrder = (WeaponDrawOrder)(-1);
+		}
+		internal static bool isDrawingShadyDupes = false;
+		private void LegacyPlayerRenderer_DrawPlayerInternal(On.Terraria.Graphics.Renderers.LegacyPlayerRenderer.orig_DrawPlayerInternal orig, Terraria.Graphics.Renderers.LegacyPlayerRenderer self, Camera camera, Player drawPlayer, Vector2 position, float rotation, Vector2 rotationOrigin, float shadow, float alpha, float scale, bool headOnly) {
+			try {
+				EpikThoriumPlayer epikThoriumPlayer = drawPlayer.GetModPlayer<EpikThoriumPlayer>();
+				if (epikThoriumPlayer.apollosLaurelsGlowTime > 0) {
+					MiscUtils.PlayerShaderSet shaderSet = new MiscUtils.PlayerShaderSet(drawPlayer);
+					new MiscUtils.PlayerShaderSet(GameShaders.Armor.GetShaderIdFromItemId(ItemID.SolarDye)).Apply(drawPlayer);
+					int playerHairDye = drawPlayer.hairDye;
+					//drawPlayer.hairDye = amebicProtectionHairShaderID;
+					float shadowAlpha = 1 - (alpha * (float)Math.Pow(epikThoriumPlayer.apollosLaurelsGlowTime / 60f, 0.75f));
+					const float offset = 2;
+					int itemAnimation = drawPlayer.itemAnimation;
+					drawPlayer.itemAnimation = 0;
+					isDrawingShadyDupes = true;
+					orig(self, camera, drawPlayer, position + new Vector2(offset, 0), rotation, rotationOrigin, shadowAlpha, alpha, scale, headOnly);
+
+					orig(self, camera, drawPlayer, position + new Vector2(-offset, 0), rotation, rotationOrigin, shadowAlpha, alpha, scale, headOnly);
+
+					orig(self, camera, drawPlayer, position + new Vector2(0, offset), rotation, rotationOrigin, shadowAlpha, alpha, scale, headOnly);
+
+					orig(self, camera, drawPlayer, position + new Vector2(0, -offset), rotation, rotationOrigin, shadowAlpha, alpha, scale, headOnly);
+					shaderSet.Apply(drawPlayer);
+					drawPlayer.hairDye = playerHairDye;
+					drawPlayer.itemAnimation = itemAnimation;
+					isDrawingShadyDupes = false;
+				}
+				orig(self, camera, drawPlayer, position, rotation, rotationOrigin, shadow, alpha, scale, headOnly);
+			} finally {
+				isDrawingShadyDupes = false;
 			}
 		}
 	}

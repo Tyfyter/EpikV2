@@ -18,6 +18,10 @@ namespace EpikV2 {
 					IsArrow[item.shoot] = true;
 				}
 			}
+			IsArrow[ProjectileID.FairyQueenRangedItemShot] = true;
+			IsArrow[ProjectileID.Phantasm] = false;
+			IsArrow[ProjectileID.PhantasmArrow] = true;
+			IsArrow[ProjectileID.MoonlordArrowTrail] = true;
 		}
 		internal static void Unload() {
 			IsArrow = null;
