@@ -14,7 +14,11 @@ using Terraria.ModLoader;
 namespace EpikV2.Layers {
 	public class Alt_Item_Layer : PlayerDrawLayer {
 		public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) {
-			return drawInfo.drawPlayer.ItemAnimationActive && drawInfo.weaponDrawOrder != (WeaponDrawOrder)(-1) && !drawInfo.heldItem.noUseGraphic && drawInfo.heldItem.ModItem is ICustomDrawItem;
+			return drawInfo.drawPlayer.ItemAnimationActive
+				&& !drawInfo.drawPlayer.JustDroppedAnItem
+				&& drawInfo.shadow == 0
+				&& !drawInfo.heldItem.noUseGraphic
+				&& drawInfo.heldItem.ModItem is ICustomDrawItem;
 		}
 		public override Position GetDefaultPosition() => new Between(PlayerDrawLayers.HeldItem, PlayerDrawLayers.ArmOverItem);
 		protected override void Draw(ref PlayerDrawSet drawInfo) {
