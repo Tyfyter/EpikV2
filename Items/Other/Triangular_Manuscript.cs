@@ -674,7 +674,6 @@ namespace EpikV2.Items.Other {
 			return MathHelper.Lerp(0f, MathHelper.Lerp(256f, 192f, num), num);
 		}*/
 	}
-	[JITWhenModsEnabled("Origins")]
 	[ExtendsFromMod("Origins")]
 	public class Triangular_Manuscript_Quest : Origins.Questing.Quest {
 		public override void SetStaticDefaults() {

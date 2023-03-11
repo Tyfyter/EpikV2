@@ -140,27 +140,18 @@ namespace EpikV2 {
 					orig(settings);
 				}
 			};
-			Detour.Player.RollLuck += (Detour.Player.orig_RollLuck orig, Player self, int range) => {
-				if (!EpikConfig.Instance.RedLuck) {
-					return orig(self, range);
-				}
-				if (self.luck > 0f) {
-					float luck = self.luck;
-					int baseDiv = 1;
-					for (; luck >= 1; luck -= 1) baseDiv++;
-					int div = baseDiv;
-					if (Main.rand.NextFloat() < luck) div++;
-					return Main.rand.Next(Main.rand.Next(range / div, range / baseDiv));
-				}
-				if (self.luck < 0f) {
-					float luck = self.luck;
-					int baseDiv = 1;
-					for (; luck <= -1; luck += 1) baseDiv++;
-					int div = baseDiv;
-					if (Main.rand.NextFloat() < -luck) div++;
-					return Main.rand.Next(Main.rand.Next(range * baseDiv, range * div));
-				}
-				return Main.rand.Next(range);
+			/*Detour.Player.RollLuck += ;*/
+			ILMod.Player.RollLuck += (il) => {
+				ILCursor c = new(il);
+				ILLabel label = c.DefineLabel();
+				c.Emit(OpCodes.Ldsfld, typeof(EpikConfig).GetField("Instance", BindingFlags.Public | BindingFlags.Static));
+				c.Emit(OpCodes.Ldfld, typeof(EpikConfig).GetField("RedLuck", BindingFlags.Public | BindingFlags.Instance));
+				c.Emit(OpCodes.Brfalse, label);
+				c.Emit(OpCodes.Ldarg_0);
+				c.Emit(OpCodes.Ldarg_1);
+				c.Emit(OpCodes.Call, typeof(EpikV2).GetMethod("Player_RollLuck", BindingFlags.NonPublic | BindingFlags.Static));
+				c.Emit(OpCodes.Ret);
+				c.MarkLabel(label);
 			};
 			Detour.Projectile.GetLastPrismHue += Projectile_GetLastPrismHue;
 			Detour.Projectile.GetFairyQueenWeaponsColor += Projectile_GetFairyQueenWeaponsColor;
@@ -238,14 +229,37 @@ namespace EpikV2 {
 			);
 		}
 
+		private static int Player_RollLuck(/*Detour.Player.orig_RollLuck orig, */Player self, int range) {
+			if (!EpikConfig.Instance.RedLuck) {
+				//return orig(self, range);
+			}
+			if (self.luck > 0f) {
+				float luck = self.luck;
+				int baseDiv = 1;
+				for (; luck >= 1; luck -= 1) baseDiv++;
+				int div = baseDiv;
+				if (Main.rand.NextFloat() < luck) div++;
+				return Main.rand.Next(Main.rand.Next(range / div, range / baseDiv));
+			}
+			if (self.luck < 0f) {
+				float luck = self.luck;
+				int baseDiv = 1;
+				for (; luck <= -1; luck += 1) baseDiv++;
+				int div = baseDiv;
+				if (Main.rand.NextFloat() < -luck) div++;
+				return Main.rand.Next(Main.rand.Next(range * baseDiv, range * div));
+			}
+			return Main.rand.Next(range);
+		}
+
 		delegate bool hook_CheckAprilFools(orig_CheckAprilFools orig);
 		delegate bool orig_CheckAprilFools();
-		FieldInfo _modBiomeFlags;
-		FieldInfo _ModBiomeFlags => _modBiomeFlags ??= typeof(Player).GetField("modBiomeFlags", BindingFlags.NonPublic | BindingFlags.Instance);
+		FastFieldInfo<Player, BitArray> _modBiomeFlags;
+		FastFieldInfo<Player, BitArray> _ModBiomeFlags => _modBiomeFlags ??= new("modBiomeFlags", BindingFlags.NonPublic | BindingFlags.Instance);
 		[JITWhenModsEnabled("AltLibrary")]
 		void ProcessModBiomes(Player player) {
 			if (EpikIntegration.ModEvilBiomes.Count > 0 && player.GetModPlayer<EpikPlayer>().drugPotion) {
-				BitArray modBiomeFlags = (BitArray)_ModBiomeFlags.GetValue(player);
+				BitArray modBiomeFlags = _ModBiomeFlags.GetValue(player);
 				bool inABiome = player.ZoneCorrupt || player.ZoneCrimson;
 				for (int i = 0; !inABiome && i < EpikIntegration.ModEvilBiomes.Count; i++) {
 					if (modBiomeFlags[EpikIntegration.ModEvilBiomes[i].Type]) {

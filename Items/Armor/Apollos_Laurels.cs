@@ -41,7 +41,6 @@ namespace EpikV2.Items.Armor {
 			ArmorIDs.Head.Sets.DrawHatHair[Item.headSlot] = true;
 			SacrificeTotal = 1;
 		}
-		FieldInfo _Empowerments;
 		public override void Load() {
 			healerArmorDamageCompensation = new() {
 				[ModContent.ItemType<ThoriumMod.Items.Coral.CoralChestGuard>()] = new StatModifier(1.11f, 1),
@@ -83,11 +82,9 @@ namespace EpikV2.Items.Armor {
 				[ModContent.ItemType<ThoriumMod.Items.EndofDays.Dream.DreamWeaversTabard>()] = new StatModifier(1.25f, 1),
 				[ModContent.ItemType<ThoriumMod.Items.EndofDays.Dream.DreamWeaversTreads>()] = new StatModifier(1.20f, 1)
 			};
-			_Empowerments = typeof(ThoriumPlayer).GetField("Empowerments", BindingFlags.NonPublic | BindingFlags.Instance);
 		}
 		public override void Unload() {
 			healerArmorDamageCompensation = null;
-			_Empowerments = null;
 		}
 		public override void SetBardDefaults() {
 			Item.headSlot = ArmorIDs.Head.GarlandHat;
@@ -115,7 +112,7 @@ namespace EpikV2.Items.Armor {
 			player.manaRegenBonus += 20;
 			player.statManaMax2 += 40;
 			player.GetDamage<HealerTool>() += 0.10f;
-			int empowermentCount = ((EmpowermentData)_Empowerments.GetValue(thoriumPlayer)).ActiveEmpowerments.Count;
+			int empowermentCount = (EpikThoriumPlayer.Empowerments.GetValue(thoriumPlayer)).ActiveEmpowerments.Count;
 			thoriumPlayer.healBonus += 2 + empowermentCount;
 			player.GetDamage<HealerDamage>().Flat += empowermentCount * 3;
 			thoriumPlayer.inspirationRegenBonus += 0.15f;

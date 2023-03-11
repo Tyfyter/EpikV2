@@ -127,7 +127,6 @@ namespace EpikV2.Items {
             Projectile.light = 0;
             Projectile.alpha = 100;
             DrawHeldProjInFrontOfHeldItemAndArms = true;
-            if(EpikIntegration.EnabledMods.Origins) OriginsIntegration();
         }
 
         public override void AI() {
@@ -248,10 +247,6 @@ namespace EpikV2.Items {
         }
         public override void ReceiveExtraAI(BinaryReader reader) {
             //projectile.localAI[0] = reader.ReadSingle();
-        }
-        [JITWhenModsEnabled("Origins")]
-        private void OriginsIntegration() {
-            //OriginGlobalProj.explosiveOverrideNext = true;
         }
     }
 }

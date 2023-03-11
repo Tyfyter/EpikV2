@@ -12,9 +12,11 @@ using Terraria.Graphics;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.Core;
 using ThoriumMod;
 using ThoriumMod.Empowerments;
 using ThoriumMod.Items;
+using ThoriumMod.Items.BardItems;
 using Tyfyter.Utils;
 
 namespace EpikV2.CrossMod {
@@ -31,7 +33,7 @@ namespace EpikV2.CrossMod {
 		internal delegate bool ApplyEmpowerment_Delegate(ThoriumPlayer bard, ThoriumPlayer target, byte type, byte level, short duration);
 		internal delegate void ModifyEmpowermentPool_hook(ModifyEmpowermentPool_orig orig, BardItem self, Player player, Player target, EmpowermentPool empPool);
 		internal delegate void ModifyEmpowermentPool_orig(BardItem self, Player player, Player target, EmpowermentPool empPool);
-		static FastFieldInfo<ThoriumPlayer, EmpowermentData> Empowerments;
+		internal static FastFieldInfo<ThoriumPlayer, EmpowermentData> Empowerments;
 		public override void Load() {
 			ApplyEmpowerment = typeof(EmpowermentLoader)
 				.GetMethod("ApplyEmpowerment", BindingFlags.NonPublic | BindingFlags.Static, new Type[] {
@@ -42,6 +44,10 @@ namespace EpikV2.CrossMod {
 			On.Terraria.Player.ApplyItemTime += Player_ApplyItemTime;
 			HookEndpointManager.Add(
 				typeof(BardItem).GetMethod("ModifyEmpowermentPool", BindingFlags.Public | BindingFlags.Instance),
+				(ModifyEmpowermentPool_hook)BardItem_ModifyEmpowermentPool
+			);
+			HookEndpointManager.Add(
+				typeof(TerrariumAutoharp).GetMethod("ModifyEmpowermentPool", BindingFlags.Public | BindingFlags.Instance),
 				(ModifyEmpowermentPool_hook)BardItem_ModifyEmpowermentPool
 			);
 			On.Terraria.Graphics.Renderers.LegacyPlayerRenderer.DrawPlayerInternal += LegacyPlayerRenderer_DrawPlayerInternal;

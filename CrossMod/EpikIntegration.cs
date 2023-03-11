@@ -13,18 +13,17 @@ namespace EpikV2.CrossMod {
 	public class EpikIntegration : ILoadable {
 		public static class EnabledMods {
 			public static bool RecipeBrowser { get; private set; } = false;
-			public static bool Origins { get; private set; } = false;
+			public static Mod Origins { get; private set; }
 			public static bool GraphicsLib { get; private set; } = false;
 			internal static void ResetEnabled() {
 				RecipeBrowser = false;
-				Origins = false;
+				Origins = null;
 				GraphicsLib = false;
 			}
 			internal static void CheckEnabled() {
 				RecipeBrowser = ModLoader.TryGetMod("RecipeBrowser", out Mod recipeBrowser) && recipeBrowser.Version >= new Version(0, 5);
-				Origins = ModLoader.TryGetMod("Origins", out Mod origins);
+				Origins = ModLoader.TryGetMod("Origins", out Mod origins) ? origins : null;
 				GraphicsLib = ModLoader.TryGetMod("GraphicsLib", out _);
-				ExplosiveDamageClasses = Origins ? (IDictionary<DamageClass, DamageClass>)origins.Call("GetExplosiveClassesDict") : new MirrorDictionary<DamageClass>();
 			}
 		}
 		public static List<ModBiome> ModEvilBiomes { get; private set; }
@@ -40,7 +39,12 @@ namespace EpikV2.CrossMod {
 			ModEvilBiomes = null;
 			ExplosiveDamageClasses = null;
 		}
-		internal static void AddRecipeBrowserIntegration() {
+		internal static void PostAddRecipes() {
+			if (EnabledMods.Origins is Mod origins) {
+				ExplosiveDamageClasses = (IDictionary<DamageClass, DamageClass>)origins.Call("GetExplosiveClassesDict");
+			} else {
+				ExplosiveDamageClasses = new MirrorDictionary<DamageClass>();
+			}
 			/*
 			try {
 				RecipeBrowser.LootCache.instance.lootInfos.Add(

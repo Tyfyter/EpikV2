@@ -111,7 +111,8 @@ namespace EpikV2 {
         public int empressDashCount = 3;
         public float empressDashFrame = 0;
         public bool empressIgnoreTiles = false;
-        public bool dashHotkey = false;
+		public bool cursedCloverEquipped = false;
+		public bool dashHotkey = false;
 		public const float vixi_luck_min = -0.2f;
 		public const float vixi_luck_max = 0.1f;
 		public float vixiLuck = -0.2f;
@@ -168,6 +169,7 @@ namespace EpikV2 {
             }
             wormToothNecklace = false;
             ichorNecklace = false;
+			cursedCloverEquipped = false;
 			if (haligbrand >= 0 && !Main.projectile[haligbrand].active) {
                 haligbrand = -1;
             }

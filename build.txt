@@ -7,4 +7,4 @@ displayName = EpikV2
 buildIgnore = Unused\*
 includeSource = true
 weakReferences = Origins, ThoriumMod
-sortAfter = ThoriumMod
+sortAfter = ThoriumMod, Origins

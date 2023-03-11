@@ -61,7 +61,7 @@ namespace EpikV2 {
 		}
 		public override void PostAddRecipes() {
 			EpikIntegration.EnabledMods.CheckEnabled();
-			if (EpikIntegration.EnabledMods.RecipeBrowser) EpikIntegration.AddRecipeBrowserIntegration();
+			EpikIntegration.PostAddRecipes();
 			EpikV2.HellforgeRecipes = new HashSet<Recipe>(Main.recipe.Where(
 				r => r.requiredTile.Sum(
 					t => {
