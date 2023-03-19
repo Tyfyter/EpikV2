@@ -108,13 +108,8 @@ namespace EpikV2.Items {
         }
         public override void Kill(int timeLeft) {
             if(Projectile.localAI[0] == -1) {
-                Projectile proj;
                 for(int i = 4; i > -4; i--) {
-			        proj = Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, new Vector2(0, 12.5f).RotatedBy(0.1f*i), ProjectileID.FrostShard, Projectile.damage, Projectile.knockBack, Projectile.owner);
-                    proj.friendly = true;
-                    proj.hostile = false;
-                    proj.usesLocalNPCImmunity = true;
-                    proj.localNPCHitCooldown = 10;
+			        Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, new Vector2(0, 12.5f).RotatedBy(0.1f*i), Frost_Shard.ID, Projectile.damage, Projectile.knockBack, Projectile.owner);
                 }
             } else {
 			    Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center + new Vector2(0,22), Vector2.Zero, ModContent.ProjectileType<Frost_Spike>(), Projectile.damage * 3, Projectile.knockBack*3, Projectile.owner, 16);
@@ -128,6 +123,25 @@ namespace EpikV2.Items {
             return Projectile.localAI[0] == -1;
         }
     }
+	public class Frost_Shard : ModProjectile {
+		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.FrostShard;
+		public static int ID { get; private set; }
+		public override void SetStaticDefaults() {
+			DisplayName.SetDefault("Band Of Frost");
+			Main.projFrames[Type] = Main.projFrames[ProjectileID.FrostShard];
+			ID = Type;
+		}
+		public override void SetDefaults() {
+			Projectile.CloneDefaults(ProjectileID.FrostShard);
+			Projectile.DamageType = DamageClass.Magic;
+			Projectile.friendly = true;
+			Projectile.hostile = false;
+			Projectile.usesLocalNPCImmunity = true;
+			Projectile.localNPCHitCooldown = 10;
+			AIType = ProjectileID.FrostShard;
+		}
+		public override Color? GetAlpha(Color lightColor) => new Color(200, 200, 200, Projectile.alpha);
+	}
 	public class Frost_Spike : ModProjectile {
         Vector2 oldPos = Vector2.Zero;
         public override void SetStaticDefaults() {
