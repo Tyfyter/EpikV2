@@ -156,11 +156,6 @@ namespace EpikV2.CrossMod {
 	}
 	[ExtendsFromMod("ThoriumMod")]
 	public class SolarRejuvenation : Empowerment, ILoadable {
-		public void Load(Mod mod) {
-			typeof(EmpowermentLoader).GetMethod("AddEmpowerment", BindingFlags.NonPublic | BindingFlags.Static)
-				.Invoke(null, new object[] { typeof(SolarRejuvenation).Name, this });
-		}
-		public void Unload() { }
 		public override string Texture => "ThoriumMod/Empowerments/AttackSpeed";
 		public override BardInstrumentType InstrumentType => BardInstrumentType.String;
 		public override void GetCombatText(ThoriumPlayer thoriumPlayer, int level, ref string text, ref Color color) {

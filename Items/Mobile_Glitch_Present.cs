@@ -65,7 +65,7 @@ namespace EpikV2.Items {
 				if (NPC.downedDeerclops) targetRare += 0.5f;
 				if (Main.expertMode) targetRare += 0.5f;
 				if (targetRare > ItemRarityID.Green) {
-					if (targetRare < 7) {
+					if (targetRare < ItemRarityID.Blue + 0.5f * 7) {
 						targetRare = ItemRarityID.Green;
 					} else {
 						targetRare = ItemRarityID.Orange;
@@ -76,6 +76,8 @@ namespace EpikV2.Items {
 				}
 				if (Main.hardMode) {
 					targetRare = ItemRarityID.LightRed + 0.5f;
+				}else if (targetRare >= ItemRarityID.LightRed) {
+					targetRare = ItemRarityID.Orange;
 				}
 				if (NPC.downedQueenSlime) targetRare += 0.5f;
 				if (NPC.downedPirates) targetRare += 0.5f;

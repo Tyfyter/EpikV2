@@ -14,6 +14,7 @@ using Terraria.ModLoader;
 using Tyfyter.Utils;
 using Tyfyter.Utils.ID;
 using static Terraria.ModLoader.ModContent;
+using static Tyfyter.Utils.MiscUtils;
 
 namespace EpikV2.Items {
 	public class Burning_Ambition : ModItem {
@@ -151,12 +152,12 @@ namespace EpikV2.Items {
 			owner.ChangeDir(Projectile.velocity.X < 0 ? -1 : 1);
 			owner.itemRotation = (float)Math.Atan2(Projectile.velocity.Y * owner.direction, Projectile.velocity.X * owner.direction);
 			Projectile.Center = Main.player[Projectile.owner].MountedCenter;
-			Projectile.rotation += (MathHelper.TwoPi / 60) * (Projectile.localAI[0] + 1);
+			Projectile.rotation += (MathHelper.TwoPi / 60) * (Projectile.localAI[0] + 1f);
 		}
 		public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI) {
 			behindNPCsAndTiles.Add(index);
 		}
-		void DrawParticles(bool back, float factor = 1f) {
+		void DrawParticles(bool back, Color color, float factor = 1f) {
 			float zMult = (30 - Projectile.ai[0]) / 30;
 			Vector2 direction = Vector2.Normalize(Projectile.velocity);
 			Vector2 side = direction.RotatedBy(MathHelper.PiOver2);
@@ -177,7 +178,7 @@ namespace EpikV2.Items {
 					TextureAssets.Dust.Value,
 					drawPosition,
 					particle.GetFrame(),
-					new Color(zDistAdjusted, zDistAdjusted, zDistAdjusted, zDistAdjusted),
+					color * zDistAdjusted,
 					(particle.age / 60f) + zDist,
 					new Vector2(3, 5),
 					Projectile.scale * (float)(2 + zDistAdjusted * zDistAdjusted * sin * zMult) * 0.5f,
@@ -189,12 +190,28 @@ namespace EpikV2.Items {
 		void DrawAllParticles(bool back) {
 			BlendState bs = new BlendState();
 			bs.ColorDestinationBlend = Blend.One;
-			Main.spriteBatch.Restart(SpriteSortMode.Deferred, blendState: bs, effect: Resources.Shaders.blurShader);
+			SpriteBatchState oldState = Main.spriteBatch.GetState();
+			//Main.spriteBatch.Restart(SpriteSortMode.Deferred, blendState: bs, effect: Resources.Shaders.blurShader);
+			Main.spriteBatch.Restart(oldState with {
+				sortMode = SpriteSortMode.Deferred,
+				blendState = bs,
+				effect = Resources.Shaders.blurShader
+			});
+			const int rDiff = 0;
+			const int gDiff = 190;
+			const int bDiff = 255;
+			const int aDiff = 100;
+			Color color = new Color(255 - rDiff, 255 - gDiff, 255 - bDiff, 255 - aDiff);
 			try {
 				float rot = Projectile.rotation;
 				for (int i = 4; i >= 0; i--) {
 					Projectile.rotation = rot - (i * (MathHelper.TwoPi / 60) * (Projectile.localAI[0] + 1));
-					DrawParticles(back, i + 1);
+					DrawParticles(back, color, (i + 1) / 2);
+					//color = color.MultiplyRGBA(new Color(1f, 0.95f, 0.9f, 1f));
+					color.R += rDiff / 5;
+					color.G += gDiff / 5;
+					color.B += bDiff / 5;
+					color.A += aDiff / 5;
 				}
 				Projectile.rotation = rot;
 			} finally {
@@ -402,14 +419,15 @@ namespace EpikV2.Items {
 			Break();
 			return false;
 		}
-		void DrawParticles(float factor = 1f) {
+		void DrawParticles(Color color, float factor = 1f) {
 			if (Projectile.ai[0] == 0) {
 				if (particles is null) {
 					return;
 				}
 				Vector2 origin = Projectile.Center - Main.screenPosition;
 				float value = 1 / factor;
-				Color color = new Color(value, value, value, value);
+				color *= value;
+				//Color color = new Color(value, value, value, value);
 				for (int i = 0; i < 90; i++) {
 					Fireball_Particle particle = particles[i];
 					if (particle.age < factor - 1) {
@@ -431,7 +449,8 @@ namespace EpikV2.Items {
 			} else {
 				Vector2 origin = Projectile.Center - Main.screenPosition;
 				float value = 1 / factor;
-				Color color = new Color(value, value, value, value);
+				color *= value;
+				//Color color = new Color(value, value, value, value);
 				for (int i = 0; i < deathParticles.Count; i++) {
 					Fireball_Particle particle = deathParticles[i];
 					if (particle.age < factor - 1) {
@@ -457,16 +476,31 @@ namespace EpikV2.Items {
 			BlendState bs = new BlendState();
 			bs.ColorSourceBlend = Blend.SourceAlpha;
 			bs.ColorDestinationBlend = Blend.One;
-			Main.spriteBatch.Restart(SpriteSortMode.Deferred, blendState: bs, effect: Resources.Shaders.blurShader);
+			SpriteBatchState oldState = Main.spriteBatch.GetState();
+			//Main.spriteBatch.Restart(SpriteSortMode.Deferred, blendState: bs, effect: Resources.Shaders.blurShader);
+			Main.spriteBatch.Restart(oldState with {
+				sortMode = SpriteSortMode.Deferred,
+				blendState = bs,
+				effect = Resources.Shaders.blurShader
+			});
+			const int rDiff = 0;
+			const int gDiff = 190;
+			const int bDiff = 255;
+			const int aDiff = 100;
+			Color color = new Color(255 - rDiff, 255 - gDiff, 255 - bDiff, 255 - aDiff);
 			try {
 				float rot = Projectile.rotation;
 				for (int i = 4; i >= 0; i--) {
 					Projectile.rotation = rot - (i * (MathHelper.TwoPi / 60) * (Projectile.localAI[0] + 1));
-					DrawParticles(i + 1);
+					DrawParticles(color, i + 1);
+					color.R += rDiff / 5;
+					color.G += gDiff / 5;
+					color.B += bDiff / 5;
+					color.A += aDiff / 5;
 				}
 				Projectile.rotation = rot;
 			} finally {
-				Main.spriteBatch.Restart();
+				Main.spriteBatch.Restart(oldState);
 			}
 			return false;
 		}
@@ -589,13 +623,14 @@ namespace EpikV2.Items {
 				particle.age++;
 			}
 		}
-		void DrawParticles(float factor = 1f) {
+		void DrawParticles(Color color, float factor = 1f) {
 			if (particles is null) {
 				return;
 			}
 			Vector2 origin = Projectile.Center - Main.screenPosition;
 			float value = 1 / factor;
-			Color color = new Color(value, value, value, value);
+			color *= value;
+			//Color color = new Color(value, value, value, value);
 			for (int i = 0; i < 60; i++) {
 				Fireball_Particle particle = particles[i];
 				if (particle.age < factor - 1) {
@@ -620,13 +655,28 @@ namespace EpikV2.Items {
 				ColorSourceBlend = Blend.SourceAlpha,
 				ColorDestinationBlend = Blend.One
 			};
-			Main.spriteBatch.Restart(SpriteSortMode.Deferred, blendState: bs, effect: Resources.Shaders.blurShader);
+			SpriteBatchState oldState = Main.spriteBatch.GetState();
+			//Main.spriteBatch.Restart(SpriteSortMode.Deferred, blendState: bs, effect: Resources.Shaders.blurShader);
+			Main.spriteBatch.Restart(oldState with {
+				sortMode = SpriteSortMode.Deferred,
+				blendState = bs,
+				effect = Resources.Shaders.blurShader
+			});
+			const int rDiff = 0;
+			const int gDiff = 190;
+			const int bDiff = 255;
+			const int aDiff = 100;
+			Color color = new Color(255 - rDiff, 255 - gDiff, 255 - bDiff, 255 - aDiff);
 			try {
 				for (int i = 4; i >= 0; i--) {
-					DrawParticles(i + 1);
+					DrawParticles(color, i + 1);
+					color.R += rDiff / 5;
+					color.G += gDiff / 5;
+					color.B += bDiff / 5;
+					color.A += aDiff / 5;
 				}
 			} finally {
-				Main.spriteBatch.Restart();
+				Main.spriteBatch.Restart(oldState);
 			}
 			return false;
 		}

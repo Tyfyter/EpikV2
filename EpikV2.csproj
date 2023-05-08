@@ -15,7 +15,7 @@
       <HintPath>..\ModAssemblies\Origins_v0.5.1.dll</HintPath>
     </Reference>
     <Reference Include="ThoriumMod">
-      <HintPath>..\ModAssemblies\ThoriumMod.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\Desktop\tmldev\TML.Patcher.Release.0.2.1.0\Extracted\ThoriumMod.tmod\ThoriumMod.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

@@ -169,6 +169,7 @@ namespace EpikV2 {
 			ModeSwitchHotkey = KeybindLoader.RegisterKeybind(this, "Change Item Mode", "Mouse5");
 			DashHotkey = KeybindLoader.RegisterKeybind(this, "Use Dash", "Mouse4");
 			ApplyPatches();
+			EpikV2.AddBalanceRarityOverride(ItemID.PickaxeAxe, ItemRarityID.Pink);
 		}
 
 		public override void Unload() {

@@ -48,11 +48,11 @@ namespace EpikV2.Items {
 			player.vanityRocketBoots = 4;
 			player.moveSpeed += 0.08f;
 
-			DelegateMethods.v3_1 = new Vector3(0.5f, 0.8f, 0.9f);
-			Utils.PlotTileLine(player.Center, player.Center + player.velocity * 6f, 20f, DelegateMethods.CastLightOpen);
-			Utils.PlotTileLine(player.Left, player.Right, 20f, DelegateMethods.CastLightOpen);
-
 			if (!hideVisual) {
+				DelegateMethods.v3_1 = new Vector3(0.5f, 0.8f, 0.9f);
+				Utils.PlotTileLine(player.Center, player.Center + player.velocity * 6f, 20f, DelegateMethods.CastLightOpen);
+				Utils.PlotTileLine(player.Left, player.Right, 20f, DelegateMethods.CastLightOpen);
+
 				UpdateVanity(player);
 				if (player.whoAmI == Main.myPlayer) {
 					player.DoBootsEffect(player.DoBootsEffect_PlaceFlowersOnTile);
