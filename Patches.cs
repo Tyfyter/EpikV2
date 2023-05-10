@@ -149,6 +149,7 @@ namespace EpikV2 {
 				c.Emit(OpCodes.Brfalse, label);
 				c.Emit(OpCodes.Ldarg_0);
 				c.Emit(OpCodes.Ldarg_1);
+				/// <see cref="EpikV2.Player_RollLuck(Player, int)"/>
 				c.Emit(OpCodes.Call, typeof(EpikV2).GetMethod("Player_RollLuck", BindingFlags.NonPublic | BindingFlags.Static));
 				c.Emit(OpCodes.Ret);
 				c.MarkLabel(label);
@@ -227,8 +228,54 @@ namespace EpikV2 {
 					}
 				})
 			);
-		}
+			ILMod.Player.Update += (ILContext il) => {
+				ILCursor c = new ILCursor(il);
+				if (c.TryGotoNext(MoveType.AfterLabel,
+					ins => ins.MatchLdarg(0),
+					ins => ins.MatchLdcI4(0),
+					ins => ins.MatchStfld<Player>("wolfAcc")
+					)) {
+					c.Emit(OpCodes.Ldarg_0);
+					c.EmitDelegate<Action<Player>>((player) => {
+						if (player.wolfAcc && !player.HasBuff(BuffID.Werewolf) && player.GetModPlayer<EpikPlayer>().oldWolfBlood) {
+							player.AddBuff(BuffID.Werewolf, 60);
+						}
+					});
+				}
+			};
+			ILMod.Player.UpdateBuffs += (ILContext il) => {
+				ILCursor c = new ILCursor(il);
+				if (c.TryGotoNext(MoveType.AfterLabel,
+					ins => ins.MatchLdarg(0),
+					ins => ins.MatchLdcI4(1),
+					ins => ins.MatchStfld<Player>("wereWolf"))) {
+					ILLabel skipLabel = default;
+					if (c.TryGotoPrev(MoveType.After, ins => ins.MatchBrtrue(out skipLabel))) {
+						ILLabel wolfLabel = c.MarkLabel();
+						FieldReference wolfAcc = default;
+						c.GotoPrev(
+							ins => ins.MatchLdfld<Player>("wolfAcc") && ins.MatchLdfld(out wolfAcc),
+							ins => ins.MatchBrfalseLoose(skipLabel)
+						);
+						if (c.TryGotoPrev(MoveType.AfterLabel,
+							ins => ins.MatchLdsfld<Main>("dayTime"),
+							ins => ins.MatchBrtrueLoose(skipLabel))) {
+							
+							c.Emit(OpCodes.Ldarg_0);
+							c.Emit(OpCodes.Ldfld, wolfAcc);
+							c.Emit(OpCodes.Brfalse, skipLabel);
 
+							c.Emit(OpCodes.Ldarg_0);
+							c.EmitDelegate<Func<Player, bool>>((player) => {
+								return player.GetModPlayer<EpikPlayer>().oldWolfBlood;
+							});
+							c.Emit(OpCodes.Brtrue, wolfLabel);
+						}
+					}
+				}
+			};
+		}
+		//called from IL edit
 		private static int Player_RollLuck(/*Detour.Player.orig_RollLuck orig, */Player self, int range) {
 			if (!EpikConfig.Instance.RedLuck) {
 				//return orig(self, range);

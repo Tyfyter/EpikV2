@@ -134,6 +134,7 @@ namespace EpikV2 {
         public int triangleManuscriptIndex = -1;
 		public bool usedTriangleManuscript = false;
 		public bool triedTriangleManuscript = false;
+		public bool oldWolfBlood = false;
 
 		public static BitsBytes ItemChecking;
 
@@ -1105,11 +1106,13 @@ namespace EpikV2 {
             tag["altNameColors"] = (byte)altNameColors;
 			tag["usedTriangleManuscript"] = usedTriangleManuscript;
 			tag["triedTriangleManuscript"] = triedTriangleManuscript;
+			tag["oldWolfBlood"] = oldWolfBlood;
 		}
 		public override void LoadData(TagCompound tag) {
             if (tag.TryGet("altNameColors", out byte altNameColors)) this.altNameColors = (AltNameColorTypes)altNameColors;
 			tag.TryGet("usedTriangleManuscript", out usedTriangleManuscript);
 			tag.TryGet("triedTriangleManuscript", out triedTriangleManuscript);
+			tag.TryGet("oldWolfBlood", out oldWolfBlood);
 		}
 		#endregion
 

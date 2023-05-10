@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoMod.Cil;
 using ReLogic.Content;
 using System;
 using System.Collections.Generic;
@@ -981,5 +982,17 @@ namespace EpikV2 {
         public static GraphicsDevice Clone(this GraphicsDevice graphicsDevice) {
             return new GraphicsDevice(graphicsDevice.Adapter, graphicsDevice.GraphicsProfile, graphicsDevice.PresentationParameters);
         }
-    }
+		public static bool MatchBrfalseLoose(this Mono.Cecil.Cil.Instruction instr, ILLabel value) {
+			if (instr.MatchBrfalse(out var currentlabel)) {
+				return value.Target == currentlabel.Target;
+			}
+			return false;
+		}
+		public static bool MatchBrtrueLoose(this Mono.Cecil.Cil.Instruction instr, ILLabel value) {
+			if (instr.MatchBrtrue(out var currentlabel)) {
+				return value.Target == currentlabel.Target;
+			}
+			return false;
+		}
+	}
 }
