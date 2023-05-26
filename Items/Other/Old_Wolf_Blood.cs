@@ -19,17 +19,13 @@ using System.Linq;
 namespace EpikV2.Items.Other {
 
     public class Old_Wolf_Blood : ModItem {
-        public override string Texture => "EpikV2/Items/Ashen_Mark_1";
         public override void SetStaticDefaults() {
 		    DisplayName.SetDefault("Great Old Wolf Blood");
 		}
         public override void SetDefaults() {
-            Item.width = 24;
-            Item.height = 28;
-            Item.useStyle = ItemUseStyleID.DrinkLong;
-            Item.useTime = 15;
-            Item.useAnimation = 15;
-            Item.noMelee = true;
+			Item.DefaultToHealingPotion(20, 24, 0, 24);
+			Item.potion = false;
+			Item.useStyle = ItemUseStyleID.DrinkLiquid;
             Item.value = 1000;
             Item.rare = ItemRarityID.LightPurple;
             Item.UseSound = null;

@@ -1087,19 +1087,22 @@ namespace EpikV2 {
             packet.Write(EpikV2.PacketType.playerSync);
             packet.Write((byte)Player.whoAmI);
             packet.Write((byte)altNameColors);
+            packet.Write(oldWolfBlood);
             packet.Send(toWho, fromWho);
         }
         public void ReceivePlayerSync(BinaryReader reader) {
             altNameColors = (AltNameColorTypes)reader.ReadByte();
+			oldWolfBlood = reader.ReadBoolean();
         }
         public override void clientClone(ModPlayer clientClone) {
             EpikPlayer clone = clientClone as EpikPlayer;
             clone.altNameColors = altNameColors;
-        }
+			clone.oldWolfBlood = oldWolfBlood;
+		}
         public override void SendClientChanges(ModPlayer clientPlayer) {
             EpikPlayer clone = clientPlayer as EpikPlayer;
 
-            if (altNameColors != clone.altNameColors)
+            if (altNameColors != clone.altNameColors || oldWolfBlood != clone.oldWolfBlood)
                 SyncPlayer(toWho: -1, fromWho: Main.myPlayer, newPlayer: false);
         }
         public override void SaveData(TagCompound tag) {
