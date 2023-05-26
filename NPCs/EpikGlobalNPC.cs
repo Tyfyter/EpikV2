@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.Enums;
 using Terraria.GameContent;
 using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.ItemDropRules;
@@ -387,7 +388,13 @@ namespace EpikV2.NPCs
                     shop.item[nextSlot++].SetDefaults(Orion_Boot_Charge.ID);
                 }
                 break;
-            }
+
+				case NPCID.BestiaryGirl:
+				if (NPC.downedMechBossAny && (Main.GetMoonPhase() == MoonPhase.Full || Main.bloodMoon)) {
+					shop.item[nextSlot++].SetDefaults(ModContent.ItemType<Old_Wolf_Blood>());
+				}
+				break;
+			}
         }
         public override void SetupTravelShop(int[] shop, ref int nextSlot) {
             Player player = null;
@@ -400,7 +407,7 @@ namespace EpikV2.NPCs
             if (player == null) {
                 player = new Player();
             }
-            if (Main.GetMoonPhase() == Terraria.Enums.MoonPhase.Full || player.RollLuck(7) == 0) {
+            if (Main.GetMoonPhase() == MoonPhase.Full || player.RollLuck(7) == 0) {
                 shop[nextSlot++] = ModContent.ItemType<Totally_Not_Shimmer>();
             }
         }
@@ -424,7 +431,7 @@ namespace EpikV2.NPCs
         public string GetConditionDescription() => "";
     }
     public class KilledByPlayerAndNoPurchaseCondition : IItemDropRuleCondition {
-        public bool CanDrop(DropAttemptInfo info) => info.npc.lastInteraction == info.player.whoAmI && !(info.npc.GetGlobalNPC<EpikGlobalNPC>()?.itemPurchasedFrom??true);
+        public bool CanDrop(DropAttemptInfo info) => info.npc?.lastInteraction == info.player?.whoAmI && !(info.npc.GetGlobalNPC<EpikGlobalNPC>()?.itemPurchasedFrom??true);
         public bool CanShowItemDropInUI() => true;
         public string GetConditionDescription() => "Without purchasing an item";
     }
@@ -435,12 +442,12 @@ namespace EpikV2.NPCs
     }
     public class MobilePresentXmasCondition : IItemDropRuleCondition {
         public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents && !Main.snowMoon && Main.xMas;
-        public bool CanShowItemDropInUI() => EpikConfig.Instance.AncientPresents && !Main.snowMoon && Main.xMas;
-        public string GetConditionDescription() => "During Christmas";
+        public bool CanShowItemDropInUI() => EpikConfig.Instance.AncientPresents;
+        public string GetConditionDescription() => "During Christmas (except with Frost Moon active)";
     }
     public class MobilePresentFrostMoonCondition : IItemDropRuleCondition {
         public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents && Main.snowMoon;
-        public bool CanShowItemDropInUI() => EpikConfig.Instance.AncientPresents && Main.snowMoon;
+        public bool CanShowItemDropInUI() => EpikConfig.Instance.AncientPresents ;
         public string GetConditionDescription() => "During the frost moon";
 	}
 	public class TriangularManuscriptCondition : IItemDropRuleCondition {
