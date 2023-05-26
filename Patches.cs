@@ -260,7 +260,7 @@ namespace EpikV2 {
 						if (c.TryGotoPrev(MoveType.AfterLabel,
 							ins => ins.MatchLdsfld<Main>("dayTime"),
 							ins => ins.MatchBrtrueLoose(skipLabel))) {
-							
+
 							c.Emit(OpCodes.Ldarg_0);
 							c.Emit(OpCodes.Ldfld, wolfAcc);
 							c.Emit(OpCodes.Brfalse, skipLabel);
@@ -513,7 +513,7 @@ namespace EpikV2 {
 				switch (self.type) {
 					case ProjectileID.EmpressBlade:
 					return Color.Lerp(GetName0ColorsSaturated((int)hueIndex % 6), GetName0ColorsSaturated(((int)hueIndex + 1) % 6), hueIndex % 1);
-					
+
 					case ProjectileID.PiercingStarlight:
 					if (Main.player[self.owner].GetModPlayer<EpikPlayer>().altNameColors.HasFlag(AltNameColorTypes.Starlight)) {
 						return GetName0ColorsSaturated(Main.rand.NextBool(2, 5) ? 1 : 0);
@@ -568,7 +568,7 @@ namespace EpikV2 {
 			ILCursor c = new ILCursor(il);
 			FieldReference __player;
 			if (!c.TryGotoNext(MoveType.After, (ins) => {
-				if(ins.Match(OpCodes.Stfld, out __player) && __player.Name == "player") {
+				if (ins.Match(OpCodes.Stfld, out __player) && __player.Name == "player") {
 					_player = __player;
 					return true;
 				}
@@ -643,7 +643,7 @@ private void Main_OnPostDraw(GameTime obj) {
    mappedFilter.GetShader().UseImage(filterMapTarget, 2);
 }//*/
 		public static float ShimmerCalc(float val) {
-		   return 0.5f+MathHelper.Clamp(val/16f, -0.5f, 0.5f);
+			return 0.5f + MathHelper.Clamp(val / 16f, -0.5f, 0.5f);
 		}
 	}
 }

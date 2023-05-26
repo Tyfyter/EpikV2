@@ -583,7 +583,7 @@ namespace EpikV2 {
 				.GetType("Terraria.ModLoader.Config.UI.UIModConfigHoverImage");
 			ConstructorInfo ctor = type.GetConstructors().First();
 
-			collapseButton = (UIImage)ctor.Invoke(new object[]{ ExpandedTexture, "Collapse" });
+			collapseButton = (UIImage)ctor.Invoke(new object[] { ExpandedTexture, "Collapse" });
 			collapseButton.Top.Set(4f, 0f);
 			collapseButton.Left.Set(-52f, 1f);
 			collapseButton.OnClick += delegate {
@@ -674,10 +674,10 @@ namespace EpikV2 {
 	}
 	[Flags]
 	public enum JitterTypes : byte {
-		None	=	0b00000000,
-		Tooltip =	0b00000001,
-		LSD		=	0b00000010,
-		All		=	0b11111111
+		None = 0b00000000,
+		Tooltip = 0b00000001,
+		LSD = 0b00000010,
+		All = 0b11111111
 	}
 	internal class AltNameColorTypesElement : FlagEnumConfigElement<AltNameColorTypes> {
 		public override void OnBind() {

@@ -10,7 +10,7 @@ using Terraria.GameContent.UI.Chat;
 using Terraria.UI.Chat;
 
 namespace EpikV2 {
-    public class CatgirlMemeHandler : ITagHandler {
+	public class CatgirlMemeHandler : ITagHandler {
 		private class CatgirlMemeSnippet : TextSnippet {
 			readonly DateTime timestamp;
 			readonly int team;

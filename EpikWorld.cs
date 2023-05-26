@@ -208,7 +208,7 @@ namespace EpikV2 {
 					string[] segs = s.Split(':');
 					if (segs[0] == "Terraria") {
 						return NPCID.Search.GetId(segs[1]);
-					} else if(ModContent.TryFind(segs[0], segs[1], out ModNPC npc)) {
+					} else if (ModContent.TryFind(segs[0], segs[1], out ModNPC npc)) {
 						return npc.Type;
 					}
 					return -1;

@@ -13,7 +13,7 @@ using Terraria.GameContent.UI.Chat;
 using Terraria.UI.Chat;
 
 namespace EpikV2 {
-    public class StrikethroughHandler : ITagHandler {
+	public class StrikethroughHandler : ITagHandler {
 		public class StrikethroughSnippet : TextSnippet {
 			public StrikethroughSnippet(string text) {
 				Text = text;
