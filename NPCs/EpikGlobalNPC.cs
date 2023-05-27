@@ -390,7 +390,7 @@ namespace EpikV2.NPCs
                 break;
 
 				case NPCID.BestiaryGirl:
-				if (NPC.downedMechBossAny && (Main.GetMoonPhase() == MoonPhase.Full || Main.bloodMoon)) {
+				if (NPC.downedMechBossAny && Main.LocalPlayer.HasBuff(BuffID.Werewolf) && (Main.GetMoonPhase() == MoonPhase.Full || Main.bloodMoon)) {
 					shop.item[nextSlot++].SetDefaults(ModContent.ItemType<Old_Wolf_Blood>());
 				}
 				break;
