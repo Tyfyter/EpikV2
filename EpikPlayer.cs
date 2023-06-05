@@ -130,6 +130,7 @@ namespace EpikV2 {
 		public int activeBuffs = 0;
 		private bool oldWet = false;
 		public AltNameColorTypes altNameColors = AltNameColorTypes.None;
+		public string nameColorOverride = null;
 		public bool noKnockbackOnce = false;
 		public int triangleManuscriptIndex = -1;
 		public bool usedTriangleManuscript = false;

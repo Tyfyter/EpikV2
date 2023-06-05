@@ -126,7 +126,7 @@ namespace EpikV2.Items {
         }
         public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
             //Main.LocalPlayer.chatOverhead.NewMessage(damage. + "", 5);
-            damage = damage.MultiplyBonuses(2.5f);
+            damage = damage.Scale(2.5f);
         }
         public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
             if (player.heldProj != -1)return false;

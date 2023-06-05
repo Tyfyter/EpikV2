@@ -165,6 +165,7 @@ namespace EpikV2 {
 	}
 	public static class EpikExtensions {
 		public static AutoCastingAsset<Texture2D> RequestTexture(this Mod mod, string name) => mod.Assets.Request<Texture2D>(name);
+		#region sound
 		public static SoundStyle WithPitch(this SoundStyle soundStyle, float pitch) {
 			soundStyle.Pitch = pitch;
 			return soundStyle;
@@ -181,14 +182,7 @@ namespace EpikV2 {
 			soundStyle.Volume = volume;
 			return soundStyle;
 		}
-		public static StatModifier MultiplyBonuses(this StatModifier statModifier, float factor) {
-			return new StatModifier(
-				(statModifier.Additive - 1) * factor + 1,
-				(statModifier.Multiplicative - 1) * factor + 1,
-				statModifier.Flat * factor,
-				statModifier.Base * factor
-			);
-		}
+		#endregion sound
 		public static bool CheckHealth(this Player player, int amount, bool pay = false) {
 			if (player.statLife >= amount) {
 				if (pay) {
@@ -908,6 +902,9 @@ namespace EpikV2 {
 				output.Add(new Point(reader.ReadInt32(), reader.ReadInt32()));
 			}
 			return output;
+		}
+		public static string GetNameForColors(this Player player) {
+			return player.GetModPlayer<EpikPlayer>().nameColorOverride ?? player.name;
 		}
 		public static void SayNetMode() {
 			switch (Main.netMode) {

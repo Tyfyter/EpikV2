@@ -274,7 +274,18 @@ namespace EpikV2 {
 					}
 				}
 			};
+			ILMod.Projectile.GetFairyQueenWeaponsColor += ReplaceNameWithOverride;
+			ILMod.Projectile.GetLastPrismHue += ReplaceNameWithOverride;
 		}
+
+		private static void ReplaceNameWithOverride(ILContext il) {
+			ILCursor c = new(il);
+			if (c.TryGotoNext(MoveType.Before, op => op.MatchLdfld<Player>("name"))) {
+				c.Remove();
+				c.EmitDelegate<Func<Player, string>>(EpikExtensions.GetNameForColors);
+			}
+		}
+
 		//called from IL edit
 		private static int Player_RollLuck(/*Detour.Player.orig_RollLuck orig, */Player self, int range) {
 			if (!EpikConfig.Instance.RedLuck) {
@@ -483,7 +494,7 @@ namespace EpikV2 {
 			return orig(inv, context, slot, checkItem);
 		}
 		private float Projectile_GetLastPrismHue(Detour.Projectile.orig_GetLastPrismHue orig, Projectile self, float laserIndex, ref float laserLuminance, ref float laserAlphaMultiplier) {
-			if (Main.player[self.owner].active && IsSpecialName(Main.player[self.owner].name, 0)) {
+			if (Main.player[self.owner].active && IsSpecialName(Main.player[self.owner].GetNameForColors(), 0)) {
 				switch ((int)laserIndex) {
 					case 0:
 					laserLuminance = 0.68f;
@@ -508,7 +519,7 @@ namespace EpikV2 {
 			return orig(self, laserIndex, ref laserLuminance, ref laserAlphaMultiplier);
 		}
 		private Color Projectile_GetFairyQueenWeaponsColor(Detour.Projectile.orig_GetFairyQueenWeaponsColor orig, Projectile self, float alphaChannelMultiplier, float lerpToWhite, float? rawHueOverride) {
-			if (Main.player[self.owner].active && IsSpecialName(Main.player[self.owner].name, 0)) {
+			if (Main.player[self.owner].active && IsSpecialName(Main.player[self.owner].GetNameForColors(), 0)) {
 				float hueIndex = ((rawHueOverride ?? self.ai[1]) * 6);
 				switch (self.type) {
 					case ProjectileID.EmpressBlade:

@@ -32,7 +32,7 @@ namespace EpikV2 {
 		public static bool Raining { get => raining; set => raining = value; }
 		private HashSet<Point> naturalChests;
 		public HashSet<Point> NaturalChests => naturalChests ??= new HashSet<Point>();
-		int timeManipMode;
+		public int timeManipMode;
 		public float timeManipDanger;
 		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
 			if (EpikV2.modeSwitchHotbarActive) {

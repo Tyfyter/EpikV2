@@ -68,7 +68,7 @@ namespace EpikV2.Items {
             return true;
         }
         public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
-            damage = damage.MultiplyBonuses(2.5f);
+            damage = damage.Scale(2.5f);
         }
     }
 	public class Scorpio_Tail : ModProjectile {

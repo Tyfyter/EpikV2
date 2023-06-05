@@ -374,7 +374,7 @@ namespace EpikV2.Items {
             miscShaderData.UseOpacity(4f);
             miscShaderData.Apply();
             positions = proj.oldPos;
-			switch (EpikV2.GetSpecialNameType(Main.player[0].name)) {
+			switch (EpikV2.GetSpecialNameType(Main.player[0].GetNameForColors())) {
 				case 0: {
 					float vfxTime = (float)((Main.timeForVisualEffects / 120f) % 1f);
 					Color c0 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6) % 6);

@@ -35,7 +35,7 @@ namespace EpikV2.Layers {
 			Resources.Shaders.empressWingsShader.UseSaturation(vfxTime);
 			int shader0 = 0;
 			int shader1 = EpikV2.empressWingsShaderID;
-			switch (EpikV2.GetSpecialNameType(drawPlayer.name)) {
+			switch (EpikV2.GetSpecialNameType(drawPlayer.GetNameForColors())) {
 				case 0: {
 					shader0 = EpikV2.empressWingsShaderID;
 					shader1 = EpikV2.empressWingsShaderAltID;

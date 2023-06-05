@@ -384,7 +384,7 @@ namespace EpikV2.NPCs
                 break;
 
                 case NPCID.Cyborg:
-                if(Main.LocalPlayer.HasItem(Orion_Boots.ID)||Main.LocalPlayer.miscEquips[4].type == Orion_Boots.ID) {
+                if(Main.LocalPlayer.HasItem(Orion_Boots.ID) || Main.LocalPlayer.miscEquips[4].type == Orion_Boots.ID) {
                     shop.item[nextSlot++].SetDefaults(Orion_Boot_Charge.ID);
                 }
                 break;
@@ -392,6 +392,13 @@ namespace EpikV2.NPCs
 				case NPCID.BestiaryGirl:
 				if (NPC.downedMechBossAny && Main.LocalPlayer.HasBuff(BuffID.Werewolf) && (Main.GetMoonPhase() == MoonPhase.Full || Main.bloodMoon)) {
 					shop.item[nextSlot++].SetDefaults(ModContent.ItemType<Old_Wolf_Blood>());
+				}
+				break;
+
+				case NPCID.DyeTrader:
+				if (ModContent.GetInstance<EpikWorld>().timeManipMode == 4) {
+					shop.item[nextSlot++].SetDefaults(ModContent.ItemType<Retro_Dye>());
+					shop.item[nextSlot++].SetDefaults(ModContent.ItemType<Red_Retro_Dye>());
 				}
 				break;
 			}

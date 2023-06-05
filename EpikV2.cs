@@ -503,6 +503,8 @@ namespace EpikV2 {
 		public JitterTypes reduceJitter = JitterTypes.All;
 
 		[Label("Alternate Name Colors")]
+		[JsonIgnore]
+		//[ShowDespiteJsonIgnore]
 		[DefaultValue(AltNameColorTypes.None)]
 		[CustomModConfigItem(typeof(AltNameColorTypesElement))]
 		public AltNameColorTypes AltNameColors {
@@ -518,8 +520,25 @@ namespace EpikV2 {
 				}
 			}
 		}
+		[Label("Name Color Override")]
+		[JsonIgnore]
+		//[ShowDespiteJsonIgnore]
+		[DefaultValue(null)]
+		public string NameColorOverride {
+			get {
+				if (Main.LocalPlayer.active && Main.LocalPlayer.GetModPlayer<EpikPlayer>() is EpikPlayer epikPlayer) {
+					return epikPlayer.nameColorOverride;
+				}
+				return null;
+			}
+			set {
+				if (Main.LocalPlayer.active && Main.LocalPlayer.GetModPlayer<EpikPlayer>() is EpikPlayer epikPlayer) {
+					epikPlayer.nameColorOverride = (value == "" ? null : value);
+				}
+			}
+		}
 	}
-	#region flags
+	#region config elements
 	public class FakePropertyInfo : PropertyInfo {
 		public override PropertyAttributes Attributes { get; }
 		readonly Action<bool> set;
@@ -714,8 +733,7 @@ namespace EpikV2 {
 		Starlight = 0b00000001,
 		All = 0b11111111
 	}
-
-	#endregion flags
+	#endregion config elements
 	public class LSDBiome : ModBiome {
 		public override SceneEffectPriority Priority => SceneEffectPriority.None;
 		public override bool IsBiomeActive(Player player) {

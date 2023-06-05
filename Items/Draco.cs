@@ -95,7 +95,7 @@ namespace EpikV2.Items {
             }
         }
 		public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
-            damage = damage.MultiplyBonuses(2.5f);
+            damage = damage.Scale(2.5f);
         }
         public override void ModifyManaCost(Player player, ref float reduce, ref float mult) {
             mult *= 0.09f;
