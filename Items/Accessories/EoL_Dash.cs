@@ -13,13 +13,12 @@ namespace EpikV2.Items.Accessories {
 		public const int dash_cooldown_boss_increase = 260;
 		public const int dash_cooldown = 75;
 		public const int dash_redash_cooldown = 25;
-		public override string Texture => "Terraria/Images/Item_" + ItemID.EmpressFlightBooster;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("<PH> Refraction Ensign");
+			DisplayName.SetDefault("Refraction Ensign");
 			ItemID.Sets.ItemNoGravity[Type] = true;
 		}
 		public override void SetDefaults() {
-			Item.accessory = true;
+			Item.DefaultToAccessory(26, 30);
 			Item.master = true;
 		}
 		public override void UpdateEquip(Player player) {

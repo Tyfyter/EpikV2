@@ -13,6 +13,7 @@ namespace EpikV2.Items.Other {
 	public class Chest_Polish : ModItem {
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Chest Polish");
+			Tooltip.SetDefault("Hides a chest from prying spirits");
 			SacrificeTotal = 1;
 		}
 		public override void SetDefaults() {
@@ -49,6 +50,7 @@ namespace EpikV2.Items.Other {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.Cobweb;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("<PH> Chest Webs");
+			Tooltip.SetDefault("Reveals a chest to prying spirits");
 			SacrificeTotal = 1;
 		}
 		public override void SetDefaults() {

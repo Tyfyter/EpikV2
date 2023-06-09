@@ -16,6 +16,9 @@ namespace EpikV2.Items.Accessories {
 			SacrificeTotal = 1;
 			EpikV2.AddBalanceRarityOverride(Type, ItemRarityID.Blue);
 		}
+		public override void SetDefaults() {
+			Item.DefaultToAccessory(36, 36);
+		}
 		public override void UpdateEquip(Player player) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			epikPlayer.cursedCloverEquipped = true;
