@@ -2,6 +2,10 @@
 	EpikV2: {
 		ItemName: {
 			Party_Pylon_Item: Party Pylon
+			LuckyFishingLine: Lucky Fishing Line
+		}
+		ItemTooltip: {
+			LuckyFishingLine: "Increases luck while fishing"
 		}
 		MapObject: {
 			Party_Pylon_Tile: Party Pylon (Inactive)

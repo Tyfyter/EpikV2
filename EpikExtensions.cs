@@ -909,7 +909,7 @@ namespace EpikV2 {
 		public static void SayNetMode() {
 			switch (Main.netMode) {
 				case NetmodeID.Server:
-				NetTextModule.SerializeServerMessage(NetworkText.FromLiteral("Server"), Color.White);
+				ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral("Server"), Color.White);
 				break;
 				case NetmodeID.MultiplayerClient:
 				Main.NewText("MultiplayerClient");

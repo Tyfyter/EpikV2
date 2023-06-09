@@ -136,6 +136,7 @@ namespace EpikV2 {
 		public bool usedTriangleManuscript = false;
 		public bool triedTriangleManuscript = false;
 		public bool oldWolfBlood = false;
+		public bool bobberSnail = false;
 
 		public static BitsBytes ItemChecking;
 
@@ -172,6 +173,7 @@ namespace EpikV2 {
 			wormToothNecklace = false;
 			ichorNecklace = false;
 			cursedCloverEquipped = false;
+			bobberSnail = false;
 			if (haligbrand >= 0 && !Main.projectile[haligbrand].active) {
 				haligbrand = -1;
 			}
@@ -909,6 +911,20 @@ namespace EpikV2 {
 			return true;
 		}
 		public override bool PreItemCheck() {
+			if (EpikConfig.Instance.NoFishingBreak) {
+				if (Player.accFishingLine) {
+					for (int i = 0; i < Main.maxProjectiles; i++) {
+						Projectile projectile = Main.projectile[i];
+						if (!projectile.active || projectile.owner != Player.whoAmI || !projectile.bobber || projectile.ai[0] != 0f) {
+							continue;
+						}
+						Player.luck += 0.2f;
+						break;
+					}
+				} else {
+					Player.accFishingLine = true;
+				}
+			}
 			ItemChecking[Player.whoAmI] = true;
 			return true;
 		}

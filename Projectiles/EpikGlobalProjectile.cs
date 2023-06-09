@@ -69,6 +69,9 @@ namespace EpikV2.Projectiles {
 			if (projectile.type == ProjectileID.RainbowWhip && EpikV2.IsSpecialName(Main.player[projectile.owner].GetNameForColors(), 0)) {
                 EpikV2.KaleidoscopeColorType = 1;
             }
+			if (projectile.bobber && projectile.ai[1] == 0f && Main.myPlayer == projectile.owner && Main.LocalPlayer.GetModPlayer<EpikPlayer>().bobberSnail) {
+				projectile.localAI[1] += 1.5f;
+			}
             return true;
 		}
 		public override void AI(Projectile projectile) {

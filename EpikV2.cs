@@ -465,6 +465,29 @@ namespace EpikV2 {
 		[DefaultValue(true)]
 		public bool ThatFixFromNextUpdate = true;
 
+		[Label("Unbreakable Fishing Line")]
+		[DefaultValue(true)]
+		public bool NoFishingBreak {
+			get => noFishingBreak;
+			set {
+				noFishingBreak = value;
+				if (value) {
+					Lang.GetItemName(ItemID.HighTestFishingLine).Override = Language.GetText("Mods.EpikV2.ItemName.LuckyFishingLine");
+					ItemTooltip.AddGlobalProcessor(NoBreakTooltipProcessor);
+				} else {
+					Lang.GetItemName(ItemID.HighTestFishingLine).Override = null;
+					ItemTooltip.RemoveGlobalProcessor(NoBreakTooltipProcessor);
+				}
+			}
+		}
+		static string NoBreakTooltipProcessor(string tooltipLine) {
+			if (tooltipLine == Language.GetTextValue("ItemTooltip.HighTestFishingLine")) {
+				return Language.GetTextValue("Mods.EpikV2.ItemTooltip.LuckyFishingLine");
+			}
+			return tooltipLine;
+		}
+		bool noFishingBreak = true;
+
 		[Label("NPC Changes")]
 		public NPCChangesConfig npcChangesConfig = new NPCChangesConfig();
 		public class NPCChangesConfig : ModConfig {
