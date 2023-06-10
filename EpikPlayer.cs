@@ -1043,11 +1043,11 @@ namespace EpikV2 {
 				InvalidArmorShader invalidShader = Shaders.InvalidArmorShaders[i];
 				if (drawInfo.hairDyePacked == invalidShader.shader)
 					drawInfo.hairDyePacked = invalidShader.fallbackShader;
-				if (drawInfo.cHead == invalidShader.shader && !(drawInfo.fullHair || drawInfo.hatHair))
+				if (drawInfo.cHead == invalidShader.shader && !(drawInfo.fullHair || drawInfo.hatHair || !ArmorIDs.Head.Sets.DrawHead[drawInfo.drawPlayer.head]))
 					drawInfo.cHead = invalidShader.fallbackShader;
-				if (drawInfo.cBody == invalidShader.shader)
+				if (drawInfo.cBody == invalidShader.shader && !drawInfo.hidesTopSkin)
 					drawInfo.cBody = invalidShader.fallbackShader;
-				if (drawInfo.cLegs == invalidShader.shader)
+				if (drawInfo.cLegs == invalidShader.shader && !drawInfo.hidesBottomSkin)
 					drawInfo.cLegs = invalidShader.fallbackShader;
 			}
 
