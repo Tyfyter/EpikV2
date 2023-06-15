@@ -17,14 +17,9 @@ using Tyfyter.Utils;
 
 namespace EpikV2.Items.Other {
 	public class Triangular_Manuscript : ModItem {
-		static DrawAnimation animation;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Triangular Manuscript");
-			Main.RegisterItemAnimation(Type, animation = new DrawAnimationManual(3));
 			SacrificeTotal = 1;
-		}
-		public override void Unload() {
-			animation = null;
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.FallenStar);
@@ -176,16 +171,6 @@ namespace EpikV2.Items.Other {
 							16,
 							Projectile.owner
 						);
-					} else if(false) {
-						Projectile.NewProjectile(
-							Projectile.GetSource_FromThis(),
-							new Vector2(left * 16 + 16, bottom * 16 - 16),
-							default,
-							ModContent.ProjectileType<Triangular_Manuscript_Seek_P>(),
-							75,
-							16,
-							Projectile.owner
-						);
 					} else {
 						Projectile.NewProjectile(
 							Projectile.GetSource_FromThis(),
@@ -220,9 +205,10 @@ namespace EpikV2.Items.Other {
 	public class Triangular_Manuscript_Seek_P : ModProjectile {
 		public override string Texture => "EpikV2/Items/Other/Triangular_Manuscript";
 		public static int ID { get; private set; }
-		const int lifetime = Main.maxChests + 60;
+		const int lifetime = int.MaxValue;
 		Dictionary<int, SelectableItem> items;
 		internal Queue<int> updatedChests;
+		(int itemType, List<Point> positions)[] orePositions;
 		public override void SetStaticDefaults() {
 			ID = Type;
 		}
@@ -242,22 +228,45 @@ namespace EpikV2.Items.Other {
 				packet.Write((short)Projectile.whoAmI);
 				packet.Send();
 			}
+			orePositions = EpikV2.orePositions?.Select(v => (v.Key, v.Value))?.ToArray();
 		}
 		public override void AI() {
 			int index = lifetime - Projectile.timeLeft;
-			if (index > Main.maxChests) {
+			int max = Math.Max(EpikV2.orePositions.Count, Main.maxChests);
+			if (index > max) {
 				if (items.Count > 0) {
-					Projectile.timeLeft = lifetime - Main.maxChests;
+					Projectile.timeLeft = lifetime - max;
 				}
 			} else {
 				if (items is null) {
 					items = new();
 				}
+				if (index < orePositions.Length) {
+					Item loot = new Item(orePositions[index].itemType);
+					foreach (var pos in orePositions[index].positions) {
+						Vector2 chestPos = new(pos.X * 16, pos.Y * 16);
+						if (items.TryGetValue(loot.type, out SelectableItem item)) {
+							item.chestPositions.Add(chestPos, 1000.0 / (chestPos - Projectile.position).Length());
+						} else {
+							items.Add(loot.type, new SelectableItem() {
+								position = Projectile.position,
+								chestPositions = new WeightedRandom<Vector2>(Main.rand,
+									new Tuple<Vector2, double>(chestPos, 1000.0 / (chestPos - Projectile.position).Length())
+								),
+								velocity = ((Vector2)new PolarVec2(
+									Main.rand.NextFloat(10, 18),
+									Main.rand.NextFloat(MathHelper.PiOver4, -MathHelper.Pi - MathHelper.PiOver4))
+								) * new Vector2(1, 0.5f),
+								item = loot
+							});
+						}
+					}
+				}
 				if (Main.netMode == NetmodeID.MultiplayerClient) {
 					index = updatedChests.Count > 0 ? updatedChests.Dequeue() : -1;
 				}
 				if (index > -1) {
-					if (Main.chest[index] is Chest chest) {
+					if (index <= Main.maxChests && Main.chest[index] is Chest chest) {
 						if (ModContent.GetInstance<EpikWorld>().NaturalChests.Contains(new Point(chest.x, chest.y))) {
 							Item loot = chest.item.FirstOrDefault(i => i?.IsAir == false);
 							if (loot is not null) {

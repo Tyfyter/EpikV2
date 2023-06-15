@@ -276,6 +276,43 @@ namespace EpikV2 {
 			};
 			ILMod.Projectile.GetFairyQueenWeaponsColor += ReplaceNameWithOverride;
 			ILMod.Projectile.GetLastPrismHue += ReplaceNameWithOverride;
+			ILMod.WorldGen.CountTiles += WorldGen_CountTiles;
+		}
+		public static MergingListDictionary<int, Point> orePositions;
+		internal static MergingListDictionary<int, Point> newOrePositions;
+		static HashSet<string> tiles;
+		static void ResetOrePositions() {
+			orePositions = newOrePositions ?? new();
+			newOrePositions = new();
+			var names = orePositions.Where(v => v.Key != 0).Select(v => Lang.GetItemNameValue(v.Key)).ToList();
+		}
+		static void AddOrePosition(int x, int y) {
+			Tile tile = Main.tile[x, y];
+			if (!tile.HasTile) return;
+			int type = tile.TileType;
+			if (Main.tileOreFinderPriority[type] > 0 && Main.tileSolid[type]) {
+				int itemDrop;
+				if (type >= TileID.Count) {
+					itemDrop = ModContent.GetModTile(type).ItemDrop;
+				} else {
+					WorldGen.KillTile_GetItemDrops(x, y, Main.tile[x, y], out itemDrop, out _, out _, out _, false);
+				}
+				if (itemDrop > 0) {
+					newOrePositions.Add(itemDrop, new Point(x, y));
+				}
+			}
+		}
+		private static void WorldGen_CountTiles(ILContext il) {
+			ILCursor c = new(il);
+			if (c.TryGotoNext(MoveType.After, ins => ins.MatchLdarg(0), ins => ins.MatchBrtrue(out _))) {
+				c.EmitDelegate<Action>(ResetOrePositions);
+			}
+			if (c.TryGotoNext(MoveType.AfterLabel, ins => ins.MatchLdloca(8), ins => ins.MatchCall<Tile>("get_type"))) {
+				c.Emit(OpCodes.Ldarg_0);
+				c.Emit(OpCodes.Ldloc_S, (byte)7);
+				c.EmitDelegate<Action<int, int>>(AddOrePosition);
+				c.Index++;
+			}
 		}
 
 		private static void ReplaceNameWithOverride(ILContext il) {
