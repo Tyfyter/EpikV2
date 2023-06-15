@@ -20,6 +20,7 @@ using Terraria.GameContent.Personalities;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.Utilities;
 using static EpikV2.EpikExtensions;
 using static EpikV2.EpikV2;
 using static EpikV2.Resources;
@@ -277,7 +278,16 @@ namespace EpikV2.NPCs
                 break;
 
                 case NPCID.HallowBoss:
-                npcLoot.Add(ItemDropRule.MasterModeDropOnAllPlayers(ModContent.ItemType<EoL_Dash>(), 3));
+                npcLoot.Add(new DropBasedOnMasterMode(ItemDropRule.DropNothing(), new DropPerPlayerOnThePlayerWithNameAlternates(
+					ModContent.ItemType<EoL_Dash>(),
+					new Dictionary<int, int>() {
+						[0] = ModContent.ItemType<EoL_Dash_Alt>()
+					},
+					3,
+					1,
+					1,
+					new Conditions.IsMasterMode()
+				)));
                 break;
 
 				case NPCID.Clothier:
@@ -461,5 +471,80 @@ namespace EpikV2.NPCs
 		public bool CanDrop(DropAttemptInfo info) => Main.dayTime && info.npc.AnyInteractions() && EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscript;
 		public bool CanShowItemDropInUI() => EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscript;
 		public string GetConditionDescription() => "In worlds created before v0.3.7\nmust be killed by a player\nmust be killed during the day";
+	}
+	public class DummyCondition : IItemDropRuleCondition {
+		readonly string descriptionKey;
+		public DummyCondition(string key) {
+			descriptionKey = key;
+		}
+		public bool CanDrop(DropAttemptInfo info) => true;
+		public bool CanShowItemDropInUI() => true;
+		public string GetConditionDescription() => Language.GetTextValue(descriptionKey);
+	}
+	public class SpecialNameCondition : IItemDropRuleCondition {
+		readonly HashSet<int> nameTypes;
+		readonly bool invert;
+		public SpecialNameCondition(HashSet<int> types, bool invert = false) {
+			this.nameTypes = types;
+			this.invert = invert;
+		}
+		public bool CanDrop(DropAttemptInfo info) => nameTypes.Contains(GetSpecialNameType(info.player.GetNameForColors())) ^ invert;
+		public bool CanShowItemDropInUI() => nameTypes.Contains(GetSpecialNameType(Main.LocalPlayer.GetNameForColors())) ^ invert;
+		public string GetConditionDescription() => invert ? "" : Language.GetTextValue("Mods.EpikV2.DropCondition.DevNameAlternate");
+	}
+
+	public class DropPerPlayerOnThePlayerWithNameAlternates : CommonDrop {
+		public IItemDropRuleCondition condition;
+		public Dictionary<int, int> alternates;
+		public DropPerPlayerOnThePlayerWithNameAlternates(int itemId, Dictionary<int, int> alternates, int chanceDenominator, int amountDroppedMinimum, int amountDroppedMaximum, IItemDropRuleCondition optionalCondition)
+			: base(itemId, chanceDenominator, amountDroppedMinimum, amountDroppedMaximum) {
+			condition = optionalCondition;
+			this.alternates = alternates;
+		}
+
+		public override bool CanDrop(DropAttemptInfo info) {
+			if (condition != null) {
+				return condition.CanDrop(info);
+			}
+			return true;
+		}
+		public override void ReportDroprates(List<DropRateInfo> drops, DropRateInfoChainFeed ratesInfo) {
+			float num = chanceNumerator / (float)chanceDenominator;
+			float dropRate = num * ratesInfo.parentDroprateChance;
+			List<IItemDropRuleCondition> conditions = ratesInfo.conditions.ToList();
+			conditions.Add(new SpecialNameCondition(alternates.Keys.ToHashSet(), true));
+			drops.Add(new DropRateInfo(itemId, amountDroppedMinimum, amountDroppedMaximum, dropRate, conditions));
+			foreach (var item in alternates) {
+				conditions[^1] = new SpecialNameCondition(new() { item.Key });
+				drops.Add(new DropRateInfo(item.Value, amountDroppedMinimum, amountDroppedMaximum, dropRate, conditions));
+			}
+			Chains.ReportDroprates(ChainedRules, num, drops, ratesInfo);
+		}
+		public override ItemDropAttemptResult TryDroppingItem(DropAttemptInfo info) {
+			DropItemForEachInteractingPlayerOnThePlayerWithAlternatesAndLongName(info.npc, itemId, info.rng, chanceNumerator, chanceDenominator, info.rng.Next(amountDroppedMinimum, amountDroppedMaximum + 1));
+			ItemDropAttemptResult result = default(ItemDropAttemptResult);
+			result.State = ItemDropAttemptResultState.Success;
+			return result;
+		}
+		public void DropItemForEachInteractingPlayerOnThePlayerWithAlternatesAndLongName(NPC npc, int itemId, UnifiedRandom rng, int chanceNumerator, int chanceDenominator, int stack = 1, bool interactionRequired = true) {
+			if (itemId <= 0 || itemId >= ItemLoader.ItemCount) {
+				return;
+			}
+			if (Main.netMode == NetmodeID.Server) {
+				for (int i = 0; i < 255; i++) {
+					Player player = Main.player[i];
+					if (player.active && (npc.playerInteraction[i] || !interactionRequired) && rng.Next(chanceDenominator) < chanceNumerator) {
+						int perPlayerItemType = itemId;
+						if (alternates.TryGetValue(GetSpecialNameType(player.GetNameForColors()), out int altItemType)) perPlayerItemType = altItemType;
+						int itemIndex = Item.NewItem(npc.GetSource_Loot(), player.position, player.Size, perPlayerItemType, stack, noBroadcast: false, -1);
+						CommonCode.ModifyItemDropFromNPC(npc, itemIndex);
+					}
+				}
+			} else if (rng.Next(chanceDenominator) < chanceNumerator) {
+				int itemIndex = CommonCode.DropItem(npc.Hitbox, npc.GetSource_Loot(), itemId, stack, false);
+				CommonCode.ModifyItemDropFromNPC(npc, itemIndex);
+			}
+			npc.value = 0f;
+		}
 	}
 }

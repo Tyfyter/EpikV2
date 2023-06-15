@@ -102,4 +102,5 @@ namespace EpikV2.Items.Accessories {
 			}
 		}
 	}
+	public class EoL_Dash_Alt : EoL_Dash {}
 }
