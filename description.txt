@@ -57,6 +57,8 @@ Credits:
 Tyfyter2002 (you know, the dev of the mod)
 The helpful folks in the tModLoader discord, without whom I'd never have fixed many of the bugs.
 
+The Thorium devs, without whom the Thorium crossover content (i.e. bard & healer items) obviously wouldn't be possible.
+
 Special Thanks to the 7387 people who've downloaded the original mod.
 Wait, why is it 7395 now...
 7477? Are people still using tML v0.8.2.1?
