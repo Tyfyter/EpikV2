@@ -887,6 +887,13 @@ namespace EpikV2 {
 				writer.Write(list[i].Y);
 			}
 		}
+		public static void WriteList<T>(this BinaryWriter writer, List<T> list, Action<BinaryWriter, T> writeFunc) {
+			int capacity = list.Count;
+			writer.Write(capacity);
+			for (int i = 0; i < capacity; i++) {
+				writeFunc(writer, list[i]);
+			}
+		}
 		public static List<int> ReadInt32List(this BinaryReader reader) {
 			int capacity = reader.ReadInt32();
 			List<int> output = new(capacity);
@@ -900,6 +907,14 @@ namespace EpikV2 {
 			List<Point> output = new(capacity);
 			for (int i = 0; i < capacity; i++) {
 				output.Add(new Point(reader.ReadInt32(), reader.ReadInt32()));
+			}
+			return output;
+		}
+		public static List<T> ReadList<T>(this BinaryReader reader, Func<BinaryReader, T> readFunc) {
+			int capacity = reader.ReadInt32();
+			List<T> output = new(capacity);
+			for (int i = 0; i < capacity; i++) {
+				output.Add(readFunc(reader));
 			}
 			return output;
 		}

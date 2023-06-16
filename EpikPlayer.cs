@@ -27,7 +27,7 @@ using EpikV2.Items.Accessories;
 using EpikV2.Items.Armor;
 
 namespace EpikV2 {
-	public class EpikPlayer : ModPlayer {
+	public partial class EpikPlayer : ModPlayer {
 		#region fields/defaults
 		public bool readtooltips = false;
 		public int tempint = 0;
@@ -1096,32 +1096,7 @@ namespace EpikV2 {
 			organRearrangement = Math.Max(organRearrangement, rearrangement);
 		}
 
-		#region data management (networking/IO)
-		public override void SyncPlayer(int toWho, int fromWho, bool newPlayer) {
-			//return;
-			if (Main.netMode == NetmodeID.SinglePlayer) return;
-			ModPacket packet = Mod.GetPacket();
-			packet.Write(EpikV2.PacketType.playerSync);
-			packet.Write((byte)Player.whoAmI);
-			packet.Write((byte)altNameColors);
-			packet.Write(oldWolfBlood);
-			packet.Send(toWho, fromWho);
-		}
-		public void ReceivePlayerSync(BinaryReader reader) {
-			altNameColors = (AltNameColorTypes)reader.ReadByte();
-			oldWolfBlood = reader.ReadBoolean();
-		}
-		public override void clientClone(ModPlayer clientClone) {
-			EpikPlayer clone = clientClone as EpikPlayer;
-			clone.altNameColors = altNameColors;
-			clone.oldWolfBlood = oldWolfBlood;
-		}
-		public override void SendClientChanges(ModPlayer clientPlayer) {
-			EpikPlayer clone = clientPlayer as EpikPlayer;
-
-			if (altNameColors != clone.altNameColors || oldWolfBlood != clone.oldWolfBlood)
-				SyncPlayer(toWho: -1, fromWho: Main.myPlayer, newPlayer: false);
-		}
+		#region IO
 		public override void SaveData(TagCompound tag) {
 			tag["altNameColors"] = (byte)altNameColors;
 			tag["usedTriangleManuscript"] = usedTriangleManuscript;
@@ -1134,7 +1109,7 @@ namespace EpikV2 {
 			tag.TryGet("triedTriangleManuscript", out triedTriangleManuscript);
 			tag.TryGet("oldWolfBlood", out oldWolfBlood);
 		}
-		#endregion
+		#endregion IO
 
 		/*internal static PlayerLayer MarionetteStringLayer(int marionetteDeathTime) => new PlayerLayer("EpikV2", "MarionetteStringLayer", null, delegate (PlayerDrawInfo drawInfo) {
             Vector2 size = drawInfo.drawPlayer.Size;

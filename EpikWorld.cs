@@ -130,15 +130,22 @@ namespace EpikV2 {
 		}
 		public override void PostUpdateWorld() {
 			//if(GolemTime>0)GolemTime--;
-			if (Main.netMode == NetmodeID.SinglePlayer) if (Raining || Main.raining) {
-					Raining = false;
-					for (int i = 0; i < Main.maxRain; i++) {
-						if (Main.rain[i].active) {
-							Raining = true;
-							break;
-						}
+			if (Main.netMode == NetmodeID.SinglePlayer && !(Raining || Main.raining)) {
+				Raining = false;
+				for (int i = 0; i < Main.maxRain; i++) {
+					if (Main.rain[i].active) {
+						Raining = true;
+						break;
 					}
 				}
+			}
+			if (Main.netMode != NetmodeID.MultiplayerClient && EpikV2.tileCountState <= 0) {
+				EpikV2.tileCountState = 1;
+				for (; WorldGen.totalX < Main.maxTilesX; WorldGen.totalX++) WorldGen.CountTiles(WorldGen.totalX);
+			}
+		}
+		public override void OnWorldLoad() {
+			EpikV2.tileCountState = 0;
 		}
 		public override void PreUpdateProjectiles() {
 			Dictionary<int, List<int>> vineNodes = new Dictionary<int, List<int>>();

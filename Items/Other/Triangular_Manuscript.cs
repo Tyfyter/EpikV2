@@ -232,7 +232,7 @@ namespace EpikV2.Items.Other {
 		}
 		public override void AI() {
 			int index = lifetime - Projectile.timeLeft;
-			int max = Math.Max(EpikV2.orePositions.Count, Main.maxChests);
+			int max = Math.Max(orePositions?.Length ?? 0, Main.maxChests);
 			if (index > max) {
 				if (items.Count > 0) {
 					Projectile.timeLeft = lifetime - max;
@@ -241,7 +241,7 @@ namespace EpikV2.Items.Other {
 				if (items is null) {
 					items = new();
 				}
-				if (index < orePositions.Length) {
+				if (index < (orePositions?.Length ?? 0)) {
 					Item loot = new Item(orePositions[index].itemType);
 					foreach (var pos in orePositions[index].positions) {
 						Vector2 chestPos = new(pos.X * 16, pos.Y * 16);
@@ -265,6 +265,7 @@ namespace EpikV2.Items.Other {
 				if (Main.netMode == NetmodeID.MultiplayerClient) {
 					index = updatedChests.Count > 0 ? updatedChests.Dequeue() : -1;
 				}
+				index = -1;
 				if (index > -1) {
 					if (index <= Main.maxChests && Main.chest[index] is Chest chest) {
 						if (ModContent.GetInstance<EpikWorld>().NaturalChests.Contains(new Point(chest.x, chest.y))) {

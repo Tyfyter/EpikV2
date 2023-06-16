@@ -278,13 +278,57 @@ namespace EpikV2 {
 			ILMod.Projectile.GetLastPrismHue += ReplaceNameWithOverride;
 			ILMod.WorldGen.CountTiles += WorldGen_CountTiles;
 		}
+		internal static int tileCountState = 0;
 		public static MergingListDictionary<int, Point> orePositions;
 		internal static MergingListDictionary<int, Point> newOrePositions;
-		static HashSet<string> tiles;
 		static void ResetOrePositions() {
 			orePositions = newOrePositions ?? new();
 			newOrePositions = new();
-			var names = orePositions.Where(v => v.Key != 0).Select(v => Lang.GetItemNameValue(v.Key)).ToList();
+			if (tileCountState == 1) {
+				instance.Logger.Info($"reached tile count state 2 with {orePositions.Count} ore positions");
+				tileCountState = 2;
+			}
+			if (Main.netMode == NetmodeID.Server) {
+				for (int i = 0; i < Main.maxNetPlayers; i++) {
+					if (Main.player[i].active) {
+						SendOrePositions(i);
+					}
+				}
+			}/* else {
+				MemoryStream stream = new();
+				new BinaryWriter(stream).WriteList<(ushort type, Point pos)>(
+					orePositions.Select(ore => ((ushort)ore.Key, ore.Value.MinBy(pos => Main.LocalPlayer.DistanceSQ(pos.ToWorldCoordinates())))).ToList(),
+					(writer, value) => {
+						writer.Write(value.type);
+						writer.Write(value.pos.X);
+						writer.Write(value.pos.Y);
+				});
+				stream.Position = 0;
+				ReceiveOrePositions(new BinaryReader(stream));
+			}*/
+		}
+		static void SendOrePositions(int player) {
+			ModPacket packet = instance.GetPacket();
+			packet.Write(PacketType.orePositionSync);
+			packet.WriteList<(ushort type, Point pos)>(
+				orePositions.Select(ore => ((ushort)ore.Key, ore.Value.MinBy(pos => Main.player[player].DistanceSQ(pos.ToWorldCoordinates())))).ToList(),
+				(writer, value) => {
+					writer.Write(value.type);
+					writer.Write(value.pos.X);
+					writer.Write(value.pos.Y);
+				});
+			packet.Send(toClient: player);
+			instance.Logger.Info($"sent {orePositions.Count} ore positions");
+		}
+		static void ReceiveOrePositions(BinaryReader reader) {
+			List<(ushort type, Point pos)> positions = reader.ReadList((reader) => {
+				return (reader.ReadUInt16(), new Point(reader.ReadInt32(), reader.ReadInt32()));
+			});
+			orePositions = new();
+			for (int i = 0; i < positions.Count; i++) {
+				orePositions.Add(positions[i].type, positions[i].pos);
+			}
+			instance.Logger.Info($"synced {orePositions.Count} ore positions");
 		}
 		static void AddOrePosition(int x, int y) {
 			Tile tile = Main.tile[x, y];
