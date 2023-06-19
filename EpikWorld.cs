@@ -33,7 +33,8 @@ namespace EpikV2 {
 		private HashSet<Point> naturalChests;
 		public HashSet<Point> NaturalChests => naturalChests ??= new HashSet<Point>();
 		public int timeManipMode;
-		public float timeManipDanger;
+		private float timeManipDanger;
+		private bool timeManipDangerDisableRegen;
 		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
 			if (EpikV2.modeSwitchHotbarActive) {
 				int hotbarIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Hotbar"));
@@ -78,35 +79,42 @@ namespace EpikV2 {
 			for (int i = 0; i < Sacrifices.Count; i++) {
 				if (Sacrifices[i] < Main.townNPCCanSpawn.Length) Main.townNPCCanSpawn[Sacrifices[i]] = false;
 			}
-			const int dayLength = 86400;
-			const int maxDanger = dayLength * 2;
 			int timeManipAltMode = 0;
 			switch (timeManipMode) {
 				case 1:
 				Main.xMas = true;
-				timeManipDanger = Math.Min(timeManipDanger + (float)Main.dayRate, maxDanger);
+				AddDarkMagicDanger((float)Main.dayRate);
 				break;
 
 				case 2:
 				Main.halloween = true;
-				timeManipDanger = Math.Min(timeManipDanger + (float)Main.dayRate, maxDanger);
+				AddDarkMagicDanger((float)Main.dayRate);
 				break;
 
 				case 3:
 				case 4:
-				timeManipDanger = Math.Max(timeManipDanger - 0.333f, 0);
-				break;
-
-				default:
-				timeManipDanger = Math.Max(timeManipDanger - (float)Main.dayRate * 2, 0);
+				if (!timeManipDangerDisableRegen) {
+					AddDarkMagicDanger(-0.333f);
+				}
 				break;
 
 				case 5:// April fools
 				timeManipAltMode = 1;
 				break;
 			}
+			if (!timeManipDangerDisableRegen) {
+				AddDarkMagicDanger((float)Main.dayRate * -2, false);
+			} else {
+				timeManipDangerDisableRegen = true;
+			}
 			EpikV2.timeManipDanger = timeManipDanger;
 			EpikV2.timeManipAltMode = timeManipAltMode;
+		}
+		public void AddDarkMagicDanger(float amount, bool disableRegen = true) {
+			const int dayLength = 86400;
+			const int maxDanger = dayLength * 2;
+			timeManipDanger = MathHelper.Clamp(timeManipDanger + amount, 0, maxDanger);
+			timeManipDangerDisableRegen = disableRegen;
 		}
 		public override void NetSend(BinaryWriter writer) {
 			writer.Write(timeManipMode);

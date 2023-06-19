@@ -57,6 +57,9 @@ namespace EpikV2 {
 		bool ItemSelected(int slotIndex);
 		void SelectItem(int slotIndex);
 	}
+	public interface IShadedProjectile {
+		int GetShaderID();
+	}
 	public struct BitsBytes {
 		readonly BitsByte[] _bytes;
 		public BitsBytes(ushort bytes) {

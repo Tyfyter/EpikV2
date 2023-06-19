@@ -1,4 +1,5 @@
 ﻿using EpikV2.Items.Accessories;
+using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
@@ -52,6 +53,10 @@ namespace EpikV2.Items.Other {
 		public override string Texture => "EpikV2/Items/Other/Triangular_Manuscript";
 		public static int ID { get; private set; }
 		const int lifetime = 3600;
+		public int State {
+			get => (int)Projectile.ai[0];
+			set => Projectile.ai[0] = value;
+		}
 		public override void SetStaticDefaults() {
 			ID = Type;
 		}
@@ -79,7 +84,7 @@ namespace EpikV2.Items.Other {
 					bottom++;
 				}
 			}
-			switch ((int)Projectile.ai[0]) {
+			switch (State) {
 				case -1:
 				Projectile.Kill();
 				break;
@@ -108,7 +113,7 @@ namespace EpikV2.Items.Other {
 					if (channelTarget == 0) {
 						channelTarget = 2;
 						channelRate = 0.005f;
-						channelCost = 1;
+						channelCost = 1f;
 					}
 					break;
 				}
@@ -141,27 +146,30 @@ namespace EpikV2.Items.Other {
 					break;
 				}
 				case 3: {
-					if (++Projectile.ai[1] > 45) {
-						Projectile.ai[1] = 0;
-						Projectile.NewProjectile(
-							Projectile.GetSource_FromThis(),
-							new Vector2(left * 16 + 16, bottom * 16 - 16),
-							default,
-							ModContent.ProjectileType<Solweaver_Blast>(),
-							75,
-							16,
-							Projectile.owner
-						);
+					if (channel) {
+						if (Projectile.ai[1] < 0) Projectile.ai[1] = 0;
+						if (++Projectile.ai[1] > 45) {
+							Projectile.ai[1] = 0;
+							Projectile.NewProjectile(
+								Projectile.GetSource_FromThis(),
+								new Vector2(left * 16 + 16, bottom * 16 - 16),
+								default,
+								ModContent.ProjectileType<Solweaver_Blast>(),
+								75,
+								16,
+								Projectile.owner
+							);
+						}
 					}
 					if (channelTarget == 0) {
 						channelTarget = 4;
 						channelRate = 0.003f;
-						channelCost = 5f;
+						channelCost = 2f;
 					}
 					goto case 1;
 				}
 				case 4: {
-					if (Main.eclipse) {
+					if (Main.eclipse || Main.bloodMoon) {
 						Projectile.NewProjectile(
 							Projectile.GetSource_FromThis(),
 							new Vector2(left * 16 + 16, bottom * 16 - 16),
@@ -186,6 +194,7 @@ namespace EpikV2.Items.Other {
 					goto case -1;
 				}
 			}
+			ModContent.GetInstance<EpikWorld>().AddDarkMagicDanger(2);
 			if (channelTarget != 0) {
 				//channelRate *= 10;
 				if (channel && epikPlayer.CheckFloatMana(owner.HeldItem, channelCost)) {
@@ -196,9 +205,30 @@ namespace EpikV2.Items.Other {
 						owner.channel = false;
 						Projectile.ai[0] = channelTarget;
 					}
+				} else {
+					if (--Projectile.ai[1] < -240) {
+						ModContent.GetInstance<EpikWorld>().AddDarkMagicDanger(2);
+						if (Projectile.ai[1] < -540) {
+							Projectile.ai[1] = -240;
+							if (Main.myPlayer == Projectile.owner) {
+								Projectile.NewProjectile(
+									Projectile.GetSource_FromThis(),
+									new Vector2(left * 16 + 16, bottom * 16 - 16) + new Vector2(Main.rand.NextFloat(-16, 16) * 16, -160),
+									new Vector2(Main.rand.NextFloat(-1, 1), 4),
+									ModContent.ProjectileType<Vile_Spirit_Spread_Summon>(),
+									0,
+									0,
+									Projectile.owner
+								);
+							}
+						}
+					}
 				}
 			}
 			Projectile.timeLeft = lifetime;
+		}
+		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
+			hitDirection = target.Center.X < Projectile.Center.X ? -1 : 1;
 		}
 	}
 
@@ -265,7 +295,6 @@ namespace EpikV2.Items.Other {
 				if (Main.netMode == NetmodeID.MultiplayerClient) {
 					index = updatedChests.Count > 0 ? updatedChests.Dequeue() : -1;
 				}
-				index = -1;
 				if (index > -1) {
 					if (index <= Main.maxChests && Main.chest[index] is Chest chest) {
 						if (ModContent.GetInstance<EpikWorld>().NaturalChests.Contains(new Point(chest.x, chest.y))) {
@@ -683,6 +712,31 @@ namespace EpikV2.Items.Other {
 			num *= 1f - (1f - lerpValue) * (1f - lerpValue);
 			return MathHelper.Lerp(0f, MathHelper.Lerp(256f, 192f, num), num);
 		}*/
+	}
+	public class Vile_Spirit_Spread_Summon : ModProjectile {
+		public override string Texture => "Terraria/Images/Projectile_7";
+		public override void SetDefaults() {
+			Projectile.aiStyle = 0;
+			Projectile.width = 8;
+			Projectile.height = 8;
+			Projectile.penetrate = -1;
+			Projectile.extraUpdates = Main.rand.Next(4, 6);
+			Projectile.hide = true;
+			Projectile.timeLeft = 50;
+		}
+		public override void Kill(int timeLeft) {
+			if (Main.myPlayer == Projectile.owner) {
+				Projectile.NewProjectile(
+					Projectile.GetSource_FromThis(),
+					Projectile.Center,
+					default,
+					ModContent.ProjectileType<Vile_Spirit_Summon>(),
+					0,
+					0,
+					Projectile.owner
+				);
+			}
+		}
 	}
 	[ExtendsFromMod("Origins")]
 	public class Triangular_Manuscript_Quest : Origins.Questing.Quest {

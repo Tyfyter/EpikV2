@@ -277,7 +277,12 @@ namespace EpikV2 {
 			ILMod.Projectile.GetFairyQueenWeaponsColor += ReplaceNameWithOverride;
 			ILMod.Projectile.GetLastPrismHue += ReplaceNameWithOverride;
 			ILMod.WorldGen.CountTiles += WorldGen_CountTiles;
+			Detour.Main.GetProjectileDesiredShader += (orig, i) => {
+				if (Main.projectile[i].ModProjectile is IShadedProjectile shadedProjectile) return shadedProjectile.GetShaderID();
+				return orig(i);
+			};
 		}
+
 		internal static int tileCountState = 0;
 		public static MergingListDictionary<int, Point> orePositions;
 		internal static MergingListDictionary<int, Point> newOrePositions;

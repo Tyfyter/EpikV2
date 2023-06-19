@@ -122,6 +122,14 @@ namespace EpikV2.Items {
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			EpikGlobalItem.ReplaceTooltipPlaceholders(tooltips, EpikGlobalItem.TooltipPlaceholder.ModeSwitch);
 			tooltips[0].OverrideColor = Colors.RarityDarkPurple * (Main.mouseTextColor / 255f);
+			int otherID = GetSlotContents(mode);
+			string text;
+			if (otherID == Type) {
+				text = "Makes it Normal";
+			} else {
+				text = Lang.GetTooltip(otherID).GetLine(0);
+			}
+			tooltips.Add(new TooltipLine(Mod, "Tooltip2", text));
 		}
 		public override void NetSend(BinaryWriter writer) {
 			writer.Write(mode);
@@ -134,6 +142,7 @@ namespace EpikV2.Items {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Temporal Proximity Manipulator (Christmas)");
+			Tooltip.SetDefault("Makes it Christmas");
 			ID = Type;
 		}
 	}
@@ -141,6 +150,7 @@ namespace EpikV2.Items {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Temporal Proximity Manipulator (Halloween)");
+			Tooltip.SetDefault("Makes it Halloween");
 			ID = Type;
 		}
 	}
@@ -148,6 +158,7 @@ namespace EpikV2.Items {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Temporal Proximity Manipulator (Slow)");
+			Tooltip.SetDefault("Makes it Slow");
 			ID = Type;
 		}
 	}
@@ -155,6 +166,7 @@ namespace EpikV2.Items {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Temporal Proximity Manipulator (Fast)");
+			Tooltip.SetDefault("Makes it Fast");
 			ID = Type;
 		}
 	}
