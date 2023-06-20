@@ -1068,7 +1068,7 @@ namespace EpikV2 {
 			}
 		}
 		public override void HideDrawLayers(PlayerDrawSet drawInfo) {
-			if (Player.ItemAnimationActive && Player.HeldItem.ModItem is ICustomDrawItem) PlayerDrawLayers.HeldItem.Hide();
+			if ((Player.ItemAnimationActive || drawInfo.heldItem.holdStyle > 0) && Player.HeldItem.ModItem is ICustomDrawItem) PlayerDrawLayers.HeldItem.Hide();
 			//if (drawInfo.drawPlayer.head == Magicians_Top_Hat.ArmorID) PlayerDrawLayers.Head.Hide();
 			if (dracoDash != 0) {
 				foreach (var layer in PlayerDrawLayerLoader.Layers) {

@@ -14,7 +14,7 @@ using Terraria.ModLoader;
 namespace EpikV2.Layers {
 	public class Alt_Item_Layer : PlayerDrawLayer {
 		public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) {
-			return drawInfo.drawPlayer.ItemAnimationActive
+			return (drawInfo.drawPlayer.ItemAnimationActive || drawInfo.heldItem.holdStyle > 0)
 				&& !drawInfo.drawPlayer.JustDroppedAnItem
 				&& drawInfo.shadow == 0
 				&& !drawInfo.heldItem.noUseGraphic
@@ -22,7 +22,7 @@ namespace EpikV2.Layers {
 		}
 		public override Position GetDefaultPosition() => new Between(PlayerDrawLayers.HeldItem, PlayerDrawLayers.ArmOverItem);
 		protected override void Draw(ref PlayerDrawSet drawInfo) {
-            if (!drawInfo.drawPlayer.ItemAnimationActive) return;
+            if (!drawInfo.drawPlayer.ItemAnimationActive && drawInfo.heldItem.holdStyle == 0) return;
 			switch (drawInfo.drawPlayer.HeldItem.useStyle) {
                 case ItemUseStyleID.Swing:
                 DrawSwing(ref drawInfo);
