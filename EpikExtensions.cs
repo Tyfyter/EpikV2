@@ -338,12 +338,6 @@ namespace EpikV2 {
 			}
 			return true;
 		}
-		public static void UseNonVanillaImage(this ArmorShaderData shaderData, Asset<Texture2D> texture) {
-			typeof(ArmorShaderData).GetField("_uImage", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(shaderData, texture);
-		}
-		public static void UseNonVanillaImage(this MiscShaderData shaderData, Asset<Texture2D> texture) {
-			typeof(MiscShaderData).GetField("_uImage", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(shaderData, texture);
-		}
 		public static float GetAmmoConsumptionMult(this Player player) {
 			float o = 1;
 			if (player.ammoBox) {

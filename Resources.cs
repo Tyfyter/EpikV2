@@ -16,6 +16,7 @@ using Terraria.Graphics.Effects;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Tyfyter.Utils;
 using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2 {
@@ -93,6 +94,7 @@ namespace EpikV2 {
 				opaqueChimeraShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", AssetRequestMode.ImmediateLoad).Value), "ChimerebosOpaque");
 
 				empressWingsShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Mask", AssetRequestMode.ImmediateLoad).Value), "EmpressWings");
+				normalRainbowTexture = Request<Texture2D>("Terraria/Images/Extra_156");
 				empressWingsShader.UseImage("Images/Extra_156");
 
 				empressWingsShaderAlt = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Mask", AssetRequestMode.ImmediateLoad).Value), "EmpressWings");
@@ -189,6 +191,7 @@ namespace EpikV2 {
 			public ArmorShaderData empressWingsShader;
 			public ArmorShaderData empressWingsShaderAlt;
 			public Asset<Texture2D> nebulaDistortionTexture;
+			public Asset<Texture2D> normalRainbowTexture;
 			public Asset<Texture2D> altRainbowTexture;
 			public Asset<Texture2D> testDistortionTexture;
 			//public Effect trailShader;

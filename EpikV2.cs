@@ -206,19 +206,44 @@ namespace EpikV2 {
 			} else return 0;
 		}
 		public static bool IsSpecialName(string name, int nameType) {
-			string lowerName = name.ToLower();
-			switch (nameType) {
-				case 0:
-				return lowerName.EndsWith("faust") || lowerName == "jennifer";
-			}
-			return false;
+			return (GetSpecialNameData(name) & (nameType == -1 ? (~0) : (1 << nameType))) != 0;
 		}
 		public static int GetSpecialNameType(string name) {
 			string lowerName = name.ToLower();
 			if (lowerName.EndsWith("faust") || lowerName == "jennifer") {
 				return 0;
 			}
+			if (lowerName == "asher") {
+				return 1;
+			}
+			if (lowerName is "[i:4296]" or "[i/p57:4296]") {
+				return 2;
+			}
 			return -1;
+		}
+		public static class NameTypes {
+			public static uint Generic = 0b00000001;
+			public static uint Faust   = 0b00000010;
+			public static uint Asher   = 0b00000100;
+			public static uint Fruit   = 0b00000100;
+		}
+		public static uint GetSpecialNameData(string name) {
+			string lowerName = name.ToLower();
+			switch (lowerName) {
+				case "[i:4296]":
+				case "[i/p57:4296]":
+				return NameTypes.Fruit | NameTypes.Generic;
+
+				case "asher":
+				return NameTypes.Asher | NameTypes.Generic;
+
+				case "jennifer":
+				return NameTypes.Asher | NameTypes.Faust | NameTypes.Generic;
+			}
+			if (lowerName.EndsWith("faust")) {
+				return NameTypes.Faust;
+			}
+			return 0;
 		}
 		public static void AddBalanceRarityOverride(int itemType, int rarity) {
 			itemRarityOverrides ??= new();

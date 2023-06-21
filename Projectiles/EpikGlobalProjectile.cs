@@ -66,7 +66,7 @@ namespace EpikV2.Projectiles {
             }
         }
 		public override bool PreAI(Projectile projectile) {
-			if (projectile.type == ProjectileID.RainbowWhip && EpikV2.IsSpecialName(Main.player[projectile.owner].GetNameForColors(), 0)) {
+			if (projectile.type == ProjectileID.RainbowWhip && EpikV2.IsSpecialName(Main.player[projectile.owner].GetNameForColors(), 1)) {
                 EpikV2.KaleidoscopeColorType = 1;
             }
 			if (projectile.bobber && projectile.ai[1] == 0f && Main.myPlayer == projectile.owner && Main.LocalPlayer.GetModPlayer<EpikPlayer>().bobberSnail) {
@@ -131,7 +131,7 @@ namespace EpikV2.Projectiles {
                 Lighting.AddLight(projectile.Center, 0, 1, 0.5f);
 			    Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect:Shaders.jadeDyeShader.Shader);
             }
-            if (projectile.type == ProjectileID.RainbowWhip && EpikV2.IsSpecialName(Main.player[projectile.owner].GetNameForColors(), 0)) {
+            if (projectile.type == ProjectileID.RainbowWhip && EpikV2.IsSpecialName(Main.player[projectile.owner].GetNameForColors(), 1)) {
                 EpikV2.KaleidoscopeColorType = 2;
             }
             return true;

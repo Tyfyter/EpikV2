@@ -619,9 +619,9 @@ namespace EpikV2.Items.Other {
 				switch (EpikV2.GetSpecialNameType(Main.player[0].GetNameForColors())) {
 					case 0: {
 						float vfxTime = (float)((Main.timeForVisualEffects / 120f) % 1f);
-						Color c0 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6) % 6);
-						Color c1 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6 + 1) % 6);
-						Color c2 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6 + 2) % 6);
+						Color c0 = EpikV2.GetName1ColorsSaturated((int)(vfxTime * 6) % 6);
+						Color c1 = EpikV2.GetName1ColorsSaturated((int)(vfxTime * 6 + 1) % 6);
+						Color c2 = EpikV2.GetName1ColorsSaturated((int)(vfxTime * 6 + 2) % 6);
 						color0 = Color.Lerp(c0, c1, (vfxTime * 6) % 1);
 						color1 = Color.Lerp(c1, c2, (vfxTime * 6) % 1);
 						break;
@@ -674,9 +674,9 @@ namespace EpikV2.Items.Other {
 				switch (EpikV2.GetSpecialNameType(Main.player[0].GetNameForColors())) {
 					case 0: {
 						float vfxTime = (float)((Main.timeForVisualEffects / 120f) % 1f);
-						Color c0 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6) % 6);
-						Color c1 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6 + 1) % 6);
-						Color c2 = EpikV2.GetName0ColorsSaturated((int)(vfxTime * 6 + 2) % 6);
+						Color c0 = EpikV2.GetName1ColorsSaturated((int)(vfxTime * 6) % 6);
+						Color c1 = EpikV2.GetName1ColorsSaturated((int)(vfxTime * 6 + 1) % 6);
+						Color c2 = EpikV2.GetName1ColorsSaturated((int)(vfxTime * 6 + 2) % 6);
 						color0 = Color.Lerp(c0, c1, (vfxTime * 6) % 1);
 						color1 = Color.Lerp(c1, c2, (vfxTime * 6) % 1);
 						break;

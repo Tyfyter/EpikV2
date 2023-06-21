@@ -449,9 +449,9 @@ namespace EpikV2 {
 			float hueIndex = Hue * 6;
 			switch (KaleidoscopeColorType) {
 				case 1:
-				return GetName0ColorsSaturated((int)(Hue * 6)) * (a / 255f);
+				return GetName1ColorsSaturated((int)(Hue * 6)) * (a / 255f);
 				case 2:
-				return Color.Lerp(GetName0ColorsSaturated((int)hueIndex % 6), GetName0ColorsSaturated(((int)hueIndex + 1) % 6), ((hueIndex % 1) - 0.9f) * 10f) * (a / 255f);
+				return Color.Lerp(GetName1ColorsSaturated((int)hueIndex % 6), GetName1ColorsSaturated(((int)hueIndex + 1) % 6), ((hueIndex % 1) - 0.9f) * 10f) * (a / 255f);
 				default:
 				return Main.hslToRgb(Hue, Saturation, Luminosity, a);
 			}
@@ -580,7 +580,7 @@ namespace EpikV2 {
 			return orig(inv, context, slot, checkItem);
 		}
 		private float Projectile_GetLastPrismHue(Detour.Projectile.orig_GetLastPrismHue orig, Projectile self, float laserIndex, ref float laserLuminance, ref float laserAlphaMultiplier) {
-			if (Main.player[self.owner].active && IsSpecialName(Main.player[self.owner].GetNameForColors(), 0)) {
+			if (Main.player[self.owner].active && IsSpecialName(Main.player[self.owner].GetNameForColors(), 1)) {
 				switch ((int)laserIndex) {
 					case 0:
 					laserLuminance = 0.68f;
@@ -605,29 +605,29 @@ namespace EpikV2 {
 			return orig(self, laserIndex, ref laserLuminance, ref laserAlphaMultiplier);
 		}
 		private Color Projectile_GetFairyQueenWeaponsColor(Detour.Projectile.orig_GetFairyQueenWeaponsColor orig, Projectile self, float alphaChannelMultiplier, float lerpToWhite, float? rawHueOverride) {
-			if (Main.player[self.owner].active && IsSpecialName(Main.player[self.owner].GetNameForColors(), 0)) {
+			if (Main.player[self.owner].active && IsSpecialName(Main.player[self.owner].GetNameForColors(), 1)) {
 				float hueIndex = ((rawHueOverride ?? self.ai[1]) * 6);
 				switch (self.type) {
 					case ProjectileID.EmpressBlade:
-					return Color.Lerp(GetName0ColorsSaturated((int)hueIndex % 6), GetName0ColorsSaturated(((int)hueIndex + 1) % 6), hueIndex % 1);
+					return Color.Lerp(GetName1ColorsSaturated((int)hueIndex % 6), GetName1ColorsSaturated(((int)hueIndex + 1) % 6), hueIndex % 1);
 
 					case ProjectileID.PiercingStarlight:
 					if (Main.player[self.owner].GetModPlayer<EpikPlayer>().altNameColors.HasFlag(AltNameColorTypes.Starlight)) {
-						return GetName0ColorsSaturated(Main.rand.NextBool(2, 5) ? 1 : 0);
+						return GetName1ColorsSaturated(Main.rand.NextBool(2, 5) ? 1 : 0);
 					} else {
-						return GetName0ColorsSaturated((int)hueIndex);
+						return GetName1ColorsSaturated((int)hueIndex);
 					}
 
 					case ProjectileID.FairyQueenMagicItemShot:
-					return GetName0ColorsSaturated((int)hueIndex);
+					return GetName1ColorsSaturated((int)hueIndex);
 
 					default:
-					return GetName0Colors((int)hueIndex);
+					return GetName1Colors((int)hueIndex);
 				}
 			}
 			return orig(self, alphaChannelMultiplier, lerpToWhite, rawHueOverride);
 		}
-		public static Color GetName0Colors(int hueIndex) {
+		public static Color GetName1Colors(int hueIndex) {
 			switch (hueIndex) {
 				case 0:
 				return new Color(176, 124, 191);
@@ -644,7 +644,7 @@ namespace EpikV2 {
 			}
 			return new Color(0, 0, 0);
 		}
-		public static Color GetName0ColorsSaturated(int hueIndex) {
+		public static Color GetName1ColorsSaturated(int hueIndex) {
 			switch (hueIndex) {
 				case 0:
 				return new Color(169, 90, 191);
