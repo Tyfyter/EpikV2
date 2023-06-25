@@ -399,7 +399,7 @@ namespace EpikV2 {
 		delegate bool hook_CheckAprilFools(orig_CheckAprilFools orig);
 		delegate bool orig_CheckAprilFools();
 		FastFieldInfo<Player, BitArray> _modBiomeFlags;
-		FastFieldInfo<Player, BitArray> _ModBiomeFlags => _modBiomeFlags ??= new("modBiomeFlags", BindingFlags.NonPublic | BindingFlags.Instance);
+		FastFieldInfo<Player, BitArray> _ModBiomeFlags => _modBiomeFlags ??= new("modBiomeFlags", BindingFlags.NonPublic);
 		[JITWhenModsEnabled("AltLibrary")]
 		void ProcessModBiomes(Player player) {
 			if (EpikIntegration.ModEvilBiomes.Count > 0 && player.GetModPlayer<EpikPlayer>().drugPotion) {

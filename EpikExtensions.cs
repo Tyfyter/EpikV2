@@ -121,7 +121,8 @@ namespace EpikV2 {
 		Func<TParent, T> getter;
 		Action<TParent, T> setter;
 		public FastFieldInfo(string name, BindingFlags bindingFlags, bool init = false) {
-			field = typeof(TParent).GetField(name, bindingFlags);
+			field = typeof(TParent).GetField(name, bindingFlags | BindingFlags.Instance);
+			if (field is null) throw new ArgumentException($"could not find {name} in type {typeof(TParent)} with flags {bindingFlags.ToString()}");
 			if (init) {
 				getter = CreateGetter();
 				setter = CreateSetter();

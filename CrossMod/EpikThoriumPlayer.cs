@@ -40,7 +40,7 @@ namespace EpikV2.CrossMod {
 					typeof(ThoriumPlayer), typeof(ThoriumPlayer), typeof(byte), typeof(byte), typeof(short)
 				})
 				.CreateDelegate<ApplyEmpowerment_Delegate>();
-			Empowerments = new("Empowerments", BindingFlags.NonPublic | BindingFlags.Instance);
+			Empowerments = new("Empowerments", BindingFlags.NonPublic);
 			On.Terraria.Player.ApplyItemTime += Player_ApplyItemTime;
 			HookEndpointManager.Add(
 				typeof(BardItem).GetMethod("ModifyEmpowermentPool", BindingFlags.Public | BindingFlags.Instance),
