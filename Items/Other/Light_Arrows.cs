@@ -35,13 +35,14 @@ namespace EpikV2.Items.Other {
 			if (line.Index == 0) {
 				TextSnippet[] snippets = ChatManager.ParseMessage(line.Text, line.Color).ToArray();
 				ChatManager.ConvertNormalSnippets(snippets);
-				float index = (float)Main.timeForVisualEffects * 0.05f;
+				float index = (float)Main.timeForVisualEffects * 0.075f;
 				ChatManager.DrawColorCodedStringWithShadow(
 					Main.spriteBatch,
 					line.Font,
 					line.Text.Select(l => {
-						index -= 0.025f * FontAssets.MouseText.Value.MeasureString(l.ToString()).X;
-						return new TextSnippet(l.ToString(), Color.Lerp(Color.Gold, Color.LightGoldenrodYellow, MathF.Sin(index)));
+						float val = 0.02f * FontAssets.MouseText.Value.MeasureString(l.ToString()).X;
+						index -= val + MathF.Sin(val);
+						return new TextSnippet(l.ToString(), Color.Lerp(Color.Gold, new Color(250, 250, 180), MathF.Sin(index)));
 					}).ToArray(),
 					new Vector2(line.X, line.Y),
 					line.Rotation,
