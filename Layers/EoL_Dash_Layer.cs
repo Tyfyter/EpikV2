@@ -32,19 +32,33 @@ namespace EpikV2.Layers {
 			Rectangle wingFrame = wingTexture1.Frame(1, 11, 0, (int)epikPlayer.empressDashFrame);
 			Color orbColor;
 			float vfxTime = (float)((Main.timeForVisualEffects / 60f) % 1f);
-			Resources.Shaders.empressWingsShader.UseSaturation(vfxTime);
 			int shader0 = 0;
 			int shader1 = EpikV2.empressWingsShaderID;
 			uint nameData = EpikV2.GetSpecialNameData(drawPlayer.GetNameForColors());
-			if ((nameData & EpikV2.NameTypes.Faust) != 0) {
-				shader0 = EpikV2.empressWingsShaderID;
-				shader1 = EpikV2.empressWingsShaderAltID;
-				Resources.Shaders.empressWingsShaderAlt.UseSaturation(vfxTime);
-				const int colorOffset = 3;
-				orbColor = Color.Lerp(EpikV2.GetName1ColorsSaturated((int)(vfxTime * 6 + colorOffset) % 6), EpikV2.GetName1ColorsSaturated((int)((vfxTime * 6 + colorOffset) + 1) % 6), (vfxTime * 6) % 1);
-			} else {
-				orbColor = Main.hslToRgb(vfxTime, 1, 0.5f);
+			switch (epikPlayer.empressDashAltColor) {
+				case 1: {
+					vfxTime = (float)((Main.timeForVisualEffects / 45f) % 1f);
+					shader1 = EpikV2.empressWingsShaderAuroraID;
+					Resources.Shaders.empressWingsShaderAurora.UseSaturation(vfxTime);
+					Vector3 color = new Vector3(0.498f, 0.894f, 0.784f) * (1 - MathF.Pow((MathF.Sin(vfxTime * 4) * 0.5f + 0.5f) * (MathF.Sin(vfxTime * 1.2f) * 0.5f + 0.5f) * 0.5f, 1.5f));//
+					orbColor = new Color(color);
+					Lighting.AddLight(drawPlayer.Center, color * 0.1f);
+					break;
+				}
+				default: {
+					if ((nameData & EpikV2.NameTypes.Faust) != 0) {
+						shader0 = EpikV2.empressWingsShaderID;
+						shader1 = EpikV2.empressWingsShaderAltID;
+						Resources.Shaders.empressWingsShaderAlt.UseSaturation(vfxTime);
+						const int colorOffset = 3;
+						orbColor = Color.Lerp(EpikV2.GetName1ColorsSaturated((int)(vfxTime * 6 + colorOffset) % 6), EpikV2.GetName1ColorsSaturated((int)((vfxTime * 6 + colorOffset) + 1) % 6), (vfxTime * 6) % 1);
+					} else {
+						orbColor = Main.hslToRgb(vfxTime, 1, 0.5f);
+					}
+					break;
+				}
 			}
+			Resources.Shaders.empressWingsShader.UseSaturation(vfxTime);
 
 			DrawData data = new DrawData(
 				wingTexture1,

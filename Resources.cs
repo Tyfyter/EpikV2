@@ -101,6 +101,10 @@ namespace EpikV2 {
 				altRainbowTexture = mod.Assets.Request<Texture2D>("Textures/Rainbow", AssetRequestMode.ImmediateLoad);
 				empressWingsShaderAlt.UseNonVanillaImage(altRainbowTexture);
 
+				empressWingsShaderAurora = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Mask", AssetRequestMode.ImmediateLoad).Value), "EmpressWings");
+				altRainbowTexture2 = mod.Assets.Request<Texture2D>("Textures/Aurora", AssetRequestMode.ImmediateLoad);
+				empressWingsShaderAurora.UseNonVanillaImage(altRainbowTexture2);
+
 				GameShaders.Armor.BindShader(ItemType<Jade_Dye>(), jadeDyeShader);
 				GameShaders.Armor.BindShader(ItemType<Heatwave_Dye>(), fireDyeShader);
 				GameShaders.Armor.BindShader(ItemType<Starlight_Dye>(), starlightShader);
@@ -162,6 +166,9 @@ namespace EpikV2 {
 				GameShaders.Armor.BindShader(ItemType<SoundDebugger>(), empressWingsShaderAlt);
 				EpikV2.empressWingsShaderAltID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<SoundDebugger>());
 
+				GameShaders.Armor.BindShader(ItemType<EoL_Dash_Alt>(), empressWingsShaderAurora);
+				EpikV2.empressWingsShaderAuroraID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<EoL_Dash_Alt>());
+
 				InvalidArmorShaders = new List<InvalidArmorShader> {
 					new InvalidArmorShader(EpikV2.starlightShaderID, EpikV2.dimStarlightShaderID),
 					new InvalidArmorShader(EpikV2.brightStarlightShaderID, EpikV2.dimStarlightShaderID),
@@ -190,9 +197,11 @@ namespace EpikV2 {
 			public ArmorShaderData opaqueChimeraShader;
 			public ArmorShaderData empressWingsShader;
 			public ArmorShaderData empressWingsShaderAlt;
+			public ArmorShaderData empressWingsShaderAurora;
 			public Asset<Texture2D> nebulaDistortionTexture;
 			public Asset<Texture2D> normalRainbowTexture;
 			public Asset<Texture2D> altRainbowTexture;
+			public Asset<Texture2D> altRainbowTexture2;
 			public Asset<Texture2D> testDistortionTexture;
 			//public Effect trailShader;
 		}

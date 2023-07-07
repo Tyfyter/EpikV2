@@ -13,6 +13,8 @@ namespace EpikV2.Items.Accessories {
 		public const int dash_cooldown_boss_increase = 260;
 		public const int dash_cooldown = 75;
 		public const int dash_redash_cooldown = 25;
+		public virtual int DashAltColor => 0;
+		public virtual int DashRestoreDye => ItemID.HallowBossDye;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Refraction Ensign");
 			ItemID.Sets.ItemNoGravity[Type] = true;
@@ -31,6 +33,8 @@ namespace EpikV2.Items.Accessories {
 				}
 				oneTap = true;
 			}
+			epikPlayer.empressDashAltColor = DashAltColor;
+			epikPlayer.empressDashRestoreDye = DashRestoreDye;
 			const int down = 0;
 			const int up = 1;
 			const int right = 2;
@@ -103,6 +107,8 @@ namespace EpikV2.Items.Accessories {
 		}
 	}
 	public class EoL_Dash_Alt : EoL_Dash {
+		public override int DashAltColor => 1;
+		public override int DashRestoreDye => ItemID.MartianArmorDye;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("Glimmering {$Mods.EpikV2.ItemName.EoL_Dash}");
 			ItemID.Sets.ItemNoGravity[Type] = true;

@@ -111,6 +111,8 @@ namespace EpikV2 {
 		public int empressDashCount = 3;
 		public float empressDashFrame = 0;
 		public bool empressIgnoreTiles = false;
+		public int empressDashAltColor = 0;
+		public int empressDashRestoreDye = 0;
 		public bool cursedCloverEquipped = false;
 		public bool dashHotkey = false;
 		public const float vixi_luck_min = -0.2f;
@@ -282,10 +284,9 @@ namespace EpikV2 {
 						empressDashCount = 3;
 						if (Player.whoAmI == Main.myPlayer) {
 							SoundEngine.PlaySound(SoundID.Item4.WithPitch(-0.5f));
-							ArmorShaderData shader = GameShaders.Armor.GetShaderFromItemId(ItemID.HallowBossDye);
+							ArmorShaderData shader = GameShaders.Armor.GetShaderFromItemId(empressDashRestoreDye);
 							for (int i = 0; i < 5; i++) {
 								int num3 = Dust.NewDust(Player.position, Player.width, Player.height, DustID.ManaRegeneration, 0f, 0f, 255, default(Color), (float)Main.rand.Next(20, 26) * 0.1f);
-								Main.dust[num3].noLight = true;
 								Main.dust[num3].noGravity = true;
 								Main.dust[num3].velocity *= 0.5f;
 								Main.dust[num3].shader = shader;
