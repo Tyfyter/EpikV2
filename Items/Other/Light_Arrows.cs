@@ -8,6 +8,7 @@ using Terraria.GameContent;
 using Terraria.UI.Chat;
 using System.Linq;
 using Terraria.Audio;
+using System.Collections.Generic;
 
 namespace EpikV2.Items.Other {
 
@@ -33,8 +34,6 @@ namespace EpikV2.Items.Other {
         }
 		public override bool PreDrawTooltipLine(DrawableTooltipLine line, ref int yOffset) {
 			if (line.Index == 0) {
-				TextSnippet[] snippets = ChatManager.ParseMessage(line.Text, line.Color).ToArray();
-				ChatManager.ConvertNormalSnippets(snippets);
 				float index = (float)Main.timeForVisualEffects * 0.075f;
 				ChatManager.DrawColorCodedStringWithShadow(
 					Main.spriteBatch,
@@ -56,6 +55,21 @@ namespace EpikV2.Items.Other {
 				return false;
 			}
 			return true;
+		}
+		public static string RarityName => "Golden";
+		public static IEnumerable<(TextSnippet[] snippets, Vector2 offset, Color color)> GetCustomRarityDraw(string lineText) {
+			Main.timeForVisualEffects = 0;
+			for (int i = 0; i <= 84; i++) {
+				float index = (float)Main.timeForVisualEffects * 0.075f;
+				yield return (lineText.Select(l => {
+					float val = 0.02f * FontAssets.MouseText.Value.MeasureString(l.ToString()).X;
+					index -= val + MathF.Sin(val);
+					return new TextSnippet(l.ToString(), Color.Lerp(Color.Gold, new Color(250, 250, 180), MathF.Sin(index)));
+				}).ToArray(),
+				Vector2.Zero,
+				Color.White);
+				Main.timeForVisualEffects++;
+			}
 		}
 	}
 	public class Light_Arrow_P : ModProjectile {
