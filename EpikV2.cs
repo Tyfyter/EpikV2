@@ -222,12 +222,21 @@ namespace EpikV2 {
 			return -1;
 		}
 		public static class NameTypes {
-			public static uint Generic = 0b00000001;
-			public static uint Faust   = 0b00000010;
-			public static uint Asher   = 0b00000100;
-			public static uint Fruit   = 0b00000100;
+			public static uint None      = 0b00000000;
+			public static uint Generic   = 0b00000001;
+			public static uint Faust     = 0b00000010;
+			public static uint Asher     = 0b00000100;
+			public static uint Fruit     = 0b00001000;
+			public static uint Starlight = 0b00010000;
 		}
-		public static uint GetSpecialNameData(string name) {
+		public static uint GetSpecialNameData(Player player) {
+			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			return GetSpecialNameData(epikPlayer.nameColorOverride ?? player.name, epikPlayer.altNameColors);
+		}
+		public static uint GetSpecialNameData(EpikPlayer epikPlayer) {
+			return GetSpecialNameData(epikPlayer.nameColorOverride ?? epikPlayer.Player.name, epikPlayer.altNameColors);
+		}
+		public static uint GetSpecialNameData(string name, AltNameColorTypes altColors = AltNameColorTypes.None) {
 			string lowerName = name.ToLower();
 			switch (lowerName) {
 				case "[i:4296]":
@@ -238,7 +247,10 @@ namespace EpikV2 {
 				return NameTypes.Asher | NameTypes.Generic;
 
 				case "jennifer":
-				return NameTypes.Asher | NameTypes.Faust | NameTypes.Generic;
+				return NameTypes.Asher | NameTypes.Faust | NameTypes.Generic | (altColors.HasFlag(AltNameColorTypes.Starlight) ? NameTypes.Starlight : NameTypes.None);
+
+				case "aurora":
+				return NameTypes.Starlight | NameTypes.Faust;
 			}
 			if (lowerName.EndsWith("faust")) {
 				return NameTypes.Faust;

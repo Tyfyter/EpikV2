@@ -102,5 +102,10 @@ namespace EpikV2.Items.Accessories {
 			}
 		}
 	}
-	public class EoL_Dash_Alt : EoL_Dash {}
+	public class EoL_Dash_Alt : EoL_Dash {
+		public override void SetStaticDefaults() {
+			DisplayName.SetDefault("Glimmering {$Mods.EpikV2.ItemName.EoL_Dash}");
+			ItemID.Sets.ItemNoGravity[Type] = true;
+		}
+	}
 }
