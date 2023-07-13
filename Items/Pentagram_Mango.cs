@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using EpikV2.NPCs;
+using EpikV2.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -105,12 +106,42 @@ namespace EpikV2.Items {
                         EpikGlobalNPC globalNPC = targetNPC.GetGlobalNPC<EpikGlobalNPC>();
                         int dmg = damage + (int)globalNPC.organRearrangement;
                         targetNPC.lifeMax -= 15;
-                        dmg = (int)targetNPC.StrikeNPC(dmg + targetNPC.defense/2, knockBack, player.direction);
-			            if (player.accDreamCatcher){
-				            player.addDPS(dmg);
-			            }
-                        if(targetNPC.life > targetNPC.lifeMax)targetNPC.life = targetNPC.lifeMax;
-                        globalNPC.organRearrangement += 10*(damage/40f);
+
+						NPC.HitModifiers modifiers = targetNPC.GetIncomingStrikeModifiers(Item.DamageType, player.direction);
+
+						player.ApplyBannerOffenseBuff(target, ref modifiers);
+						if (player.parryDamageBuff && Item.CountsAsClass(DamageClass.Melee)) {
+							modifiers.ScalingBonusDamage += 4f;
+							player.parryDamageBuff = false;
+							player.ClearBuff(BuffID.ParryDamageBuff);
+						}
+						if (targetNPC.life > 5) {
+							player.OnHit(targetNPC.Center.X, targetNPC.Center.Y, targetNPC);
+						}
+						modifiers.ArmorPenetration += player.GetWeaponArmorPenetration(Item);
+						CombinedHooks.ModifyPlayerHitNPCWithItem(player, Item, targetNPC, ref modifiers);
+
+						NPC.HitInfo strike = modifiers.ToHitInfo(damage, Main.rand.Next(100) < player.GetWeaponCrit(Item), knockBack, damageVariation: true, player.luck);
+						NPCKillAttempt attempt = new NPCKillAttempt(targetNPC);
+						dmg = targetNPC.StrikeNPC(strike);
+
+						CombinedHooks.OnPlayerHitNPCWithItem(player, Item, targetNPC, in strike, dmg);
+						PlayerMethods.ApplyNPCOnHitEffects(player, Item, Item.GetDrawHitbox(Item.type, player), strike.SourceDamage, strike.Knockback, targetNPC.whoAmI, strike.SourceDamage, dmg);
+						int bannerID = Item.NPCtoBanner(targetNPC.BannerID());
+						if (bannerID >= 0) {
+							player.lastCreatureHit = bannerID;
+						}
+						if (Main.netMode != NetmodeID.SinglePlayer) {
+							NetMessage.SendStrikeNPC(targetNPC, in strike);
+						}
+						if (player.accDreamCatcher && !targetNPC.HideStrikeDamage) {
+							player.addDPS(dmg);
+						}
+						if (attempt.DidNPCDie()) {
+							player.OnKillNPC(ref attempt, Item);
+						}
+						if (targetNPC.life > targetNPC.lifeMax)targetNPC.life = targetNPC.lifeMax;
+                        globalNPC.organRearrangement += 10 * (damage / 40f);
                         //sendOrganRearrangementPacket(target, globalNPC.organRearrangement);
                         TryOnHitEffects(target, player.whoAmI, dmg);
                         targetNPC.netUpdate = true;

@@ -65,20 +65,22 @@ namespace EpikV2.Projectiles {
             }
         }
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
-            crit = false;
-            ShroomInfestation GNPC = target.GetGlobalNPC<ShroomInfestation>();
-            Infestation n = new Infestation((int)(damage / (Projectile.ai[0] == 0 ? 2f : 1f)), 629, Projectile.owner, (int)Projectile.localAI[0], !Projectile.tileCollide);
-            if(GNPC.Infestations.Count < 6) {
-                GNPC.Infest(n, false, 0, 60, 600);
-            } else {
-                Infestation old = GNPC.Infestations.Min(i => i);
-                if(n > old) {
-                    GNPC.Infestations.Remove(old);
-                    GNPC.Infest(n, false, 0, 60, 600);
-                }
-            }
+            modifiers.DisableCrit();
         }
-        public override bool OnTileCollide(Vector2 oldVelocity) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
+			ShroomInfestation GNPC = target.GetGlobalNPC<ShroomInfestation>();
+			Infestation n = new Infestation((int)(damageDone / (Projectile.ai[0] == 0 ? 2f : 1f)), 629, Projectile.owner, (int)Projectile.localAI[0], !Projectile.tileCollide);
+			if (GNPC.Infestations.Count < 6) {
+				GNPC.Infest(n, false, 0, 60, 600);
+			} else {
+				Infestation old = GNPC.Infestations.Min(i => i);
+				if (n > old) {
+					GNPC.Infestations.Remove(old);
+					GNPC.Infest(n, false, 0, 60, 600);
+				}
+			}
+		}
+		public override bool OnTileCollide(Vector2 oldVelocity) {
             if(Projectile.ai[0] == 0) {
                 Projectile.position+=Collision.TileCollision(Projectile.position+new Vector2(4,4), oldVelocity, Projectile.width-8, Projectile.height-8, true, true);
                 Projectile.velocity = Vector2.Zero;
@@ -159,7 +161,10 @@ namespace EpikV2.Projectiles {
                     npc.immune = new int[npc.immune.Length];
                     if(inf.duration-- % 30 == 0) {
                         inf.damage+=1;
-                        int dmg = (int)npc.StrikeNPC((int)Main.rand.NextFloat(inf.damage * 0.9f, inf.damage * 1.1f), 0, 0, fromNet: true);
+                        int dmg = npc.StrikeNPC(new NPC.HitInfo() {
+							Damage = (int)Main.rand.NextFloat(inf.damage * 0.9f, inf.damage * 1.1f),
+							DamageType = DamageClass.Default
+						});
                         int owner = inf.owner;
                         if(owner > -1 && Main.player[owner].accDreamCatcher) {
                             Main.player[owner].addDPS(dmg);

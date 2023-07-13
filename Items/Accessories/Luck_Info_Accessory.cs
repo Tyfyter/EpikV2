@@ -22,9 +22,9 @@ namespace EpikV2.Items.Accessories {
 		public override string DisplayValue(ref Color displayColor)/* tModPorter Suggestion: Set displayColor to InactiveInfoTextColor if your display value is "zero"/shows no valuable information */ {
 			float luck = Main.LocalPlayer.luck;
 			if (luck > 0) {
-
+				displayColor = Color.ForestGreen;
 			} else if (luck < 0) {
-
+				displayColor = Color.Firebrick;
 			} else {
 				displayColor = InactiveInfoTextColor;
 			}

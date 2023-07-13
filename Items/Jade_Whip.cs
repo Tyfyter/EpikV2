@@ -110,7 +110,7 @@ namespace EpikV2.Items {
 			}
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
-			target.GetGlobalNPC<EpikGlobalNPC>().SetJadeWhipValues(300, damage / 10, Projectile.CritChance);
+			target.GetGlobalNPC<EpikGlobalNPC>().SetJadeWhipValues(300, damageDone / 10, Projectile.CritChance);
 			if(target.life > 0 && target.CanBeChasedBy()) Main.player[Projectile.owner].MinionAttackTargetNPC = target.whoAmI;
 		}
 

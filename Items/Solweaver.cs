@@ -170,7 +170,7 @@ namespace EpikV2.Items {
 
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
             int t = Projectile.timeLeft>10?25-Projectile.timeLeft:Projectile.timeLeft;
-            modifiers.FinalDamage *= Math.Min(t / 15f, 1f);
+            modifiers.SourceDamage *= Math.Min(t / 15f, 1f);
         }
 
         /// <summary>
@@ -352,7 +352,7 @@ namespace EpikV2.Items {
 			modifiers.HitDirectionOverride = target.Center.X < Projectile.Center.X ? -1 : 1;
             Vector2 pos = Vector2.Clamp(Projectile.Center, target.Hitbox.TopLeft(), target.Hitbox.BottomRight());
             float dist = duration * range_growth;
-			modifiers.FinalDamage *= 1f / (Math.Max((pos - Projectile.Center).Length(), 1) / dist);
+			modifiers.SourceDamage *= 1f / (Math.Max((pos - Projectile.Center).Length(), 1) / dist);
         }
         public override bool PreDraw(ref Color lightColor){
             return false;

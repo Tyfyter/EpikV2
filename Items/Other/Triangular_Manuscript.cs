@@ -27,6 +27,8 @@ namespace EpikV2.Items.Other {
 			Item.shoot = Triangular_Manuscript_P.ID;
 			Item.channel = true;
 			Item.consumable = false;
+			Item.ammo = AmmoID.None;
+			Item.maxStack = 1;
 		}
 		public override bool? UseItem(Player player) {
 			player.GetModPlayer<EpikPlayer>().triedTriangleManuscript = true;

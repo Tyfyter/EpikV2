@@ -371,9 +371,9 @@ namespace EpikV2 {
 			}
 			if (spadeBuff) {
 				if (magiciansHat && (modifiers.DamageType.CountsAsClass(DamageClass.Magic) || modifiers.DamageType.CountsAsClass(DamageClass.Summon))) {
-					modifiers.FinalDamage *= 1.1f;
+					modifiers.SourceDamage *= 1.1f;
 				} else {
-					modifiers.FinalDamage *= 1.05f;
+					modifiers.SourceDamage *= 1.05f;
 				}
 			}
 			if (marionetteDeathTime > 0) modifiers.FinalDamage *= 0.5f;
@@ -521,7 +521,7 @@ namespace EpikV2 {
 			if (item.value != 0) vendor.GetGlobalNPC<EpikGlobalNPC>().itemPurchasedFrom = true;
 		}
 		public override void ProcessTriggers(TriggersSet triggersSet) {
-			if (Player.HeldItem.ModItem is IMultiModeItem multiModeItem && triggersSet.KeyStatus["EpikV2: Change Item Mode"]) {
+			if (Player.HeldItem.ModItem is IMultiModeItem multiModeItem && EpikV2.ModeSwitchHotkey.Current) {
 				EpikV2.modeSwitchHotbarActive = true;
 				for (int i = 0; i < 10; i++) {
 					if (triggersSet.KeyStatus["Hotbar" + (i + 1)] && !multiModeItem.ItemSelected(i)) {
@@ -1035,7 +1035,7 @@ namespace EpikV2 {
 				InvalidArmorShader invalidShader = Shaders.InvalidArmorShaders[i];
 				if (drawInfo.hairDyePacked == invalidShader.shader)
 					drawInfo.hairDyePacked = invalidShader.fallbackShader;
-				if (drawInfo.cHead == invalidShader.shader && !(drawInfo.fullHair || drawInfo.hatHair || !ArmorIDs.Head.Sets.DrawHead[drawInfo.drawPlayer.head]))
+				if (drawInfo.cHead == invalidShader.shader && !(drawInfo.fullHair || drawInfo.hatHair || drawInfo.drawPlayer.head == -1 || !ArmorIDs.Head.Sets.DrawHead[drawInfo.drawPlayer.head]))
 					drawInfo.cHead = invalidShader.fallbackShader;
 				if (drawInfo.cBody == invalidShader.shader && !drawInfo.hidesTopSkin)
 					drawInfo.cBody = invalidShader.fallbackShader;

@@ -383,20 +383,16 @@ namespace EpikV2 {
 			UpdateName(item);
 		}
 	}
-	[Label("Client Settings")]
 	public class EpikClientConfig : ModConfig {
 		public static EpikClientConfig Instance;
 		public override ConfigScope Mode => ConfigScope.ClientSide;
 
-		[Label("Reduce Jitter")]
-		[Tooltip("Reduces intentional jitter in some elements\nOn by default for the sake of players with photosensitive epilepsy")]
 		[DefaultValue(JitterTypes.All)]
 		[CustomModConfigItem(typeof(JitterTypesElement))]
 		public JitterTypes reduceJitter = JitterTypes.All;
 
-		[Label("Alternate Name Colors")]
 		[JsonIgnore]
-		//[ShowDespiteJsonIgnore]
+		[ShowDespiteJsonIgnore]
 		[DefaultValue(AltNameColorTypes.None)]
 		[CustomModConfigItem(typeof(AltNameColorTypesElement))]
 		public AltNameColorTypes AltNameColors {
@@ -412,9 +408,8 @@ namespace EpikV2 {
 				}
 			}
 		}
-		[Label("Name Color Override")]
 		[JsonIgnore]
-		//[ShowDespiteJsonIgnore]
+		[ShowDespiteJsonIgnore]
 		[DefaultValue(null)]
 		public string NameColorOverride {
 			get {
@@ -452,7 +447,7 @@ namespace EpikV2 {
 		public override bool CanRead => true;
 		public override bool CanWrite => true;
 		public override Type PropertyType => typeof(bool);
-		public override Type DeclaringType { get; }
+		public override Type DeclaringType => typeof(FakePropertyInfo);
 		public override Type ReflectedType { get; }
 
 		public override MethodInfo[] GetAccessors(bool nonPublic) {

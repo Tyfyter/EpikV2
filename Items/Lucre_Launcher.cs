@@ -407,7 +407,7 @@ namespace EpikV2.Items {
             return false;
         }
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers){
-            damage += target.defense/4;
+			modifiers.ScalingArmorPenetration += 0.5f;
 		}
 	}
 }

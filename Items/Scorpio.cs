@@ -99,7 +99,7 @@ namespace EpikV2.Items {
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
 			modifiers.Knockback *= 0f;
             if(target.GetGlobalNPC<EpikGlobalNPC>().scorpioTime>0) {
-                damage+=damage/4;
+				modifiers.SourceDamage *= 1.25f;
             }
         }
         public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {

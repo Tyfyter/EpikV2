@@ -184,7 +184,7 @@ namespace EpikV2.Tiles {
 			// Just like in SpecialDraw, we want things to be handled the EXACT same way vanilla would handle it, which ModPylon also has built in methods for:
 			DefaultDrawMapIcon(ref context, mapIconOutline, pylonInfo.PositionInTiles.ToVector2() + new Vector2(1.5f, 2f), Color.Lerp(Color.Transparent, drawColor, partyProgress), deselectedScale, selectedScale);
 			bool mouseOver = DefaultDrawMapIcon(ref context, mapIcon, pylonInfo.PositionInTiles.ToVector2() + new Vector2(1.5f, 2f), Color.Lerp(Color.Transparent, Main.DiscoColor, partyProgress), deselectedScale, selectedScale);
-			DefaultMapClickHandle(mouseOver, pylonInfo, "Mods.EpikV2.ItemName.Party_Pylon_Item", ref mouseOverText);
+			DefaultMapClickHandle(mouseOver, pylonInfo, "Mods.EpikV2.Items.Party_Pylon_Item.DisplayName", ref mouseOverText);
 		}
 	}
 }

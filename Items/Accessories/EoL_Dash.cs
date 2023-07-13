@@ -22,6 +22,7 @@ namespace EpikV2.Items.Accessories {
 		public override void SetDefaults() {
 			Item.DefaultToAccessory(26, 30);
 			Item.master = true;
+			Item.maxStack = 1;
 		}
 		public override void UpdateEquip(Player player) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();

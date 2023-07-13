@@ -170,7 +170,7 @@ namespace EpikV2.Items {
 			Projectile.height = 24;
 			Projectile.usesLocalNPCImmunity = true;
 			Projectile.tileCollide = false;
-			//projectile.localNPCHitCooldown = 0;
+			//Projectile.localNPCHitCooldown = 6;
 		}
 		public override void AI() {
 			Player player = Main.player[Projectile.owner];
@@ -387,13 +387,13 @@ namespace EpikV2.Items {
 			switch ((int)Projectile.ai[1]) {
 				case 0:
 				//dmgMult *= 0.35f;
-				damage = (int)(damage * 0.35f);
+				modifiers.SourceDamage *= 0.35f;
 				break;
 				case 1:
 				case 2:
 				if (Projectile.frame <= 0) {
 					//dmgMult *= 0.35f;
-					damage = (int)(damage * 0.35f);
+					modifiers.SourceDamage *= 0.35f;
 				}
 				break;
 			}

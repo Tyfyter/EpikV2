@@ -12,9 +12,8 @@ using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace EpikV2.Items.Weapons {
+	//TODO: sprite
 	public class Avalx : ModItem, ICustomDrawItem {
-		//temp sprite
-		public override string Texture => "ThoriumMod/Items/Terrarium/TerrariumBomber";
 		public override void SetStaticDefaults() {
 			base.SetStaticDefaults();
 			ItemID.Sets.SkipsInitialUseSound[Type] = true;

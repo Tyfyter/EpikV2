@@ -195,7 +195,7 @@ namespace EpikV2.Items {
 			Main.LocalPlayer.GetModPlayer<EpikPlayer>().switchBackSlot = Main.LocalPlayer.selectedItem;
 		}
 		public static float GetLifeDamageMult(NPC target, float mult = (5f / 3)) {
-			return MathHelper.Lerp(Math.Clamp(target.GetLifePercent(), 0, 1), mult, mult * 0.1f);
+			return MathHelper.Lerp(Math.Clamp(target.GetLifePercent(), 0, 1), mult * 0.1f, mult);
 		}
 		public static void ApplyLifeDamageMult(NPC target, ref NPC.HitModifiers modifiers, float mult = (5f / 3)) {
 			modifiers.SourceDamage *= 1 + GetLifeDamageMult(target, mult);
@@ -812,7 +812,10 @@ namespace EpikV2.Items {
 			Utils.PlotTileLine(Projectile.Center - Projectile.velocity, Projectile.Center + Projectile.velocity.SafeNormalize(Vector2.Zero) * 80f, 16f, DelegateMethods.CastLightOpen);
 		}
 		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
-			Biome_Key.ApplyLifeDamageMult(target, ref modifiers);
+			Player player = Main.player[Projectile.owner];
+			float factor = Biome_Key.GetLifeDamageMult(target, 1);
+			modifiers.SourceDamage *= 1 + factor;
+			modifiers.SourceDamage = modifiers.SourceDamage.CombineWith(player.GetTotalDamage(Biome_Key_Hallow_Damage.ID).Scale(factor));
 		}
 		public override void CutTiles() {
 			DelegateMethods.tilecut_0 = TileCuttingContext.AttackProjectile;
@@ -880,8 +883,9 @@ namespace EpikV2.Items {
 		}
 		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
 			Player player = Main.player[Projectile.owner];
-			
-			damage += (int)(player.GetTotalDamage(Biome_Key_Hallow_Damage.ID).ApplyTo(damage) * Biome_Key.GetLifeDamageMult(target, 1));
+			float factor = Biome_Key.GetLifeDamageMult(target, 1);
+			modifiers.SourceDamage *= 1 + factor;
+			modifiers.SourceDamage = modifiers.SourceDamage.CombineWith(player.GetTotalDamage(Biome_Key_Hallow_Damage.ID).Scale(factor));
 		}
 		public override void CutTiles() {
 			DelegateMethods.tilecut_0 = TileCuttingContext.AttackProjectile;
@@ -1148,7 +1152,7 @@ namespace EpikV2.Items {
 			}
 		}
 		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
-			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+			Biome_Key.ApplyLifeDamageMult(target, ref modifiers);
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			//target.AddBuff(BuffID.Ichor, 600);

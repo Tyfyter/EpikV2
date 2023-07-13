@@ -69,7 +69,10 @@ namespace EpikV2.NPCs
             if(Ashen_Glaive_P.marks[npc.whoAmI]>0) {
                 ashenGlaiveTime++;
             } else if(ashenGlaiveTime>0){
-                Main.LocalPlayer.addDPS((int)npc.StrikeNPC(ashenGlaiveTime+npc.defense/2, 0, 0, false));
+                Main.LocalPlayer.addDPS(npc.StrikeNPC(new NPC.HitInfo() {
+					Damage = ashenGlaiveTime,
+					DamageType = DamageClass.Default
+				}));
                 ashenGlaiveTime = 0;
             }
             if(jaded) {
@@ -91,7 +94,10 @@ namespace EpikV2.NPCs
             } else if(crushTime<0){
                 float acc = (npc.velocity-npc.oldVelocity).Length();
                 if(acc>5f) {
-                    npc.StrikeNPC((int)(acc*10+npc.defense*0.3f), 0, 0);
+                    npc.StrikeNPC(new NPC.HitInfo() {
+						Damage = (int)(acc*10+npc.defense*0.3f),
+						DamageType = DamageClass.Default
+					});
                     crushTime = -crushTime;
                 }
             }
@@ -110,7 +116,12 @@ namespace EpikV2.NPCs
                 float acc = (npc.velocity - oldVel).Length();
                 acc *= 7;
                 if(bounced) {
-                    if(acc>25)npc.StrikeNPC((int)acc, 0, 0);
+					if (acc > 25) {
+						npc.StrikeNPC(new NPC.HitInfo() {
+							Damage = (int)acc,
+							DamageType = DamageClass.Default
+						});
+					}
                     if(--bounces<1) {
                         bounceTime = 0;
                     }

@@ -160,10 +160,10 @@ namespace EpikV2.Items {
         }
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
             if (EmbedTime != -1) {
-                damage /= 2;
+				modifiers.SourceDamage *= 0.5f;
 				modifiers.Knockback /= 6;
             } else if (target.whoAmI == EmbedTarget) {
-                damage += target.defense / 3;
+				modifiers.ArmorPenetration += 0.666f;
             }
         }
 		public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI) {

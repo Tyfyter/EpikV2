@@ -13,6 +13,7 @@ using static EpikV2.EpikExtensions;
 using Terraria.Utilities;
 using EpikV2.CrossMod;
 using System.Reflection;
+using EpikV2.Reflection;
 
 namespace EpikV2.Items {
     [AutoloadEquip(EquipType.HandsOn)]
@@ -24,10 +25,6 @@ namespace EpikV2.Items {
         public int Startup(Player player)=>player.itemAnimationMax / 4;
         public int Endlag(Player player)=>(int)(player.itemAnimationMax / (3.5f+player.altFunctionUse));
         public static AutoCastingAsset<Texture2D> blastTexture { get; private set; }
-		public override void Load() {
-			_target = new("_target", BindingFlags.NonPublic | BindingFlags.Instance);
-			ApplyNPCOnHitEffects = typeof(Player).GetMethod("ApplyNPCOnHitEffects", BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate<_ApplyNPCOnHitEffects>();
-		}
 		public override void Unload() {
             blastTexture = null;
         }
@@ -177,9 +174,6 @@ namespace EpikV2.Items {
             hitbox = BoxOf(player.MountedCenter+unit*8, player.MountedCenter+unit*68*scale, frame==3?new Vector2(16, 12*scale):new Vector2(4*scale));
             Item.Hitbox = hitbox;
         }
-		public delegate void _ApplyNPCOnHitEffects(Item sItem, Rectangle itemRectangle, int damage, float knockBack, int npcIndex, int dmgRandomized, int dmgDone);
-		public static _ApplyNPCOnHitEffects ApplyNPCOnHitEffects;
-		public static FastFieldInfo<Delegate, object> _target;
 		bool recursionnt = false;
         public override bool? CanHitNPC(Player player, NPC target) {
             if(recursionnt)return null;
@@ -232,8 +226,7 @@ namespace EpikV2.Items {
                 target.velocity = oldVel + (diff * mult);
 			}
 			CombinedHooks.OnPlayerHitNPCWithItem(player, Item, target, in strike, dmgDealt);
-			_target.SetValue(ApplyNPCOnHitEffects, player);
-			ApplyNPCOnHitEffects(Item, Item.GetDrawHitbox(Item.type, player), strike.SourceDamage, strike.Knockback, target.whoAmI, strike.SourceDamage, dmgDealt);
+			PlayerMethods.ApplyNPCOnHitEffects(player, Item, Item.GetDrawHitbox(Item.type, player), strike.SourceDamage, strike.Knockback, target.whoAmI, strike.SourceDamage, dmgDealt);
 			int bannerID = Item.NPCtoBanner(target.BannerID());
 			if (bannerID >= 0) {
 				player.lastCreatureHit = bannerID;

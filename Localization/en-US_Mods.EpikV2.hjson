@@ -14,13 +14,16 @@ Buffs: {
 		Description: More...
 	}
 
-	ShroomInfestedDebuff.DisplayName: Hungering Plague
+	ShroomInfestedDebuff: {
+		DisplayName: Hungering Plague
+		Description: Mods.EpikV2.Buffs.ShroomInfestedDebuff.Description
+	}
 
 	Ace_Club_Buff: {
 		DisplayName: Ace of Clubs
 		Description: Reduces damage taken
 	}
-			
+
 	Ace_Spade_Buff: {
 		DisplayName: Ace of Spades
 		Description: Increases damage dealt
@@ -95,24 +98,40 @@ Buffs: {
 		DisplayName: True Self
 		Description: You're you
 	}
+
+	High_Buff: {
+		DisplayName: High_ Buff
+		Description: Mods.EpikV2.Buffs.High_Buff.Description
+	}
 }
 
 Empowerment.SolarRejuvenation: Solar Rejuvenation
 
 Items: {
 	Generic: {
-		Switch: "<switch> to change modes"
-		RightOrSwitch: "<right> or {$Mods.EpikV2.Items.Generic.Switch}"
+		Switch: <switch> to change modes
+		RightOrSwitch: <right> or {$Mods.EpikV2.Items.Generic.Switch}
 	}
-	EoL_Dash.DisplayName: Refraction Ensign
-	EoL_Dash_Alt.DisplayName: Glimmering {$Mods.EpikV2.Items.EoL_Dash.DisplayName}
+
+	EoL_Dash: {
+		DisplayName: Refraction Ensign
+		Tooltip: ""
+	}
+
+	EoL_Dash_Alt: {
+		DisplayName: Glimmering {$Mods.EpikV2.Items.EoL_Dash.DisplayName}
+		Tooltip: ""
+	}
 
 	Seventeen_Leaf_Clover: {
 		DisplayName: Seventeen-Leaf Clover
 		Tooltip: If a four-leaf clover is lucky than a seventeen-leaf clover has to be super lucky, right?
 	}
 
-	Alchemera.DisplayName: Alchemera
+	Alchemera: {
+		DisplayName: Alchemera
+		Tooltip: ""
+	}
 
 	Aquamarine: {
 		DisplayName: Aquamarine
@@ -159,10 +178,25 @@ Items: {
 			'''
 	}
 
-	Ace_Heart.DisplayName: Ace of Hearts
-	Ace_Diamond.DisplayName: Ace of Diamonds
-	Ace_Spade.DisplayName: Ace of Spades
-	Ace_Club.DisplayName: Ace of Clubs
+	Ace_Heart: {
+		DisplayName: Ace of Hearts
+		Tooltip: ""
+	}
+
+	Ace_Diamond: {
+		DisplayName: Ace of Diamonds
+		Tooltip: ""
+	}
+
+	Ace_Spade: {
+		DisplayName: Ace of Spades
+		Tooltip: ""
+	}
+
+	Ace_Club: {
+		DisplayName: Ace of Clubs
+		Tooltip: ""
+	}
 
 	Machiavellian_Masquerade: {
 		DisplayName: Machiavellian Masquerade
@@ -196,9 +230,20 @@ Items: {
 			'''
 	}
 
-	Ashen_Glaive.DisplayName: Ashen Glaive
-	Attack_Grapple.DisplayName: Attack_ Grapple
-	Band_Of_Frost.DisplayName: Band Of Frost
+	Ashen_Glaive: {
+		DisplayName: Ashen Glaive
+		Tooltip: ""
+	}
+
+	Attack_Grapple: {
+		DisplayName: Attack_ Grapple
+		Tooltip: ""
+	}
+
+	Band_Of_Frost: {
+		DisplayName: Band Of Frost
+		Tooltip: ""
+	}
 
 	Biome_Key_Corrupt: {
 		DisplayName: Biome Key ({$Bestiary_Biomes.TheCorruption})
@@ -258,7 +303,10 @@ Items: {
 		Tooltip: "'That's some good Brand-Free Peach Beverage'"
 	}
 
-	Breakpoint.DisplayName: Breakpoint
+	Breakpoint: {
+		DisplayName: Breakpoint
+		Tooltip: ""
+	}
 
 	Burning_Ambition: {
 		DisplayName: Burning Avaritia
@@ -273,34 +321,131 @@ Items: {
 		DisplayName: Nonspecific Chocolate Bar
 		Tooltip: '''"Sate your hunger to reveal your true self!"'''
 	}
-	
-	Starlight_Dye.DisplayName: Starlight Dye
-	Bright_Starlight_Dye.DisplayName: Bright Starlight Dye
-	Dim_Starlight_Dye.DisplayName: Dim Starlight Dye
-	Chimera_Dye.DisplayName: Chimera's Blood
-	Inverted_Chimera_Dye.DisplayName: Chimera's Blood (Inverted)
-	Opaque_Chimera_Dye.DisplayName: Blackened Chimera's Blood
-	Opaque_Inverted_Chimera_Dye.DisplayName: Blackened Chimera's Blood (Inverted)
-	Jade_Dye.DisplayName: Jade Dye
-	Cursed_Hades_Dye.DisplayName: Cursed Hades Dye
-	Ichor_Dye.DisplayName: Ichor Dye
-	Golden_Flame_Dye.DisplayName: Golden Flame Dye
-	GPS_Dye.DisplayName: GPS Dye
-	Heatwave_Dye.DisplayName: Heatwave Dye
-	Retro_Dye.DisplayName: Retro Dye
-	Red_Retro_Dye.DisplayName: Retro Dye (Red)
-	Chroma_Dummy_Dye.DisplayName: Chroma_Dummy_Dye
 
-	DustDebugger.DisplayName: Dust Debugger
-	GraphicsDebugger.DisplayName: Graphics Debugger
-	SoundDebugger.DisplayName: Sound Debugger
-	WolfDebugger.DisplayName: Great Old Wolf Blood Debugger
+	Starlight_Dye: {
+		DisplayName: Starlight Dye
+		Tooltip: ""
+	}
 
-	Draco.DisplayName: Draco
-	EmpressDeath.DisplayName: Empress of Light
-	First_Fractal_Mode_1.DisplayName: First Fractal
-	First_Fractal_Mode_2.DisplayName: First Fractal
-	First_Fractal_Mode_3.DisplayName: First Fractal
+	Bright_Starlight_Dye: {
+		DisplayName: Bright Starlight Dye
+		Tooltip: ""
+	}
+
+	Dim_Starlight_Dye: {
+		DisplayName: Dim Starlight Dye
+		Tooltip: ""
+	}
+
+	Chimera_Dye: {
+		DisplayName: Chimera's Blood
+		Tooltip: ""
+	}
+
+	Inverted_Chimera_Dye: {
+		DisplayName: Chimera's Blood (Inverted)
+		Tooltip: ""
+	}
+
+	Opaque_Chimera_Dye: {
+		DisplayName: Blackened Chimera's Blood
+		Tooltip: ""
+	}
+
+	Opaque_Inverted_Chimera_Dye: {
+		DisplayName: Blackened Chimera's Blood (Inverted)
+		Tooltip: ""
+	}
+
+	Jade_Dye: {
+		DisplayName: Jade Dye
+		Tooltip: ""
+	}
+
+	Cursed_Hades_Dye: {
+		DisplayName: Cursed Hades Dye
+		Tooltip: ""
+	}
+
+	Ichor_Dye: {
+		DisplayName: Ichor Dye
+		Tooltip: ""
+	}
+
+	Golden_Flame_Dye: {
+		DisplayName: Golden Flame Dye
+		Tooltip: ""
+	}
+
+	GPS_Dye: {
+		DisplayName: GPS Dye
+		Tooltip: ""
+	}
+
+	Heatwave_Dye: {
+		DisplayName: Heatwave Dye
+		Tooltip: ""
+	}
+
+	Retro_Dye: {
+		DisplayName: Retro Dye
+		Tooltip: ""
+	}
+
+	Red_Retro_Dye: {
+		DisplayName: Retro Dye (Red)
+		Tooltip: ""
+	}
+
+	Chroma_Dummy_Dye: {
+		DisplayName: Chroma_Dummy_Dye
+		Tooltip: ""
+	}
+
+	DustDebugger: {
+		DisplayName: Dust Debugger
+		Tooltip: ""
+	}
+
+	GraphicsDebugger: {
+		DisplayName: Graphics Debugger
+		Tooltip: ""
+	}
+
+	SoundDebugger: {
+		DisplayName: Sound Debugger
+		Tooltip: ""
+	}
+
+	WolfDebugger: {
+		DisplayName: Great Old Wolf Blood Debugger
+		Tooltip: ""
+	}
+
+	Draco: {
+		DisplayName: Draco
+		Tooltip: ""
+	}
+
+	EmpressDeath: {
+		DisplayName: Empress of Light
+		Tooltip: ""
+	}
+
+	First_Fractal_Mode_1: {
+		DisplayName: First Fractal
+		Tooltip: ""
+	}
+
+	First_Fractal_Mode_2: {
+		DisplayName: First Fractal
+		Tooltip: ""
+	}
+
+	First_Fractal_Mode_3: {
+		DisplayName: First Fractal
+		Tooltip: ""
+	}
 
 	Frost_Band_Vanity: {
 		DisplayName: Gold Band
@@ -311,10 +456,21 @@ Items: {
 		DisplayName: Geometric Rounds
 		Tooltip: '''"y=3.528718731829*ex^2.1853Θ or something"'''
 	}
-	
-	GolemDeath.DisplayName: Golem
-	Haligbrand.DisplayName: Haligbrand
-	Hydra_Staff.DisplayName: Hydra Staff
+
+	GolemDeath: {
+		DisplayName: Golem
+		Tooltip: ""
+	}
+
+	Haligbrand: {
+		DisplayName: Haligbrand
+		Tooltip: ""
+	}
+
+	Hydra_Staff: {
+		DisplayName: Hydra Staff
+		Tooltip: ""
+	}
 
 	Ichor_Riviere: {
 		DisplayName: Ichor Rivière
@@ -343,10 +499,13 @@ Items: {
 			'''
 	}
 
-	Jade_Reaper.DisplayName: Jade Reaper
+	Jade_Reaper: {
+		DisplayName: Jade Reaper
+		Tooltip: ""
+	}
 
 	Jade_Whip: {
-		DisplayName: "<PH> Jade Whip"
+		DisplayName: <PH> Jade Whip
 		Tooltip: Summon tag damage and crit chance benefit from bonuses
 	}
 
@@ -389,8 +548,15 @@ Items: {
 		Tooltip: Both does and does not contain a dead cat
 	}
 
-	MoonlaceMaterial.DisplayName: Radiant Diamond
-	Moonlight_Staff.DisplayName: Moonlight Staff
+	MoonlaceMaterial: {
+		DisplayName: Radiant Diamond
+		Tooltip: ""
+	}
+
+	Moonlight_Staff: {
+		DisplayName: Moonlight Staff
+		Tooltip: ""
+	}
 
 	Obsidian_Spellsword: {
 		DisplayName: Obsidian Spellsword
@@ -401,7 +567,10 @@ Items: {
 			'''
 	}
 
-	Orion_Boot_Charge.DisplayName: Uranium Capsule
+	Orion_Boot_Charge: {
+		DisplayName: Uranium Capsule
+		Tooltip: ""
+	}
 
 	Orion_Boots: {
 		DisplayName: Orion Boots
@@ -419,13 +588,24 @@ Items: {
 	}
 
 	Chest_Webs: {
-		DisplayName: "<PH> Chest Webs"
+		DisplayName: <PH> Chest Webs
 		Tooltip: Reveals a chest to prying spirits
 	}
 
-	Light_Arrows.DisplayName: Light Arrows
-	Old_Wolf_Blood.DisplayName: Great Old Wolf Blood
-	Triangular_Manuscript.DisplayName: Triangular Manuscript
+	Light_Arrows: {
+		DisplayName: Light Arrows
+		Tooltip: ""
+	}
+
+	Old_Wolf_Blood: {
+		DisplayName: Great Old Wolf Blood
+		Tooltip: ""
+	}
+
+	Triangular_Manuscript: {
+		DisplayName: Triangular Manuscript
+		Tooltip: ""
+	}
 
 	Pentagram_Mango: {
 		DisplayName: Mango With a Pentagram on it
@@ -466,20 +646,25 @@ Items: {
 		Tooltip: You definitely shouldn't drink this...
 	}
 
-	Pyrkasivar.DisplayName: Pyrkasivar
+	Pyrkasivar: {
+		DisplayName: Pyrkasivar
+		Tooltip: ""
+	}
 
 	Red_Star_Pendant: {
 		DisplayName: Red Star Pendant
 		Tooltip: кровь для бога крови
 	}
 
-
 	Rope_Hook: {
 		DisplayName: Rope Hook
 		Tooltip: A bit springy
 	}
 
-	Sacrificial_Dagger.DisplayName: Sacrificial Dagger
+	Sacrificial_Dagger: {
+		DisplayName: Sacrificial Dagger
+		Tooltip: ""
+	}
 
 	SanguineMaterial: {
 		DisplayName: Sanguine Ruby
@@ -499,11 +684,14 @@ Items: {
 			'''
 	}
 
-	Sanguis_Royale.DisplayName: Sanguis Royale
+	Sanguis_Royale: {
+		DisplayName: Sanguis Royale
+		Tooltip: ""
+	}
 
 	Scorpio: {
 		DisplayName: Scorpio
-		Tooltip: "<right> to strike with celestial claws"
+		Tooltip: <right> to strike with celestial claws
 	}
 
 	Shattered_Fate: {
@@ -515,9 +703,20 @@ Items: {
 			'''
 	}
 
-	Shoestopper.DisplayName: Shoestoppers
-	Solweaver.DisplayName: Solweaver
-	Spike_Hook.DisplayName: Rope Hook
+	Shoestopper: {
+		DisplayName: Shoestoppers
+		Tooltip: ""
+	}
+
+	Solweaver: {
+		DisplayName: Solweaver
+		Tooltip: ""
+	}
+
+	Spike_Hook: {
+		DisplayName: Rope Hook
+		Tooltip: ""
+	}
 
 	Spring_Boots: {
 		DisplayName: Spring Boots
@@ -552,7 +751,10 @@ Items: {
 			'''
 	}
 
-	Teleport_Prism.DisplayName: Teleport_Prism
+	Teleport_Prism: {
+		DisplayName: Teleport_Prism
+		Tooltip: ""
+	}
 
 	Tempest_Breaker: {
 		DisplayName: Tempest Breaker
@@ -588,11 +790,14 @@ Items: {
 		Tooltip: Makes it Slow
 	}
 
-	Totally_Not_Shimmer.DisplayName: Jar of Unspecified Purplish Liquid
+	Totally_Not_Shimmer: {
+		DisplayName: Jar of Unspecified Purplish Liquid
+		Tooltip: ""
+	}
 
 	VIXI: {
 		DisplayName: Vixi
-		Tooltip: "<right> to dash forwards with a slash"
+		Tooltip: <right> to dash forwards with a slash
 	}
 
 	Volatile_Brew: {
@@ -600,7 +805,10 @@ Items: {
 		Tooltip: Will certainly do something
 	}
 
-	Avalx.DisplayName: Avalx
+	Avalx: {
+		DisplayName: Avalx
+		Tooltip: ""
+	}
 
 	Worm_Tooth_Torc: {
 		DisplayName: Worm Tooth Torc
@@ -616,14 +824,45 @@ Items: {
 		Tooltip: Increases fishing speed
 	}
 
-	Buried_Chest_Item.DisplayName: Buried_ Chest_ Item
-	Buried_Chest_Sand_Item.DisplayName: Buried_ Chest_ Sand_ Item
-	Full_Buried_Chest_Sand_Item.DisplayName: Full_ Buried_ Chest_ Sand_ Item
-	Party_Pylon_Item.DisplayName: Party_ Pylon_ Item
-	Sandy_Sandstone_Platform_Item.DisplayName: Sandy Sandstone Platform
-	Slippery_Ice_Platform_Item.DisplayName: Slippery Frozen Platform
-	Sticky_Honey_Platform_Item.DisplayName: Sticky Honey Platform
-	Telescope_Item.DisplayName: Telescope
+	Buried_Chest_Item: {
+		DisplayName: Buried_ Chest_ Item
+		Tooltip: ""
+	}
+
+	Buried_Chest_Sand_Item: {
+		DisplayName: Buried_ Chest_ Sand_ Item
+		Tooltip: ""
+	}
+
+	Full_Buried_Chest_Sand_Item: {
+		DisplayName: Full_ Buried_ Chest_ Sand_ Item
+		Tooltip: ""
+	}
+
+	Party_Pylon_Item: {
+		DisplayName: Party Pylon
+		Tooltip: ""
+	}
+
+	Sandy_Sandstone_Platform_Item: {
+		DisplayName: Sandy Sandstone Platform
+		Tooltip: ""
+	}
+
+	Slippery_Ice_Platform_Item: {
+		DisplayName: Slippery Frozen Platform
+		Tooltip: ""
+	}
+
+	Sticky_Honey_Platform_Item: {
+		DisplayName: Sticky Honey Platform
+		Tooltip: ""
+	}
+
+	Telescope_Item: {
+		DisplayName: Telescope
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck
@@ -637,7 +876,6 @@ Projectiles: {
 	Ace_Spade_P.DisplayName: Ace of Spades
 	Ashen_Glaive_P.DisplayName: Ashen Glaive
 	Attack_Grapple_Hook.DisplayName: Attack Grappling Hook
-
 	Biome_Key_Alt_Slash.DisplayName: Biome Key
 	Biome_Key_Corrupt_Fire.DisplayName: Corrupt Fire
 	Biome_Key_Corrupt_Slash.DisplayName: Corrupt Slash
@@ -653,7 +891,6 @@ Projectiles: {
 	Biome_Key_Jungle_Spin.DisplayName: Jungle Spin
 	Biome_Key_Jungle_Vine_Node.DisplayName: Jungle Vines
 	Biome_Key_Jungle_Vines.DisplayName: Jungle Vines
-
 	Breakpoint_Arrow.DisplayName: Breakpoint
 	Burning_Ambition_Fireball.DisplayName: Burning Avaritia
 	Burning_Ambition_Smelter.DisplayName: Burning Avaritia
@@ -729,8 +966,15 @@ DamageClasses: {
 }
 
 Biomes: {
-	LSDBiome.DisplayName: LSD Biome
-	PartyPseudoBiome.DisplayName: Party Pseudo Biome
+	LSDBiome: {
+		DisplayName: LSD Biome
+		TownNPCDialogueName: the L S D Biome
+	}
+
+	PartyPseudoBiome: {
+		DisplayName: Party Pseudo Biome
+		TownNPCDialogueName: the Party Pseudo Biome
+	}
 }
 
 Prefixes: {
@@ -743,7 +987,7 @@ NPCs: {
 	Bobber_Snail.DisplayName: Bobber Snail
 	MinisharkNPC.DisplayName: Minishark
 	Vile_Spirit.DisplayName: Vile Spirit
-	Wrong_Spawn_NPC.DisplayName: "Wrong Spawn NPC (You're so incredibly high lmao)"
+	Wrong_Spawn_NPC.DisplayName: Wrong Spawn NPC (You're so incredibly high lmao)
 }
 
 Tiles: {
@@ -752,6 +996,133 @@ Tiles: {
 		MapEntry: Buried Chest
 	}
 
-	Party_Pylon_Tile.MapEntry: Party Pylon Tile
+	Party_Pylon_Tile.MapEntry: Party Pylon
 	Telescope.MapEntry: Telescope
+}
+
+Keybinds: {
+	"Change Item Mode.DisplayName": Change  Item  Mode
+	"Use Dash.DisplayName": Use  Dash
+}
+
+Configs: {
+	EpikClientConfig: {
+		DisplayName: Client Settings
+
+		reduceJitter: {
+			Label: Reduce Jitter
+			Tooltip:
+				'''
+				Reduces intentional jitter in some elements
+				On by default for the sake of players with photosensitive epilepsy
+				'''
+		}
+
+		AltNameColors: {
+			Label: Alternate Name Colors
+			Tooltip: ""
+		}
+
+		NameColorOverride: {
+			Label: Name Color Override
+			Tooltip: ""
+		}
+	}
+
+	JitterTypes: {
+		Tooltip: {
+			$parentVal: ""
+			Label: Tooltip
+		}
+
+		None.Label: None
+		LSD.Label: L S D
+		All.Label: All
+	}
+
+	AltNameColorTypes: {
+		Tooltip: ""
+		None.Label: None
+		Starlight.Label: Starlight
+		All.Label: All
+	}
+
+	EpikConfig: {
+		DisplayName: Settings
+		Headers.Misc: Misc Header
+
+		AncientPresents: {
+			Label: Ancient Presents
+			Tooltip: ""
+		}
+
+		BalancedAncientPresents: {
+			Label: Remotely Balanced Ancient Presents
+			Tooltip: ""
+		}
+
+		TooGoodAncientPresents: {
+			Label: Stronger Ancient Presents
+			Tooltip: ""
+		}
+
+		ConstellationDraco: {
+			Label: Become a Constellation
+			Tooltip: ""
+		}
+
+		InfiniteUniversalPylons: {
+			Label: Infinite Universal Pylons
+			Tooltip: ""
+		}
+
+		LuckyFish: {
+			Label: Luck Affects Fishing
+			Tooltip: ""
+		}
+
+		RedLuck: {
+			Label: Boundless Luck
+			Tooltip: ""
+		}
+
+		ThatFixFromNextUpdate: {
+			Label: Equip Any Accessory in Vanity Slots
+			Tooltip: ""
+		}
+
+		npcChangesConfig: {
+			Label: NPC Changes
+			Tooltip: ""
+		}
+
+		NoFishingBreak: {
+			Label: Unbreakable Fishing Line
+			Tooltip: ""
+		}
+	}
+
+	NPCChangesConfig: {
+		Tooltip: ""
+
+		IlluminantSlime: {
+			Label: Illuminant Slimes
+			Tooltip: ""
+		}
+
+		IlluminantBats: {
+			Label: Illuminant Bats
+			Tooltip: ""
+		}
+
+		GoblinShark: {
+			Label: Hemogoblin Shark
+			Tooltip: ""
+		}
+
+		BloodNautilus: {
+			Label: Dreadnautilus
+			Tooltip: ""
+		}
+	}
 }
