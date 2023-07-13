@@ -45,9 +45,9 @@ namespace EpikV2.Items {
 		public static int? forcedSwitchIndex = null;
 		Dictionary<string, object> keyValuePairs;
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Biome Key ");
-			Tooltip.SetDefault("<right> or <switch> to change modes");
-            SacrificeTotal = 1;
+		    // DisplayName.SetDefault("Biome Key ");
+			// Tooltip.SetDefault("<right> or <switch> to change modes");
+            Item.ResearchUnlockCount = 1;
 		}
 		public virtual void SetNormalAnimation() {
 			Item.useStyle = ItemUseStyleID.Swing;
@@ -195,17 +195,20 @@ namespace EpikV2.Items {
 			Main.LocalPlayer.GetModPlayer<EpikPlayer>().switchBackSlot = Main.LocalPlayer.selectedItem;
 		}
 		public static float GetLifeDamageMult(NPC target, float mult = (5f / 3)) {
-			return Math.Min(mult * (1 - target.GetLifePercent()), mult);
+			return MathHelper.Lerp(Math.Clamp(target.GetLifePercent(), 0, 1), mult, mult * 0.1f);
 		}
-		public override void ModifyHitNPC(Player player, NPC target, ref int damage, ref float knockBack, ref bool crit) {
-			damage += (int)(damage * GetLifeDamageMult(target));
+		public static void ApplyLifeDamageMult(NPC target, ref NPC.HitModifiers modifiers, float mult = (5f / 3)) {
+			modifiers.SourceDamage *= 1 + GetLifeDamageMult(target, mult);
+		}
+		public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers) {
+			ApplyLifeDamageMult(target, ref modifiers);
 		}
 
 		internal static Rectangle meleeHitbox;
 		public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox) {
 			meleeHitbox = hitbox;
 		}
-		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit) {
+		public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone) {
 
 			Vector2 point = meleeHitbox.Center();
 			Vector2 positionInWorld = target.Hitbox.ClosestPointInRect(point);
@@ -252,21 +255,21 @@ namespace EpikV2.Items {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			base.SetStaticDefaults();
-			DisplayName.SetDefault(DisplayName.GetDefault() + "(Forest)");
+			// DisplayName.SetDefault(DisplayName.GetDefault() + "(Forest)");
 			ID = Type;
 		}
 		public override void SetDefaults() {
 			base.SetDefaults();
 			Item.DamageType = Biome_Key_Forest_Damage.ID;
 		}
-		public override void ModifyHitNPC(Player player, NPC target, ref int damage, ref float knockBack, ref bool crit) {
-			damage += (int)(damage * GetLifeDamageMult(target, 2.25f));
+		public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers) {
+			ApplyLifeDamageMult(target, ref modifiers, 2.25f);
 		}
 	}
 	public class Biome_Key_Forest_Damage : DamageClass {
 		public static DamageClass ID { get; private set; } = Melee;
 		public override void SetStaticDefaults() {
-			ClassName.SetDefault("pure damage");
+			// DisplayName.SetDefault("pure damage");
 			ID = this;
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
@@ -285,7 +288,7 @@ namespace EpikV2.Items {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			base.SetStaticDefaults();
-			DisplayName.SetDefault(DisplayName.GetDefault() + "({$Bestiary_Biomes.TheCorruption})");
+			// DisplayName.SetDefault(DisplayName.GetDefault() + "({$Bestiary_Biomes.TheCorruption})");
 			ID = Type;
 		}
 		public override void SetDefaults() {
@@ -334,8 +337,8 @@ namespace EpikV2.Items {
 			}
 			Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + Projectile.velocity.RotatedBy(Projectile.rotation) * 4 - Projectile.velocity / (Math.Abs(Projectile.rotation) + 2), Vector2.Zero, ProjectileType<Biome_Key_Corrupt_Fire>(), Projectile.damage / 3, Projectile.knockBack, Projectile.owner);
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
-			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			Biome_Key.ApplyLifeDamageMult(target, ref modifiers);
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
@@ -383,8 +386,8 @@ namespace EpikV2.Items {
 			player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation + MathHelper.PiOver2);
 			Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + Projectile.velocity * 4, Vector2.Zero, ProjectileType<Biome_Key_Corrupt_Fire>(), Projectile.damage / 3, Projectile.knockBack, Projectile.owner);
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
-			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			Biome_Key.ApplyLifeDamageMult(target, ref modifiers);
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
@@ -431,10 +434,10 @@ namespace EpikV2.Items {
 		public override void AI() {
 			Dust.NewDustDirect(Projectile.position, Projectile.width, Projectile.height, DustID.CursedTorch).noGravity = true;
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
-			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			Biome_Key.ApplyLifeDamageMult(target, ref modifiers);
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			target.AddBuff(BuffID.CursedInferno, 600);
 
 			Vector2 positionInWorld = target.Hitbox.ClosestPointInRect(Projectile.Center);
@@ -446,7 +449,7 @@ namespace EpikV2.Items {
 	public class Biome_Key_Corrupt_Damage : DamageClass {
 		public static DamageClass ID { get; private set; } = Melee;
 		public override void SetStaticDefaults() {
-			ClassName.SetDefault("profaned damage");
+			// DisplayName.SetDefault("profaned damage");
 			ID = this;
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
@@ -465,7 +468,7 @@ namespace EpikV2.Items {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			base.SetStaticDefaults();
-			DisplayName.SetDefault(DisplayName.GetDefault() + "({$Bestiary_Biomes.Crimson})");
+			// DisplayName.SetDefault(DisplayName.GetDefault() + "({$Bestiary_Biomes.Crimson})");
 			ID = Type;
 		}
 		public override void SetDefaults() {
@@ -546,10 +549,10 @@ namespace EpikV2.Items {
 				Projectile.localAI[1]--;
 			}
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
-			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			Biome_Key.ApplyLifeDamageMult(target, ref modifiers);
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			target.AddBuff(BuffID.Ichor, 600);
 			if (target.life < 0) {
 				Projectile.NewProjectile(target.GetSource_Death("lifesteal"), target.Center, default, ProjectileID.VampireHeal, 0, 0, Projectile.owner, Projectile.owner, target.lifeMax / 30 + 1);
@@ -635,10 +638,10 @@ namespace EpikV2.Items {
 				Projectile.localAI[1]--;
 			}
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
-			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target, 2f));
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			Biome_Key.ApplyLifeDamageMult(target, ref modifiers, 2);
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			target.AddBuff(BuffID.Ichor, 600);
 			if (target.life < 0) {
 				Projectile.NewProjectile(target.GetSource_Death("lifesteal"), target.Center, default, ProjectileID.VampireHeal, 0, 0, Projectile.owner, Projectile.owner, target.lifeMax / 9 + 1);
@@ -706,7 +709,7 @@ namespace EpikV2.Items {
 	public class Biome_Key_Crimson_Damage : DamageClass {
 		public static DamageClass ID { get; private set; } = Melee;
 		public override void SetStaticDefaults() {
-			ClassName.SetDefault("sanguine damage");
+			// DisplayName.SetDefault("sanguine damage");
 			ID = this;
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
@@ -725,7 +728,7 @@ namespace EpikV2.Items {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			base.SetStaticDefaults();
-			DisplayName.SetDefault(DisplayName.GetDefault() + "({$Bestiary_Biomes.Hallow})");
+			// DisplayName.SetDefault(DisplayName.GetDefault() + "({$Bestiary_Biomes.Hallow})");
 			ID = Type;
 		}
 		public override void SetDefaults() {
@@ -808,8 +811,8 @@ namespace EpikV2.Items {
 			DelegateMethods.v3_1 = new Vector3(0f, 0f, 0f);
 			Utils.PlotTileLine(Projectile.Center - Projectile.velocity, Projectile.Center + Projectile.velocity.SafeNormalize(Vector2.Zero) * 80f, 16f, DelegateMethods.CastLightOpen);
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
-			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			Biome_Key.ApplyLifeDamageMult(target, ref modifiers);
 		}
 		public override void CutTiles() {
 			DelegateMethods.tilecut_0 = TileCuttingContext.AttackProjectile;
@@ -828,7 +831,7 @@ namespace EpikV2.Items {
 				if (hitbox.Intersects(targetHitbox)) {
 					ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.Keybrand, new ParticleOrchestraSettings {
 						PositionInWorld = targetHitbox.ClosestPointInRect(currentCenter + rotVel * j),
-						PackedShaderIndex = -1
+						UniqueInfoPiece = -1
 					}, Projectile.owner);
 					return true;
 				}
@@ -875,8 +878,9 @@ namespace EpikV2.Items {
 			DelegateMethods.v3_1 = new Vector3(0f, 0f, 0f);
 			Utils.PlotTileLine(Projectile.Center - Projectile.velocity, Projectile.Center + Projectile.velocity.SafeNormalize(Vector2.Zero) * 80f, 16f, DelegateMethods.CastLightOpen);
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
 			Player player = Main.player[Projectile.owner];
+			
 			damage += (int)(player.GetTotalDamage(Biome_Key_Hallow_Damage.ID).ApplyTo(damage) * Biome_Key.GetLifeDamageMult(target, 1));
 		}
 		public override void CutTiles() {
@@ -896,7 +900,7 @@ namespace EpikV2.Items {
 				if (hitbox.Intersects(targetHitbox)) {
 					ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.Keybrand, new ParticleOrchestraSettings {
 						PositionInWorld = targetHitbox.ClosestPointInRect(currentCenter + rotVel * j),
-						PackedShaderIndex = -1
+						UniqueInfoPiece = -1
 					}, Projectile.owner);
 					return true;
 				}
@@ -936,7 +940,7 @@ namespace EpikV2.Items {
 	public class Biome_Key_Hallow_Damage : DamageClass {
 		public static DamageClass ID { get; private set; } = Melee;
 		public override void SetStaticDefaults() {
-			ClassName.SetDefault("holy damage");
+			// DisplayName.SetDefault("holy damage");
 			ID = this;
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
@@ -955,7 +959,7 @@ namespace EpikV2.Items {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			base.SetStaticDefaults();
-			DisplayName.SetDefault(DisplayName.GetDefault() + "({$Bestiary_Biomes.Jungle})");
+			// DisplayName.SetDefault(DisplayName.GetDefault() + "({$Bestiary_Biomes.Jungle})");
 			ID = Type;
 			Terraria.Localization.Language.GetTextValue("Bestiary_Biomes.TheHallow");
 		}
@@ -1045,10 +1049,10 @@ namespace EpikV2.Items {
 			}
 			player.direction = Math.Sign(Projectile.velocity.RotatedBy(Projectile.rotation).X - Projectile.ai[1] * 8);
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
-			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			Biome_Key.ApplyLifeDamageMult(target, ref modifiers);
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			//target.AddBuff(BuffID.Ichor, 600);
 			if (target.life < 0) {
 				//Projectile.NewProjectile(target.GetSource_Death("lifesteal"), target.Center, default, ProjectileID.VampireHeal, 0, 0, Projectile.owner, Projectile.owner, target.lifeMax / 30 + 1);
@@ -1143,10 +1147,10 @@ namespace EpikV2.Items {
 				Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity.RotatedBy(Projectile.rotation), ProjectileType<Biome_Key_Jungle_Vine_Node>(), 0, Projectile.knockBack, Projectile.owner, vineIdentity);
 			}
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
 			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			//target.AddBuff(BuffID.Ichor, 600);
 			if (target.life < 0) {
 				//Projectile.NewProjectile(target.GetSource_Death("lifesteal"), target.Center, default, ProjectileID.VampireHeal, 0, 0, Projectile.owner, Projectile.owner, target.lifeMax / 9 + 1);
@@ -1224,8 +1228,8 @@ namespace EpikV2.Items {
 				Projectile.Kill();
 			}
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			Biome_Key.ApplyLifeDamageMult(target, ref modifiers);
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			if(nodes is null) return false;
@@ -1346,7 +1350,7 @@ namespace EpikV2.Items {
 	public class Biome_Key_Jungle_Damage : DamageClass {
 		public static DamageClass ID { get; private set; } = Melee;
 		public override void SetStaticDefaults() {
-			ClassName.SetDefault("wild damage");
+			// DisplayName.SetDefault("wild damage");
 			ID = this;
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
@@ -1365,8 +1369,8 @@ namespace EpikV2.Items {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			base.SetStaticDefaults();
-			DisplayName.SetDefault("Biome Key (Frozen)");
-			Tooltip.SetDefault("15 summon tag damage\nYour summons will deal more damage to injured foes\n{$CommonItemTooltip.Whips}\n" + Tooltip.GetDefault());
+			// DisplayName.SetDefault("Biome Key (Frozen)");
+			// Tooltip.SetDefault("15 summon tag damage\nYour summons will deal more damage to injured foes\n{$CommonItemTooltip.Whips}\n" + Tooltip.GetDefault());
 			ID = Type;
 		}
 		public override void SetDefaults() {
@@ -1456,10 +1460,10 @@ namespace EpikV2.Items {
 			DelegateMethods.v3_1 = new Vector3(0.08f, 0.36f, 0.5f);
 			Utils.PlotTileLine(Projectile.Center - Projectile.velocity, Projectile.Center + Projectile.velocity.SafeNormalize(Vector2.Zero) * 80f, 16f, DelegateMethods.CastLightOpen);
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
-			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target, 0.66666663f));
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			Biome_Key.ApplyLifeDamageMult(target, ref modifiers, 0.66666663f);
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			Player player = Main.player[Projectile.owner];
 			float speed = (player.HeldItem.useTime * 0.01f) / player.GetWeaponAttackSpeed(player.HeldItem);
 			target.immune[Projectile.owner] = Main.rand.RandomRound(6 * speed);
@@ -1558,7 +1562,7 @@ namespace EpikV2.Items {
 	public class Biome_Key_Frozen_Damage : DamageClass {
 		public static DamageClass ID { get; private set; } = Melee;
 		public override void SetStaticDefaults() {
-			ClassName.SetDefault("frigid damage");
+			// DisplayName.SetDefault("frigid damage");
 			ID = this;
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
@@ -1577,8 +1581,8 @@ namespace EpikV2.Items {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			base.SetStaticDefaults();
-			DisplayName.SetDefault(DisplayName.GetDefault() + "({$Bestiary_Biomes.Desert})");
-			Tooltip.SetDefault("10% summon tag critical strike chance\nWeak summon tag knockback\nYour summons will deal more damage to injured foes\n{$CommonItemTooltip.Whips}\n" + Tooltip.GetDefault());
+			// DisplayName.SetDefault(DisplayName.GetDefault() + "({$Bestiary_Biomes.Desert})");
+			// Tooltip.SetDefault("10% summon tag critical strike chance\nWeak summon tag knockback\nYour summons will deal more damage to injured foes\n{$CommonItemTooltip.Whips}\n" + Tooltip.GetDefault());
 			ID = Type;
 		}
 		public override void SetDefaults() {
@@ -1633,10 +1637,10 @@ namespace EpikV2.Items {
 				}
 			}
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
-			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			Biome_Key.ApplyLifeDamageMult(target, ref modifiers);
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			Player player = Main.player[Projectile.owner];
 			target.AddBuff(Biome_Key_Desert_Buff.ID, 600);
 			int frozenIndex = target.FindBuffIndex(Biome_Key_Frozen_Buff.ID);
@@ -1698,10 +1702,10 @@ namespace EpikV2.Items {
 				dust.velocity = Projectile.velocity * 2;
 			}
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			Biome_Key.ApplyLifeDamageMult(target, ref modifiers);
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			target.AddBuff(Biome_Key_Desert_Buff.ID, 600);
 			int frozenIndex = target.FindBuffIndex(Biome_Key_Frozen_Buff.ID);
 			if (frozenIndex > -1) {
@@ -1730,7 +1734,7 @@ namespace EpikV2.Items {
 	public class Biome_Key_Desert_Damage : DamageClass {
 		public static DamageClass ID { get; private set; } = Melee;
 		public override void SetStaticDefaults() {
-			ClassName.SetDefault("desolate damage");
+			// DisplayName.SetDefault("desolate damage");
 			ID = this;
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
@@ -1747,7 +1751,7 @@ namespace EpikV2.Items {
 	public class Biome_Key_Alt_Slash : ModProjectile {
 		public override string Texture => "Terraria/Images/Projectile_"+ProjectileID.Arkhalis;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Biome Key");
+			// DisplayName.SetDefault("Biome Key");
 			Main.projFrames[Type] = Main.projFrames[ProjectileID.Arkhalis];
 		}
 		public override void SetDefaults() {
@@ -1763,10 +1767,10 @@ namespace EpikV2.Items {
 			Projectile.frame = (Projectile.frame + 1) % 28;
 			Projectile.spriteDirection = Math.Sign(Projectile.velocity.X);
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-			damage += (int)(damage * Biome_Key.GetLifeDamageMult(target));
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			Biome_Key.ApplyLifeDamageMult(target, ref modifiers);
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.Keybrand, new ParticleOrchestraSettings {
 				PositionInWorld = target.Hitbox.ClosestPointInRect(Projectile.Center)
 			}, Projectile.owner);

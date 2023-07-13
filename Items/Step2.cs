@@ -11,10 +11,10 @@ namespace EpikV2.Items
 	public class Step2 : ModItem {
 
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Step 2");
-            Tooltip.SetDefault("Equip to cover yourself in oil");
+			// DisplayName.SetDefault("Step 2");
+            // Tooltip.SetDefault("Equip to cover yourself in oil");
 			//Tooltip.SetDefault("Allows flight and slow fall while in water");
-			SacrificeTotal = 1;
+			Item.ResearchUnlockCount = 1;
 			ArmorIDs.Wing.Sets.Stats[Item.wingSlot] = new WingStats(flyTime:0);
 		}
 

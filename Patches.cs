@@ -33,52 +33,50 @@ using Terraria.UI.Chat;
 using ReLogic.Content;
 using EpikV2.Layers;
 using Terraria.ModLoader.Default;
-using Detour = On.Terraria;
-using ILMod = IL.Terraria;
 using Terraria.GameContent.Events;
 using Terraria.GameContent.Drawing;
 using Terraria.Graphics.Renderers;
 using EpikV2.UI;
 using Terraria.Audio;
 using MonoMod.RuntimeDetour.HookGen;
-using ILClosePlayersOverlay = IL.Terraria.GameContent.UI.NewMultiplayerClosePlayersOverlay;
 using Mono.Cecil.Cil;
 using ReLogic.Graphics;
 using Mono.Cecil;
 using ParameterAttributes = Mono.Cecil.ParameterAttributes;
 using EpikV2.CrossMod;
+using Terraria.ObjectData;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
 		void ApplyPatches() {
-			Detour.Player.SlopingCollision += EpikPlayer.SlopingCollision;
+			On_Player.SlopingCollision += EpikPlayer.SlopingCollision;
 			//Main.OnPreDraw += Main_OnPostDraw;
-			ILMod.Main.DoDraw += Main_DoDraw;
-			Detour.UI.ItemSlot.PickItemMovementAction += ItemSlot_PickItemMovementAction;
-			Detour.UI.ItemSlot.isEquipLocked += ItemSlot_isEquipLocked;
-			Detour.DataStructures.PlayerDrawLayers.DrawPlayer_21_Head_TheFace += PlayerDrawLayers_DrawPlayer_21_Head_TheFace;
-			Detour.GameContent.TeleportPylonsSystem.HasPylonOfType += (Detour.GameContent.TeleportPylonsSystem.orig_HasPylonOfType orig, TeleportPylonsSystem self, TeleportPylonType pylonType) => {
+			IL_Main.DoDraw += Main_DoDraw;
+			On_ItemSlot.PickItemMovementAction += ItemSlot_PickItemMovementAction;
+			On_ItemSlot.isEquipLocked += ItemSlot_isEquipLocked;
+			On_PlayerDrawLayers.DrawPlayer_21_Head_TheFace += PlayerDrawLayers_DrawPlayer_21_Head_TheFace;
+			On_TeleportPylonsSystem.HasPylonOfType += (On_TeleportPylonsSystem.orig_HasPylonOfType orig, TeleportPylonsSystem self, TeleportPylonType pylonType) => {
 				if (pylonType == TeleportPylonType.Victory && EpikConfig.Instance.InfiniteUniversalPylons) {
 					return false;
 				}
 				return orig(self, pylonType);
 			};
-			Detour.PopupText.Update += PopupText_Update;
-			Detour.PopupText.NewText_AdvancedPopupRequest_Vector2 += PopupText_NewText_AdvancedPopupRequest_Vector2;
-			Detour.PopupText.FindNextItemTextSlot += (orig) => {
+			On_PopupText.Update += PopupText_Update;
+			On_PopupText.NewText_AdvancedPopupRequest_Vector2 += PopupText_NewText_AdvancedPopupRequest_Vector2;
+			On_PopupText.FindNextItemTextSlot += (orig) => {
 				int index = orig();
 				if (Main.popupText[index] is AdvancedPopupText) {
 					Main.popupText[index] = new PopupText();
 				}
 				return index;
 			};
-			Detour.Player.ConsumeItem += (orig, self, type, rev) => {
-				if (type == ItemID.GoldenKey && self.HasItem(ItemID.Keybrand)) {
+			On_Player.ConsumeItem += (orig, self, type, rev, includeVoidBag) => {
+				if (type == ItemID.GoldenKey && (includeVoidBag ? self.HasItemInInventoryOrOpenVoidBag(ItemID.Keybrand) : self.HasItem(ItemID.Keybrand))) {
 					return true;
 				}
-				return orig(self, type, rev);
+				return orig(self, type, rev, includeVoidBag);
 			};
-			Detour.Player.TileInteractionsUse += (orig, self, x, y) => {
+			On_Player.TileInteractionsUse += (orig, self, x, y) => {
 				int oldType = ItemID.Keybrand;
 				int keyType = ItemID.GoldenKey;
 				for (int i = 0; i < 58; i++) {
@@ -124,8 +122,8 @@ namespace EpikV2 {
 					}
 				}
 			};
-			Detour.GameContent.Drawing.ParticleOrchestrator.Spawn_Keybrand += (Detour.GameContent.Drawing.ParticleOrchestrator.orig_Spawn_Keybrand orig, ParticleOrchestraSettings settings) => {
-				if (settings.PackedShaderIndex == -1) {
+			On_ParticleOrchestrator.Spawn_Keybrand += (On_ParticleOrchestrator.orig_Spawn_Keybrand orig, ParticleOrchestraSettings settings) => {
+				if (settings.UniqueInfoPiece == -1) {
 					int index = Main.ParticleSystem_World_OverPlayers.Particles.Count;
 					orig(settings);
 					for (int i = index; i < Main.ParticleSystem_World_OverPlayers.Particles.Count; i++) {
@@ -141,7 +139,7 @@ namespace EpikV2 {
 				}
 			};
 			/*Detour.Player.RollLuck += ;*/
-			ILMod.Player.RollLuck += (il) => {
+			IL_Player.RollLuck += (il) => {
 				ILCursor c = new(il);
 				ILLabel label = c.DefineLabel();
 				c.Emit(OpCodes.Ldsfld, typeof(EpikConfig).GetField("Instance", BindingFlags.Public | BindingFlags.Static));
@@ -154,9 +152,9 @@ namespace EpikV2 {
 				c.Emit(OpCodes.Ret);
 				c.MarkLabel(label);
 			};
-			Detour.Projectile.GetLastPrismHue += Projectile_GetLastPrismHue;
-			Detour.Projectile.GetFairyQueenWeaponsColor += Projectile_GetFairyQueenWeaponsColor;
-			Detour.Player.HasUnityPotion += (orig, self) => {
+			On_Projectile.GetLastPrismHue += Projectile_GetLastPrismHue;
+			On_Projectile.GetFairyQueenWeaponsColor += Projectile_GetFairyQueenWeaponsColor;
+			On_Player.HasUnityPotion += (orig, self) => {
 				for (int i = 0; i < Main.InventorySlotsTotal; i++) {
 					if (self.inventory[i].stack > 0 && (self.inventory[i].type == ItemID.WormholePotion || self.inventory[i].ModItem is Perfect_Cellphone)) {
 						return true;
@@ -164,7 +162,7 @@ namespace EpikV2 {
 				}
 				return false;
 			};
-			Detour.Player.TakeUnityPotion += (orig, self) => {
+			On_Player.TakeUnityPotion += (orig, self) => {
 				for (int i = 0; i < Main.InventorySlotsTotal; i++) {
 					if (self.inventory[i].stack > 0) {
 						if (self.inventory[i].type == ItemID.WormholePotion) {
@@ -192,17 +190,17 @@ namespace EpikV2 {
 				}
 				return orig(player);
 			};*/
-			ILMod.Main.DrawWhip_RainbowWhip += Main_DrawWhip_RainbowWhip;
-			ILMod.Projectile.AI_165_Whip += Projectile_AI_165_Whip;
-			Detour.NPC.ScaleStats_UseStrengthMultiplier += NPC_ScaleStats_UseStrengthMultiplier;
-			Detour.Player.UpdateBiomes += (orig, self) => {
+			IL_Main.DrawWhip_RainbowWhip += Main_DrawWhip_RainbowWhip;
+			IL_Projectile.AI_165_Whip += Projectile_AI_165_Whip;
+			On_NPC.ScaleStats_UseStrengthMultiplier += NPC_ScaleStats_UseStrengthMultiplier;
+			On_Player.UpdateBiomes += (orig, self) => {
 				orig(self);
 				ProcessModBiomes(self);
 			};
-			HookEndpointManager.Add(typeof(AprilFools).GetMethod("CheckAprilFools", BindingFlags.Public | BindingFlags.Static),
+			/*MonoModHooks.Add(typeof(AprilFools).GetMethod("CheckAprilFools", BindingFlags.Public | BindingFlags.Static),
 				(hook_CheckAprilFools)((orig) => (timeManipAltMode == 1) || orig())
-			);
-			Detour.Chest.DestroyChest += (orig, x, y) => {
+			);*/
+			On_Chest.DestroyChest += (orig, x, y) => {
 				if (orig(x, y)) {
 					try {
 						ModContent.GetInstance<EpikWorld>().NaturalChests.Remove(new Point(x, y));
@@ -211,13 +209,13 @@ namespace EpikV2 {
 				}
 				return false;
 			};
-			Detour.Chest.DestroyChestDirect += (orig, x, y, id) => {
+			On_Chest.DestroyChestDirect += (orig, x, y, id) => {
 				ModContent.GetInstance<EpikWorld>().NaturalChests.Remove(new Point(x, y));
 				orig(x, y, id);
 			};
-			ILClosePlayersOverlay.PlayerOffScreenCache.ctor += PlayerOffScreenCache_ctor;
-			ILClosePlayersOverlay.PlayerOffScreenCache.DrawPlayerDistance += PlayerOffScreenCache_DrawPlayerDistance;
-			HookEndpointManager.Add(
+			IL_NewMultiplayerClosePlayersOverlay.PlayerOffScreenCache.ctor += PlayerOffScreenCache_ctor;
+			IL_NewMultiplayerClosePlayersOverlay.PlayerOffScreenCache.DrawPlayerDistance += PlayerOffScreenCache_DrawPlayerDistance;
+			MonoModHooks.Add(
 				typeof(ModContent).GetMethod("ResizeArrays", BindingFlags.NonPublic | BindingFlags.Static),
 				(Action<Action<bool>, bool>)((Action<bool> orig, bool unloading) => {
 					orig(unloading);
@@ -228,7 +226,7 @@ namespace EpikV2 {
 					}
 				})
 			);
-			ILMod.Player.Update += (ILContext il) => {
+			IL_Player.Update += (ILContext il) => {
 				ILCursor c = new ILCursor(il);
 				if (c.TryGotoNext(MoveType.AfterLabel,
 					ins => ins.MatchLdarg(0),
@@ -243,7 +241,7 @@ namespace EpikV2 {
 					});
 				}
 			};
-			ILMod.Player.UpdateBuffs += (ILContext il) => {
+			IL_Player.UpdateBuffs += (ILContext il) => {
 				ILCursor c = new ILCursor(il);
 				if (c.TryGotoNext(MoveType.AfterLabel,
 					ins => ins.MatchLdarg(0),
@@ -274,11 +272,11 @@ namespace EpikV2 {
 					}
 				}
 			};
-			ILMod.Projectile.GetFairyQueenWeaponsColor += ReplaceNameWithOverride;
-			ILMod.Projectile.GetLastPrismHue += ReplaceNameWithOverride;
-			ILMod.WorldGen.CountTiles += WorldGen_CountTiles;
-			Detour.Main.GetProjectileDesiredShader += (orig, i) => {
-				if (Main.projectile[i].ModProjectile is IShadedProjectile shadedProjectile) return shadedProjectile.GetShaderID();
+			IL_Projectile.GetFairyQueenWeaponsColor += ReplaceNameWithOverride;
+			IL_Projectile.GetLastPrismHue += ReplaceNameWithOverride;
+			IL_WorldGen.CountTiles += WorldGen_CountTiles;
+			On_Main.GetProjectileDesiredShader += (orig, i) => {
+				if (i.ModProjectile is IShadedProjectile shadedProjectile) return shadedProjectile.GetShaderID();
 				return orig(i);
 			};
 		}
@@ -335,17 +333,14 @@ namespace EpikV2 {
 			}
 			instance.Logger.Info($"synced {orePositions.Count} ore positions");
 		}
+		delegate void _KillTile_GetItemDrops(int x, int y, Tile tileCache, out int dropItem, out int dropItemStack, out int secondaryItem, out int secondaryItemStack, bool includeLargeObjectDrops = false);
+		static _KillTile_GetItemDrops KillTile_GetItemDrops;
 		static void AddOrePosition(int x, int y) {
 			Tile tile = Main.tile[x, y];
 			if (!tile.HasTile) return;
 			int type = tile.TileType;
 			if (Main.tileOreFinderPriority[type] > 0 && Main.tileSolid[type]) {
-				int itemDrop;
-				if (type >= TileID.Count) {
-					itemDrop = ModContent.GetModTile(type).ItemDrop;
-				} else {
-					WorldGen.KillTile_GetItemDrops(x, y, Main.tile[x, y], out itemDrop, out _, out _, out _, false);
-				}
+				int itemDrop = tile.GetTileDrop(x, y);
 				if (itemDrop > 0) {
 					newOrePositions.Add(itemDrop, new Point(x, y));
 				}
@@ -421,7 +416,7 @@ namespace EpikV2 {
 		}
 		internal static float timeManipDanger;
 		internal static float timeManipAltMode;
-		private void NPC_ScaleStats_UseStrengthMultiplier(Detour.NPC.orig_ScaleStats_UseStrengthMultiplier orig, NPC self, float strength) {
+		private void NPC_ScaleStats_UseStrengthMultiplier(On_NPC.orig_ScaleStats_UseStrengthMultiplier orig, NPC self, float strength) {
 			if (Main.netMode != NetmodeID.MultiplayerClient) {
 				const int maxStrength = 86400 * 2;
 				strength += (timeManipDanger / maxStrength) * (Main.masterMode ? 0.3f : (Main.expertMode ? 0.4f : 0.5f));
@@ -434,14 +429,14 @@ namespace EpikV2 {
 			ILCursor c = new ILCursor(il);
 			if (c.TryGotoNext((op) => op.MatchCall<Main>("hslToRgb"))) {
 				c.Remove();
-				c.EmitDelegate<Detour.Main.orig_hslToRgb_float_float_float_byte>(AltKaleidoscopeColor);
+				c.EmitDelegate<On_Main.orig_hslToRgb_float_float_float_byte>(AltKaleidoscopeColor);
 			}
 		}
 		private void Projectile_AI_165_Whip(ILContext il) {
 			ILCursor c = new ILCursor(il);
 			if (c.TryGotoNext((op) => op.MatchCall<Main>("hslToRgb"))) {
 				c.Remove();
-				c.EmitDelegate<Detour.Main.orig_hslToRgb_float_float_float_byte>(AltKaleidoscopeColor);
+				c.EmitDelegate<On_Main.orig_hslToRgb_float_float_float_byte>(AltKaleidoscopeColor);
 			}
 		}
 		internal static int KaleidoscopeColorType = 0;
@@ -465,7 +460,7 @@ namespace EpikV2 {
 			return Main.hslToRgb(Hue, Saturation, Luminosity, a);
 		}
 
-		private int PopupText_NewText_AdvancedPopupRequest_Vector2(Detour.PopupText.orig_NewText_AdvancedPopupRequest_Vector2 orig, AdvancedPopupRequest request, Vector2 position) {
+		private int PopupText_NewText_AdvancedPopupRequest_Vector2(On_PopupText.orig_NewText_AdvancedPopupRequest_Vector2 orig, AdvancedPopupRequest request, Vector2 position) {
 			if (nextPopupText is null) {
 				nextPopupText = new PopupText();
 			}
@@ -512,7 +507,7 @@ namespace EpikV2 {
 			return index;
 		}
 
-		private void PopupText_Update(Detour.PopupText.orig_Update orig, PopupText self, int whoAmI) {
+		private void PopupText_Update(On_PopupText.orig_Update orig, PopupText self, int whoAmI) {
 			if (self is AdvancedPopupText advancedSelf) {
 				if (advancedSelf.PreUpdate(whoAmI)) {
 					orig(self, whoAmI);
@@ -523,7 +518,7 @@ namespace EpikV2 {
 			}
 		}
 
-		private bool ItemSlot_isEquipLocked(Detour.UI.ItemSlot.orig_isEquipLocked orig, int type) {
+		private bool ItemSlot_isEquipLocked(On_ItemSlot.orig_isEquipLocked orig, int type) {
 			Item item = null;
 			for (int i = 3; i < 10; i++) {
 				if (Main.LocalPlayer.armor[i].type == type) {
@@ -549,7 +544,7 @@ namespace EpikV2 {
 			return orig(type);
 		}
 
-		private void PlayerDrawLayers_DrawPlayer_21_Head_TheFace(Detour.DataStructures.PlayerDrawLayers.orig_DrawPlayer_21_Head_TheFace orig, ref PlayerDrawSet drawinfo) {
+		private void PlayerDrawLayers_DrawPlayer_21_Head_TheFace(On_PlayerDrawLayers.orig_DrawPlayer_21_Head_TheFace orig, ref PlayerDrawSet drawinfo) {
 			if (Face_Layer.drawFace) {
 				orig(ref drawinfo);
 			}
@@ -570,7 +565,7 @@ namespace EpikV2 {
 			}
 		}
 
-		private int ItemSlot_PickItemMovementAction(Detour.UI.ItemSlot.orig_PickItemMovementAction orig, Item[] inv, int context, int slot, Item checkItem) {
+		private int ItemSlot_PickItemMovementAction(On_ItemSlot.orig_PickItemMovementAction orig, Item[] inv, int context, int slot, Item checkItem) {
 			if (Main.mouseLeftRelease && Main.mouseLeft) switch (context) {
 					case ItemSlot.Context.EquipArmor:
 					case ItemSlot.Context.EquipAccessory:
@@ -587,7 +582,7 @@ namespace EpikV2 {
 				}
 			return orig(inv, context, slot, checkItem);
 		}
-		private float Projectile_GetLastPrismHue(Detour.Projectile.orig_GetLastPrismHue orig, Projectile self, float laserIndex, ref float laserLuminance, ref float laserAlphaMultiplier) {
+		private float Projectile_GetLastPrismHue(On_Projectile.orig_GetLastPrismHue orig, Projectile self, float laserIndex, ref float laserLuminance, ref float laserAlphaMultiplier) {
 			if (Main.player[self.owner].active && IsSpecialName(Main.player[self.owner].GetNameForColors(), 1)) {
 				switch ((int)laserIndex) {
 					case 0:
@@ -612,7 +607,7 @@ namespace EpikV2 {
 			}
 			return orig(self, laserIndex, ref laserLuminance, ref laserAlphaMultiplier);
 		}
-		private Color Projectile_GetFairyQueenWeaponsColor(Detour.Projectile.orig_GetFairyQueenWeaponsColor orig, Projectile self, float alphaChannelMultiplier, float lerpToWhite, float? rawHueOverride) {
+		private Color Projectile_GetFairyQueenWeaponsColor(On_Projectile.orig_GetFairyQueenWeaponsColor orig, Projectile self, float alphaChannelMultiplier, float lerpToWhite, float? rawHueOverride) {
 			if (Main.player[self.owner].active) {
 				uint nameData = GetSpecialNameData(Main.player[self.owner]);
 				float hueIndex = (rawHueOverride ?? self.ai[1]) * 6;

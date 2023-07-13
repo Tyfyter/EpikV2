@@ -10,6 +10,7 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Tyfyter.Utils;
 using Tyfyter.Utils.ID;
@@ -20,9 +21,9 @@ namespace EpikV2.Items {
 	public class Burning_Ambition : ModItem {
 		//static short customGlowMask;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Burning Avaritia");//does not contain the letter e
-			Tooltip.SetDefault("Penetrates up to 8 armor\n<right> to smelt tiles.");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("Burning Avaritia");//does not contain the letter e
+			// Tooltip.SetDefault("Penetrates up to 8 armor\n<right> to smelt tiles.");
+			Item.ResearchUnlockCount = 1;
 			//customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
 		}
 		public override void SetDefaults() {
@@ -52,11 +53,11 @@ namespace EpikV2.Items {
 			recipe.AddIngredient(ItemID.GoldCoin, 10);
 			recipe.AddIngredient(ItemID.GuideVoodooDoll);
 			recipe.AddTile(TileID.TinkerersWorkbench);
-			recipe.AddCondition(new Recipe.Condition(
-				Terraria.Localization.NetworkText.FromLiteral("This kills the [strike:crab] Guide"),
-				(r) => NPC.AnyNPCs(NPCID.Guide)
+			recipe.AddCondition(new Condition(
+				Language.GetText("Mods.EpikV2.Conditions.KillsGuide"),
+				() => NPC.AnyNPCs(NPCID.Guide)
 			));
-			recipe.AddOnCraftCallback((r, item, _) => {
+			recipe.AddOnCraftCallback((_, _, _, _) => {
 				NPC guide = Main.npc[NPC.FindFirstNPC(NPCID.Guide)];
 				guide.life = 0;
 				guide.DeathSound = SoundID.Item104;
@@ -107,7 +108,7 @@ namespace EpikV2.Items {
 		List<Particle> particles;
 		internal List<Particle> Particles => particles ??= new List<Particle>();
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Burning Avaritia");
+			// DisplayName.SetDefault("Burning Avaritia");
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
@@ -233,23 +234,21 @@ namespace EpikV2.Items {
 		}
 		public override bool? CanHitNPC(NPC target) {
 			if (Projectile.localNPCImmunity[target.whoAmI] > 0 && Colliding(Rectangle.Empty, target.Hitbox) == true) {
-				OnHitNPC(target, 0, 0, false);
+				OnHitNPC(target, new NPC.HitInfo(), 0);
 			}
 			return null;
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-			Player owner = Main.player[Projectile.owner];
-			float armor = Math.Max(target.defense - owner.GetArmorPenetration(DamageClass.Magic), 0);
-			damage += (int)(Math.Min(armor, 10) / 2);
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			modifiers.ArmorPenetration += Projectile.ArmorPenetration;
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			Player owner = Main.player[Projectile.owner];
 			float zMult = (30 - Projectile.ai[0]) / 30;
 			Vector2 direction = Vector2.Normalize(Projectile.velocity);
 			Vector2 targetPos = owner.MountedCenter + direction * (8 + 24 * zMult + Math.Max(target.width, target.height));
 			Vector2 targetVelocity = (targetPos - target.Center).WithMaxLength(Projectile.ai[1] * (Projectile.localAI[0] + 1));
 			target.velocity = Vector2.Lerp(target.velocity, targetVelocity, target.knockBackResist * Projectile.ai[1] * 0.16f);
-			if (damage > 0) {
+			if (damageDone > 0) {
 				if (Main.rand.NextFloat(Projectile.localAI[0] - 0.15f, Projectile.localAI[0]) >= 0.15f) {
 					target.AddBuff(BuffID.Midas, (int)(Projectile.localAI[0] * 100));
 				}
@@ -318,7 +317,7 @@ namespace EpikV2.Items {
 		internal Fireball_Particle[] particles;
 		internal List<Fireball_Particle> deathParticles;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Burning Avaritia");
+			// DisplayName.SetDefault("Burning Avaritia");
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
@@ -403,12 +402,10 @@ namespace EpikV2.Items {
 			}
 			Projectile.velocity = Vector2.Zero;
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-			Player owner = Main.player[Projectile.owner];
-			float armor = Math.Max(target.defense - owner.GetArmorPenetration(DamageClass.Magic), 0);
-			damage += (int)(Math.Min(armor, 10) / 2);
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			modifiers.ArmorPenetration += Projectile.ArmorPenetration;
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			if (Projectile.ai[0] == 0 && target.life > 0) {
 				Break();
 			}
@@ -515,7 +512,7 @@ namespace EpikV2.Items {
 		protected override bool CloneNewInstances => true;
 		internal Fireball_Particle[] particles;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Burning Avaritia");
+			// DisplayName.SetDefault("Burning Avaritia");
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);

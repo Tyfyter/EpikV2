@@ -12,8 +12,8 @@ using Terraria.ModLoader;
 namespace EpikV2.Items {
 	public class Totally_Not_Shimmer : ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Jar of Unspecified Purplish Liquid");
-			SacrificeTotal = 99;
+			// DisplayName.SetDefault("Jar of Unspecified Purplish Liquid");
+			Item.ResearchUnlockCount = 99;
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.UnholyWater);
@@ -24,7 +24,7 @@ namespace EpikV2.Items {
 	public class Totally_Not_Shimmer_P : ModProjectile {
 		public override string Texture => base.Texture[0..^2];
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Jar of Unspecified Purplish Liquid");
+			// DisplayName.SetDefault("Jar of Unspecified Purplish Liquid");
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.UnholyWater);

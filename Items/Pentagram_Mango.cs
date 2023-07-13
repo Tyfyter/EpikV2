@@ -12,9 +12,9 @@ using static Terraria.ModLoader.ModContent;
 namespace EpikV2.Items {
     public class Pentagram_Mango : ModItem {
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Mango With a Pentagram on it");
-		    Tooltip.SetDefault("Rearranges enemy organs");
-            SacrificeTotal = 1;
+		    // DisplayName.SetDefault("Mango With a Pentagram on it");
+		    // Tooltip.SetDefault("Rearranges enemy organs");
+            Item.ResearchUnlockCount = 1;
         }
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.FrostStaff);
@@ -41,7 +41,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ModContent.ItemType<Sacrificial_Dagger>());
             recipe.AddIngredient(ItemID.SoulofSight, 5);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.AddCondition(Recipe.Condition.NearLava);
+            recipe.AddCondition(Condition.NearLava);
             recipe.AddConsumeItemCallback(DontConsumeDaggerCallback);
             recipe.Register();
         }
@@ -117,7 +117,7 @@ namespace EpikV2.Items {
                     } else {
                         //Player targetPlayer = Main.player[-1-target];
                         Player targetPlayer = (Player)targetEntity;
-                        targetPlayer.Hurt(PlayerDeathReason.ByPlayer(player.whoAmI), damage+(int)(player.statDefense*(Main.expertMode?0.75f:0.5f)), 0,  true);
+                        targetPlayer.Hurt(PlayerDeathReason.ByPlayerItem(player.whoAmI, Item), damage+(int)(player.statDefense*(Main.expertMode?0.75f:0.5f)), 0,  true);
                         targetPlayer.GetModPlayer<EpikPlayer>().organRearrangement += 15;
                         //sendOrganRearrangementPacket(target, targetPlayer.GetModPlayer<EpikPlayer>().organRearrangement);
                     }
@@ -133,7 +133,7 @@ namespace EpikV2.Items {
                         dust.velocity *= 0.2f;
                     }
                     if(!player.CheckMana(Item, pay: true)) {
-                        player.Hurt(PlayerDeathReason.ByPlayer(player.whoAmI), 10+(int)(player.statDefense*(Main.expertMode?0.75f:0.5f)), 0,  true);
+                        player.Hurt(PlayerDeathReason.ByPlayerItem(player.whoAmI, Item), 10+(int)(player.statDefense*(Main.expertMode?0.75f:0.5f)), 0,  true);
                         player.GetModPlayer<EpikPlayer>().organRearrangement += 25;
                         //sendOrganRearrangementPacket(-1-player.whoAmI, player.GetModPlayer<EpikPlayer>().organRearrangement);
                     }

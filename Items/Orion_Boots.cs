@@ -14,10 +14,10 @@ namespace EpikV2.Items {
         public static int ID = -1;
         public const float collisionMult = 0.5f;
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Orion Boots");
-		    Tooltip.SetDefault("I'm sure this is safe");
+		    // DisplayName.SetDefault("Orion Boots");
+		    // Tooltip.SetDefault("I'm sure this is safe");
             ID = Item.type;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
         }
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.AmethystHook);
@@ -39,10 +39,10 @@ namespace EpikV2.Items {
 	public class Orion_Boot_Charge : ModItem {
         public static int ID = -1;
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Uranium Capsule");
-		    Tooltip.SetDefault("");
+		    // DisplayName.SetDefault("Uranium Capsule");
+		    // Tooltip.SetDefault("");
             ID = Item.type;
-            SacrificeTotal = 99;
+            Item.ResearchUnlockCount = 99;
         }
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.Emerald);

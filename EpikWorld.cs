@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.UI;
@@ -53,10 +54,9 @@ namespace EpikV2 {
 		public override void AddRecipes() {
 			Recipe recipe = Recipe.Create(ItemID.BottledWater);
 			recipe.AddIngredient(ItemID.Bottle);
-			recipe.AddCondition(new Recipe.Condition(
-				Terraria.Localization.NetworkText.FromLiteral("In rain"),
-				(_) =>
-				Main.LocalPlayer.GetModPlayer<EpikPlayer>().wetTime > 0
+			recipe.AddCondition(new Condition(
+				Language.GetText("Mods.EpikV2.Conditions.InRain"),
+				() => Main.LocalPlayer.GetModPlayer<EpikPlayer>().wetTime > 0
 			));
 			recipe.Register();
 		}

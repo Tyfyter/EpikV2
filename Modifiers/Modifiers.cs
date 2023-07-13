@@ -8,6 +8,7 @@ using Terraria.DataStructures;
 using Terraria.ModLoader;
 using Terraria.ID;
 using EpikV2.Projectiles;
+using Microsoft.Xna.Framework;
 
 namespace EpikV2.Modifiers {
 	public interface IOnSpawnProjectilePrefix {
@@ -20,18 +21,15 @@ namespace EpikV2.Modifiers {
 		void OnProjectileKill(Projectile projectile, int timeLeft);
 	}
 	public interface IProjectileHitPrefix {
-		void OnProjectileHitNPC(Projectile projectile, NPC target, int damage, float knockback, bool crit) { }
-		void ModifyProjectileHitNPC(Projectile projectile, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) { }
+		void OnProjectileHitNPC(Projectile projectile, NPC target, NPC.HitInfo hitInfo) { }
+		void ModifyProjectileHitNPC(Projectile projectile, NPC target, ref NPC.HitModifiers modifiers) { }
 	}
 	public interface IMeleeHitPrefix {
-		void OnMeleeHitNPC(Player player, Item item, NPC target, int damage, float knockback, bool crit) { }
-		void ModifyMeleeHitNPC(Player player, Item item, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) { }
+		void OnMeleeHitNPC(Player player, Item item, NPC target, NPC.HitInfo hitInfo) { }
+		void ModifyMeleeHitNPC(Player player, Item item, NPC target, ref NPC.HitModifiers modifiers) { }
 	}
 	public class Frogged_Prefix : ModPrefix, IOnSpawnProjectilePrefix {
 		public override PrefixCategory Category => PrefixCategory.AnyWeapon;
-		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Frogged");
-		}
 		public void OnProjectileSpawn(Projectile projectile, IEntitySource source) {
 			if (Main.rand.NextBool(4)) {
 				int frogIndex = NPC.NewNPC(source, (int)projectile.Center.X, (int)projectile.Center.Y, NPCID.Frog);
@@ -47,29 +45,23 @@ namespace EpikV2.Modifiers {
 	}
 	public class Beckoning_Prefix : ModPrefix, IProjectileHitPrefix {
 		public override PrefixCategory Category => PrefixCategory.AnyWeapon;
-		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Beckoning");
+		public void ModifyProjectileHitNPC(Projectile projectile, NPC target, ref NPC.HitModifiers modifiers) {
+			modifiers.HitDirectionOverride = 0;
 		}
-		public void ModifyProjectileHitNPC(Projectile projectile, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-			hitDirection = 0;
-		}
-		public void OnProjectileHitNPC(Projectile projectile, NPC target, int damage, float knockback, bool crit) {
+		public void OnProjectileHitNPC(Projectile projectile, NPC target, NPC.HitInfo hitInfo) {
 			if (projectile.velocity != default) {
-				target.velocity -= Microsoft.Xna.Framework.Vector2.Normalize(projectile.velocity) * knockback * target.knockBackResist;
+				target.velocity -= Vector2.Normalize(projectile.velocity) * hitInfo.Knockback * target.knockBackResist;
 			}
 		}
 		public override float RollChance(Item item) => item.shoot > ProjectileID.None ? 0.5f : 0;
 	}
 	public class Poisoned_Prefix : ModPrefix, IProjectileHitPrefix, IMeleeHitPrefix {
 		public override PrefixCategory Category => PrefixCategory.AnyWeapon;
-		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Poisoned");
+		public void OnProjectileHitNPC(Projectile projectile, NPC target, NPC.HitInfo hitInfo) {
+			target.AddBuff(BuffID.Poisoned, hitInfo.Crit ? 480 : 300);
 		}
-		public void OnProjectileHitNPC(Projectile projectile, NPC target, int damage, float knockback, bool crit) {
-			target.AddBuff(BuffID.Poisoned, crit ? 300 : 480);
-		}
-		public void OnMeleeHitNPC(Player player, Item item, NPC target, int damage, float knockback, bool crit) {
-			target.AddBuff(BuffID.Poisoned, crit ? 300 : 480);
+		public void OnMeleeHitNPC(Player player, Item item, NPC target, NPC.HitInfo hitInfo) {
+			target.AddBuff(BuffID.Poisoned, hitInfo.Crit ? 480 : 300);
 		}
 		public override void ModifyValue(ref float valueMult) {
 			valueMult *= 1.15f;

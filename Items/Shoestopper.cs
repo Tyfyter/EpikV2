@@ -11,11 +11,11 @@ namespace EpikV2.Items {
 	[AutoloadEquip(EquipType.Shoes)]
 	public class Shoestopper : ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Shoestoppers");
-			Tooltip.SetDefault("");
+			// DisplayName.SetDefault("Shoestoppers");
+			// Tooltip.SetDefault("");
 		}
 		public override void SetDefaults() {
-			sbyte shoeSlot = Item.shoeSlot;
+			int shoeSlot = Item.shoeSlot;
             Item.CloneDefaults(ItemID.TerrasparkBoots);
 			Item.shoeSlot = shoeSlot;
 		}
@@ -69,7 +69,7 @@ namespace EpikV2.Items {
 			}
 			ParticleOrchestrator.RequestParticleSpawn(clientOnly: true, ParticleOrchestraType.BlackLightningSmall, new ParticleOrchestraSettings {
 				PositionInWorld = new Vector2(X * 16 + 8, Y * 16 + 16),
-				PackedShaderIndex = player.cShoe
+				UniqueInfoPiece = player.cShoe
 			}, player.whoAmI);
 			return true;
 		};

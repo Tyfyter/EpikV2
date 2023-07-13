@@ -1,0 +1,757 @@
+Conditions: {
+	InRain: In rain
+	QueenBeeActive: With active queen bee
+	OrionBoots: With Orion Boots
+	WolfBlood: To powerful werewolves under a full or blood-soaked moon
+	KillsGuide: This kills the [strike:crab] Guide
+	Retro: A few decades ago
+	PartyTime: A few decades ago
+}
+
+Buffs: {
+	Mana_Withdrawal_Debuff: {
+		DisplayName: Mana Withdrawal
+		Description: More...
+	}
+
+	ShroomInfestedDebuff.DisplayName: Hungering Plague
+
+	Ace_Club_Buff: {
+		DisplayName: Ace of Clubs
+		Description: Reduces damage taken
+	}
+			
+	Ace_Spade_Buff: {
+		DisplayName: Ace of Spades
+		Description: Increases damage dealt
+	}
+
+	Sovereign_Buff: {
+		DisplayName: Sovereign Crown
+		Description: You fight for the crown
+	}
+
+	Sovereign_Debuff: {
+		DisplayName: Sovereign Crown
+		Description: You fight the crown
+	}
+
+	Biome_Key_Desert_Buff: {
+		DisplayName: Mods.EpikV2.BuffName.Biome_Key_Desert_Buff
+		Description: Mods.EpikV2.BuffDescription.Biome_Key_Desert_Buff
+	}
+
+	Biome_Key_Frozen_Buff: {
+		DisplayName: Mods.EpikV2.BuffName.Biome_Key_Frozen_Buff
+		Description: Mods.EpikV2.BuffDescription.Biome_Key_Frozen_Buff
+	}
+
+	Cursed_Flames_Imbue: {
+		DisplayName: Cursed Inferno Imbuement
+		Description: Your attacks inflict Cursed Inferno
+	}
+
+	Fire_Imbue: {
+		DisplayName: Flame Imbuement
+		Description: Your attacks inflict Celestial Flames
+	}
+
+	Hydra_Buff: {
+		DisplayName: Hydra
+		Description: The Hydra will fight for you
+	}
+
+	Ichor_Imbue: {
+		DisplayName: Ichor Imbuement
+		Description: Your attacks inflict Ichor
+	}
+
+	Moonlace_Buff: {
+		DisplayName: Moonlight Thread
+		Description: A curious strand of moonlight will fight for you
+	}
+
+	Regeneration_Buff: {
+		DisplayName: Rejuvenation
+		Description: Increases health and mana regeneration
+	}
+
+	Scorpio_Debuff: {
+		DisplayName: Celestial Flames
+		Description: Mods.EpikV2.BuffDescription.Scorpio_Debuff
+	}
+
+	Shadowflame_Imbue: {
+		DisplayName: Shadowflame Imbuement
+		Description: Your attacks inflict Shadowflame
+	}
+
+	Shield_Buff: {
+		DisplayName: Shielded
+		Description: Halves the damage of the next hit you take
+	}
+
+	True_Self_Debuff: {
+		DisplayName: True Self
+		Description: You're you
+	}
+}
+
+Empowerment.SolarRejuvenation: Solar Rejuvenation
+
+Items: {
+	Generic: {
+		Switch: "<switch> to change modes"
+		RightOrSwitch: "<right> or {$Mods.EpikV2.Items.Generic.Switch}"
+	}
+	EoL_Dash.DisplayName: Refraction Ensign
+	EoL_Dash_Alt.DisplayName: Glimmering {$Mods.EpikV2.Items.EoL_Dash.DisplayName}
+
+	Seventeen_Leaf_Clover: {
+		DisplayName: Seventeen-Leaf Clover
+		Tooltip: If a four-leaf clover is lucky than a seventeen-leaf clover has to be super lucky, right?
+	}
+
+	Alchemera.DisplayName: Alchemera
+
+	Aquamarine: {
+		DisplayName: Aquamarine
+		Tooltip: '''"Make waves"'''
+	}
+
+	AquamarineMaterial: {
+		DisplayName: Charged Emerald
+		Tooltip:
+			'''
+			This won't retain a charge for long in this state
+			displaytime
+			'''
+	}
+
+	Apollos_Laurels: {
+		DisplayName: Apollo's Laurels
+		Tooltip:
+			'''
+			15% increased arrow
+			12% symphonic damage
+			20% radiant damage
+			Greatly increases arrow speed and reduces arrow consumption chance by 20%
+			+5% symphonic playing speed
+			+2 max inspiration and 17% increased inspiration
+			10% increased healing and +2 bonus healing
+			+40 max mana and increased mana regeneration
+			Hitting enemies with arrows restores the duration of bardic empowerments
+			Bard weapons provide life regeneration to nearby allies
+			+1 bonus healing and +3 radiant damage for each bardic empowerment active
+			Radiant damage is applied to arrows based on healing streak
+			Healer armor no longer reduces arrow or bard damage
+			'Do you think I can pass that wall of text off as a poem?'
+			'''
+	}
+
+	Champions_Helm: {
+		DisplayName: Champion's Helm
+		Tooltip:
+			'''
+			25% increased melee and ranged damage
+			10% increased melee and ranged crit chance
+			'Rise, undefeated, and fight'
+			'''
+	}
+
+	Ace_Heart.DisplayName: Ace of Hearts
+	Ace_Diamond.DisplayName: Ace of Diamonds
+	Ace_Spade.DisplayName: Ace of Spades
+	Ace_Club.DisplayName: Ace of Clubs
+
+	Machiavellian_Masquerade: {
+		DisplayName: Machiavellian Masquerade
+		Tooltip:
+			'''
+			15% increased ranged and magic damage
+			15% increased ranged and magic use speed
+			Should not the death of a liar be itself a lie?
+			'''
+	}
+
+	Magicians_Top_Hat: {
+		DisplayName: Magicians Top Hat
+		Tooltip:
+			'''
+			25% increased magic and minion damage
+			Increases your max number of minions by 1
+			'A magician never reveals <pro> secrets'
+			'''
+	}
+
+	Sovereign_Crown: {
+		DisplayName: Sovereign Crown
+		Tooltip:
+			'''
+			25% increased melee and minion damage
+			15% increased melee range
+			25% increased whip range
+			Increases your max number of minions by 1
+			'Heavy is the head that wears the crown'
+			'''
+	}
+
+	Ashen_Glaive.DisplayName: Ashen Glaive
+	Attack_Grapple.DisplayName: Attack_ Grapple
+	Band_Of_Frost.DisplayName: Band Of Frost
+
+	Biome_Key_Corrupt: {
+		DisplayName: Biome Key ({$Bestiary_Biomes.TheCorruption})
+		Tooltip: "{$Mods.EpikV2.Items.Generic.RightOrSwitch}"
+	}
+
+	Biome_Key_Crimson: {
+		DisplayName: Biome Key ({$Bestiary_Biomes.Crimson})
+		Tooltip: "{$Mods.EpikV2.Items.Generic.RightOrSwitch}"
+	}
+
+	Biome_Key_Desert: {
+		DisplayName: Biome Key ({$Bestiary_Biomes.Desert})
+		Tooltip:
+			'''
+			10% summon tag critical strike chance
+			Weak summon tag knockback
+			Your summons will deal more damage to injured foes
+			{$CommonItemTooltip.Whips}
+			{$Mods.EpikV2.Items.Generic.RightOrSwitch}
+			'''
+	}
+
+	Biome_Key_Forest: {
+		DisplayName: Biome Key (Forest)
+		Tooltip: "{$Mods.EpikV2.Items.Generic.RightOrSwitch}"
+	}
+
+	Biome_Key_Frozen: {
+		DisplayName: Biome Key (Frozen)
+		Tooltip:
+			'''
+			15 summon tag damage
+			Your summons will deal more damage to injured foes
+			{$CommonItemTooltip.Whips}
+			{$Mods.EpikV2.Items.Generic.RightOrSwitch}
+			'''
+	}
+
+	Biome_Key_Hallow: {
+		DisplayName: Biome Key ({$Bestiary_Biomes.Hallow})
+		Tooltip: "{$Mods.EpikV2.Items.Generic.RightOrSwitch}"
+	}
+
+	Biome_Key_Jungle: {
+		DisplayName: Biome Key ({$Bestiary_Biomes.Jungle})
+		Tooltip: "{$Mods.EpikV2.Items.Generic.RightOrSwitch}"
+	}
+
+	Blood_Mushroom_Soup: {
+		DisplayName: Blood Mushroom Soup
+		Tooltip: I'm pretty sure this is just mislabeled tomato soup.
+	}
+
+	Brand_Free_Peach_Beverage: {
+		DisplayName: Brand-Free Peach Beverage
+		Tooltip: "'That's some good Brand-Free Peach Beverage'"
+	}
+
+	Breakpoint.DisplayName: Breakpoint
+
+	Burning_Ambition: {
+		DisplayName: Burning Avaritia
+		Tooltip:
+			'''
+			Penetrates up to 8 armor
+			<right> to smelt tiles.
+			'''
+	}
+
+	Chocolate_Bar: {
+		DisplayName: Nonspecific Chocolate Bar
+		Tooltip: '''"Sate your hunger to reveal your true self!"'''
+	}
+	
+	Starlight_Dye.DisplayName: Starlight Dye
+	Bright_Starlight_Dye.DisplayName: Bright Starlight Dye
+	Dim_Starlight_Dye.DisplayName: Dim Starlight Dye
+	Chimera_Dye.DisplayName: Chimera's Blood
+	Inverted_Chimera_Dye.DisplayName: Chimera's Blood (Inverted)
+	Opaque_Chimera_Dye.DisplayName: Blackened Chimera's Blood
+	Opaque_Inverted_Chimera_Dye.DisplayName: Blackened Chimera's Blood (Inverted)
+	Jade_Dye.DisplayName: Jade Dye
+	Cursed_Hades_Dye.DisplayName: Cursed Hades Dye
+	Ichor_Dye.DisplayName: Ichor Dye
+	Golden_Flame_Dye.DisplayName: Golden Flame Dye
+	GPS_Dye.DisplayName: GPS Dye
+	Heatwave_Dye.DisplayName: Heatwave Dye
+	Retro_Dye.DisplayName: Retro Dye
+	Red_Retro_Dye.DisplayName: Retro Dye (Red)
+	Chroma_Dummy_Dye.DisplayName: Chroma_Dummy_Dye
+
+	DustDebugger.DisplayName: Dust Debugger
+	GraphicsDebugger.DisplayName: Graphics Debugger
+	SoundDebugger.DisplayName: Sound Debugger
+	WolfDebugger.DisplayName: Great Old Wolf Blood Debugger
+
+	Draco.DisplayName: Draco
+	EmpressDeath.DisplayName: Empress of Light
+	First_Fractal_Mode_1.DisplayName: First Fractal
+	First_Fractal_Mode_2.DisplayName: First Fractal
+	First_Fractal_Mode_3.DisplayName: First Fractal
+
+	Frost_Band_Vanity: {
+		DisplayName: Gold Band
+		Tooltip: Looks rather nice, no?
+	}
+
+	GeoBullet: {
+		DisplayName: Geometric Rounds
+		Tooltip: '''"y=3.528718731829*ex^2.1853Θ or something"'''
+	}
+	
+	GolemDeath.DisplayName: Golem
+	Haligbrand.DisplayName: Haligbrand
+	Hydra_Staff.DisplayName: Hydra Staff
+
+	Ichor_Riviere: {
+		DisplayName: Ichor Rivière
+		Tooltip:
+			'''
+			Increases armor penetration by 4
+			Attacks may reduce enemy defense
+			'''
+	}
+
+	Infestation_Round: {
+		DisplayName: Infestation Round
+		Tooltip:
+			'''
+			Cultivate a plague.
+			Can't crit
+			'''
+	}
+
+	Infestation_Round_Pouch: {
+		DisplayName: Parapsychological Plague Pouch
+		Tooltip:
+			'''
+			Never run out of plague.
+			Can't crit
+			'''
+	}
+
+	Jade_Reaper.DisplayName: Jade Reaper
+
+	Jade_Whip: {
+		DisplayName: "<PH> Jade Whip"
+		Tooltip: Summon tag damage and crit chance benefit from bonuses
+	}
+
+	Kusariken: {
+		DisplayName: Kusariken
+		Tooltip: Right click to pull enemies closer with a chain
+	}
+
+	Laser_Bow: {
+		DisplayName: Chimerebos
+		Tooltip: It's glowing, so it's futuristic
+	}
+
+	Lucky_Spring_Boots: {
+		DisplayName: Lucky Boots
+		Tooltip: "'They've never failed you'"
+	}
+
+	Lucre_Launcher: {
+		DisplayName: Lucre Launcher
+		Tooltip:
+			'''
+			It's pay to win
+			Scroll while holding<Torch> or use <switch> to change coin type
+			Right click to load in coins
+			'''
+	}
+
+	Mana_Addiction: {
+		DisplayName: Black Mana Crystal
+		Tooltip:
+			'''
+			Increases magic damage by 30%
+			10% increased magic weapon speed
+			'''
+	}
+
+	Mobile_Glitch_Present: {
+		DisplayName: Ancient Mobile Present
+		Tooltip: Both does and does not contain a dead cat
+	}
+
+	MoonlaceMaterial.DisplayName: Radiant Diamond
+	Moonlight_Staff.DisplayName: Moonlight Staff
+
+	Obsidian_Spellsword: {
+		DisplayName: Obsidian Spellsword
+		Tooltip:
+			'''
+			Very fragile
+			<right> to pay 20 mana and 10 health to break
+			'''
+	}
+
+	Orion_Boot_Charge.DisplayName: Uranium Capsule
+
+	Orion_Boots: {
+		DisplayName: Orion Boots
+		Tooltip: I'm sure this is safe
+	}
+
+	Orion_Bow: {
+		DisplayName: Orion's Bow
+		Tooltip: Shoot for the stars
+	}
+
+	Chest_Polish: {
+		DisplayName: Chest Polish
+		Tooltip: Hides a chest from prying spirits
+	}
+
+	Chest_Webs: {
+		DisplayName: "<PH> Chest Webs"
+		Tooltip: Reveals a chest to prying spirits
+	}
+
+	Light_Arrows.DisplayName: Light Arrows
+	Old_Wolf_Blood.DisplayName: Great Old Wolf Blood
+	Triangular_Manuscript.DisplayName: Triangular Manuscript
+
+	Pentagram_Mango: {
+		DisplayName: Mango With a Pentagram on it
+		Tooltip: Rearranges enemy organs
+	}
+
+	Perfect_Cellphone: {
+		DisplayName: Perfect Cellphone (Home)
+		Tooltip:
+			'''
+			{$Mods.EpikV2.Items.Generic.Switch}
+			If you listen closely, you can hear screaming and something about "power levels"'
+			'''
+	}
+
+	Perfect_Cellphone_Hell: {
+		DisplayName: Perfect Cellphone (Hell)
+		Tooltip: "{$Mods.EpikV2.Items.Perfect_Cellphone.Tooltip}"
+	}
+
+	Perfect_Cellphone_Ocean: {
+		DisplayName: Perfect Cellphone (Ocean)
+		Tooltip: "{$Mods.EpikV2.Items.Perfect_Cellphone.Tooltip}"
+	}
+
+	Perfect_Cellphone_Return: {
+		DisplayName: Perfect Cellphone (Return)
+		Tooltip: "{$Mods.EpikV2.Items.Perfect_Cellphone.Tooltip}"
+	}
+
+	Perfect_Cellphone_World: {
+		DisplayName: Perfect Cellphone (Spawn)
+		Tooltip: "{$Mods.EpikV2.Items.Perfect_Cellphone.Tooltip}"
+	}
+
+	Psychodelic_Potion: {
+		DisplayName: Acrid Potion
+		Tooltip: You definitely shouldn't drink this...
+	}
+
+	Pyrkasivar.DisplayName: Pyrkasivar
+
+	Red_Star_Pendant: {
+		DisplayName: Red Star Pendant
+		Tooltip: кровь для бога крови
+	}
+
+
+	Rope_Hook: {
+		DisplayName: Rope Hook
+		Tooltip: A bit springy
+	}
+
+	Sacrificial_Dagger.DisplayName: Sacrificial Dagger
+
+	SanguineMaterial: {
+		DisplayName: Sanguine Ruby
+		Tooltip:
+			'''
+			You are a horrible person.
+			100% filled
+			'''
+	}
+
+	SanguineMaterialPartial: {
+		DisplayName: Sanguine Ruby
+		Tooltip:
+			'''
+			You are a horrible person.
+			displaycharge
+			'''
+	}
+
+	Sanguis_Royale.DisplayName: Sanguis Royale
+
+	Scorpio: {
+		DisplayName: Scorpio
+		Tooltip: "<right> to strike with celestial claws"
+	}
+
+	Shattered_Fate: {
+		DisplayName: Shattered Fate
+		Tooltip:
+			'''
+			WeaponOut is currently unavailable for this version
+			this item will be reimplemented when that changes, but for now it's just a placeholder
+			'''
+	}
+
+	Shoestopper.DisplayName: Shoestoppers
+	Solweaver.DisplayName: Solweaver
+	Spike_Hook.DisplayName: Rope Hook
+
+	Spring_Boots: {
+		DisplayName: Spring Boots
+		Tooltip: "'A bit ropey'"
+	}
+
+	Step2: {
+		DisplayName: Step 2
+		Tooltip: Equip to cover yourself in oil
+	}
+
+	Straylight_Drifter: {
+		DisplayName: Straylight Drifter
+		Tooltip: '''"Skill honed sharp"'''
+	}
+
+	SunstoneMaterial: {
+		DisplayName: Charged Amber
+		Tooltip:
+			'''
+			This is quite unstable
+			displayhp
+			'''
+	}
+
+	Suppressor: {
+		DisplayName: Hardlight Rifle
+		Tooltip:
+			'''
+			"This is totally just a [REDACTED]"
+			Hold right click to charge a shotgun blast
+			'''
+	}
+
+	Teleport_Prism.DisplayName: Teleport_Prism
+
+	Tempest_Breaker: {
+		DisplayName: Tempest Breaker
+		Tooltip: Right click for a heavy attack
+	}
+
+	Time_Manipulator: {
+		DisplayName: Temporal Proximity Manipulator
+		Tooltip:
+			'''
+			{$Mods.EpikV2.Items.Generic.Switch}
+			Allows the user to warp space-time such that any two points in time are nearer or further than is natural
+			'''
+	}
+
+	Time_Manipulator_Christmas: {
+		DisplayName: Temporal Proximity Manipulator (Christmas)
+		Tooltip: Makes it Christmas
+	}
+
+	Time_Manipulator_Fast: {
+		DisplayName: Temporal Proximity Manipulator (Fast)
+		Tooltip: Makes it Fast
+	}
+
+	Time_Manipulator_Halloween: {
+		DisplayName: Temporal Proximity Manipulator (Halloween)
+		Tooltip: Makes it Halloween
+	}
+
+	Time_Manipulator_Slow: {
+		DisplayName: Temporal Proximity Manipulator (Slow)
+		Tooltip: Makes it Slow
+	}
+
+	Totally_Not_Shimmer.DisplayName: Jar of Unspecified Purplish Liquid
+
+	VIXI: {
+		DisplayName: Vixi
+		Tooltip: "<right> to dash forwards with a slash"
+	}
+
+	Volatile_Brew: {
+		DisplayName: Volatile Brew
+		Tooltip: Will certainly do something
+	}
+
+	Avalx.DisplayName: Avalx
+
+	Worm_Tooth_Torc: {
+		DisplayName: Worm Tooth Torc
+		Tooltip:
+			'''
+			Increases armor penetration by 7
+			Attacks may inflict Cursed Inferno
+			'''
+	}
+
+	Bobber_Snail_Item: {
+		DisplayName: Bobber Snail
+		Tooltip: Increases fishing speed
+	}
+
+	Buried_Chest_Item.DisplayName: Buried_ Chest_ Item
+	Buried_Chest_Sand_Item.DisplayName: Buried_ Chest_ Sand_ Item
+	Full_Buried_Chest_Sand_Item.DisplayName: Full_ Buried_ Chest_ Sand_ Item
+	Party_Pylon_Item.DisplayName: Party_ Pylon_ Item
+	Sandy_Sandstone_Platform_Item.DisplayName: Sandy Sandstone Platform
+	Slippery_Ice_Platform_Item.DisplayName: Slippery Frozen Platform
+	Sticky_Honey_Platform_Item.DisplayName: Sticky Honey Platform
+	Telescope_Item.DisplayName: Telescope
+}
+
+InfoDisplays.Luck_Info_Icon.DisplayName: Luck
+
+Projectiles: {
+	Alchemera_Flask.DisplayName: Alchemera
+	AquamarineShot.DisplayName: Aquamarine
+	Ace_Club_P.DisplayName: Ace of Clubs
+	Ace_Diamond_P.DisplayName: Ace of Diamonds
+	Ace_Heart_P.DisplayName: Ace of Hearts
+	Ace_Spade_P.DisplayName: Ace of Spades
+	Ashen_Glaive_P.DisplayName: Ashen Glaive
+	Attack_Grapple_Hook.DisplayName: Attack Grappling Hook
+
+	Biome_Key_Alt_Slash.DisplayName: Biome Key
+	Biome_Key_Corrupt_Fire.DisplayName: Corrupt Fire
+	Biome_Key_Corrupt_Slash.DisplayName: Corrupt Slash
+	Biome_Key_Corrupt_Stab.DisplayName: Corrupt Stab
+	Biome_Key_Crimson_Slash.DisplayName: Crimson Slash
+	Biome_Key_Crimson_Smash.DisplayName: Crimson Smash
+	Biome_Key_Desert_Sand.DisplayName: Desert Sand
+	Biome_Key_Desert_Slash.DisplayName: Desert Slash
+	Biome_Key_Frozen_Stab.DisplayName: Frozen Stab
+	Biome_Key_Hallow_Beam.DisplayName: Hallowed Beam
+	Biome_Key_Hallow_Stab.DisplayName: Hallowed Stab
+	Biome_Key_Jungle_Slash.DisplayName: Jungle Slash
+	Biome_Key_Jungle_Spin.DisplayName: Jungle Spin
+	Biome_Key_Jungle_Vine_Node.DisplayName: Jungle Vines
+	Biome_Key_Jungle_Vines.DisplayName: Jungle Vines
+
+	Breakpoint_Arrow.DisplayName: Breakpoint
+	Burning_Ambition_Fireball.DisplayName: Burning Avaritia
+	Burning_Ambition_Smelter.DisplayName: Burning Avaritia
+	Burning_Ambition_Vortex.DisplayName: Burning Avaritia
+	Copper_Shot.DisplayName: Copper Coin
+	Cursed_Flame.DisplayName: Cursed Flame
+	Draco_Blaze.DisplayName: Draco
+	Fireball.DisplayName: Fireball
+	Frost_Band_Shot.DisplayName: Band Of Frost
+	Frost_Shard.DisplayName: Band Of Frost
+	Frost_Spike.DisplayName: Band Of Frost
+	Gold_Shot.DisplayName: Gold Coin
+	Haligbrand_Guard.DisplayName: Haligbrand
+	Haligbrand_P.DisplayName: Haligbrand
+	Hydra_Nebula.DisplayName: Hydra
+	Ichor_Splash.DisplayName: Ichor Splash
+	Jade_Reaper_Spin.DisplayName: Jade Reaper
+	Jade_Whip_P.DisplayName: Name TBD
+	Kusariken_Hook.DisplayName: Kusariken
+	Kusariken_P.DisplayName: Kusariken
+	Laser_Arrow.DisplayName: Chimerebos
+	Moonlace_Proj.DisplayName: Moonlace
+	Obsidian_Spellsword_P.DisplayName: Obsidian Spellsword
+	Orion_Arrow.DisplayName: Orion's Bow
+	Orion_Boots_Projectile.DisplayName: Orion Boots
+	Orion_Star.DisplayName: Orion's Bow
+	Guiding_Spirit.DisplayName: Guiding Spirit
+	Guiding_Spirit_Reach.DisplayName: Guiding Spirit (Reach)
+	Light_Arrow_P.DisplayName: Light Arrow
+	Triangular_Manuscript_P.DisplayName: Triangular Manuscript
+	Triangular_Manuscript_Seek_P.DisplayName: Triangular Manuscript (Seek)
+	Vile_Spirit_Spread_Summon.DisplayName: Vile Spirit Summon
+	Platinum_Shot.DisplayName: Platinum Coin
+	Pyrkasivar_P.DisplayName: Pyrkasivar
+	Pyrkasivar_Shot.DisplayName: Pyrkasivar
+	Rope_Hook_Projectile.DisplayName: Rope_ Hook_ Projectile
+	Sanguis_Royale_Grab.DisplayName: Sanguis Royale
+	Sanguis_Royale_P.DisplayName: Sanguis Royale
+	Scorpio_Claw.DisplayName: Scorpio
+	Scorpio_Tail.DisplayName: Scorpio
+	Shadowflame_Arc.DisplayName: Shadowflame Arc
+	Silver_Shot.DisplayName: Silver Coin
+	Solweaver_Beam.DisplayName: Solweaver
+	Solweaver_Blast.DisplayName: Solweaver
+	Spike_Hook_Projectile.DisplayName: Spike_ Hook_ Projectile
+	Spike_Hook_Spawn_Projectile.DisplayName: Spike_ Hook_ Spawn_ Projectile
+	Spring_Boots_Projectile.DisplayName: Spring_ Boots_ Projectile
+	Straylight_Drifter_P.DisplayName: Straylight Drifter
+	SuppressorShot.DisplayName: Suppressor
+	Teleport_Prism_P.DisplayName: Teleport_Prism_P
+	Totally_Not_Shimmer_P.DisplayName: Jar of Unspecified Purplish Liquid
+	VIXI_Slash.DisplayName: VIXI Slash
+	VIXI_Stab.DisplayName: VIXI Stab
+	Vile_Spirit_Summon.DisplayName: Vile Spirit Summon
+	GeometryShot.DisplayName: Geometric Shot
+	MagShot.DisplayName: Helix Shot
+	Shroom_Shot.DisplayName: Infestation Round
+	Telescope_View_P.DisplayName: Telescope
+}
+
+DamageClasses: {
+	Biome_Key_Corrupt_Damage.DisplayName: profaned damage
+	Biome_Key_Crimson_Damage.DisplayName: sanguine damage
+	Biome_Key_Desert_Damage.DisplayName: desolate damage
+	Biome_Key_Forest_Damage.DisplayName: pure damage
+	Biome_Key_Frozen_Damage.DisplayName: frigid damage
+	Biome_Key_Hallow_Damage.DisplayName: holy damage
+	Biome_Key_Jungle_Damage.DisplayName: wild damage
+	Melee_Summon.DisplayName: melee/summon damage
+	Ranged_Magic.DisplayName: ranged/magic damage
+	Ranged_Melee_Speed.DisplayName: ranged damage
+	Spellsword.DisplayName: melee/magic damage
+}
+
+Biomes: {
+	LSDBiome.DisplayName: LSD Biome
+	PartyPseudoBiome.DisplayName: Party Pseudo Biome
+}
+
+Prefixes: {
+	Beckoning_Prefix.DisplayName: Beckoning
+	Frogged_Prefix.DisplayName: Frogged
+	Poisoned_Prefix.DisplayName: Poisoned
+}
+
+NPCs: {
+	Bobber_Snail.DisplayName: Bobber Snail
+	MinisharkNPC.DisplayName: Minishark
+	Vile_Spirit.DisplayName: Vile Spirit
+	Wrong_Spawn_NPC.DisplayName: "Wrong Spawn NPC (You're so incredibly high lmao)"
+}
+
+Tiles: {
+	Buried_Chest: {
+		ContainerName: Buried Chest
+		MapEntry: Buried Chest
+	}
+
+	Party_Pylon_Tile.MapEntry: Party Pylon Tile
+	Telescope.MapEntry: Telescope
+}

@@ -9,8 +9,8 @@ using Terraria.ModLoader;
 namespace EpikV2.Items {
 	public class Infestation_Round : ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Infestation Round");
-			Tooltip.SetDefault("Cultivate a plague.\nCan't crit");
+			// DisplayName.SetDefault("Infestation Round");
+			// Tooltip.SetDefault("Cultivate a plague.\nCan't crit");
 		}
 		public override void SetDefaults() {
 			Item.damage = 20;
@@ -39,8 +39,8 @@ namespace EpikV2.Items {
 	}
 	public class Infestation_Round_Pouch : ModItem {
         public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Parapsychological Plague Pouch");
-			Tooltip.SetDefault("Never run out of plague.\nCan't crit");
+			// DisplayName.SetDefault("Parapsychological Plague Pouch");
+			// Tooltip.SetDefault("Never run out of plague.\nCan't crit");
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ModContent.ItemType<Infestation_Round>());

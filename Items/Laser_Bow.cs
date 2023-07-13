@@ -25,10 +25,10 @@ namespace EpikV2.Items
             GlowTexture = null;
         }
         public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Chimerebos");//portmanteau & bastardization of "chimera" and "rebus", which I just now realize doesn't include any indication as to what it's a combination of
-		    Tooltip.SetDefault("It's glowing, so it's futuristic");
+		    // DisplayName.SetDefault("Chimerebos");//portmanteau & bastardization of "chimera" and "rebus", which I just now realize doesn't include any indication as to what it's a combination of
+		    // Tooltip.SetDefault("It's glowing, so it's futuristic");
             ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
             if (Main.netMode == NetmodeID.Server) return;
             UseTexture = Mod.RequestTexture("Items/Laser_Bow_Use");
             GlowTexture = Mod.RequestTexture("Items/Laser_Bow_Glow");
@@ -116,7 +116,7 @@ namespace EpikV2.Items
     }
 	public class Laser_Arrow : ModProjectile {
         public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Chimerebos");
+			// DisplayName.SetDefault("Chimerebos");
 		}
 		public override void SetDefaults(){
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
@@ -151,7 +151,7 @@ namespace EpikV2.Items
                 Dust.NewDustPerfect(Projectile.Center + (unitBack * i * 4), DustType<Dusts.Chimerebos_Dust>(), baseVel + unitBack, 100, new Color(1f, 0f, 0.369f, 0.075f - (i * 0.02f)), 0.75f);
             }
         }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
             //damage+=target.defense/2;
         }
     }

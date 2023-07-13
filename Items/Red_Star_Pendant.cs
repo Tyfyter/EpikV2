@@ -13,9 +13,9 @@ namespace EpikV2.Items {
     public class Red_Star_Pendant : ModItem {
         public static Terraria.DataStructures.PlayerDeathReason DeathReason(Player player) => Terraria.DataStructures.PlayerDeathReason.ByCustomReason(player.name + " sacrificed everything for power");
         public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Red Star Pendant");
-		    Tooltip.SetDefault("кровь для бога крови");
-            SacrificeTotal = 1;
+		    // DisplayName.SetDefault("Red Star Pendant");
+		    // Tooltip.SetDefault("кровь для бога крови");
+            Item.ResearchUnlockCount = 1;
         }
         public override void SetDefaults() {
             Item.accessory = true;

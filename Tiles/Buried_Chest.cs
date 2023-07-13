@@ -38,17 +38,16 @@ namespace EpikV2.Tiles {
 			TileObjectData.newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop | AnchorType.SolidSide, TileObjectData.newTile.Width, 0);
 			TileObjectData.addTile(Type);
 
-			ModTranslation name = CreateMapEntryName();
-			name.SetDefault("Buried Chest");
+			LocalizedText name = Language.GetOrRegister("Mods.EpikV2.Tiles.Buried_Chest.MapEntry");
+			// name.SetDefault("Buried Chest");
 			AddMapEntry(new Color(255, 245, 175), name, MapChestName);
 			//disableSmartCursor = true;
 			AdjTiles = new int[] { TileID.Containers };
-			ContainerName.SetDefault("Buried Chest");
-			ChestDrop = ModContent.ItemType<Buried_Chest_Item>();
+			//ItemDrop/* tModPorter Note: Removed. Tiles and walls will drop the item which places them automatically. Use RegisterItemDrop to alter the automatic drop if necessary. */ = ModContent.ItemType<Buried_Chest_Item>();
 
 			ID = Type;
 		}
-
+		public override LocalizedText DefaultContainerName(int frameX, int frameY) => Language.GetText("Mods.EpikV2.Tiles.Buried_Chest.ContainerName");
 		public override ushort GetMapOption(int i, int j) => 0;
 		public override bool HasSmartInteract(int i, int j, SmartInteractScanSettings settings) => true;
 		public string MapChestName(string name, int i, int j) {
@@ -121,7 +120,7 @@ namespace EpikV2.Tiles {
 		}
 
 		public override void KillMultiTile(int i, int j, int frameX, int frameY) {
-			Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ChestDrop);
+			//Item.NewItem(WorldGen.GetItemSource_FromTileBreak(i, j), i * 16, j * 16, 32, 32, ItemDrop/* tModPorter Note: Removed. Tiles and walls will drop the item which places them automatically. Use RegisterItemDrop to alter the automatic drop if necessary. */);
 			Chest.DestroyChest(i, j);
 		}
 
@@ -194,9 +193,9 @@ namespace EpikV2.Tiles {
 			if (chestIndex < 0) {
 				player.cursorItemIconText = Language.GetTextValue("LegacyChestType.0");
 			} else {
-                player.cursorItemIconText = Main.chest[chestIndex].name.Length > 0 ? Main.chest[chestIndex].name : ContainerName.GetDefault();
-				if (player.cursorItemIconText.Equals(ContainerName.GetDefault())) {
-					player.cursorItemIconID = ChestDrop;
+                player.cursorItemIconText = Main.chest[chestIndex].name.Length > 0 ? Main.chest[chestIndex].name : DefaultContainerName(0, 0).Value;
+				if (player.cursorItemIconText.Equals(DefaultContainerName(0, 0))) {
+					player.cursorItemIconID = ModContent.ItemType<Buried_Chest_Item>();
 					player.cursorItemIconText = "";
 				}
 			}

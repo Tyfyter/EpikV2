@@ -45,12 +45,12 @@ namespace EpikV2.Items {
 		int durability = 600;
 		bool broken = false;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Obsidian Spellsword");
-			Tooltip.SetDefault("Very fragile\n<right> to pay 20 mana and 10 health to break");
+			// DisplayName.SetDefault("Obsidian Spellsword");
+			// Tooltip.SetDefault("Very fragile\n<right> to pay 20 mana and 10 health to break");
 			animation = new DrawAnimationManual(4);
 			Main.RegisterItemAnimation(Item.type, animation);
 			customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
-			SacrificeTotal = 1;
+			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			// Call this method to quickly set some of the properties below.
@@ -128,7 +128,7 @@ namespace EpikV2.Items {
 			recipe.AddTile(TileID.BoneWelder);
 			recipe.Register();
 		}
-		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit) {
+		public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone) {
 			durability -= 60;
 			SoundEngine.PlaySound(SoundID.DD2_CrystalCartImpact.WithVolume(0.75f), target.Center);
 			if (durability <= 0) {
@@ -179,7 +179,7 @@ namespace EpikV2.Items {
 	}
 	public class Obsidian_Spellsword_P : ModProjectile {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Obsidian Spellsword");
+			// DisplayName.SetDefault("Obsidian Spellsword");
 			// This makes the projectile use whip collision detection and allows flasks to be applied to it.
 			ProjectileID.Sets.IsAWhip[Type] = true;
 		}

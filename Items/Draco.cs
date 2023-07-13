@@ -24,10 +24,10 @@ namespace EpikV2.Items {
         public float ChargePercent => charge / (float)maxCharge;
         public float BaseMult => 0.25f;
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Draco");
-		    Tooltip.SetDefault("");
+		    // DisplayName.SetDefault("Draco");
+		    // Tooltip.SetDefault("");
             ID = Item.type;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
         }
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.NebulaBlaze);
@@ -113,7 +113,7 @@ namespace EpikV2.Items {
         protected override bool CloneNewInstances => true;
 
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Draco");
+            // DisplayName.SetDefault("Draco");
             ID = Projectile.type;
         }
         public override void SetDefaults() {

@@ -13,10 +13,10 @@ namespace EpikV2.Items {
         public static int ID = -1;
         public const float collisionMult = 0.5f;
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Spring Boots");
-		    Tooltip.SetDefault("'A bit ropey'");
+		    // DisplayName.SetDefault("Spring Boots");
+		    // Tooltip.SetDefault("'A bit ropey'");
             ID = Item.type;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
         }
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.AmethystHook);
@@ -27,10 +27,10 @@ namespace EpikV2.Items {
 	public class Lucky_Spring_Boots : Spring_Boots {
         public static new int ID = -1;
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Lucky Boots");
-		    Tooltip.SetDefault("'They've never failed you'");
+		    // DisplayName.SetDefault("Lucky Boots");
+		    // Tooltip.SetDefault("'They've never failed you'");
             ID = Item.type;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
         }
 		public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type);

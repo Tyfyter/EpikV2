@@ -28,9 +28,9 @@ namespace EpikV2.Items {
 	//right dash slash, less dashy dash slash, big slash
     public class VIXI : ModItem {
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Vixi");
-			Tooltip.SetDefault("<right> to dash forwards with a slash");
-            SacrificeTotal = 1;
+		    // DisplayName.SetDefault("Vixi");
+			// Tooltip.SetDefault("<right> to dash forwards with a slash");
+            Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.PiercingStarlight);
@@ -231,7 +231,7 @@ namespace EpikV2.Items {
 			}
 			return false;
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			if (target.life < 0) {
 				VIXI.AddKillLuck(Main.player[Projectile.owner]);
 			}
@@ -298,7 +298,7 @@ namespace EpikV2.Items {
 			}
 			return false;
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			if (target.life < 0) {
 				VIXI.AddKillLuck(Main.player[Projectile.owner]);
 			}

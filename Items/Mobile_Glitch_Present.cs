@@ -12,9 +12,9 @@ namespace EpikV2.Items {
 	public class Mobile_Glitch_Present : ModItem {
         public override string Texture => "Terraria/Images/Item_1869";
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Ancient Mobile Present");
-			Tooltip.SetDefault("Both does and does not contain a dead cat");
-			SacrificeTotal = 111;
+			// DisplayName.SetDefault("Ancient Mobile Present");
+			// Tooltip.SetDefault("Both does and does not contain a dead cat");
+			Item.ResearchUnlockCount = 111;
 		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.Present);

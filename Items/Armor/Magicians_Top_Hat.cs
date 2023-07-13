@@ -22,13 +22,13 @@ namespace EpikV2.Items.Armor {
             RealArmorID = EquipLoader.AddEquipTexture(Mod, "EpikV2/Items/Armor/Magicians_Top_Hat_Head", EquipType.Head, name: "Magicians_Top_Hat_Real");
         }
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Magicians Top Hat");
-			Tooltip.SetDefault("25% increased magic and minion damage\n"+
+			// DisplayName.SetDefault("Magicians Top Hat");
+			/* Tooltip.SetDefault("25% increased magic and minion damage\n"+
                                "Increases your max number of minions by 1\n"+
-                               "'A magician never reveals <pro> secrets'");
+                               "'A magician never reveals <pro> secrets'"); */
             ArmorIDs.Head.Sets.DrawHatHair[ArmorID] = true;
             ArmorIDs.Head.Sets.DrawHatHair[RealArmorID] = true;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
         }
 		public override void SetDefaults() {
             Item.headSlot = ArmorID;
@@ -241,7 +241,7 @@ namespace EpikV2.Items.Armor {
     [Autoload(false)]
     public class Ace_Heart : Ace {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Ace of Hearts");
+            // DisplayName.SetDefault("Ace of Hearts");
         }
         public override void SetDefaults() {
             base.SetDefaults();
@@ -264,7 +264,7 @@ namespace EpikV2.Items.Armor {
     [Autoload(false)]
     public class Ace_Diamond : Ace {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Ace of Diamonds");
+            // DisplayName.SetDefault("Ace of Diamonds");
         }
         public override void SetDefaults() {
             base.SetDefaults();
@@ -286,7 +286,7 @@ namespace EpikV2.Items.Armor {
     [Autoload(false)]
     public class Ace_Spade : Ace {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Ace of Spades");
+            // DisplayName.SetDefault("Ace of Spades");
         }
         public override void SetDefaults() {
             base.SetDefaults();
@@ -301,7 +301,7 @@ namespace EpikV2.Items.Armor {
     [Autoload(false)]
     public class Ace_Club : Ace {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Ace of Clubs");
+            // DisplayName.SetDefault("Ace of Clubs");
         }
         public override void SetDefaults() {
             base.SetDefaults();
@@ -314,8 +314,8 @@ namespace EpikV2.Items.Armor {
     }
     public class Ace_Spade_Buff : ModBuff {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Ace of Spades");
-            Description.SetDefault("Increases damage dealt");
+            // DisplayName.SetDefault("Ace of Spades");
+            // Description.SetDefault("Increases damage dealt");
         }
         public override void Update(Player player, ref int buffIndex) {
             player.GetModPlayer<EpikPlayer>().spadeBuff = true;
@@ -323,8 +323,8 @@ namespace EpikV2.Items.Armor {
     }
     public class Ace_Club_Buff : ModBuff {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Ace of Clubs");
-            Description.SetDefault("Reduces damage taken");
+            // DisplayName.SetDefault("Ace of Clubs");
+            // Description.SetDefault("Reduces damage taken");
         }
         public override void Update(Player player, ref int buffIndex) {
             player.GetModPlayer<EpikPlayer>().clubBuff = true;
@@ -332,7 +332,7 @@ namespace EpikV2.Items.Armor {
     }
     public class Ace_Heart_P : Thrown_Ace {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Ace of Hearts");
+            // DisplayName.SetDefault("Ace of Hearts");
             base.SetStaticDefaults();
         }
         public override void AllyHitEffect(Player player) {
@@ -344,7 +344,7 @@ namespace EpikV2.Items.Armor {
     }
     public class Ace_Diamond_P : Thrown_Ace {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Ace of Diamonds");
+            // DisplayName.SetDefault("Ace of Diamonds");
             base.SetStaticDefaults();
         }
         public override void AllyHitEffect(Player player) {
@@ -356,7 +356,7 @@ namespace EpikV2.Items.Armor {
     }
     public class Ace_Spade_P : Thrown_Ace {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Ace of Spades");
+            // DisplayName.SetDefault("Ace of Spades");
             base.SetStaticDefaults();
         }
         public override void AllyHitEffect(Player player) {
@@ -365,7 +365,7 @@ namespace EpikV2.Items.Armor {
     }
     public class Ace_Club_P : Thrown_Ace {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Ace of Clubs");
+            // DisplayName.SetDefault("Ace of Clubs");
             base.SetStaticDefaults();
         }
         public override void AllyHitEffect(Player player) {

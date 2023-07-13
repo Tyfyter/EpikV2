@@ -16,7 +16,7 @@ using static Terraria.GameContent.Bestiary.BestiaryDatabaseNPCsPopulator;
 namespace EpikV2.NPCs {
     public class MinisharkNPC : ModNPC {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Minishark");
+            // DisplayName.SetDefault("Minishark");
         }
         public override void SetDefaults() {
             NPC.CloneDefaults(NPCID.Shark);

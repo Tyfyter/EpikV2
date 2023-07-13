@@ -83,35 +83,29 @@ namespace EpikV2.Projectiles {
 		public override void PostAI(Projectile projectile) {
             EpikV2.KaleidoscopeColorType = 0;
         }
-		public override void ModifyHitNPC(Projectile projectile, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+		public override void ModifyHitNPC(Projectile projectile, NPC target, ref NPC.HitModifiers modifiers) {
             if (prefix is IProjectileHitPrefix hitPrefix) {
-                hitPrefix.ModifyProjectileHitNPC(projectile, target, ref damage, ref knockback, ref crit, ref hitDirection);
+                hitPrefix.ModifyProjectileHitNPC(projectile, target, ref modifiers);
             }
         }
-		public override void ModifyHitPvp(Projectile projectile, Player target, ref int damage, ref bool crit) {
-            ModifyHitPlayer(projectile, target, ref damage, ref crit);
-		}
-		public override void ModifyHitPlayer(Projectile projectile, Player target, ref int damage, ref bool crit) {
+		public override void ModifyHitPlayer(Projectile projectile, Player target, ref Player.HurtModifiers modifiers) {
             if (projectile.type == ProjectileID.ConfettiGun && !target.noKnockback) {
                 target.GetModPlayer<EpikPlayer>().noKnockbackOnce = true;
             }
 		}
-		public override void OnHitPvp(Projectile projectile, Player target, int damage, bool crit) {
-            OnHitPlayer(projectile, target, damage, crit);
-        }
-        public override void OnHitPlayer(Projectile projectile, Player target, int damage, bool crit) {
+        public override void OnHitPlayer(Projectile projectile, Player target, Player.HurtInfo info) {
             if (projectile.type == ProjectileID.ConfettiGun && !target.noKnockback) {
                 Vector2 velNorm = projectile.velocity.SafeNormalize(default);
                 float dot = 1 - Math.Abs(Vector2.Dot(target.velocity.SafeNormalize(default), velNorm));
                 target.velocity = (target.velocity * dot) + velNorm * projectile.knockBack * 0.5f;
             }
         }
-        public override void OnHitNPC(Projectile projectile, NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(Projectile projectile, NPC target, NPC.HitInfo hit, int damageDone) {
             if (prefix is IProjectileHitPrefix hitPrefix) {
-                hitPrefix.OnProjectileHitNPC(projectile, target, damage, knockback, crit);
+                hitPrefix.OnProjectileHitNPC(projectile, target, hit);
             }
 			if (projectile.type == ProjectileID.ConfettiGun) {
-                target.velocity = Vector2.Lerp(target.oldVelocity, projectile.velocity.SafeNormalize(default) * knockback * target.knockBackResist, Math.Max(1, target.knockBackResist));
+                target.velocity = Vector2.Lerp(target.oldVelocity, projectile.velocity.SafeNormalize(default) * hit.Knockback * target.knockBackResist, Math.Max(1, target.knockBackResist));
             }
         }
 		public override bool? Colliding(Projectile projectile, Rectangle projHitbox, Rectangle targetHitbox) {

@@ -12,12 +12,12 @@ namespace EpikV2.Items.Armor {
 	public class Champions_Helm : ModItem {
         public static int ArmorID { get; private set; }
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Champion's Helm");
-			Tooltip.SetDefault("25% increased melee and ranged damage\n"+
+			// DisplayName.SetDefault("Champion's Helm");
+			/* Tooltip.SetDefault("25% increased melee and ranged damage\n"+
                                "10% increased melee and ranged crit chance\n"+
-                               "'Rise, undefeated, and fight'");
+                               "'Rise, undefeated, and fight'"); */
             ArmorID = Item.headSlot;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
         }
 		public override void SetDefaults() {
 			Item.width = 20;

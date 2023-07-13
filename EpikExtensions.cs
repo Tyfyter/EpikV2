@@ -299,7 +299,7 @@ namespace EpikV2 {
 			if (!canBeHitByItem) {
 				return false;
 			}
-			bool playerCanHitNPC = PlayerLoader.CanHitNPC(player, item, npc) ?? true;
+			bool playerCanHitNPC = PlayerLoader.CanHitNPCWithItem(player, item, npc) ?? true;
 			if (!playerCanHitNPC) {
 				return false;
 			}
@@ -323,7 +323,7 @@ namespace EpikV2 {
 			if (!canBeHitByItem) {
 				return false;
 			}
-			bool playerCanHitNPC = PlayerLoader.CanHitNPC(player, item, npc) ?? true;
+			bool playerCanHitNPC = PlayerLoader.CanHitNPCWithItem(player, item, npc) ?? true;
 			if (!playerCanHitNPC) {
 				return false;
 			}

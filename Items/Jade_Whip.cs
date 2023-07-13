@@ -19,9 +19,9 @@ namespace EpikV2.Items {
 	public class Jade_Whip : ModItem {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.RainbowWhip;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("<PH> Jade Whip");
-			Tooltip.SetDefault("Summon tag damage and crit chance benefit from bonuses");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("<PH> Jade Whip");
+			// Tooltip.SetDefault("Summon tag damage and crit chance benefit from bonuses");
+			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			// Call this method to quickly set some of the properties below.
@@ -63,7 +63,7 @@ namespace EpikV2.Items {
 	public class Jade_Whip_P : ModProjectile {
 		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.RainbowWhip;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Name TBD");
+			// DisplayName.SetDefault("Name TBD");
 			// This makes the projectile use whip collision detection and allows flasks to be applied to it.
 			ProjectileID.Sets.IsAWhip[Type] = true;
 		}
@@ -109,7 +109,7 @@ namespace EpikV2.Items {
 				SoundEngine.PlaySound(SoundID.Item153, points[points.Count - 1]);
 			}
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			target.GetGlobalNPC<EpikGlobalNPC>().SetJadeWhipValues(300, damage / 10, Projectile.CritChance);
 			if(target.life > 0 && target.CanBeChasedBy()) Main.player[Projectile.owner].MinionAttackTargetNPC = target.whoAmI;
 		}

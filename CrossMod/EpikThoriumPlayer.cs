@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿#if false //TODO: remove when Thorium updates
+using Microsoft.Xna.Framework;
 using MonoMod.RuntimeDetour.HookGen;
 using System;
 using System.Collections.Generic;
@@ -169,3 +170,4 @@ namespace EpikV2.CrossMod {
 		}
 	}
 }
+#endif

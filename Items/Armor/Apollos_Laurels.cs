@@ -8,15 +8,12 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+#if false //TODO: remove when Thorium updates
 using ThoriumMod;
 using ThoriumMod.Empowerments;
 using ThoriumMod.Items;
 
 namespace EpikV2.Items.Armor {
-	//
-	//                     a crown for the true,
-	//The crown of the sovereign,
-	//It feels only fitting that there should be two.
 	//[AutoloadEquip(EquipType.Head)]
 	[ExtendsFromMod("ThoriumMod")]
 	public class Apollos_Laurels : BardItem {
@@ -147,3 +144,11 @@ namespace EpikV2.Items.Armor {
 		}
 	}
 }
+#else
+
+namespace EpikV2.Items {
+	public class Apollos_Laurels : ModItem {
+		public override string Texture => "Terraria/Images/Item_" + ItemID.GarlandHat;
+	}
+}
+#endif

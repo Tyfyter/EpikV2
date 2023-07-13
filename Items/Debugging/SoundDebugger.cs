@@ -18,7 +18,8 @@ namespace EpikV2.Items.Debugging {
         SoundStyle soundStyle;
         public override string Texture => "EpikV2/Items/Ace_Black_Diamond";
         public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Sound Debugger");
+		    // DisplayName.SetDefault("Sound Debugger");
+			Item.ResearchUnlockCount = 0;
 		}
 
         public override void SetDefaults() {

@@ -12,7 +12,7 @@ namespace EpikV2.Tiles {
 	/// </summary>
 	public class Party_Pylon_Item : ModItem {
 		public override void SetStaticDefaults() {
-			SacrificeTotal = 3;
+			Item.ResearchUnlockCount = 3;
 		}
 		public override void SetDefaults() {
 			// Basically, this a just a shorthand method that will set all default values necessary to place

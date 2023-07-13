@@ -33,11 +33,11 @@ namespace EpikV2.Items {
         public float BaseMult => 0.25f;
         public bool fireArrow = false;
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Orion's Bow");
-		    Tooltip.SetDefault("Shoot for the stars");
+		    // DisplayName.SetDefault("Orion's Bow");
+		    // Tooltip.SetDefault("Shoot for the stars");
             ID = Item.type;
             ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
             if (Main.netMode == NetmodeID.Server)return;
             goldTexture = Mod.RequestTexture("Items/Orion_Bow_Limb_Gold");
             skyTexture = Mod.RequestTexture("Items/Orion_Bow_Limb_Sky");
@@ -218,7 +218,7 @@ namespace EpikV2.Items {
         protected override bool CloneNewInstances => true;
         ModProjectile other;
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Orion's Bow");
+            // DisplayName.SetDefault("Orion's Bow");
             ID = Projectile.type;
         }
         public override void SetDefaults() {
@@ -261,10 +261,10 @@ namespace EpikV2.Items {
                 Main.player[Projectile.owner].heldProj = Projectile.whoAmI;
             }
         }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             Projectile.type = type;
             Projectile.StatusNPC(target.whoAmI);
-            other?.OnHitNPC(target, damage, knockback, crit);
+            other?.OnHitNPC(target, hit, damageDone);
             Projectile.type = ID;
             if (type >= ProjectileID.Count && KillOnHit) {
                 Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, type, Projectile.damage, Projectile.knockBack, Projectile.owner).Kill();
@@ -276,12 +276,11 @@ namespace EpikV2.Items {
                 break;
             }
         }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-            other?.ModifyHitNPC(target, ref damage, ref knockback, ref crit, ref hitDirection);
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+            other?.ModifyHitNPC(target, ref modifiers);
             if(Projectile.aiStyle == 0) {
-                crit = true;
-                float crt = Main.player[Projectile.owner].GetCritChance(DamageClass.Ranged)/100f;
-                damage+=(int)(damage * crt);
+				modifiers.SetCrit();
+				modifiers.SourceDamage *= (Projectile.CritChance / 100f) + 1;
             }
         }
 		public override bool OnTileCollide(Vector2 oldVelocity) {
@@ -351,7 +350,7 @@ namespace EpikV2.Items {
         protected override bool CloneNewInstances => true;
         ModProjectile other;
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Orion's Bow");
+            // DisplayName.SetDefault("Orion's Bow");
             ID = Projectile.type;
         }
         public override void SetDefaults() {
@@ -383,10 +382,10 @@ namespace EpikV2.Items {
                 ProjectileLoader.GetProjectile(type)?.AI();
             }
         }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             Projectile.type = type;
             Projectile.StatusNPC(target.whoAmI);
-            other?.OnHitNPC(target, damage, knockback, crit);
+            other?.OnHitNPC(target, hit, damageDone);
             Projectile.type = ID;
             switch (type) {
                 case ProjectileID.HolyArrow:
@@ -395,13 +394,12 @@ namespace EpikV2.Items {
                 break;
             }
         }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-            other?.ModifyHitNPC(target, ref damage, ref knockback, ref crit, ref hitDirection);
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+            other?.ModifyHitNPC(target, ref modifiers);
             if (Projectile.aiStyle == 0) {
-                crit = true;
-                float crt = Main.player[Projectile.owner].GetCritChance(DamageClass.Ranged) / 100f;
-                damage += (int)(damage * crt);
-            }
+				modifiers.SetCrit();
+				modifiers.SourceDamage *= (Projectile.CritChance / 100f) + 1;
+			}
         }
         public override bool OnTileCollide(Vector2 oldVelocity) {
             if (other is not null) {

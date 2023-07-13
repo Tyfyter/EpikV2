@@ -11,8 +11,8 @@ using Terraria.ModLoader;
 namespace EpikV2.Items {
     public class Chocolate_Bar : ModItem {
         public override void SetStaticDefaults(){
-            DisplayName.SetDefault("Nonspecific Chocolate Bar");
-            Tooltip.SetDefault("\"Sate your hunger to reveal your true self!\"");
+            // DisplayName.SetDefault("Nonspecific Chocolate Bar");
+            // Tooltip.SetDefault("\"Sate your hunger to reveal your true self!\"");
         }
 		public override void SetDefaults(){
 			Item.CloneDefaults(ItemID.CookedFish);
@@ -30,8 +30,8 @@ namespace EpikV2.Items {
 		public override string Texture => "EpikV2/Buffs/True_Self_Debuff";
 		public static int ID { get; internal set; } = -1;
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("True Self");
-            Description.SetDefault("You're you");
+            // DisplayName.SetDefault("True Self");
+            // Description.SetDefault("You're you");
             Main.debuff[Type] = true;
             BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
             ID = Type;

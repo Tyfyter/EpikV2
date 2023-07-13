@@ -8,12 +8,12 @@ namespace EpikV2.Items {
 	[AutoloadEquip(EquipType.Neck)]
 	public class Worm_Tooth_Torc : ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Worm Tooth Torc");
-			Tooltip.SetDefault("Increases armor penetration by 7\nAttacks may inflict Cursed Inferno");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("Worm Tooth Torc");
+			// Tooltip.SetDefault("Increases armor penetration by 7\nAttacks may inflict Cursed Inferno");
+			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
-			sbyte n = Item.neckSlot;
+			int n = Item.neckSlot;
 			Item.CloneDefaults(ItemID.SharkToothNecklace);
 			Item.neckSlot = n;
 			Item.width = 28;

@@ -19,8 +19,8 @@ using Tyfyter.Utils;
 namespace EpikV2.Items.Other {
 	public class Triangular_Manuscript : ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Triangular Manuscript");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("Triangular Manuscript");
+			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.FallenStar);
@@ -227,8 +227,8 @@ namespace EpikV2.Items.Other {
 			}
 			Projectile.timeLeft = lifetime;
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
-			hitDirection = target.Center.X < Projectile.Center.X ? -1 : 1;
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			modifiers.HitDirectionOverride = target.Center.X < Projectile.Center.X ? -1 : 1;
 		}
 	}
 
@@ -738,6 +738,7 @@ namespace EpikV2.Items.Other {
 			}
 		}
 	}
+#if false //TODO: remove after updating Origins
 	[ExtendsFromMod("Origins")]
 	public class Triangular_Manuscript_Quest : Origins.Questing.Quest {
 		public override void SetStaticDefaults() {
@@ -750,4 +751,5 @@ namespace EpikV2.Items.Other {
 			return "beezechurger";
 		}
 	}
+#endif
 }

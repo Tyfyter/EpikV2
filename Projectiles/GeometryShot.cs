@@ -26,7 +26,7 @@ namespace EpikV2.Projectiles{
             Projectile.usesLocalNPCImmunity = true;
         }
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Geometric Shot");
+			// DisplayName.SetDefault("Geometric Shot");
 		}
         public override void AI(){
             Projectile.rotation = Projectile.velocity.ToRotation()+1.57f;//(float)Math.Atan2((double)projectile.velocity.Y, (double)projectile.velocity.X);

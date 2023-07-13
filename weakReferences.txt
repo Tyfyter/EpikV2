@@ -1,1 +1,3 @@
-weakReferences = Origins, WeaponOut, RecipeBrowser, GraphicsLib
+weakReferences = Origins, WeaponOut, ThoriumMod
+weakReferences = Origins, ThoriumMod
+sortAfter = ThoriumMod, Origins

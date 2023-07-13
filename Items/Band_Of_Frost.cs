@@ -13,16 +13,11 @@ using static Terraria.ModLoader.ModContent;
 namespace EpikV2.Items {
     [AutoloadEquip(EquipType.HandsOn)]
     public class Band_Of_Frost : ModItem {
-        /*public override bool Autoload(ref string name) {
-            return false;
-        }*/
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Band Of Frost");
-		    Tooltip.SetDefault("");
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
         }
         public override void SetDefaults() {
-            sbyte h = Item.handOnSlot;
+            int h = Item.handOnSlot;
             Item.CloneDefaults(ItemID.FrostStaff);
             Item.handOnSlot = h;
             Item.damage = 135;
@@ -68,7 +63,7 @@ namespace EpikV2.Items {
         Vector2 oldPos = Vector2.Zero;
         bool onGround = false;
         public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Band Of Frost");
+			// DisplayName.SetDefault("Band Of Frost");
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
@@ -127,7 +122,7 @@ namespace EpikV2.Items {
 		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.FrostShard;
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Band Of Frost");
+			// DisplayName.SetDefault("Band Of Frost");
 			Main.projFrames[Type] = Main.projFrames[ProjectileID.FrostShard];
 			ID = Type;
 		}
@@ -145,7 +140,7 @@ namespace EpikV2.Items {
 	public class Frost_Spike : ModProjectile {
         Vector2 oldPos = Vector2.Zero;
         public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Band Of Frost");
+			// DisplayName.SetDefault("Band Of Frost");
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
@@ -182,9 +177,9 @@ namespace EpikV2.Items {
             if(targVel.SafeNormalize(Vector2.Zero).Y>0.5) return null;
             return false;
         }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-            knockback *= Projectile.scale;
-            hitDirection = Math.Sign(Projectile.velocity.X);
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			modifiers.Knockback *= Projectile.scale;
+			modifiers.HitDirectionOverride = Math.Sign(Projectile.velocity.X);
         }
         public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI) {
             behindNPCsAndTiles.Add(index);

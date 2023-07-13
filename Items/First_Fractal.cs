@@ -28,9 +28,9 @@ namespace EpikV2.Items {
 		protected abstract int FrameIndex { get; }
 		protected static List<int> Modes { get; set; }
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("First Fractal");
-			Tooltip.SetDefault("");
-            SacrificeTotal = 1;
+		    // DisplayName.SetDefault("First Fractal");
+			// Tooltip.SetDefault("");
+            Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.Zenith);

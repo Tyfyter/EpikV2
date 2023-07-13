@@ -14,17 +14,14 @@ namespace EpikV2.Items.Other {
 
     public class Light_Arrows : ModItem {
 		public override void Load() {
-			On.Terraria.Projectile.NewProjectile_IEntitySource_float_float_float_float_int_int_float_int_float_float += Projectile_NewProjectile;
+			On_Projectile.NewProjectile_IEntitySource_float_float_float_float_int_int_float_int_float_float_float += Projectile_NewProjectile;
 		}
 
-		private static int Projectile_NewProjectile(On.Terraria.Projectile.orig_NewProjectile_IEntitySource_float_float_float_float_int_int_float_int_float_float orig, IEntitySource spawnSource, float X, float Y, float SpeedX, float SpeedY, int Type, int Damage, float KnockBack, int Owner, float ai0, float ai1) {
+		private static int Projectile_NewProjectile(On_Projectile.orig_NewProjectile_IEntitySource_float_float_float_float_int_int_float_int_float_float_float orig, IEntitySource spawnSource, float X, float Y, float SpeedX, float SpeedY, int Type, int Damage, float KnockBack, int Owner, float ai0, float ai1, float ai2) {
 			if (Type == ProjectileID.WoodenArrowFriendly && spawnSource is EntitySource_ItemUse_WithAmmo ammo && ammo.AmmoItemIdUsed == ModContent.ItemType<Light_Arrows>()) {
 				Type = ModContent.ProjectileType<Light_Arrow_P>();
 			}
-			return orig(spawnSource, X, Y, SpeedX, SpeedY, Type, Damage, KnockBack, Owner, ai0, ai1);
-		}
-		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Light Arrows");
+			return orig(spawnSource, X, Y, SpeedX, SpeedY, Type, Damage, KnockBack, Owner, ai0, ai1, ai2);
 		}
         public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.EndlessQuiver);
@@ -73,9 +70,6 @@ namespace EpikV2.Items.Other {
 		}
 	}
 	public class Light_Arrow_P : ModProjectile {
-		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Light Arrow");
-		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
 			Projectile.extraUpdates = 1;

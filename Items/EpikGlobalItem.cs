@@ -20,10 +20,10 @@ namespace EpikV2.Items {
 		public override bool InstancePerEntity => true;
 		protected override bool CloneNewInstances => true;
 		bool? nOwO = null;
-		public override void OnCreate(Item item, ItemCreationContext context) {
-			if (context is RecipeCreationContext) {
+		public override void OnCreated(Item item, ItemCreationContext context) {
+			if (context is RecipeItemCreationContext) {
 				InitCatgirlMeme(item);
-			} else if(context is not InitializationContext) {
+			} else if(context is not InitializationItemCreationContext) {
 				EpikV2.instance.Logger.Info("cat ears created in unknown context: " + context);
 			}
 		}
@@ -35,7 +35,7 @@ namespace EpikV2.Items {
 		public override void SetDefaults(Item item) {
 			RefreshCatgirlMeme(item);
 			if (EpikConfig.Instance.ThatFixFromNextUpdate) {
-				item.canBePlacedInVanityRegardlessOfConditions = true;
+				item.hasVanityEffects = true;
 			}
 		}
 		public void InitCatgirlMeme(Item item) {
@@ -111,9 +111,9 @@ namespace EpikV2.Items {
 		public override void PostReforge(Item item) {
 			if (item.netID == ItemID.GoldenKey) item.netID = item.type = ItemID.Keybrand;
 		}
-		public override void OnHitNPC(Item item, Player player, NPC target, int damage, float knockBack, bool crit) {
+		public override void OnHitNPC(Item item, Player player, NPC target, NPC.HitInfo hit, int damageDone) {
 			if (PrefixLoader.GetPrefix(item.prefix) is IMeleeHitPrefix meleeHitPrefix) {
-				meleeHitPrefix.OnMeleeHitNPC(player, item, target, damage, knockBack, crit);
+				meleeHitPrefix.OnMeleeHitNPC(player, item, target, hit);
 			}
 		}
 		public override void PickAmmo(Item weapon, Item ammo, Player player, ref int type, ref float speed, ref StatModifier damage, ref float knockback) {

@@ -13,9 +13,9 @@ namespace EpikV2.Items {
 	public class Mana_Addiction : Parasitic_Accessory {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.ManaCrystal;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Black Mana Crystal");
-			Tooltip.SetDefault("Increases magic damage by 30%\n10% increased magic weapon speed");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("Black Mana Crystal");
+			// Tooltip.SetDefault("Increases magic damage by 30%\n10% increased magic weapon speed");
+			Item.ResearchUnlockCount = 1;
 			EpikV2.AddBalanceRarityOverride(Type, ItemRarityID.Pink);
 		}
 		public override void UpdateEquip(Player player) {

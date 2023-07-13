@@ -28,10 +28,10 @@ namespace EpikV2.Items {
             clawTexture = null;
         }
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Scorpio");
-		    Tooltip.SetDefault("<right> to strike with celestial claws");
+		    // DisplayName.SetDefault("Scorpio");
+		    // Tooltip.SetDefault("<right> to strike with celestial claws");
             ID = Item.type;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
             if (Main.netMode == NetmodeID.Server)return;
             tailSpikeTexture = Mod.RequestTexture("Items/Scorpio_Tail_Spike");
             tailSegmentTexture = Mod.RequestTexture("Items/Scorpio_Tail_Segment");
@@ -75,7 +75,7 @@ namespace EpikV2.Items {
         public static int ID = -1;
         public override string Texture => "EpikV2/Items/Scorpio_Tail_Spike";
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Scorpio");
+            // DisplayName.SetDefault("Scorpio");
             ID = Projectile.type;
         }
         public override void SetDefaults() {
@@ -96,13 +96,13 @@ namespace EpikV2.Items {
                 Projectile.position = Projectile.oldPosition;
             }
         }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-            knockback = 0f;
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			modifiers.Knockback *= 0f;
             if(target.GetGlobalNPC<EpikGlobalNPC>().scorpioTime>0) {
                 damage+=damage/4;
             }
         }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             target.AddBuff(Scorpio_Debuff.ID, 600);
             float knockBackResist = target.knockBackResist;
             if(knockBackResist == 0f) {
@@ -188,7 +188,7 @@ namespace EpikV2.Items {
     public class Scorpio_Claw : ModProjectile {
         public static int ID = -1;
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Scorpio");
+            // DisplayName.SetDefault("Scorpio");
             ID = Projectile.type;
         }
         public override void SetDefaults() {
@@ -211,7 +211,7 @@ namespace EpikV2.Items {
                 Projectile.position = Projectile.oldPosition;
             }
         }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             target.AddBuff(Scorpio_Debuff.ID, 600);
             if(target.knockBackResist == 0f) {
                 return;
@@ -242,7 +242,7 @@ namespace EpikV2.Items {
 		public override string Texture => "EpikV2/Buffs/Hydra_Buff";
 		public static int ID { get; internal set; } = -1;
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Celestial Flames");
+            // DisplayName.SetDefault("Celestial Flames");
             ID = Type;
         }
 

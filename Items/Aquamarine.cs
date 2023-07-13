@@ -12,10 +12,7 @@ using static Terraria.ModLoader.ModContent;
 namespace EpikV2.Items {
     public class Aquamarine : ModItem {
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Aquamarine");
-		    Tooltip.SetDefault("\"Make waves\"");//Theta waves to be specific
-            SacrificeTotal = 1;
-            //customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
+            Item.ResearchUnlockCount = 1;
         }
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.WoodenBow);
@@ -54,9 +51,6 @@ namespace EpikV2.Items {
         int arrows = 0;
         int damage = 0;
         Vector2 speed;
-        public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Aquamarine");
-		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
             Projectile.usesLocalNPCImmunity = true;
@@ -97,8 +91,8 @@ namespace EpikV2.Items {
             Lighting.AddLight(Projectile.Center, 0, 0.75f, 0.5625f);
             Dust.NewDustPerfect(Projectile.Center, 226, Projectile.velocity*-0.25f, 100, new Color(0, 255, 191), 0.5f).noGravity = true;
         }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-            damage+=target.defense/3;
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			modifiers.ScalingArmorPenetration += 0.666f;
         }
         internal void init(int dir, int dmg) {
 			speed = Projectile.velocity.RotatedBy(dir/8d)*0.9f;

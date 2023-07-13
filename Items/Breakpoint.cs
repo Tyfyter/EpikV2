@@ -18,10 +18,10 @@ namespace EpikV2.Items {
     public class Breakpoint : ModItem {
         static short customGlowMask;
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Breakpoint");
-		    Tooltip.SetDefault("");
+		    // DisplayName.SetDefault("Breakpoint");
+		    // Tooltip.SetDefault("");
             customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
         }
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.WoodenBow);
@@ -75,7 +75,7 @@ namespace EpikV2.Items {
         int EmbedTime { get => (int)Projectile.localAI[0]; set => Projectile.localAI[0] = value; }
         int EmbedTarget { get => (int)Projectile.localAI[1]; set => Projectile.localAI[1] = value; }
         public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Breakpoint");
+			// DisplayName.SetDefault("Breakpoint");
 		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
@@ -158,10 +158,10 @@ namespace EpikV2.Items {
                 Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity + blastDirection, ProjectileID.StyngerShrapnel, Projectile.damage/4, Projectile.knockBack/4, Projectile.owner);
             }
         }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
             if (EmbedTime != -1) {
                 damage /= 2;
-                knockback /= 6;
+				modifiers.Knockback /= 6;
             } else if (target.whoAmI == EmbedTarget) {
                 damage += target.defense / 3;
             }

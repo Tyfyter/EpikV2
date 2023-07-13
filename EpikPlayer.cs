@@ -134,6 +134,7 @@ namespace EpikV2 {
 		public AltNameColorTypes altNameColors = AltNameColorTypes.None;
 		public string nameColorOverride = null;
 		public bool noKnockbackOnce = false;
+		public bool consumeShieldBuff = false;
 		public int triangleManuscriptIndex = -1;
 		public bool usedTriangleManuscript = false;
 		public bool triedTriangleManuscript = false;
@@ -306,7 +307,7 @@ namespace EpikV2 {
 				meleeComboIndex = 0;
 			}
 		}
-		public override void OnRespawn(Player player) {
+		public override void OnRespawn() {
 			timeSinceRespawn = 0;
 		}
 		#endregion
@@ -363,31 +364,19 @@ namespace EpikV2 {
 				scale *= meleeSize;
 			}
 		}
-		public override void ModifyHitNPC(Item item, NPC target, ref int damage, ref float knockback, ref bool crit) {
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
 			if (target.HasBuff(Sovereign_Debuff.ID)) {
-				damage += (int)Math.Min(8, (target.defense - Player.GetArmorPenetration(item.DamageType)) / 2);
+				float value = (modifiers.Defense.ApplyTo(0) * (1 - modifiers.ScalingArmorPenetration.Value)) - modifiers.ArmorPenetration.Value;
+				modifiers.SourceDamage.Flat += (int)Math.Min(8, value * modifiers.DefenseEffectiveness.Value);
 			}
 			if (spadeBuff) {
-				if (magiciansHat && (item.CountsAsClass(DamageClass.Magic) || item.CountsAsClass(DamageClass.Summon))) {
-					damage += damage / 10;
+				if (magiciansHat && (modifiers.DamageType.CountsAsClass(DamageClass.Magic) || modifiers.DamageType.CountsAsClass(DamageClass.Summon))) {
+					modifiers.FinalDamage *= 1.1f;
 				} else {
-					damage += damage / 20;
+					modifiers.FinalDamage *= 1.05f;
 				}
 			}
-			if (marionetteDeathTime > 0) damage /= 2;
-		}
-		public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-			if (target.HasBuff(Sovereign_Debuff.ID)) {
-				damage += (int)Math.Min(8, (target.defense - Player.GetArmorPenetration(proj.DamageType)) / 2);
-			}
-			if (spadeBuff) {
-				if (magiciansHat && (proj.CountsAsClass(DamageClass.Magic) || proj.CountsAsClass(DamageClass.Summon))) {
-					damage += damage / 10;
-				} else {
-					damage += damage / 20;
-				}
-			}
-			if (marionetteDeathTime > 0) damage /= 2;
+			if (marionetteDeathTime > 0) modifiers.FinalDamage *= 0.5f;
 		}
 		public override void ModifyShootStats(Item item, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
 			int marionettePullTime = marionetteDeathTime - (marionetteDeathTimeMax - 20);
@@ -396,25 +385,18 @@ namespace EpikV2 {
 				position.Y += marionettePullTime;
 			}
 		}
-		public override void OnHitNPC(Item item, NPC target, int damage, float knockback, bool crit) {
-			OnStrikeNPC(target, damage, knockback, crit, item.CountsAsClass);
-		}
-		public override void OnHitNPCWithProj(Projectile proj, NPC target, int damage, float knockback, bool crit) {
-			OnStrikeNPC(target, damage, knockback, crit, proj.CountsAsClass);
-		}
-		public void OnStrikeNPC(NPC target, int damage, float knockback, bool crit, Func<DamageClass, bool> classCheck = null) {
-			classCheck ??= (dc) => false;
-			if (wormToothNecklace && (crit || Main.rand.NextBool(3))) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
+			if (wormToothNecklace && (hit.Crit || Main.rand.NextBool(3))) {
 				target.AddBuff(BuffID.CursedInferno, Main.rand.Next(150, 300));
 			}
-			if (ichorNecklace && (crit || Main.rand.NextBool(3))) {
+			if (ichorNecklace && (hit.Crit || Main.rand.NextBool(3))) {
 				target.AddBuff(BuffID.Ichor, Main.rand.Next(180, 360));
 			}
-			if (magiciansHat && (classCheck(DamageClass.Magic) || classCheck(DamageClass.Summon)) && target.type != NPCID.TargetDummy) {
-				AddMagiciansHatDamage(target, damage);
+			if (magiciansHat && (hit.DamageType.CountsAsClass(DamageClass.Magic) || hit.DamageType.CountsAsClass(DamageClass.Summon)) && target.type != NPCID.TargetDummy) {
+				AddMagiciansHatDamage(target, damageDone);
 			}
-			if (championsHelm && (classCheck(DamageClass.Melee) || classCheck(DamageClass.Ranged)) && target.type != NPCID.TargetDummy) {
-				AddChampionsHelmDamage(target, (int)(classCheck(DamageClass.Melee) ? (damage * 1.5f) : (damage + 20)));
+			if (championsHelm && (hit.DamageType.CountsAsClass(DamageClass.Melee) || hit.DamageType.CountsAsClass(DamageClass.Ranged)) && target.type != NPCID.TargetDummy) {
+				AddChampionsHelmDamage(target, (int)(hit.DamageType.CountsAsClass(DamageClass.Melee) ? (damageDone * 1.5f) : (damageDone + 20)));
 			}
 			if (imbueDaybreak) {
 				target.AddBuff(BuffID.Daybreak, Main.rand.Next(60, 90));
@@ -443,38 +425,44 @@ namespace EpikV2 {
 		public override bool CanBeHitByNPC(NPC npc, ref int cooldownSlot) {
 			return npcImmuneFrames[npc.whoAmI] == 0;
 		}
-		public override bool PreHurt(bool pvp, bool quiet, ref int damage, ref int hitDirection, ref bool crit, ref bool customDamage, ref bool playSound, ref bool genGore, ref PlayerDeathReason damageSource, ref int cooldownCounter) {
-			bool canDodge = true;
+		public override bool FreeDodge(Player.HurtInfo info) {
+			if (dracoDash != 0) return true;
+			if (marionetteDeathTime > 0) return true;
+			if (info.DamageSource.SourceOtherIndex == OtherDeathReasonID.Fall) {
+				if (Player.miscEquips[4].type == Lucky_Spring_Boots.ID || Player.miscEquips[4].type == Orion_Boots.ID) {
+					return true;
+				}
+			}
+			if (machiavellianMasquerade && info.Damage > Player.statLife) {
+				marionetteDeathTime = 1;
+				marionetteDeathReason = info.DamageSource;
+				Player.statLife = 0;
+				return true;
+			}
+			return false;
+		}
+		public override void ModifyHurt(ref Player.HurtModifiers modifiers)/* tModPorter Override ImmuneTo, FreeDodge or ConsumableDodge instead to prevent taking damage */ {
 			bool canReduce = true;
+			consumeShieldBuff = false;
+			if (modifiers.Dodgeable) {
+				if (dracoDash != 0) return;
+				if (marionetteDeathTime > 0) return;
+			}
 			if (noKnockbackOnce) {
-				hitDirection = 0;
+				modifiers.HitDirectionOverride = 0;
 				noKnockbackOnce = false;
 			}
-			if (marionetteDeathTime > 0) {
-				return false;
-			}
-			if (machiavellianMasquerade && damage > Player.statLife) {
-				marionetteDeathTime = 1;
-				marionetteDeathReason = damageSource;
-				Player.statLife = 0;
-				return false;
-			}
-			if (damageSource.SourceCustomReason == Red_Star_Pendant.DeathReason(Player).SourceCustomReason) {
-				playSound = false;
-				customDamage = true;
-				canDodge = false;
+			if (modifiers.DamageSource.SourceCustomReason == Red_Star_Pendant.DeathReason(Player).SourceCustomReason) {
+				modifiers.DisableSound();
 				canReduce = false;
-				//return true;
 			}
 			if (clubBuff && canReduce) {
-				damage -= damage / (magiciansHat ? 10 : 20);
+				modifiers.FinalDamage *= magiciansHat ? 0.90f : 0.95f;
 			}
 			if (shieldBuff && canReduce) {
-				damage /= 2;
-				int index = Player.FindBuffIndex(Shield_Buff.ID);
-				if (index > -1) Player.DelBuff(index);
+				modifiers.FinalDamage *= 0.5f;
+				consumeShieldBuff = true;
 			}
-			if (dracoDash != 0) return !canDodge;
 			if (orionDash > 0) {
 				Player.immuneTime = 15;
 				Projectile explosion = Projectile.NewProjectileDirect(Player.GetSource_None(), Player.Center, Vector2.Zero, ProjectileID.SolarWhipSwordExplosion, 40, 12.5f, Player.whoAmI);
@@ -482,36 +470,39 @@ namespace EpikV2 {
 				explosion.width *= 7;
 				explosion.Center = Player.Center;
 				explosion.DamageType = DamageClass.Default;
-				return !canDodge;
+				Player.DefenseEffectiveness *= 4f;
 			}
-			if (damageSource.SourceOtherIndex == OtherDeathReasonID.Fall) {
+			if (modifiers.DamageSource.SourceOtherIndex == OtherDeathReasonID.Fall) {
 				if (Player.miscEquips[4].type == Spring_Boots.ID) {
-					damage /= 2;
-				} else if (Player.miscEquips[4].type == Lucky_Spring_Boots.ID || Player.miscEquips[4].type == Orion_Boots.ID) {
-					damage = 0;
-					return false;
+					modifiers.FinalDamage /= 2;
 				}
 			}
-			if (damage < Player.statLife) return true;
-			if (!ChargedGem()) {
-				return true;
-			}
-			for (int i = 0; i < Player.inventory.Length; i++) {
-				ModItem mI = Player.inventory[i]?.ModItem;
-				if (mI?.Mod == EpikV2.instance) {
-					if (mI is AquamarineMaterial) {
-						Player.inventory[i].type = ItemID.LargeEmerald;
-						Player.inventory[i].SetDefaults(ItemID.LargeEmerald);
-					} else if (mI is SunstoneMaterial) {
-						Player.inventory[i].type = ItemID.LargeAmber;
-						Player.inventory[i].SetDefaults(ItemID.LargeAmber);
-					} else if (mI is MoonlaceMaterial) {
-						Player.inventory[i].type = ItemID.LargeDiamond;
-						Player.inventory[i].SetDefaults(ItemID.LargeDiamond);
+		}
+		public override void OnHurt(Player.HurtInfo info) {
+			if (info.Damage < Player.statLife) return;
+			if (ChargedGem()) {
+				for (int i = 0; i < Player.inventory.Length; i++) {
+					ModItem mI = Player.inventory[i]?.ModItem;
+					if (mI?.Mod == EpikV2.instance) {
+						if (mI is AquamarineMaterial) {
+							Player.inventory[i].type = ItemID.LargeEmerald;
+							Player.inventory[i].SetDefaults(ItemID.LargeEmerald);
+						} else if (mI is SunstoneMaterial) {
+							Player.inventory[i].type = ItemID.LargeAmber;
+							Player.inventory[i].SetDefaults(ItemID.LargeAmber);
+						} else if (mI is MoonlaceMaterial) {
+							Player.inventory[i].type = ItemID.LargeDiamond;
+							Player.inventory[i].SetDefaults(ItemID.LargeDiamond);
+						}
 					}
 				}
 			}
-			return true;
+		}
+		public override void PostHurt(Player.HurtInfo info) {
+			if (consumeShieldBuff) {
+				int index = Player.FindBuffIndex(Shield_Buff.ID);
+				if (index > -1) Player.DelBuff(index);
+			}
 		}
 		#endregion
 		#endregion
@@ -520,7 +511,7 @@ namespace EpikV2 {
 				int neededHealth = neededMana;
 				int cd = Player.hurtCooldowns[0];
 				Player.hurtCooldowns[0] = 0;
-				Player.Hurt(Red_Star_Pendant.DeathReason(Player), neededHealth, 0, cooldownCounter: 0);
+				Player.Hurt(Red_Star_Pendant.DeathReason(Player), neededHealth, 0, cooldownCounter: -1, dodgeable: true, scalingArmorPenetration: 1, knockback: 0);
 				Player.hurtCooldowns[0] = cd;
 				Player.statMana = neededMana;
 				redStarGlow = Math.Min(redStarGlow + (2f - neededHealth * 0.01f) / 2f, 2f);
@@ -789,7 +780,7 @@ namespace EpikV2 {
 			preUpdateVel = Player.velocity;
 			preUpdateReleaseJump = Player.releaseJump;
 		}
-		public static void SlopingCollision(On.Terraria.Player.orig_SlopingCollision orig, Player self, bool fallThrough, bool ignorePlats) {
+		public static void SlopingCollision(Terraria.On_Player.orig_SlopingCollision orig, Player self, bool fallThrough, bool ignorePlats) {
 			orig(self, fallThrough, ignorePlats);
 			sbyte x = 0, y = 0;
 			EpikPlayer epikPlayer = self.GetModPlayer<EpikPlayer>();

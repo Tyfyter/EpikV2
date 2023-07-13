@@ -10,8 +10,8 @@ namespace EpikV2.Items {
 	public class GeoBullet : ModItem {
         public override string Texture => "EpikV2/Projectiles/MagShot";
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Geometric Rounds");
-			Tooltip.SetDefault("\"y=3.528718731829*ex^2.1853Θ or something\"");
+			// DisplayName.SetDefault("Geometric Rounds");
+			// Tooltip.SetDefault("\"y=3.528718731829*ex^2.1853Θ or something\"");
 		}
 		public override void SetDefaults() {
 			//item.name = "jfdjfrbh";

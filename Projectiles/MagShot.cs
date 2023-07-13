@@ -29,7 +29,7 @@ namespace EpikV2.Projectiles
         }
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Helix Shot");
+			// DisplayName.SetDefault("Helix Shot");
 		}
         public override void AI(){
             /*
@@ -81,12 +81,6 @@ namespace EpikV2.Projectiles
                 Main.projectile[a].timeLeft = Projectile.timeLeft;
 
             }
-        }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
-            if(crit){
-                damage = (int)(damage * 1.5f);
-            }
-            base.ModifyHitNPC(target, ref damage, ref knockback, ref crit, ref hitDirection);
         }
 
 		private void AdjustMagnitude(ref Vector2 vector)

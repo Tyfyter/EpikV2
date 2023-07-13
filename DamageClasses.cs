@@ -27,7 +27,7 @@ namespace EpikV2 {
 	}
 	public class Ranged_Melee_Speed : DamageClass {
 		public override void SetStaticDefaults() {
-			ClassName.SetDefault("ranged damage");
+			// DisplayName.SetDefault("ranged damage");
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
 			if (damageClass == Generic || damageClass == Ranged) {
@@ -47,7 +47,7 @@ namespace EpikV2 {
 	}
 	public class Ranged_Magic : DamageClass {
 		public override void SetStaticDefaults() {
-			ClassName.SetDefault("ranged/magic damage");
+			// DisplayName.SetDefault("ranged/magic damage");
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
 			if (damageClass == Generic || damageClass == Ranged || damageClass == Magic) {
@@ -64,7 +64,7 @@ namespace EpikV2 {
 	}
 	public class Melee_Summon : DamageClass {
 		public override void SetStaticDefaults() {
-			ClassName.SetDefault("melee/summon damage");
+			// DisplayName.SetDefault("melee/summon damage");
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
 			if (damageClass == Generic || damageClass == Melee || damageClass == Summon) {
@@ -81,7 +81,7 @@ namespace EpikV2 {
 	}
 	public class Spellsword : DamageClass {
 		public override void SetStaticDefaults() {
-			ClassName.SetDefault("melee/magic damage");
+			// DisplayName.SetDefault("melee/magic damage");
 		}
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
 			if (damageClass == Generic || damageClass == Melee || damageClass == Magic) {

@@ -14,9 +14,9 @@ namespace EpikV2.Items {
 		byte combo = 0;
 		byte comboTimer = 0;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Kusariken");
-			Tooltip.SetDefault("Right click to pull enemies closer with a chain");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("Kusariken");
+			// Tooltip.SetDefault("Right click to pull enemies closer with a chain");
+			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			Item.damage = 98;
@@ -72,7 +72,7 @@ namespace EpikV2.Items {
 		public byte aiMode = 0;
         public override string Texture => "EpikV2/Items/Kusariken";
         public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Kusariken");
+			// DisplayName.SetDefault("Kusariken");
 		}
         public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.Spear);
@@ -182,10 +182,10 @@ namespace EpikV2.Items {
 				}
 			}
 		}
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
             
         }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             
         }
 		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) {
@@ -235,7 +235,7 @@ namespace EpikV2.Items {
 	public class Kusariken_Hook : ModProjectile {
         public override string Texture => "EpikV2/Items/Kusariken_Hook";
         public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Kusariken");
+			// DisplayName.SetDefault("Kusariken");
 		}
         public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.Spear);
@@ -282,7 +282,7 @@ namespace EpikV2.Items {
                 }
             }
 		}
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 
 		}
 		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) {

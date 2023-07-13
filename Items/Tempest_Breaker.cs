@@ -12,6 +12,7 @@ using static Terraria.ModLoader.ModContent;
 using static EpikV2.EpikExtensions;
 using Terraria.Utilities;
 using EpikV2.CrossMod;
+using System.Reflection;
 
 namespace EpikV2.Items {
     [AutoloadEquip(EquipType.HandsOn)]
@@ -23,18 +24,22 @@ namespace EpikV2.Items {
         public int Startup(Player player)=>player.itemAnimationMax / 4;
         public int Endlag(Player player)=>(int)(player.itemAnimationMax / (3.5f+player.altFunctionUse));
         public static AutoCastingAsset<Texture2D> blastTexture { get; private set; }
-        public override void Unload() {
+		public override void Load() {
+			_target = new("_target", BindingFlags.NonPublic | BindingFlags.Instance);
+			ApplyNPCOnHitEffects = typeof(Player).GetMethod("ApplyNPCOnHitEffects", BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate<_ApplyNPCOnHitEffects>();
+		}
+		public override void Unload() {
             blastTexture = null;
         }
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Tempest Breaker");
-		    Tooltip.SetDefault("Right click for a heavy attack");
-            SacrificeTotal = 1;
+		    // DisplayName.SetDefault("Tempest Breaker");
+		    // Tooltip.SetDefault("Right click for a heavy attack");
+            Item.ResearchUnlockCount = 1;
             if (Main.netMode == NetmodeID.Server)return;
             blastTexture = Mod.RequestTexture("Items/Tempest_Breaker_Explosion");
 		}
         public override void SetDefaults() {
-            sbyte h = Item.handOnSlot;
+            int h = Item.handOnSlot;
             Item.CloneDefaults(ItemID.PhoenixBlaster);
             Item.handOnSlot = h;
             Item.damage = 235;
@@ -71,7 +76,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.SoulofMight, 5);
             recipe.AddTile(TileID.MythrilAnvil);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.AddCondition(Recipe.Condition.NearLava);
+            recipe.AddCondition(Condition.NearLava);
             recipe.Register();
         }
         public override void UseItemFrame(Player player) {
@@ -172,7 +177,10 @@ namespace EpikV2.Items {
             hitbox = BoxOf(player.MountedCenter+unit*8, player.MountedCenter+unit*68*scale, frame==3?new Vector2(16, 12*scale):new Vector2(4*scale));
             Item.Hitbox = hitbox;
         }
-        bool recursionnt = false;
+		public delegate void _ApplyNPCOnHitEffects(Item sItem, Rectangle itemRectangle, int damage, float knockBack, int npcIndex, int dmgRandomized, int dmgDone);
+		public static _ApplyNPCOnHitEffects ApplyNPCOnHitEffects;
+		public static FastFieldInfo<Delegate, object> _target;
+		bool recursionnt = false;
         public override bool? CanHitNPC(Player player, NPC target) {
             if(recursionnt)return null;
             if(!Item.Hitbox.Intersects(target.Hitbox))return false;
@@ -181,30 +189,26 @@ namespace EpikV2.Items {
             recursionnt = false;
             if(cantBeHit)return false;
 
-            int totalDamage = player.GetWeaponDamage(Item);
+			NPC.HitModifiers modifiers = target.GetIncomingStrikeModifiers(Item.DamageType, player.direction);
 
-            int weaponCrit = player.GetWeaponCrit(Item);
-
-            bool crit = Main.rand.Next(100) < weaponCrit;
-
-            float knockBack = player.GetWeaponKnockback(Item);
-
-			int bannerID = Item.NPCtoBanner(target.BannerID());
-			if (bannerID >= 0 && player.HasNPCBannerBuff(bannerID)){
-				totalDamage = ((!Main.expertMode) ? ((int)(totalDamage * ItemID.Sets.BannerStrength[Item.BannerToItem(bannerID)].NormalDamageDealt)) : ((int)(totalDamage * ItemID.Sets.BannerStrength[Item.BannerToItem(bannerID)].ExpertDamageDealt)));
+			player.ApplyBannerOffenseBuff(target, ref modifiers);
+			if (player.parryDamageBuff && Item.CountsAsClass(DamageClass.Melee)) {
+				modifiers.ScalingBonusDamage += 4f;
+				player.parryDamageBuff = false;
+				player.ClearBuff(BuffID.ParryDamageBuff);
 			}
-
-			int damage = Main.DamageVar(totalDamage, player.luck);
-			NPCLoader.ModifyHitByItem(target, player, Item, ref damage, ref knockBack, ref crit);
-            PlayerLoader.ModifyHitNPC(player, Item, target, ref damage, ref knockBack, ref crit);
-			player.OnHit(target.Center.X, target.Center.Y, target);
-            int armorPen = player.GetWeaponArmorPenetration(Item);
-            if (armorPen > 0){
-				damage += target.checkArmorPenetration(armorPen);
+			if (target.life > 5) {
+				player.OnHit(target.Center.X, target.Center.Y, target);
 			}
+			modifiers.ArmorPenetration += player.GetWeaponArmorPenetration(Item);
+			CombinedHooks.ModifyPlayerHitNPCWithItem(player, Item, target, ref modifiers);
 
             Vector2 oldVel = target.velocity;
-			int dmgDealt = (int)target.StrikeNPC(damage, knockBack, player.direction, crit);
+
+			NPC.HitInfo strike = modifiers.ToHitInfo(player.GetWeaponDamage(Item), Main.rand.Next(100) < player.GetWeaponCrit(Item), player.GetWeaponKnockback(Item), damageVariation: true, player.luck);
+			NPCKillAttempt attempt = new NPCKillAttempt(target);
+			int dmgDealt = target.StrikeNPC(strike);
+
             Vector2 diff = target.velocity - oldVel;
             float totalKnockBack = diff.Length();
             diff = new Vector2(totalKnockBack * 0.6f * player.direction, totalKnockBack * -0.2f);
@@ -226,42 +230,33 @@ namespace EpikV2.Items {
                 }
                 if(rot != 0) diff = diff.RotatedBy(rot * player.direction);
                 target.velocity = oldVel + (diff * mult);
-            }
-
-			if (bannerID >= 0)player.lastCreatureHit = bannerID;
-			if (player.beetleOffense && !target.immortal){
-				player.beetleCounter += dmgDealt;
-				player.beetleCountdown = 0;
 			}
-
-			target.immune[player.whoAmI] = player.itemAnimation;
-
-			ItemLoader.OnHitNPC(Item, player, target, dmgDealt, knockBack, crit);
-			NPCLoader.OnHitByItem(target, player, Item, dmgDealt, knockBack, crit);
-			PlayerLoader.OnHitNPC(player, Item, target, dmgDealt, knockBack, crit);
-
-			if (Main.netMode != NetmodeID.SinglePlayer){
-				if (crit){
-					NetMessage.SendData(MessageID.StrikeNPC, -1, -1, null, target.whoAmI, damage, knockBack, player.direction, 1);
-				}
-				else
-				{
-					NetMessage.SendData(MessageID.StrikeNPC, -1, -1, null, target.whoAmI, damage, knockBack, player.direction);
-				}
+			CombinedHooks.OnPlayerHitNPCWithItem(player, Item, target, in strike, dmgDealt);
+			_target.SetValue(ApplyNPCOnHitEffects, player);
+			ApplyNPCOnHitEffects(Item, Item.GetDrawHitbox(Item.type, player), strike.SourceDamage, strike.Knockback, target.whoAmI, strike.SourceDamage, dmgDealt);
+			int bannerID = Item.NPCtoBanner(target.BannerID());
+			if (bannerID >= 0) {
+				player.lastCreatureHit = bannerID;
 			}
-
-			if (player.accDreamCatcher){
-				player.addDPS(damage);
+			if (Main.netMode != NetmodeID.SinglePlayer) {
+				NetMessage.SendStrikeNPC(target, in strike);
+			}
+			if (player.accDreamCatcher && !target.HideStrikeDamage) {
+				player.addDPS(dmgDealt);
+			}
+			player.SetMeleeHitCooldown(target.whoAmI, player.itemAnimation);
+			if (attempt.DidNPCDie()) {
+				player.OnKillNPC(ref attempt, Item);
 			}
 			//target.immune[player.whoAmI] = player.itemAnimation;
-            return false;
+			return false;
         }
-        public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit) {
+        public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone) {
             Projectile proj = new Projectile();
             proj.SetDefaults(shot);
             proj.StatusNPC(target.whoAmI);
         }
-        public override void OnHitPvp(Player player, Player target, int damage, bool crit) {
+        public override void OnHitPvp(Player player, Player target, Player.HurtInfo hurtInfo) {
             Projectile proj = new Projectile();
             proj.SetDefaults(shot);
             proj.StatusPvP(target.whoAmI);

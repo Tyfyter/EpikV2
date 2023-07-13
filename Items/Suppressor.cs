@@ -28,10 +28,10 @@ namespace EpikV2.Items {
         float SplitRatio => split/120f+0.5f;
         bool ARCool = false;
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Hardlight Rifle");
-		    Tooltip.SetDefault("\"This is totally just a [REDACTED]\"\nHold right click to charge a shotgun blast");
+		    // DisplayName.SetDefault("Hardlight Rifle");
+		    // Tooltip.SetDefault("\"This is totally just a [REDACTED]\"\nHold right click to charge a shotgun blast");
             ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
             if (Main.netMode == NetmodeID.Server)return;
             handleTexture = Mod.RequestTexture("Items/Suppressor_Handle");
             centerTexture = Mod.RequestTexture("Items/Suppressor_Center");
@@ -179,7 +179,7 @@ namespace EpikV2.Items {
 	public class SuppressorShot : ModProjectile {
         public override string Texture => "Terraria/Images/Item_260";
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Suppressor");
+			// DisplayName.SetDefault("Suppressor");
 		}
 		public override void SetDefaults(){
 			Projectile.CloneDefaults(ProjectileID.HeatRay);
@@ -187,7 +187,7 @@ namespace EpikV2.Items {
             Projectile.penetrate = 1;
 			AIType = ProjectileID.HeatRay;
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers){
 			EpikGlobalNPC egnpc = target.GetGlobalNPC<EpikGlobalNPC>();
 			egnpc.suppressorHits+=8+(16*Projectile.ai[0]);
 			damage+=(int)(egnpc.suppressorHits/6);

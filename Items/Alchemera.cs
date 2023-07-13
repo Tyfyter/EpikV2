@@ -19,9 +19,9 @@ using Tyfyter.Utils;
 namespace EpikV2.Items {
     public class Alchemera : ModItem {
         public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Alchemera");
-		    Tooltip.SetDefault("");
-            SacrificeTotal = 1;
+		    // DisplayName.SetDefault("Alchemera");
+		    // Tooltip.SetDefault("");
+            Item.ResearchUnlockCount = 1;
             //ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
         }
         public override void SetDefaults() {
@@ -101,8 +101,8 @@ namespace EpikV2.Items {
     public class Volatile_Brew : ModItem {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.GenderChangePotion;
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Volatile Brew");
-            Tooltip.SetDefault("Will certainly do something");
+            // DisplayName.SetDefault("Volatile Brew");
+            // Tooltip.SetDefault("Will certainly do something");
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type);
@@ -225,7 +225,7 @@ namespace EpikV2.Items {
             LiquidTexture = null;
         }
         public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Alchemera");
+			// DisplayName.SetDefault("Alchemera");
             if (Main.netMode == NetmodeID.Server) return;
             LiquidTexture = Mod.RequestTexture("Items/Alchemera_Flask_Liquid");
         }
@@ -389,40 +389,42 @@ namespace EpikV2.Items {
             }
         }
 
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			
 		}
-		public override void OnHitPvp(Player target, int damage, bool crit) {
-            if (HitType == FlaskHitType.Chaos) {
-				switch (Main.rand.Next(16)) {
-                    case 0:
-                    for (int i = 0; i < 70; i++) {
-                        Dust.NewDustDirect(target.position, target.width, target.height, DustID.MagicMirror, target.velocity.X * 0.2f, target.velocity.Y * 0.2f, 150, Color.Cyan, 1.2f).velocity *= 0.5f;
-                    }
-                    target.grappling[0] = -1;
-                    target.grapCount = 0;
-                    for (int i = 0; i < Main.maxProjectiles; i++) {
-                        if (Main.projectile[i].active && Main.projectile[i].owner == target.whoAmI && Main.projectile[i].aiStyle == 7) {
-                            Main.projectile[i].Kill();
-                        }
-                    }
-                    target.Spawn(PlayerSpawnContext.RecallFromItem);
-                    for (int i = 0; i < 70; i++) {
-                        Dust.NewDustDirect(target.position, target.width, target.height, DustID.MagicMirror, 0f, 0f, 150, Color.Cyan, 1.2f).velocity *= 0.5f;
-                    }
-                    break;
-                    case 1:
-                    target.TeleportationPotion();
-                    break;
-                    case 2:
-                    target.Male ^= true;
-                    break;
-                    default:
-                    target.Teleport(target.position + (Vector2)new PolarVec2(Main.rand.NextFloat(64, 640), Main.rand.NextFloat(MathHelper.TwoPi)), 1);
-                    break;
+		public override void OnHitPlayer(Player target, Player.HurtInfo info) {
+			if (info.PvP) {
+				if (HitType == FlaskHitType.Chaos) {
+					switch (Main.rand.Next(16)) {
+						case 0:
+						for (int i = 0; i < 70; i++) {
+							Dust.NewDustDirect(target.position, target.width, target.height, DustID.MagicMirror, target.velocity.X * 0.2f, target.velocity.Y * 0.2f, 150, Color.Cyan, 1.2f).velocity *= 0.5f;
+						}
+						target.grappling[0] = -1;
+						target.grapCount = 0;
+						for (int i = 0; i < Main.maxProjectiles; i++) {
+							if (Main.projectile[i].active && Main.projectile[i].owner == target.whoAmI && Main.projectile[i].aiStyle == 7) {
+								Main.projectile[i].Kill();
+							}
+						}
+						target.Spawn(PlayerSpawnContext.RecallFromItem);
+						for (int i = 0; i < 70; i++) {
+							Dust.NewDustDirect(target.position, target.width, target.height, DustID.MagicMirror, 0f, 0f, 150, Color.Cyan, 1.2f).velocity *= 0.5f;
+						}
+						break;
+						case 1:
+						target.TeleportationPotion();
+						break;
+						case 2:
+						target.Male ^= true;
+						break;
+						default:
+						target.Teleport(target.position + (Vector2)new PolarVec2(Main.rand.NextFloat(64, 640), Main.rand.NextFloat(MathHelper.TwoPi)), 1);
+						break;
+					}
 				}
-            }
-        }
+			}
+		}
         public Color GetNextColor() {
             WeightedRandom<Color> colors = new WeightedRandom<Color>(Main.rand);
 			switch (FlightType) {
@@ -547,7 +549,7 @@ namespace EpikV2.Items {
         public static int ID { get; private set; }
         public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.SolarWhipSwordExplosion;
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Fireball");
+            // DisplayName.SetDefault("Fireball");
             ID = Projectile.type;
             Main.projFrames[ID] = Main.projFrames[ProjectileID.SolarWhipSwordExplosion];
         }
@@ -565,7 +567,7 @@ namespace EpikV2.Items {
                 }
             }
         }
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             target.AddBuff(BuffID.Daybreak, Main.rand.Next(120, 240));
         }
     }
@@ -573,7 +575,7 @@ namespace EpikV2.Items {
         public static int ID { get; private set; }
 		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.ShadowFlame;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Shadowflame Arc");
+			// DisplayName.SetDefault("Shadowflame Arc");
             ID = Projectile.type;
 		}
 		public override void SetDefaults() {
@@ -626,7 +628,7 @@ namespace EpikV2.Items {
 				}
 			}
         }
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             target.AddBuff(BuffID.ShadowFlame, Main.rand.Next(240, 480));
         }
     }
@@ -634,7 +636,7 @@ namespace EpikV2.Items {
         public static int ID { get; private set; }
         public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.CursedDartFlame;
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Cursed Flame");
+            // DisplayName.SetDefault("Cursed Flame");
             ID = Projectile.type;
         }
         public override void SetDefaults() {
@@ -652,7 +654,7 @@ namespace EpikV2.Items {
                 }
             }
         }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             target.AddBuff(BuffID.CursedInferno, Main.rand.Next(240, 480));
         }
     }
@@ -660,7 +662,7 @@ namespace EpikV2.Items {
         public static int ID { get; private set; }
         public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.IchorSplash;
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Ichor Splash");
+            // DisplayName.SetDefault("Ichor Splash");
             ID = Projectile.type;
         }
         public override void SetDefaults() {
@@ -677,7 +679,7 @@ namespace EpikV2.Items {
                 }
             }
         }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             target.AddBuff(BuffID.Ichor, Main.rand.Next(240, 480));
         }
     }
@@ -685,8 +687,8 @@ namespace EpikV2.Items {
 		public override string Texture => "EpikV2/Buffs/Fire_Imbue";
 		public static int ID { get; private set; }
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Flame Imbuement");
-            Description.SetDefault("Your attacks inflict Celestial Flames");
+            // DisplayName.SetDefault("Flame Imbuement");
+            // Description.SetDefault("Your attacks inflict Celestial Flames");
             ID = Type;
         }
 		public override void Update(Player player, ref int buffIndex) {
@@ -697,8 +699,8 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Buffs/Shadowflame_Imbue";
         public static int ID { get; private set; }
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Shadowflame Imbuement");
-            Description.SetDefault("Your attacks inflict Shadowflame");
+            // DisplayName.SetDefault("Shadowflame Imbuement");
+            // Description.SetDefault("Your attacks inflict Shadowflame");
             ID = Type;
         }
         public override void Update(Player player, ref int buffIndex) {
@@ -709,8 +711,8 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Buffs/Cursed_Flames_Imbue";
         public static int ID { get; private set; }
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Cursed Inferno Imbuement");
-            Description.SetDefault("Your attacks inflict Cursed Inferno");
+            // DisplayName.SetDefault("Cursed Inferno Imbuement");
+            // Description.SetDefault("Your attacks inflict Cursed Inferno");
             ID = Type;
         }
         public override void Update(Player player, ref int buffIndex) {
@@ -721,8 +723,8 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Buffs/Ichor_Imbue";
         public static int ID { get; private set; }
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Ichor Imbuement");
-            Description.SetDefault("Your attacks inflict Ichor");
+            // DisplayName.SetDefault("Ichor Imbuement");
+            // Description.SetDefault("Your attacks inflict Ichor");
             ID = Type;
         }
         public override void Update(Player player, ref int buffIndex) {
@@ -733,8 +735,8 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Buffs/Regeneration_Buff";
         public static int ID { get; private set; }
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Rejuvenation");
-            Description.SetDefault("Increases health and mana regeneration");
+            // DisplayName.SetDefault("Rejuvenation");
+            // Description.SetDefault("Increases health and mana regeneration");
             ID = Type;
         }
 		public override void Update(Player player, ref int buffIndex) {
@@ -746,8 +748,8 @@ namespace EpikV2.Items {
         public override string Texture => "Terraria/Images/Buff_" + BuffID.IceBarrier;
         public static int ID { get; private set; }
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Shielded");
-            Description.SetDefault("Halves the damage of the next hit you take");
+            // DisplayName.SetDefault("Shielded");
+            // Description.SetDefault("Halves the damage of the next hit you take");
             ID = Type;
         }
         public override void Update(Player player, ref int buffIndex) {

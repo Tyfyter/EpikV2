@@ -8,6 +8,7 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent.ObjectInteractions;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ObjectData;
 
@@ -30,8 +31,8 @@ namespace EpikV2.Tiles {
 			TileObjectData.newTile.StyleHorizontal = true;
 			TileObjectData.newTile.CoordinatePadding = 2;
 			TileObjectData.addTile(Type);
-			ModTranslation name = CreateMapEntryName();
-			name.SetDefault("Telescope");
+			LocalizedText name = CreateMapEntryName();
+			// name.SetDefault("Telescope");
 			AddMapEntry(new Color(200, 200, 200), name);
 			//disableSmartCursor = false;
 			//disableSmartInteract = false;
@@ -111,7 +112,7 @@ namespace EpikV2.Tiles {
 		public override string Texture => "Terraria/Images/Item_260";
 		public static int ID { get; internal set; } = -1;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Telescope_View_P");
+			// DisplayName.SetDefault("Telescope_View_P");
 			ID = Projectile.type;
 		}
 		public override void SetDefaults() {
@@ -144,7 +145,7 @@ namespace EpikV2.Tiles {
 	}
 	public class Telescope_Item : ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Telescope");
+			// DisplayName.SetDefault("Telescope");
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.StoneBlock);

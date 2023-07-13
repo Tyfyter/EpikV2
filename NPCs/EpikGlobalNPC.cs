@@ -7,6 +7,7 @@ using EpikV2.Items.Accessories;
 using EpikV2.Items.Armor;
 using EpikV2.Items.Other;
 using EpikV2.Projectiles;
+using EpikV2.Tiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -14,6 +15,7 @@ using Terraria.DataStructures;
 using Terraria.Enums;
 using Terraria.GameContent;
 using Terraria.GameContent.Bestiary;
+using Terraria.GameContent.Events;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.GameContent.NetModules;
 using Terraria.GameContent.Personalities;
@@ -166,31 +168,30 @@ namespace EpikV2.NPCs
 				}
 			}
         }
-		public override void ModifyHitByProjectile(NPC npc, Projectile projectile, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+		public override void ModifyHitByProjectile(NPC npc, Projectile projectile, ref NPC.HitModifiers modifiers) {
             if (projectile.minion || ProjectileID.Sets.MinionShot[projectile.type]) {
-                damage += jadeWhipDamage;
+				modifiers.SourceDamage.Flat += jadeWhipDamage;
 				if (Main.rand.Next(100) < jadeWhipCrit) {
-                    crit = true;
+					modifiers.SetCrit();
 				}
                 float keybrandMult = 0;
 				for (int i = 0; i < npc.buffType.Length; i++) {
                     if (npc.buffTime[i] <= 0) break;
 					if (npc.buffType[i] == Biome_Key_Desert_Buff.ID) {
                         if (Main.rand.NextBool(10)) {
-                            crit = true;
+                            modifiers.SetCrit();
                         }
-                        knockback += 2;
+						modifiers.Knockback.Base += 2;
                         keybrandMult += 0.2f;
                     }
                     if (npc.buffType[i] == Biome_Key_Frozen_Buff.ID) {
-                        damage += 15;
+						modifiers.SourceDamage.Flat += 15;
                         keybrandMult += 0.2f;
                     }
                 }
 				if (keybrandMult > 0) {
-                    int damageBoost = (int)(damage * Biome_Key.GetLifeDamageMult(npc, keybrandMult));
-                    damage += damageBoost;
-                }
+					Biome_Key.ApplyLifeDamageMult(npc, ref modifiers, keybrandMult);
+				}
             }
         }
 		public override void DrawEffects(NPC npc, ref Color drawColor) {
@@ -209,12 +210,12 @@ namespace EpikV2.NPCs
 				}
 			}
 		}
-        public override void ModifyHitPlayer(NPC npc, Player target, ref int damage, ref bool crit) {
+        public override void ModifyHitPlayer(NPC npc, Player target, ref Player.HurtModifiers modifiers) {
             if(npc.HasBuff(Sovereign_Debuff.ID)) {
-                damage -= (int)(damage*0.15f);
+				modifiers.SourceDamage *= 0.85f;
             }
         }
-        public override bool? CanHitNPC(NPC npc, NPC target){
+        public override bool CanHitNPC(NPC npc, NPC target)/* tModPorter Suggestion: Return true instead of null */{
             if(jaded || scorpioTime>0)return false;
             return base.CanHitNPC(npc, target);
         }
@@ -380,40 +381,45 @@ namespace EpikV2.NPCs
             if(jaded) {
                 spriteBatch.Restart();
             }
-        }
-        public override void SetupShop(int type, Chest shop, ref int nextSlot){
-            switch(type) {
-                case NPCID.TravellingMerchant:
-                if(NPC.npcsFoundForCheckActive[NPCID.QueenBee]) {
-                    shop.item[nextSlot++].SetDefaults(ModContent.ItemType<Step2>());
-                }
-                break;
+		}
+		public override void ModifyShop(NPCShop shop) {
+			switch (shop.NpcType) {
+				case NPCID.TravellingMerchant:
+				shop.Add<Step2>(new Condition(Language.GetText("Mods.EpikV2.Conditions.QueenBeeActive"), () => NPC.npcsFoundForCheckActive[NPCID.QueenBee]));
+				break;
 
-                case NPCID.GoblinTinkerer:
-                shop.item[nextSlot++].SetDefaults(Spring_Boots.ID);
-                break;
+				case NPCID.GoblinTinkerer:
+				shop.Add<Spring_Boots>();
+				break;
 
-                case NPCID.Cyborg:
-                if(Main.LocalPlayer.HasItem(Orion_Boots.ID) || Main.LocalPlayer.miscEquips[4].type == Orion_Boots.ID) {
-                    shop.item[nextSlot++].SetDefaults(Orion_Boot_Charge.ID);
-                }
-                break;
-
-				case NPCID.BestiaryGirl:
-				if (NPC.downedMechBossAny && Main.LocalPlayer.HasBuff(BuffID.Werewolf) && (Main.GetMoonPhase() == MoonPhase.Full || Main.bloodMoon)) {
-					shop.item[nextSlot++].SetDefaults(ModContent.ItemType<Old_Wolf_Blood>());
-				}
+				case NPCID.Cyborg:
+				shop.Add<Orion_Boot_Charge>(new Condition(Language.GetText("Mods.EpikV2.Conditions.OrionBoots"),
+					() => Main.LocalPlayer.HasItem(Orion_Boots.ID) || Main.LocalPlayer.miscEquips[4].type == Orion_Boots.ID)
+				);
 				break;
 
 				case NPCID.DyeTrader:
-				if (ModContent.GetInstance<EpikWorld>().timeManipMode == 4) {
-					shop.item[nextSlot++].SetDefaults(ModContent.ItemType<Retro_Dye>());
-					shop.item[nextSlot++].SetDefaults(ModContent.ItemType<Red_Retro_Dye>());
-				}
+				Condition retroCondition = new Condition(Language.GetText("Mods.EpikV2.Conditions.Retro"),
+					() => ModContent.GetInstance<EpikWorld>().timeManipMode == 4);
+				shop.Add<Retro_Dye>(retroCondition);
+				shop.Add<Red_Retro_Dye>(retroCondition);
+				break;
+
+				case NPCID.BestiaryGirl:
+				shop.Add<Old_Wolf_Blood>(new Condition(Language.GetText("Mods.EpikV2.Conditions.WolfBlood"),
+					() => NPC.downedMechBossAny && Main.LocalPlayer.HasBuff(BuffID.Werewolf) && (Main.GetMoonPhase() == MoonPhase.Full || Main.bloodMoon))
+				);
+				break;
+
+				case NPCID.PartyGirl:
+				shop.Add<Party_Pylon_Item>(
+					Condition.HappyEnoughToSellPylons,
+					Condition.BirthdayParty
+				);
 				break;
 			}
-        }
-        public override void SetupTravelShop(int[] shop, ref int nextSlot) {
+		}
+		public override void SetupTravelShop(int[] shop, ref int nextSlot) {
             Player player = null;
             for (int j = 0; j < 255; j++) {
                 Player currentPlayer = Main.player[j];

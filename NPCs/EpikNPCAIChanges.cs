@@ -252,54 +252,78 @@ namespace EpikV2.NPCs {
                 break;
             }
         }
-        public override bool StrikeNPC(NPC npc, ref double damage, int defense, ref float knockback, int hitDirection, ref bool crit) {
-            switch (npc.type) {
-                case NPCID.GoblinShark:
-                knockback -= 7.5f;
-                break;
+        public override void ModifyIncomingHit(NPC npc, ref NPC.HitModifiers modifiers) {
+			switch (npc.type) {
+				case NPCID.GoblinShark:
+				modifiers.Knockback.Base -= 7.5f;
+				break;
 
-                case NPCID.BloodNautilus:
-                float knockbackAdjustment = 6.75f + npc.strengthMultiplier * 0.25f;
-                knockback -= knockbackAdjustment;
-                if (npc.ai[0] == 1) {
-                    if (knockback > 0) {
-                        float oldKBValue = dreadNautilusKnockbackValue;
-                        dreadNautilusKnockbackValue = Math.Min(Math.Max(dreadNautilusKnockbackValue, knockback) + knockback * 0.1f, 24);
-                        npc.ai[1] += Math.Max(dreadNautilusKnockbackValue - oldKBValue, 1);
-                    }
-                } else {
-                    knockback = 0;
-                }
-                break;
+				case NPCID.BloodNautilus: {
+					float knockbackAdjustment = 6.75f + npc.strengthMultiplier * 0.25f;
+					modifiers.Knockback.Base -= knockbackAdjustment;
+					if (npc.ai[0] != 1) {
+						modifiers.Knockback *= 0;
+					}
+					break;
+				}
+				case NPCID.IlluminantBat: {
+					if (npc.ai[0] == -1) {
+						modifiers.HideCombatText();
+					}
+					break;
+				}
             }
-            if (npc.type == NPCID.IlluminantBat && npc.ai[0] == -1) {
-                NPC parent = Main.npc[npc.realLife];
-                if (damage < 10 && npc.life > damage) {
-                    parent.life -= (int)damage;
-                } else {
-                    damage = npc.lifeMax;
-                    parent.life -= npc.lifeMax;
-                    parent.checkDead();
-                    npc.life = 0;
-                    npc.realLife = -1;
-                    npc.checkDead();
-                }
-                if (Main.netMode != NetmodeID.Server) {
-                    if (npc.life > 0) {
-                        for (int num336 = 0; num336 < damage / npc.lifeMax * 50.0; num336++) {
-                            Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.UndergroundHallowedEnemies, 0f, 0f, 200).velocity *= 1.5f;
-                        }
-                    } else {
-                        for (int num338 = 0; num338 < 50; num338++) {
-                            Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.UndergroundHallowedEnemies, hitDirection, 0f, 200).velocity *= 1.5f;
-                        }
-                    }
-                }
-                return false;
-            }
-            return true;
         }
-        public override bool? CanHitNPC(NPC npc, NPC target) {
+		public override void OnHitNPC(NPC npc, NPC target, NPC.HitInfo hit) {
+			switch (npc.type) {
+				case NPCID.BloodNautilus: {
+					if (npc.ai[0] == 1) {
+						float knockback = hit.Knockback;
+						if (knockback > 0) {
+							float oldKBValue = dreadNautilusKnockbackValue;
+							dreadNautilusKnockbackValue = Math.Min(Math.Max(dreadNautilusKnockbackValue, knockback) + knockback * 0.1f, 24);
+							npc.ai[1] += Math.Max(dreadNautilusKnockbackValue - oldKBValue, 1);
+						}
+					}
+					break;
+				}
+				case NPCID.IlluminantBat: {
+					if (npc.ai[0] == -1) {
+						NPC parent = Main.npc[npc.realLife];
+						if (hit.Damage < 10 && npc.life > hit.Damage) {
+							parent.life -= hit.Damage;
+						} else {
+							hit.Damage = npc.lifeMax;
+							parent.life -= npc.lifeMax;
+							parent.checkDead();
+							npc.life = 0;
+							npc.realLife = -1;
+							npc.checkDead();
+						}
+						CombatText.NewText(
+							new Rectangle((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height),
+							hit.Crit ? CombatText.DamagedHostileCrit : CombatText.DamagedHostile,
+							hit.Damage,
+							hit.Crit
+						);
+
+						if (Main.netMode != NetmodeID.Server) {
+							if (npc.life > 0) {
+								for (int num336 = 0; num336 < hit.Damage / npc.lifeMax * 50.0; num336++) {
+									Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.UndergroundHallowedEnemies, 0f, 0f, 200).velocity *= 1.5f;
+								}
+							} else {
+								for (int num338 = 0; num338 < 50; num338++) {
+									Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.UndergroundHallowedEnemies, hit.HitDirection, 0f, 200).velocity *= 1.5f;
+								}
+							}
+						}
+					}
+					break;
+				}
+			}
+		}
+		public override bool CanHitNPC(NPC npc, NPC target)/* tModPorter Suggestion: Return true instead of null */ {
             if (npc.type == NPCID.IlluminantBat && npc.ai[0] == 1) return false;
             return base.CanHitNPC(npc, target);
         }

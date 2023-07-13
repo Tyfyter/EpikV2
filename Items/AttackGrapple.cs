@@ -22,7 +22,7 @@ namespace EpikV2.Items {
         PolarVec2 embedPos;
         public override string Texture => "Terraria/Images/Projectile_315";
         public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Attack Grappling Hook");
+			// DisplayName.SetDefault("Attack Grappling Hook");
 		}
         public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.BatHook);
@@ -38,7 +38,7 @@ namespace EpikV2.Items {
             }
             return null;
         }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             if (Projectile.localAI[1] == 0) {
                 Projectile.localAI[1] = 1;
                 Projectile.aiStyle = 0;

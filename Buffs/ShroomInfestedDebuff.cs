@@ -11,8 +11,8 @@ namespace EpikV2.Buffs
 		int realtime = 600;
 		public override void SetStaticDefaults()
 		{
-			DisplayName.SetDefault("Hungering Plague");
-			Description.SetDefault("");
+			// DisplayName.SetDefault("Hungering Plague");
+			// Description.SetDefault("");
             Main.pvpBuff[Type] = false;  //Tells the game if pvp buff or not. 
 			BuffID.Sets.NurseCannotRemoveDebuff[Type] = true;
 			//Main.buffNoTimeDisplay[Type] = true;

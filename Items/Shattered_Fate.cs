@@ -4,9 +4,9 @@ using Terraria.ModLoader;
 namespace EpikV2.Items {
     public class Shattered_Fate : ModItem {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Shattered Fate");
-            Tooltip.SetDefault("WeaponOut is currently unavailable for this version\nthis item will be reimplemented when that changes, but for now it's just a placeholder");
-            SacrificeTotal = 1;
+            // DisplayName.SetDefault("Shattered Fate");
+            // Tooltip.SetDefault("WeaponOut is currently unavailable for this version\nthis item will be reimplemented when that changes, but for now it's just a placeholder");
+            Item.ResearchUnlockCount = 1;
         }
         public override void SetDefaults() {
             Item.DamageType = DamageClass.Melee;

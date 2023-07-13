@@ -17,8 +17,8 @@ using static EpikV2.Resources;
 namespace EpikV2.Items {
     public class Jade_Dye : Dye_Item {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Jade Dye");
-            SacrificeTotal = 3;
+            // DisplayName.SetDefault("Jade Dye");
+            Item.ResearchUnlockCount = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type, 9);
@@ -32,8 +32,8 @@ namespace EpikV2.Items {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Non-Chromatic_Dye";
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Heatwave Dye");
-            SacrificeTotal = 3;
+            // DisplayName.SetDefault("Heatwave Dye");
+            Item.ResearchUnlockCount = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type, 9);
@@ -45,8 +45,8 @@ namespace EpikV2.Items {
 
     public class Starlight_Dye : Dye_Item {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Starlight Dye");
-            SacrificeTotal = 3;
+            // DisplayName.SetDefault("Starlight Dye");
+            Item.ResearchUnlockCount = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type, 9);
@@ -60,8 +60,8 @@ namespace EpikV2.Items {
     public class Dim_Starlight_Dye : Dye_Item {
         public override string Texture => "EpikV2/Items/Starlight_Dye";
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Dim Starlight Dye");
-            SacrificeTotal = 3;
+            // DisplayName.SetDefault("Dim Starlight Dye");
+            Item.ResearchUnlockCount = 3;
         }
 		public override void SetDefaults() {
 			int dye = Item.dye;
@@ -81,8 +81,8 @@ namespace EpikV2.Items {
     public class Bright_Starlight_Dye : Dye_Item {
         public override string Texture => "EpikV2/Items/Starlight_Dye";
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Bright Starlight Dye");
-            SacrificeTotal = 3;
+            // DisplayName.SetDefault("Bright Starlight Dye");
+            Item.ResearchUnlockCount = 3;
         }
 		public override void SetDefaults() {
 			int dye = Item.dye;
@@ -101,15 +101,15 @@ namespace EpikV2.Items {
 
     public class Retro_Dye : Dye_Item {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Retro Dye");
-            SacrificeTotal = 3;
+            // DisplayName.SetDefault("Retro Dye");
+            Item.ResearchUnlockCount = 3;
         }
     }
 
     public class Red_Retro_Dye : Dye_Item {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Retro Dye (Red)");
-            SacrificeTotal = 3;
+            // DisplayName.SetDefault("Retro Dye (Red)");
+            Item.ResearchUnlockCount = 3;
         }
     }
 
@@ -117,7 +117,7 @@ namespace EpikV2.Items {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("GPS Dye");
+            // DisplayName.SetDefault("GPS Dye");
         }
 		public override void SetDefaults() {
 			int dye = Item.dye;
@@ -142,7 +142,7 @@ namespace EpikV2.Items {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Chroma_Dummy_Dye");
+            // DisplayName.SetDefault("Chroma_Dummy_Dye");
         }
 		public override void SetDefaults() {
 			int dye = Item.dye;
@@ -172,8 +172,8 @@ namespace EpikV2.Items {
     }*/
     public class Cursed_Hades_Dye : Dye_Item {
         public override void SetStaticDefaults(){
-            DisplayName.SetDefault("Cursed Hades Dye");
-            SacrificeTotal = 3;
+            // DisplayName.SetDefault("Cursed Hades Dye");
+            Item.ResearchUnlockCount = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type, 3);
@@ -185,8 +185,8 @@ namespace EpikV2.Items {
     }
     public class Ichor_Dye : Dye_Item {
         public override void SetStaticDefaults(){
-            DisplayName.SetDefault("Ichor Dye");
-            SacrificeTotal = 3;
+            // DisplayName.SetDefault("Ichor Dye");
+            Item.ResearchUnlockCount = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type, 3);
@@ -198,8 +198,8 @@ namespace EpikV2.Items {
     }
     public class Golden_Flame_Dye : Dye_Item {
         public override void SetStaticDefaults(){
-            DisplayName.SetDefault("Golden Flame Dye");
-            SacrificeTotal = 3;
+            // DisplayName.SetDefault("Golden Flame Dye");
+            Item.ResearchUnlockCount = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type, 3);
@@ -213,8 +213,8 @@ namespace EpikV2.Items {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Chimera's Blood");
-            SacrificeTotal = 3;
+            // DisplayName.SetDefault("Chimera's Blood");
+            Item.ResearchUnlockCount = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type, 9);
@@ -228,8 +228,8 @@ namespace EpikV2.Items {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Blackened Chimera's Blood");
-            SacrificeTotal = 2;
+            // DisplayName.SetDefault("Blackened Chimera's Blood");
+            Item.ResearchUnlockCount = 2;
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type, 2);
@@ -243,8 +243,8 @@ namespace EpikV2.Items {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Chimera's Blood (Inverted)");
-            SacrificeTotal = 3;
+            // DisplayName.SetDefault("Chimera's Blood (Inverted)");
+            Item.ResearchUnlockCount = 3;
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type);
@@ -260,8 +260,8 @@ namespace EpikV2.Items {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Blackened Chimera's Blood (Inverted)");
-            SacrificeTotal = 2;
+            // DisplayName.SetDefault("Blackened Chimera's Blood (Inverted)");
+            Item.ResearchUnlockCount = 2;
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type);

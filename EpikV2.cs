@@ -33,7 +33,6 @@ using Terraria.UI.Chat;
 using ReLogic.Content;
 using EpikV2.Layers;
 using Terraria.ModLoader.Default;
-using Detour = On.Terraria;
 using Terraria.GameContent.Events;
 using Terraria.GameContent.Drawing;
 using Terraria.Graphics.Renderers;
@@ -323,10 +322,8 @@ namespace EpikV2 {
 			set {
 				noFishingBreak = value;
 				if (value) {
-					Lang.GetItemName(ItemID.HighTestFishingLine).Override = Language.GetText("Mods.EpikV2.ItemName.LuckyFishingLine");
 					ItemTooltip.AddGlobalProcessor(NoBreakTooltipProcessor);
 				} else {
-					Lang.GetItemName(ItemID.HighTestFishingLine).Override = null;
 					ItemTooltip.RemoveGlobalProcessor(NoBreakTooltipProcessor);
 				}
 			}
@@ -364,6 +361,27 @@ namespace EpikV2 {
 		/*[Label("Perfect Cellphone allows pylon teleportation")]
 		[DefaultValue(true)]
 		public bool PerfectCellPylon = true;*/
+	}
+	public class HighTestFishingLine : GlobalItem {
+		public override bool AppliesToEntity(Item entity, bool lateInstantiation) {
+			return entity.type == ItemID.HighTestFishingLine;
+		}
+		static void UpdateName(Item item) {
+			if (EpikConfig.Instance.NoFishingBreak) {
+				item.SetNameOverride(Language.GetOrRegister("Mods.EpikV2.ItemName.LuckyFishingLine").Value);
+			} else {
+				item.SetNameOverride(null);
+			}
+		}
+		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
+			UpdateName(item);
+		}
+		public override void UpdateInventory(Item item, Player player) {
+			UpdateName(item);
+		}
+		public override void Update(Item item, ref float gravity, ref float maxFallSpeed) {
+			UpdateName(item);
+		}
 	}
 	[Label("Client Settings")]
 	public class EpikClientConfig : ModConfig {
@@ -479,7 +497,7 @@ namespace EpikV2 {
 			collapseButton = (UIImage)ctor.Invoke(new object[] { ExpandedTexture, "Collapse" });
 			collapseButton.Top.Set(4f, 0f);
 			collapseButton.Left.Set(-52f, 1f);
-			collapseButton.OnClick += delegate {
+			collapseButton.OnLeftClick += delegate {
 				collapsed = !collapsed;
 				pendingChanges = true;
 			};
@@ -487,7 +505,7 @@ namespace EpikV2 {
 			expandButton = (UIImage)ctor.Invoke(new object[] { CollapsedTexture, "Expand" });
 			expandButton.Top.Set(4f, 0f);
 			expandButton.Left.Set(-52f, 1f);
-			expandButton.OnClick += delegate {
+			expandButton.OnLeftClick += delegate {
 				collapsed = !collapsed;
 				pendingChanges = true;
 			};

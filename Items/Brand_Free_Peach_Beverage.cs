@@ -9,9 +9,9 @@ using Terraria.ModLoader;
 namespace EpikV2.Items {
 	public class Brand_Free_Peach_Beverage : ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Brand-Free Peach Beverage");
-			Tooltip.SetDefault("'That's some good Brand-Free Peach Beverage'");
-			SacrificeTotal = 12;
+			// DisplayName.SetDefault("Brand-Free Peach Beverage");
+			// Tooltip.SetDefault("'That's some good Brand-Free Peach Beverage'");
+			Item.ResearchUnlockCount = 12;
 		}
 		public override void SetDefaults() {
 			//item.name = "jfdjfrbh";

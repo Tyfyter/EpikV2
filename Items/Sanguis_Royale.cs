@@ -15,10 +15,10 @@ using static Terraria.ModLoader.ModContent;
 namespace EpikV2.Items {
     public class Sanguis_Royale : ModItem {
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Sanguis Royale");
-			Tooltip.SetDefault("");
+			// DisplayName.SetDefault("Sanguis Royale");
+			// Tooltip.SetDefault("");
             Item.staff[Item.type] = true;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
         }
         public override void SetDefaults(){
             Item.damage = 78;
@@ -61,7 +61,7 @@ namespace EpikV2.Items {
     public class Sanguis_Royale_P : ModProjectile {
         public override string Texture => "Terraria/Images/Item_178";
         public override void SetStaticDefaults(){
-		    DisplayName.SetDefault("Sanguis Royale");
+		    // DisplayName.SetDefault("Sanguis Royale");
 		}
         public override void SetDefaults() {
             Projectile.aiStyle = 0;//48;
@@ -87,12 +87,12 @@ namespace EpikV2.Items {
                 dust.noGravity = true;
             }
         }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
             float bonus = (1-target.GetLifePercent());
             if(target.GetGlobalNPC<EpikGlobalNPC>().crushTime!=0)bonus++;
             damage+=(int)Math.Max((35-target.defense)*(2+bonus), 0);
         }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone){
             target.immune[Projectile.owner] = 0;
             for(int i = -2; i < 6; i++) {
                 Dust.NewDustPerfect(Projectile.Center+(Projectile.velocity.SafeNormalize(default)*(i*2)), DustID.Blood);
@@ -107,7 +107,7 @@ namespace EpikV2.Items {
         public override string Texture => "Terraria/Images/Item_178";
         int targetNPC = -1;
         public override void SetStaticDefaults(){
-		    DisplayName.SetDefault("Sanguis Royale");
+		    // DisplayName.SetDefault("Sanguis Royale");
 		}
         public override void SetDefaults() {
             Projectile.aiStyle = 0;//48;
@@ -169,7 +169,7 @@ namespace EpikV2.Items {
         public override bool? CanHitNPC(NPC target) {
             return targetNPC==-1?base.CanHitNPC(target):false;
         }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone){
             if(targetNPC == -1&&!(target.boss||target.type==NPCID.TargetDummy)) {
                 targetNPC = target.whoAmI;
             }

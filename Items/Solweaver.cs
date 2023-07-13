@@ -14,9 +14,9 @@ using static EpikV2.Resources;
 namespace EpikV2.Items {
     public class Solweaver : ModItem {
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Solweaver");
-			Tooltip.SetDefault("");
-            SacrificeTotal = 1;
+			// DisplayName.SetDefault("Solweaver");
+			// Tooltip.SetDefault("");
+            Item.ResearchUnlockCount = 1;
         }
         public override void SetDefaults(){
             Item.damage = 80;
@@ -74,7 +74,7 @@ namespace EpikV2.Items {
             //projectile.hide = true;
         }
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Solweaver");
+			// DisplayName.SetDefault("Solweaver");
 		}
 
 		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) {
@@ -164,13 +164,13 @@ namespace EpikV2.Items {
             }
         }*/
 
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             target.AddBuff(BuffID.Daybreak, 600);
         }
 
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
             int t = Projectile.timeLeft>10?25-Projectile.timeLeft:Projectile.timeLeft;
-            damage = (int)(damage*Math.Min(t/15f,1f));
+            modifiers.FinalDamage *= Math.Min(t / 15f, 1f);
         }
 
         /// <summary>
@@ -319,7 +319,7 @@ namespace EpikV2.Items {
             Projectile.localNPCHitCooldown = 90;
         }
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Solweaver");
+            // DisplayName.SetDefault("Solweaver");
         }
         public override void AI() {
             Vector2 velocity;
@@ -335,7 +335,7 @@ namespace EpikV2.Items {
                 d.noGravity = true;
             }
         }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             target.AddBuff(BuffID.Daybreak, 600);
             target.AddBuff(BuffID.BetsysCurse, 240);
         }
@@ -348,11 +348,11 @@ namespace EpikV2.Items {
             }
             return false;
         }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockBack, ref bool crit, ref int hitDirection) {
-            hitDirection = target.Center.X<Projectile.Center.X ? -1 : 1;
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			modifiers.HitDirectionOverride = target.Center.X < Projectile.Center.X ? -1 : 1;
             Vector2 pos = Vector2.Clamp(Projectile.Center, target.Hitbox.TopLeft(), target.Hitbox.BottomRight());
-            float dist = duration*range_growth;
-            damage = (int)(damage/(Math.Max((pos-Projectile.Center).Length(),1)/dist));
+            float dist = duration * range_growth;
+			modifiers.FinalDamage *= 1f / (Math.Max((pos - Projectile.Center).Length(), 1) / dist);
         }
         public override bool PreDraw(ref Color lightColor){
             return false;

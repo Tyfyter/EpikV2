@@ -12,9 +12,9 @@ using Terraria.ModLoader;
 namespace EpikV2.Items.Other {
 	public class Chest_Polish : ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Chest Polish");
-			Tooltip.SetDefault("Hides a chest from prying spirits");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("Chest Polish");
+			// Tooltip.SetDefault("Hides a chest from prying spirits");
+			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			Item.width = 30;
@@ -26,7 +26,7 @@ namespace EpikV2.Items.Other {
 		public override void AddRecipes() {
 			CreateRecipe()
 			.AddIngredient(ItemID.ArmorPolish)
-			.AddCondition(NetworkText.FromKey("Mods.EpikV2.RecipeCondition.UsedTriangularManuscript"), (_) => Main.LocalPlayer.GetModPlayer<EpikPlayer>().usedTriangleManuscript)
+			.AddCondition(Language.GetText("Mods.EpikV2.RecipeCondition.UsedTriangularManuscript"), () => Main.LocalPlayer.GetModPlayer<EpikPlayer>().usedTriangleManuscript)
 			.Register();
 		}
 		public override bool? UseItem(Player player) {
@@ -49,9 +49,9 @@ namespace EpikV2.Items.Other {
 	public class Chest_Webs : ModItem {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.Cobweb;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("<PH> Chest Webs");
-			Tooltip.SetDefault("Reveals a chest to prying spirits");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("<PH> Chest Webs");
+			// Tooltip.SetDefault("Reveals a chest to prying spirits");
+			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			Item.width = 30;
@@ -63,7 +63,7 @@ namespace EpikV2.Items.Other {
 		public override void AddRecipes() {
 			CreateRecipe()
 			.AddIngredient(ItemID.Cobweb)
-			.AddCondition(NetworkText.FromKey("Mods.EpikV2.RecipeCondition.UsedTriangularManuscript"), (_) => Main.LocalPlayer.GetModPlayer<EpikPlayer>().usedTriangleManuscript)
+			.AddCondition(Language.GetText("Mods.EpikV2.RecipeCondition.UsedTriangularManuscript"), () => Main.LocalPlayer.GetModPlayer<EpikPlayer>().usedTriangleManuscript)
 			.Register();
 		}
 		public override bool? UseItem(Player player) {

@@ -15,9 +15,9 @@ using static Terraria.ModLoader.ModContent;
 namespace EpikV2.Items {
     public class Psychodelic_Potion : ModItem {
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Acrid Potion");
-            Tooltip.SetDefault("You definitely shouldn't drink this...");
-            SacrificeTotal = 10;
+		    // DisplayName.SetDefault("Acrid Potion");
+            // Tooltip.SetDefault("You definitely shouldn't drink this...");
+            Item.ResearchUnlockCount = 10;
         }
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.StrangeBrew);
@@ -106,8 +106,8 @@ namespace EpikV2.Items {
 		public override string Texture => "Terraria/Images/Buff_160";
 		public static int ID { get; private set; }
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("");
-            Description.SetDefault("");
+            // DisplayName.SetDefault("");
+            // Description.SetDefault("");
             Main.debuff[Type] = true;
             Main.buffNoTimeDisplay[Type] = true;
             ID = Type;

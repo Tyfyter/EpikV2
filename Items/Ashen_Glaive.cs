@@ -19,9 +19,9 @@ namespace EpikV2.Items {
             Ashen_Glaive_P.marks = null;
         }
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Ashen Glaive");
-			Tooltip.SetDefault("");
-            SacrificeTotal = 1;
+			// DisplayName.SetDefault("Ashen Glaive");
+			// Tooltip.SetDefault("");
+            Item.ResearchUnlockCount = 1;
             if (Main.netMode == NetmodeID.Server)return;
             mark1Texture = Mod.RequestTexture("Items/Ashen_Mark_1");
             mark2Texture = Mod.RequestTexture("Items/Ashen_Mark_2");
@@ -68,7 +68,7 @@ namespace EpikV2.Items {
             recipe.AddIngredient(ItemID.SoulofFright, 5);
             recipe.AddTile(TileID.MythrilAnvil);
             recipe.AddTile(TileID.DemonAltar);
-            recipe.AddCondition(Recipe.Condition.NearLava);
+            recipe.AddCondition(Condition.NearLava);
             recipe.Register();
         }
     }
@@ -77,7 +77,7 @@ namespace EpikV2.Items {
         internal static byte[] marks = null;
         public override string Texture => "EpikV2/Items/Ashen_Glaive";
         public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Ashen Glaive");
+			// DisplayName.SetDefault("Ashen Glaive");
 		}
         public override void SetDefaults() {
             Projectile.CloneDefaults(ProjectileID.ThornChakram);
@@ -127,14 +127,14 @@ namespace EpikV2.Items {
             }
             return false;
         }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
             if(marks[target.whoAmI] == 0) {
-                if(crit)marks[target.whoAmI]++;
-                damage*=3;
-                damage+=target.defense / 2;
-                crit = true;
+                if(Main.rand.Next(100) < Projectile.CritChance) marks[target.whoAmI]++;
+				modifiers.SourceDamage *= 3;
+				modifiers.ScalingArmorPenetration += 1;
+				modifiers.SetCrit();
             } else {
-                crit = false;
+				modifiers.DisableCrit();
             }
         }
         public override void Kill(int timeLeft) {
@@ -143,21 +143,35 @@ namespace EpikV2.Items {
             NPC npc;
             for(int i = 0; i < 200; i++) {
                 npc = Main.npc[i];
-                int dmg = Projectile.damage*marks[i];
-                switch(marks[i]) {
-                    case 1:
-                    break;
-                    case 2:
-                    dmg += npc.defense/4;
-                    break;
-                    case 3:
-                    dmg += npc.defense/3;
-                    break;
-                    default:
-                    continue;
-                }
-                dmg = (int)npc.StrikeNPC(dmg, Projectile.knockBack, player.direction, false);
-                player.addDPS(dmg);
+				float armorPen = 0;
+				switch (marks[i]) {
+					case 1:
+					break;
+					case 2:
+					armorPen = 0.5f;
+					break;
+					case 3:
+					armorPen = 0.666f;
+					break;
+					default:
+					continue;
+				}
+				NPC.HitModifiers modifiers = npc.GetIncomingStrikeModifiers(Projectile.DamageType, 0);
+				modifiers.ArmorPenetration += Projectile.ArmorPenetration;
+				modifiers.ScalingArmorPenetration += armorPen;
+				CombinedHooks.ModifyHitNPCWithProj(Projectile, npc, ref modifiers);
+
+				int bannerID = Item.NPCtoBanner(npc.BannerID());
+				if (bannerID >= 0) {
+					player.lastCreatureHit = bannerID;
+				}
+				if (Main.netMode != NetmodeID.Server) {
+					player.ApplyBannerOffenseBuff(npc, ref modifiers);
+				}
+
+				NPC.HitInfo strike = modifiers.ToHitInfo(Projectile.damage * marks[i], false, Projectile.knockBack, damageVariation: true, player.luck);
+
+                player.addDPS(npc.StrikeNPC(strike));
                 marks[i] = 0;
             }
         }
@@ -179,7 +193,7 @@ namespace EpikV2.Items {
 			if (!(NPCLoader.CanBeHitByProjectile(npc, Projectile)??true)){
 				return false;
 			}
-			if (!(PlayerLoader.CanHitNPCWithProj(Projectile, npc)??true)){
+			if (!(PlayerLoader.CanHitNPCWithProj(Main.player[Projectile.owner], Projectile, npc) ?? true)){
 				return false;
 			}
             Player player = Main.player[Projectile.owner];

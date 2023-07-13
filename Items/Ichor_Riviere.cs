@@ -8,11 +8,11 @@ using Terraria.ModLoader;
 namespace EpikV2.Items {
 	[AutoloadEquip(EquipType.Neck)]
 	public class Ichor_Riviere : ModItem {
-		public static sbyte NeckSlot { get; internal set; }
+		public static int NeckSlot { get; internal set; }
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Ichor Rivière");
-			Tooltip.SetDefault("Increases armor penetration by 4\nAttacks may reduce enemy defense");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("Ichor Rivière");
+			// Tooltip.SetDefault("Increases armor penetration by 4\nAttacks may reduce enemy defense");
+			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			NeckSlot = Item.neckSlot;

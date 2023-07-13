@@ -17,9 +17,9 @@ using Tyfyter.Utils;
 namespace EpikV2.Items {
 	public class Pyrkasivar: ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Pyrkasivar");//Google translate seems to think this means armrest in Finnish, but 
-			Tooltip.SetDefault("");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("Pyrkasivar");//Google translate seems to think this means armrest in Finnish, but 
+			// Tooltip.SetDefault("");
+			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			Item.DamageType = DamageClass.Summon;
@@ -108,7 +108,7 @@ namespace EpikV2.Items {
 			recipe.AddIngredient(ItemID.PaladinsShield, 1);
 			recipe.AddIngredient(ItemID.BrokenHeroSword, 1);
 			recipe.AddTile(TileID.MythrilAnvil);
-			recipe.AddCondition(Recipe.Condition.NearLava);
+			recipe.AddCondition(Condition.NearLava);
 			//recipe.Register();
 			//recipe.AddRecipe();
 		}
@@ -121,7 +121,7 @@ namespace EpikV2.Items {
 			TrailTexture = null;
 		}
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Pyrkasivar");
+			// DisplayName.SetDefault("Pyrkasivar");
 			ID = Projectile.type;
 		}
 		public override void SetDefaults() {
@@ -210,7 +210,7 @@ namespace EpikV2.Items {
 		public static int ID { get; internal set; } = -1;
 		public override string Texture => "Terraria/Images/Item_260";
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Pyrkasivar");
+			// DisplayName.SetDefault("Pyrkasivar");
 			ID = Projectile.type;
 		}
 		public override void SetDefaults() {
@@ -219,7 +219,7 @@ namespace EpikV2.Items {
 			Projectile.penetrate = 1;
 			AIType = ProjectileID.HeatRay;
 		}
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
 			//Player player = Main.player[Projectile.owner];
 			//float dmgMult = player.allDamageMult * player.minionDamageMult;
 			//damage = (int)(damage * (player.allDamage + player.minionDamage - 1) * dmgMult);

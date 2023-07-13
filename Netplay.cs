@@ -231,7 +231,7 @@ namespace EpikV2 {
 			altNameColors = (AltNameColorTypes)reader.ReadByte();
 			oldWolfBlood = reader.ReadBoolean();
 		}
-		public override void clientClone(ModPlayer clientClone) {
+		public override void CopyClientState(ModPlayer clientClone)/* tModPorter Suggestion: Replace Item.Clone usages with Item.CopyNetStateTo */ {
 			EpikPlayer clone = clientClone as EpikPlayer;
 			clone.altNameColors = altNameColors;
 			clone.oldWolfBlood = oldWolfBlood;

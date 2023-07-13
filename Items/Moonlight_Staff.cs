@@ -25,13 +25,13 @@ namespace EpikV2.Items {
         public static int ID { get; internal set; } = -1;
 
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Moonlight Staff");
-		    Tooltip.SetDefault("");
+		    // DisplayName.SetDefault("Moonlight Staff");
+		    // Tooltip.SetDefault("");
             ItemID.Sets.StaffMinionSlotsRequired[Item.type] = 1;
 			ItemID.Sets.GamepadWholeScreenUseRange[Item.type] = true;
 			ItemID.Sets.LockOnIgnoresCollision[Item.type] = true;
             ID = Item.type;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
         }
 		public override void SetDefaults() {
             int dye = Item.dye;
@@ -59,8 +59,8 @@ namespace EpikV2.Items {
 		public override string Texture => "EpikV2/Buffs/Moonlace_Buff";
 		public static int ID { get; internal set; } = -1;
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Moonlight Thread");
-            Description.SetDefault("A curious strand of moonlight will fight for you");
+            // DisplayName.SetDefault("Moonlight Thread");
+            // Description.SetDefault("A curious strand of moonlight will fight for you");
             Main.buffNoSave[Type] = true;
             Main.buffNoTimeDisplay[Type] = true;
             ID = Type;
@@ -88,7 +88,7 @@ namespace EpikV2.Items {
         protected override bool CloneNewInstances => true;
 
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Moonlace");
+            // DisplayName.SetDefault("Moonlace");
 			Main.projPet[Projectile.type] = true;
 			ProjectileID.Sets.MinionTargettingFeature[Projectile.type] = true;
 			ProjectileID.Sets.MinionSacrificable[Projectile.type] = true;
@@ -266,7 +266,7 @@ namespace EpikV2.Items {
                 }
             }
         }
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             Projectile.ai[0] = 15;
         }
         public override bool MinionContactDamage() {

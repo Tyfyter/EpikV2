@@ -18,9 +18,9 @@ namespace EpikV2.Items {
             return true;
         }*/
         public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Gold Band");
-		    Tooltip.SetDefault("Looks rather nice, no?");
-            SacrificeTotal = 1;
+		    // DisplayName.SetDefault("Gold Band");
+		    // Tooltip.SetDefault("Looks rather nice, no?");
+            Item.ResearchUnlockCount = 1;
         }
         public override void SetDefaults() {
             Item.handOnSlot = ModContent.GetInstance<Band_Of_Frost>().Item.handOnSlot;

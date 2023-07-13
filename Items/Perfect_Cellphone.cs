@@ -28,12 +28,12 @@ namespace EpikV2.Items {
 			Phone_Types = null;
 		}
 		protected void SetName(string name) {
-			DisplayName.SetDefault($"Perfect Cellphone ({name})");
-			Tooltip.SetDefault("<switch> to change modes\nIf you listen closely, you can hear screaming and something about \"power levels\"'");
+			// DisplayName.SetDefault($"Perfect Cellphone ({name})");
+			// Tooltip.SetDefault("<switch> to change modes\nIf you listen closely, you can hear screaming and something about \"power levels\"'");
 		}
 		public override void SetStaticDefaults() {
 			SetName("Home");
-			SacrificeTotal = 1;
+			Item.ResearchUnlockCount = 1;
 			Phone_Types = new List<int> {
 				Type,
 				ItemType<Perfect_Cellphone_World>(),
@@ -179,7 +179,7 @@ namespace EpikV2.Items {
 			player.Teleport(newPos, 11);
 			player.velocity = Vector2.Zero;
 			if (Main.netMode == NetmodeID.Server) {
-				NetMessage.SendData(MessageID.Teleport, -1, -1, null, 0, player.whoAmI, newPos.X, newPos.Y, 11);
+				NetMessage.SendData(MessageID.TeleportEntity, -1, -1, null, 0, player.whoAmI, newPos.X, newPos.Y, 11);
 			}
 		}
 		protected override void SpawnDust(int frame, Vector2 position, int width, int height, float speedX = 0, float speedY = 0, int alpha = 0, float scale = 1) {

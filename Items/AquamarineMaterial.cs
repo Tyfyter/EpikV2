@@ -15,8 +15,8 @@ namespace EpikV2.Items {
 		public static int id { get; private set; }
 		public int time = 3600;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Charged Emerald");
-			Tooltip.SetDefault("This won't retain a charge for long in this state\ndisplaytime");
+			// DisplayName.SetDefault("Charged Emerald");
+			// Tooltip.SetDefault("This won't retain a charge for long in this state\ndisplaytime");
 			id = Item.type;
 		}
 		public override void SetDefaults() {
@@ -55,8 +55,8 @@ namespace EpikV2.Items {
 		public const int hitpoints = 300;
 		public int hp = hitpoints;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Charged Amber");
-			Tooltip.SetDefault("This is quite unstable\ndisplayhp");
+			// DisplayName.SetDefault("Charged Amber");
+			// Tooltip.SetDefault("This is quite unstable\ndisplayhp");
 			id = Item.type;
 		}
 		public override void SetDefaults() {
@@ -96,8 +96,8 @@ namespace EpikV2.Items {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeRuby;
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Sanguine Ruby");
-			Tooltip.SetDefault("You are a horrible person.\n100% filled");
+			// DisplayName.SetDefault("Sanguine Ruby");
+			// Tooltip.SetDefault("You are a horrible person.\n100% filled");
 			ID = Item.type;
 		}
 		public override void SetDefaults() {
@@ -116,8 +116,8 @@ namespace EpikV2.Items {
 		public static int id = 0;
 		public int charge = 1;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Sanguine Ruby");
-			Tooltip.SetDefault("You are a horrible person.\ndisplaycharge");
+			// DisplayName.SetDefault("Sanguine Ruby");
+			// Tooltip.SetDefault("You are a horrible person.\ndisplaycharge");
 			id = Item.type;
 		}
 		public override void SetDefaults() {
@@ -152,8 +152,8 @@ namespace EpikV2.Items {
 		public static int id { get; private set; }
 		public int time = 0;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Radiant Diamond");
-			Tooltip.SetDefault("");
+			// DisplayName.SetDefault("Radiant Diamond");
+			// Tooltip.SetDefault("");
 			id = Item.type;
 		}
 		public override void SetDefaults() {
@@ -191,9 +191,9 @@ namespace EpikV2.Items {
 	public class Sacrificial_Dagger : ModItem {
 		Rectangle hitBox;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Sacrificial Dagger");
-			Tooltip.SetDefault("");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("Sacrificial Dagger");
+			// Tooltip.SetDefault("");
+			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.PsychoKnife);
@@ -207,7 +207,7 @@ namespace EpikV2.Items {
 		public override bool? CanHitNPC(Player player, NPC target) {
 			return target.Hitbox.Intersects(hitBox);
 		}
-		public override void OnHitNPC(Player player, NPC target, int damage, float knockBack, bool crit) {
+		public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone) {
 			if(target.life<1&&(target.townNPC||target.type==NPCID.CultistDevote||target.type==NPCID.CultistArcherBlue||target.type==NPCID.CultistArcherWhite)) {
 				player.GetModPlayer<EpikPlayer>().sacrifice = 3;
 				if(!target.townNPC)return;
@@ -215,10 +215,10 @@ namespace EpikV2.Items {
 				Main.townNPCCanSpawn[target.type] = false;
 			}
 		}
-		public override void ModifyHitNPC(Player player, NPC target, ref int damage, ref float knockBack, ref bool crit) {
-			damage+=target.defense/2;
-			if(target.townNPC||player.direction==target.direction) {
-				crit = true;
+		public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers) {
+			modifiers.ScalingArmorPenetration += 1;
+			if(target.townNPC || player.direction==target.direction) {
+				modifiers.SetCrit();
 			}
 		}
 		public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox) {
@@ -239,8 +239,8 @@ namespace EpikV2.Items {
 	public class GolemDeath : ModItem {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.GolemTrophy;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Golem");
-			Tooltip.SetDefault("");
+			// DisplayName.SetDefault("Golem");
+			// Tooltip.SetDefault("");
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.GolemTrophy);
@@ -254,8 +254,8 @@ namespace EpikV2.Items {
 	public class EmpressDeath : ModItem {
 		public override string Texture => "Terraria/Images/Item_"+ItemID.GolemTrophy;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Empress of Light");
-			Tooltip.SetDefault("");
+			// DisplayName.SetDefault("Empress of Light");
+			// Tooltip.SetDefault("");
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.GolemTrophy);

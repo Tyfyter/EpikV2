@@ -18,9 +18,9 @@ namespace EpikV2.Items {
         internal static int spinProj = 0;
         //static int throwProj = -1;
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Jade Reaper");
-			Tooltip.SetDefault("");
-            SacrificeTotal = 1;
+			// DisplayName.SetDefault("Jade Reaper");
+			// Tooltip.SetDefault("");
+            Item.ResearchUnlockCount = 1;
         }
 		public override void SetDefaults(){
 			Item.CloneDefaults(ItemID.MonkStaffT3);
@@ -66,7 +66,7 @@ namespace EpikV2.Items {
 	public class Jade_Reaper_Spin : ModProjectile {
         public override string Texture => "EpikV2/Items/Jade_Reaper";
         public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Jade Reaper");
+			// DisplayName.SetDefault("Jade Reaper");
             Jade_Reaper.spinProj = Projectile.type;
 		}
 		public override void SetDefaults(){
@@ -162,7 +162,7 @@ namespace EpikV2.Items {
                 }
             }
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit){
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone){
 			Vector2 intersect = new Vector2(MathHelper.Clamp(Projectile.Center.X, target.Hitbox.Left, target.Hitbox.Right),MathHelper.Clamp(Projectile.Center.Y, target.Hitbox.Top, target.Hitbox.Bottom));
 			Projectile.localNPCImmunity[target.whoAmI] = (int)(Projectile.Distance(intersect)/8)+5+(Projectile.localAI[0]==1?3:0);
             Projectile.type = Jade_Reaper.spinProj;

@@ -104,10 +104,10 @@ namespace EpikV2.Items {
             return false;
         }
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Lucre Launcher");
-		    Tooltip.SetDefault("It's pay to win\nScroll while holding<Torch> or use <switch> to change coin type\nRight click to load in coins");
+		    // DisplayName.SetDefault("Lucre Launcher");
+		    // Tooltip.SetDefault("It's pay to win\nScroll while holding<Torch> or use <switch> to change coin type\nRight click to load in coins");
             ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
             if (Main.netMode == NetmodeID.Server)return;
             FrontTexture = Mod.RequestTexture("Items/Lucre_Launcher_Front");
             BackTexture = Mod.RequestTexture("Items/Lucre_Launcher_Back");
@@ -333,7 +333,7 @@ namespace EpikV2.Items {
         static int f = 0;
         public override string Texture => "Terraria/Images/Coin_0";
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Copper Coin");
+			// DisplayName.SetDefault("Copper Coin");
 			Main.projFrames[Projectile.type] = 8;
 		}
 		public override void SetDefaults(){
@@ -355,7 +355,7 @@ namespace EpikV2.Items {
         static int f = 0;
         public override string Texture => "Terraria/Images/Coin_1";
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Silver Coin");
+			// DisplayName.SetDefault("Silver Coin");
 			Main.projFrames[Projectile.type] = 8;
 		}
 		public override void SetDefaults(){
@@ -368,7 +368,7 @@ namespace EpikV2.Items {
         static int f = 0;
         public override string Texture => "Terraria/Images/Coin_2";
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Gold Coin");
+			// DisplayName.SetDefault("Gold Coin");
 			Main.projFrames[Projectile.type] = 8;
 		}
 		public override void SetDefaults(){
@@ -384,7 +384,7 @@ namespace EpikV2.Items {
         static int f = 0;
         public override string Texture => "Terraria/Images/Coin_3";
 		public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Platinum Coin");
+			// DisplayName.SetDefault("Platinum Coin");
 			Main.projFrames[Projectile.type] = 8;
 		}
 		public override void SetDefaults(){
@@ -406,7 +406,7 @@ namespace EpikV2.Items {
             SoundEngine.PlaySound(SoundID.Dig, Projectile.Center);
             return false;
         }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection){
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers){
             damage += target.defense/4;
 		}
 	}

@@ -16,7 +16,7 @@ using static Terraria.GameContent.Bestiary.BestiaryDatabaseNPCsPopulator;
 namespace EpikV2.NPCs {
     public class Bobber_Snail : ModNPC {
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Bobber Snail");
+            // DisplayName.SetDefault("Bobber Snail");
         }
         public override void SetDefaults() {
             NPC.CloneDefaults(NPCID.Snail);
@@ -39,8 +39,8 @@ namespace EpikV2.NPCs {
     }
 	public class Bobber_Snail_Item : ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Bobber Snail");
-			Tooltip.SetDefault("Increases fishing speed");
+			// DisplayName.SetDefault("Bobber Snail");
+			// Tooltip.SetDefault("Increases fishing speed");
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.Snail);

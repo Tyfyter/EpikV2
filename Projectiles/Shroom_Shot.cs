@@ -26,7 +26,7 @@ namespace EpikV2.Projectiles {
             Projectile.usesLocalNPCImmunity = true;
         }
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Infestation Round");
+			// DisplayName.SetDefault("Infestation Round");
 		}
         public override void AI() {
             Projectile.rotation = (float)Math.Atan2(Projectile.velocity.Y, Projectile.velocity.X) + MathHelper.PiOver2;
@@ -64,7 +64,7 @@ namespace EpikV2.Projectiles {
                 Projectile.ai[1]--;
             }
         }
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
             crit = false;
             ShroomInfestation GNPC = target.GetGlobalNPC<ShroomInfestation>();
             Infestation n = new Infestation((int)(damage / (Projectile.ai[0] == 0 ? 2f : 1f)), 629, Projectile.owner, (int)Projectile.localAI[0], !Projectile.tileCollide);

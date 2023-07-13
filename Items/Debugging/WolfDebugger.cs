@@ -16,7 +16,8 @@ namespace EpikV2.Items.Debugging {
     public class WolfDebugger : ModItem {
         public override string Texture => "EpikV2/Items/Ashen_Mark_1";
         public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Great Old Wolf Blood Debugger");
+		    // DisplayName.SetDefault("Great Old Wolf Blood Debugger");
+			Item.ResearchUnlockCount = 0;
 		}
 
         public override void SetDefaults() {

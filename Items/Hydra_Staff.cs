@@ -19,11 +19,11 @@ namespace EpikV2.Items {
         public static int ID { get; internal set; } = -1;
 
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Hydra Staff");
-		    Tooltip.SetDefault("");
+		    // DisplayName.SetDefault("Hydra Staff");
+		    // Tooltip.SetDefault("");
             ItemID.Sets.StaffMinionSlotsRequired[Item.type] = 1;
             ID = Item.type;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
         }
 		public override void SetDefaults() {
             int dye = Item.dye;
@@ -59,8 +59,8 @@ namespace EpikV2.Items {
 		public override string Texture => "EpikV2/Buffs/Hydra_Buff";
 		public static int ID { get; internal set; } = -1;
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Hydra");
-            Description.SetDefault("The Hydra will fight for you");
+            // DisplayName.SetDefault("Hydra");
+            // Description.SetDefault("The Hydra will fight for you");
             Main.buffNoSave[Type] = true;
             Main.buffNoTimeDisplay[Type] = true;
             ID = Type;
@@ -96,7 +96,7 @@ namespace EpikV2.Items {
         protected override bool CloneNewInstances => true;
 
         public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Hydra");
+            // DisplayName.SetDefault("Hydra");
 			Main.projPet[Projectile.type] = true;
 			ProjectileID.Sets.MinionTargettingFeature[Projectile.type] = true;
 			ProjectileID.Sets.MinionSacrificable[Projectile.type] = true;
@@ -258,7 +258,7 @@ namespace EpikV2.Items {
             return Projectile.friendly;
         }
 
-        public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
             Projectile.ai[0] = 0;
             if(target.whoAmI != (int)Projectile.localAI[0]) {
                 return;

@@ -17,9 +17,9 @@ using static EpikV2.CrossMod.EpikIntegration;
 namespace EpikV2.Items {
 	public class Haligbrand : ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Haligbrand");
-			Tooltip.SetDefault("");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("Haligbrand");
+			// Tooltip.SetDefault("");
+			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			Item.DamageType = DamageClass.Summon;
@@ -132,7 +132,7 @@ namespace EpikV2.Items {
 			recipe.AddIngredient(ItemID.PaladinsShield, 1);
 			recipe.AddIngredient(ItemID.BrokenHeroSword, 1);
 			recipe.AddTile(TileID.MythrilAnvil);
-			recipe.AddCondition(Recipe.Condition.NearLava);
+			recipe.AddCondition(Condition.NearLava);
 			recipe.Register();
 		}
 	}
@@ -153,7 +153,7 @@ namespace EpikV2.Items {
 			}
 		}
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Haligbrand");
+			// DisplayName.SetDefault("Haligbrand");
 			ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
 			ProjectileID.Sets.TrailCacheLength[Projectile.type] = trail_length - 1;
 			ID = Projectile.type;
@@ -381,7 +381,7 @@ namespace EpikV2.Items {
 			Lighting.AddLight(Projectile.Center + new Vector2(0, 45 * Projectile.scale).RotatedBy(Projectile.rotation), glowColor);
 		}
 
-		public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
 			Player player = Main.player[Projectile.owner];
 			//float dmgMult = player.allDamageMult * player.minionDamageMult;
 			switch ((int)Projectile.ai[1]) {
@@ -400,7 +400,7 @@ namespace EpikV2.Items {
 			//damage = (int)(damage * (player.allDamage + player.minionDamage - 1) * dmgMult);
 		}
 
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			if ((int)Projectile.ai[1] == 0) {
 				Projectile.frame = 1;
 			}
@@ -569,7 +569,7 @@ namespace EpikV2.Items {
 		public float ScaleFactor => base_size * Projectile.scale * (1 - Projectile.timeLeft / 10f);
 		const float base_size = 64;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Haligbrand");
+			// DisplayName.SetDefault("Haligbrand");
 			ID = Projectile.type;
 		}
 		public override void SetDefaults() {
@@ -587,7 +587,7 @@ namespace EpikV2.Items {
 			target.oldVelocity = target.velocity;
 			return null;
 		}
-		public override void OnHitNPC(NPC target, int damage, float knockback, bool crit) {
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			target.velocity = (target.Center - Projectile.Center).SafeNormalize(Vector2.Zero) * (target.velocity - target.oldVelocity).Length();
 		}
 		public override void AI() {

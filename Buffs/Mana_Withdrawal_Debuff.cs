@@ -8,8 +8,8 @@ namespace EpikV2.Buffs {
 	public class Mana_Withdrawal_Debuff : ModBuff {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Mana Withdrawal");
-			Description.SetDefault("More...");
+			// DisplayName.SetDefault("Mana Withdrawal");
+			// Description.SetDefault("More...");
             Main.debuff[Type] = false;
 			Main.buffNoTimeDisplay[Type] = true;
 			ID = Type;

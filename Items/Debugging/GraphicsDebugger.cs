@@ -17,7 +17,8 @@ namespace EpikV2.Items.Debugging {
         double h = 0;
         public override string Texture => "EpikV2/Items/Suppressor_Handle";
         public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Graphics Debugger");
+		    // DisplayName.SetDefault("Graphics Debugger");
+			Item.ResearchUnlockCount = 0;
 		}
         public override void SetDefaults() {
             Item.damage = 60;

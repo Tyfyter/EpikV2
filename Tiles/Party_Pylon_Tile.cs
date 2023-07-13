@@ -8,6 +8,7 @@ using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameContent.Events;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.Map;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Default;
@@ -52,14 +53,11 @@ namespace EpikV2.Tiles {
 			AddToArray(ref TileID.Sets.CountsAsPylon);
 			AddToArray(ref TileID.Sets.RoomNeeds.CountsAsTorch);
 
-			ModTranslation pylonName = CreateMapEntryName(); //Name is in the localization file
+			LocalizedText pylonName = CreateMapEntryName(); //Name is in the localization file
 			AddMapEntry(Color.Magenta, pylonName);
 		}
 
-		public override int? IsPylonForSale(int npcType, Player player, bool isNPCHappyEnough) {
-			return isNPCHappyEnough && npcType == NPCID.PartyGirl && BirthdayParty.PartyIsUp ? ModContent.ItemType<Party_Pylon_Item>() : null;
-		}
-
+		public override NPCShop.Entry GetNPCShopEntry() => null;
 
 		public override void MouseOver(int i, int j) {
 			if (BirthdayParty.PartyIsUp) {

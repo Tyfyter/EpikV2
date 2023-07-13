@@ -17,7 +17,8 @@ namespace EpikV2.Items.Debugging {
         int id = 0;
         public override string Texture => "EpikV2/Items/Ashen_Mark_3";
         public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Dust Debugger");
+		    // DisplayName.SetDefault("Dust Debugger");
+			Item.ResearchUnlockCount = 0;
 		}
 
         public override void SetDefaults() {

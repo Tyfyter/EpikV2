@@ -11,9 +11,9 @@ using Terraria.ModLoader;
 namespace EpikV2.Items.Accessories {
 	public class Seventeen_Leaf_Clover : Parasitic_Accessory {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Seventeen-Leaf Clover");
-			Tooltip.SetDefault("If a four-leaf clover is lucky than a seventeen-leaf clover has to be super lucky, right?");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("Seventeen-Leaf Clover");
+			// Tooltip.SetDefault("If a four-leaf clover is lucky than a seventeen-leaf clover has to be super lucky, right?");
+			Item.ResearchUnlockCount = 1;
 			EpikV2.AddBalanceRarityOverride(Type, ItemRarityID.Blue);
 		}
 		public override void SetDefaults() {

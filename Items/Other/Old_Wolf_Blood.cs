@@ -20,7 +20,7 @@ namespace EpikV2.Items.Other {
 
     public class Old_Wolf_Blood : ModItem {
         public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Great Old Wolf Blood");
+		    // DisplayName.SetDefault("Great Old Wolf Blood");
 		}
         public override void SetDefaults() {
 			Item.DefaultToHealingPotion(20, 24, 0, 24);

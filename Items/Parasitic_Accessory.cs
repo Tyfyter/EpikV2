@@ -11,8 +11,8 @@ using EpikV2.Rarities;
 namespace EpikV2.Items {
 	public abstract class Parasitic_Accessory : ModItem {
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Parasitic_Accessory");
-            Tooltip.SetDefault("Equip to cover yourself in Parasitic_Accessory");
+			// DisplayName.SetDefault("Parasitic_Accessory");
+            // Tooltip.SetDefault("Equip to cover yourself in Parasitic_Accessory");
             //Tooltip.SetDefault("Allows flight and slow fall while in water");
 		}
 
@@ -29,7 +29,7 @@ namespace EpikV2.Items {
 		}
 		public virtual bool CanRemove(Player player) {
 			if (player.GetModPlayer<EpikPlayer>().timeSinceRespawn <= 300) return true;
-			player.Hurt(PlayerDeathReason.ByPlayer(player.whoAmI), 100, 0);
+			player.Hurt(PlayerDeathReason.ByPlayerItem(player.whoAmI, Item), 100, 0);
 			return player.statLife > 0;
 		}
 		public static float GetColorValue(float value) {

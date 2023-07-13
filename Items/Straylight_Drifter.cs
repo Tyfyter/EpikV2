@@ -15,10 +15,10 @@ namespace EpikV2.Items {
     public class Straylight_Drifter : ModItem {
         internal static int id = -1;
 		public override void SetStaticDefaults() {
-		    DisplayName.SetDefault("Straylight Drifter");
-		    Tooltip.SetDefault("\"Skill honed sharp\"");
+		    // DisplayName.SetDefault("Straylight Drifter");
+		    // Tooltip.SetDefault("\"Skill honed sharp\"");
             id = Item.type;
-            SacrificeTotal = 1;
+            Item.ResearchUnlockCount = 1;
             //customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
         }
         public override void SetDefaults(){
@@ -102,7 +102,7 @@ namespace EpikV2.Items {
         double mult = 1;
         bool crit => (Projectile.velocity.Length()/Projectile.ai[0])<0.5f;
         public override void SetStaticDefaults(){
-			DisplayName.SetDefault("Straylight Drifter");
+			// DisplayName.SetDefault("Straylight Drifter");
 		}
 		public override void SetDefaults(){
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
@@ -135,12 +135,9 @@ namespace EpikV2.Items {
                 if(crit)Dust.NewDustPerfect(Projectile.Center, 226, new Vector2(Projectile.ai[0], 0).RotatedBy(targetAngle-PiOver2), 100, new Color(0, 255, 191), 0.5f).noGravity = true;
             }
 		}
-        public override void ModifyHitNPC(NPC target, ref int damage, ref float knockback, ref bool crit, ref int hitDirection) {
-            if(Projectile.ai[1]<1)crit = this.crit;
-            if(crit) {
-                mult*=1+(Main.player[Projectile.owner].GetCritChance(DamageClass.Ranged)/200f);
-            }
-            damage = (int)(damage*mult);
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+            if(Projectile.ai[1] < 1 && this.crit) modifiers.SetCrit();
+			modifiers.CritDamage *= 1 + (Main.player[Projectile.owner].GetCritChance(DamageClass.Ranged) / 200f);
         }
 	}
 }

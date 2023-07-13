@@ -22,9 +22,9 @@ namespace EpikV2.Items {
 	public class Teleport_Prism : ModItem {
 		public override string Texture => "EpikV2/Items/Burning_Ambition";
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Teleport_Prism");
-			Tooltip.SetDefault("");
-			SacrificeTotal = 1;
+			// DisplayName.SetDefault("Teleport_Prism");
+			// Tooltip.SetDefault("");
+			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.FlowerofFire);
@@ -60,7 +60,7 @@ namespace EpikV2.Items {
 		public override string Texture => "EpikV2/Items/Burning_Ambition";
 		protected override bool CloneNewInstances => true;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Teleport_Prism_P");
+			// DisplayName.SetDefault("Teleport_Prism_P");
 			ProjectileID.Sets.DrawScreenCheckFluff[Type] = 16 * 8400;
 		}
 		public override void SetDefaults() {

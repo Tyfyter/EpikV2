@@ -16,8 +16,8 @@ namespace EpikV2.Items {
 	public class Time_Manipulator : ModItem, IMultiModeItem {
 		int mode = 0;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Temporal Proximity Manipulator");
-			Tooltip.SetDefault("<switch> to change modes\nAllows the user to warp space-time such that any two points in time are nearer or further than is natural");
+			// DisplayName.SetDefault("Temporal Proximity Manipulator");
+			// Tooltip.SetDefault("<switch> to change modes\nAllows the user to warp space-time such that any two points in time are nearer or further than is natural");
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.PlatinumWatch);
@@ -141,32 +141,32 @@ namespace EpikV2.Items {
 	public class Time_Manipulator_Christmas : ModItem {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Temporal Proximity Manipulator (Christmas)");
-			Tooltip.SetDefault("Makes it Christmas");
+			// DisplayName.SetDefault("Temporal Proximity Manipulator (Christmas)");
+			// Tooltip.SetDefault("Makes it Christmas");
 			ID = Type;
 		}
 	}
 	public class Time_Manipulator_Halloween : ModItem {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Temporal Proximity Manipulator (Halloween)");
-			Tooltip.SetDefault("Makes it Halloween");
+			// DisplayName.SetDefault("Temporal Proximity Manipulator (Halloween)");
+			// Tooltip.SetDefault("Makes it Halloween");
 			ID = Type;
 		}
 	}
 	public class Time_Manipulator_Slow : ModItem {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Temporal Proximity Manipulator (Slow)");
-			Tooltip.SetDefault("Makes it Slow");
+			// DisplayName.SetDefault("Temporal Proximity Manipulator (Slow)");
+			// Tooltip.SetDefault("Makes it Slow");
 			ID = Type;
 		}
 	}
 	public class Time_Manipulator_Fast : ModItem {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Temporal Proximity Manipulator (Fast)");
-			Tooltip.SetDefault("Makes it Fast");
+			// DisplayName.SetDefault("Temporal Proximity Manipulator (Fast)");
+			// Tooltip.SetDefault("Makes it Fast");
 			ID = Type;
 		}
 	}
