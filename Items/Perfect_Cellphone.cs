@@ -61,7 +61,9 @@ namespace EpikV2.Items {
 			player.accStopwatch = true;
 			player.accCompass = 1;
 			player.accDepthMeter = 1;
-			player.GetModPlayer<EpikPlayer>().showLuck = true;
+			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			epikPlayer.showLuck = true;
+			epikPlayer.perfectCellphone = true;
 		}
 		protected virtual void Teleport(Player player) {
 			player.Spawn(PlayerSpawnContext.RecallFromItem);

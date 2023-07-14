@@ -311,6 +311,9 @@ namespace EpikV2 {
 		[DefaultValue(true)]
 		public bool RedLuck = true;
 
+		[DefaultValue(true)]
+		public bool PerfectCellPylon = true;
+
 		[Label("Unbreakable Fishing Line")]
 		[DefaultValue(true)]
 		public bool NoFishingBreak {
@@ -354,9 +357,6 @@ namespace EpikV2 {
 			[DefaultValue(true)]
 			public bool BloodNautilus = true;
 		}
-		/*[Label("Perfect Cellphone allows pylon teleportation")]
-		[DefaultValue(true)]
-		public bool PerfectCellPylon = true;*/
 	}
 	public class HighTestFishingLine : GlobalItem {
 		public override bool AppliesToEntity(Item entity, bool lateInstantiation) {

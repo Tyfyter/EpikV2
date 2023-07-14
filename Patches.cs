@@ -155,41 +155,17 @@ namespace EpikV2 {
 			On_Projectile.GetLastPrismHue += Projectile_GetLastPrismHue;
 			On_Projectile.GetFairyQueenWeaponsColor += Projectile_GetFairyQueenWeaponsColor;
 			On_Player.HasUnityPotion += (orig, self) => {
-				for (int i = 0; i < Main.InventorySlotsTotal; i++) {
-					if (self.inventory[i].stack > 0 && (self.inventory[i].type == ItemID.WormholePotion || self.inventory[i].ModItem is Perfect_Cellphone)) {
-						return true;
-					}
+				if (self.GetModPlayer<EpikPlayer>().perfectCellphone) {
+					return true;
 				}
-				return false;
+				return orig(self);
 			};
 			On_Player.TakeUnityPotion += (orig, self) => {
-				for (int i = 0; i < Main.InventorySlotsTotal; i++) {
-					if (self.inventory[i].stack > 0) {
-						if (self.inventory[i].type == ItemID.WormholePotion) {
-							if (ItemLoader.ConsumeItem(self.inventory[i], self)) {
-								self.inventory[i].stack--;
-							}
-							if (self.inventory[i].stack <= 0) {
-								self.inventory[i].SetDefaults();
-							}
-							return;
-						}
-						if (self.inventory[i].ModItem is Perfect_Cellphone) {
-							return;
-						}
-					}
+				if (self.GetModPlayer<EpikPlayer>().perfectCellphone) {
+					return;
 				}
+				orig(self);
 			};
-			/*Detour.GameContent.TeleportPylonsSystem.IsPlayerNearAPylon += (orig, player) => {
-				if (EpikConfig.Instance.PerfectCellPylon) {
-					for (int i = 0; i < Main.InventorySlotsTotal; i++) {
-						if (player.inventory[i].stack > 0 && player.inventory[i].ModItem is Perfect_Cellphone) {
-							return true;
-						}
-					}
-				}
-				return orig(player);
-			};*/
 			IL_Main.DrawWhip_RainbowWhip += Main_DrawWhip_RainbowWhip;
 			IL_Projectile.AI_165_Whip += Projectile_AI_165_Whip;
 			On_NPC.ScaleStats_UseStrengthMultiplier += NPC_ScaleStats_UseStrengthMultiplier;
@@ -279,6 +255,42 @@ namespace EpikV2 {
 				if (i.ModProjectile is IShadedProjectile shadedProjectile) return shadedProjectile.GetShaderID();
 				return orig(i);
 			};
+			IL_TeleportPylonsSystem.HandleTeleportRequest += IL_TeleportPylonsSystem_HandleTeleportRequest;
+			On_TeleportPylonsSystem.IsPlayerNearAPylon += (orig, player) => {
+				if (EpikConfig.Instance.PerfectCellPylon && player.GetModPlayer<EpikPlayer>().perfectCellphone) {
+					return true;
+				}
+				return orig(player);
+			};
+		}
+
+		private static void IL_TeleportPylonsSystem_HandleTeleportRequest(ILContext il) {
+			ILCursor c = new(il);
+			int playerLocal = -1;
+			int nearbyValidLocal = -1;
+			c.GotoNext(
+				ins => ins.MatchLdsfld<Main>("player"),
+				ins => ins.MatchLdarg(2),
+				ins => ins.MatchLdelemRef(),
+				ins => ins.MatchStloc(out playerLocal)
+			);
+			c.GotoNext(MoveType.AfterLabel,
+				ins => ins.MatchLdarg(out _),
+				ins => ins.MatchLdloc(out _),
+				ins => ins.MatchLdloca(out _),
+				ins => ins.MatchLdloca(out nearbyValidLocal),
+				ins => ins.MatchLdloca(out _),
+				ins => ins.MatchCall(typeof(PylonLoader), "PostValidTeleportCheck")
+			);
+			c.Emit(OpCodes.Ldloc_S, (byte)playerLocal);
+			c.Emit(OpCodes.Ldloca_S, (byte)nearbyValidLocal);
+			c.EmitDelegate<_CheckPlayerCellphone>(CheckPlayerCellphone);
+		}
+		delegate void _CheckPlayerCellphone(Player player, ref bool validNearbyPylonFound);
+		static void CheckPlayerCellphone(Player player, ref bool validNearbyPylonFound) {
+			if (EpikConfig.Instance.PerfectCellPylon && player.GetModPlayer<EpikPlayer>().perfectCellphone) {
+				validNearbyPylonFound = true;
+			}
 		}
 
 		internal static int tileCountState = 0;
@@ -736,13 +748,13 @@ namespace EpikV2 {
 		private void PlayerOffScreenCache_ctor(ILContext il) {
 			ILCursor c = new ILCursor(il);
 			FieldReference __player;
-			if (!c.TryGotoNext(MoveType.After, (ins) => {
+			c.TryGotoNext(MoveType.After, (ins) => {
 				if (ins.Match(OpCodes.Stfld, out __player) && __player.Name == "player") {
 					_player = __player;
 					return true;
 				}
 				return false;
-			})) ;
+			});
 		}
 		static FieldReference _player;
 		private void PlayerOffScreenCache_DrawPlayerDistance(ILContext il) {
@@ -774,13 +786,13 @@ namespace EpikV2 {
 			string iconText = "";
 			switch (nearbyType) {
 				case 1:
-				iconText = "¤";
+				iconText = EpikIntegration.Chars.Receiving.ToString();
 				break;
 				case 2:
-				iconText = "ѳ";
+				iconText = EpikIntegration.Chars.Giving.ToString();
 				break;
 				case 3:
-				iconText = "߷";
+				iconText = EpikIntegration.Chars.Both.ToString();
 				break;
 			}
 			return iconText + distText + iconText;

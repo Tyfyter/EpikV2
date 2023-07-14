@@ -140,6 +140,7 @@ namespace EpikV2 {
 		public bool triedTriangleManuscript = false;
 		public bool oldWolfBlood = false;
 		public bool bobberSnail = false;
+		public bool perfectCellphone = false;
 
 		public static BitsBytes ItemChecking;
 
@@ -206,6 +207,9 @@ namespace EpikV2 {
 			imbueCursedInferno = false;
 			imbueIchor = false;
 			showLuck = false;
+
+			perfectCellphone = false;
+
 			meleeSize = 1;
 			nearbyNameDist = 0;
 			if (marionetteDeathTime > 0) {
