@@ -32,7 +32,7 @@ namespace EpikV2.Items {
             Item.value = 100000;
 			Item.rare = ItemRarityID.Lime;
             Item.autoReuse = true;
-            Item.shoot = ProjectileID.WoodenArrowFriendly;
+            Item.shoot = ProjectileType<Pentagram_Mango_Hitbox>();
             Item.shootSpeed = 6.5f;
             Item.mana = 15;
         }
@@ -101,58 +101,8 @@ namespace EpikV2.Items {
                 #endregion
                 if(foundTarget) {
                     Entity targetEntity = getTargetEntity(target);
-                    if(target >= 0) {
-                        NPC targetNPC = (NPC)targetEntity;
-                        EpikGlobalNPC globalNPC = targetNPC.GetGlobalNPC<EpikGlobalNPC>();
-                        int dmg = damage + (int)globalNPC.organRearrangement;
-                        targetNPC.lifeMax -= 15;
-
-						NPC.HitModifiers modifiers = targetNPC.GetIncomingStrikeModifiers(Item.DamageType, player.direction);
-
-						player.ApplyBannerOffenseBuff(target, ref modifiers);
-						if (player.parryDamageBuff && Item.CountsAsClass(DamageClass.Melee)) {
-							modifiers.ScalingBonusDamage += 4f;
-							player.parryDamageBuff = false;
-							player.ClearBuff(BuffID.ParryDamageBuff);
-						}
-						if (targetNPC.life > 5) {
-							player.OnHit(targetNPC.Center.X, targetNPC.Center.Y, targetNPC);
-						}
-						modifiers.ArmorPenetration += player.GetWeaponArmorPenetration(Item);
-						CombinedHooks.ModifyPlayerHitNPCWithItem(player, Item, targetNPC, ref modifiers);
-
-						NPC.HitInfo strike = modifiers.ToHitInfo(damage, Main.rand.Next(100) < player.GetWeaponCrit(Item), knockBack, damageVariation: true, player.luck);
-						NPCKillAttempt attempt = new NPCKillAttempt(targetNPC);
-						dmg = targetNPC.StrikeNPC(strike);
-
-						CombinedHooks.OnPlayerHitNPCWithItem(player, Item, targetNPC, in strike, dmg);
-						PlayerMethods.ApplyNPCOnHitEffects(player, Item, Item.GetDrawHitbox(Item.type, player), strike.SourceDamage, strike.Knockback, targetNPC.whoAmI, strike.SourceDamage, dmg);
-						int bannerID = Item.NPCtoBanner(targetNPC.BannerID());
-						if (bannerID >= 0) {
-							player.lastCreatureHit = bannerID;
-						}
-						if (Main.netMode != NetmodeID.SinglePlayer) {
-							NetMessage.SendStrikeNPC(targetNPC, in strike);
-						}
-						if (player.accDreamCatcher && !targetNPC.HideStrikeDamage) {
-							player.addDPS(dmg);
-						}
-						if (attempt.DidNPCDie()) {
-							player.OnKillNPC(ref attempt, Item);
-						}
-						if (targetNPC.life > targetNPC.lifeMax)targetNPC.life = targetNPC.lifeMax;
-                        globalNPC.organRearrangement += 10 * (damage / 40f);
-                        //sendOrganRearrangementPacket(target, globalNPC.organRearrangement);
-                        TryOnHitEffects(target, player.whoAmI, dmg);
-                        targetNPC.netUpdate = true;
-                    } else {
-                        //Player targetPlayer = Main.player[-1-target];
-                        Player targetPlayer = (Player)targetEntity;
-                        targetPlayer.Hurt(PlayerDeathReason.ByPlayerItem(player.whoAmI, Item), damage+(int)(player.statDefense*(Main.expertMode?0.75f:0.5f)), 0,  true);
-                        targetPlayer.GetModPlayer<EpikPlayer>().organRearrangement += 15;
-                        //sendOrganRearrangementPacket(target, targetPlayer.GetModPlayer<EpikPlayer>().organRearrangement);
-                    }
                     Vector2 targPos = targetCenter + Main.rand.NextVector2Circular(Math.Min(targetEntity.width/3f,16), Math.Min(targetEntity.height/3f,16));
+					Projectile.NewProjectile(source, targPos, Vector2.Zero, type, damage, knockBack, player.whoAmI);
                     Vector2 currPos = player.itemLocation;
                     Vector2 diff = targPos - currPos;
                     int dusts = (int)(diff.Length()/8);
@@ -177,31 +127,6 @@ namespace EpikV2.Items {
         internal static Entity getTargetEntity(int id) {
             return id >= 0 ? Main.npc[id] : Main.player[-1-id];
         }
-        internal void TryOnHitEffects(int i, int owner, int value) {
-            if (Main.npc[i].canGhostHeal){
-                Projectile proj = new Projectile();
-                proj.damage = value;
-                proj.DamageType = DamageClass.Magic;
-                proj.owner = owner;
-                proj.position = Main.npc[i].Center;
-				if (Main.player[owner].ghostHeal && !Main.player[owner].moonLeech){
-					proj.ghostHeal(value, Main.npc[i].Center, Main.npc[i]);
-				}
-				if (Main.player[owner].ghostHurt){
-					proj.ghostHurt(value, Main.npc[i].Center, Main.npc[i]);
-				}
-				if (Main.player[owner].setNebula && Main.player[owner].nebulaCD == 0 && Main.rand.NextBool(3)){
-					Main.player[owner].nebulaCD = 30;
-					int num24 = Utils.SelectRandom(Main.rand, 3453, 3454, 3455);
-					int num25 = Item.NewItem(Item.GetSource_OnHit(Main.npc[i], "SetBonus_Nebula"), (int)Main.npc[i].position.X, (int)Main.npc[i].position.Y, Main.npc[i].width, Main.npc[i].height, num24);
-					Main.item[num25].velocity.Y = Main.rand.Next(-20, 1) * 0.2f;
-					Main.item[num25].velocity.X = Main.rand.Next(10, 31) * 0.2f * Main.player[owner].direction;
-					if (Main.netMode == NetmodeID.MultiplayerClient){
-						NetMessage.SendData(MessageID.SyncItem, -1, -1, null, num25);
-					}
-				}
-			}
-        }
         static void sendOrganRearrangementPacket(int target, float value) {
             if(Main.netMode==NetmodeID.SinglePlayer)return;
             ModPacket packet;
@@ -220,4 +145,29 @@ namespace EpikV2.Items {
             packet.Send();
         }
     }
+	public class Pentagram_Mango_Hitbox : ModProjectile {
+		public override string Texture => "EpikV2/Items/Pentagram_Mango";
+		public override void SetDefaults() {
+			Projectile.CloneDefaults(ProjectileID.BloodRain);
+			Projectile.width = 16;
+			Projectile.height = 16;
+			Projectile.penetrate = 1;
+		}
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			modifiers.FlatBonusDamage += target.GetGlobalNPC<EpikGlobalNPC>().organRearrangement;
+			target.lifeMax -= 15;
+			modifiers.ScalingArmorPenetration += 1;
+		}
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
+			target.GetGlobalNPC<EpikGlobalNPC>().organRearrangement += 10 * (damageDone / 40f);
+			if (target.life > target.lifeMax) target.life = target.lifeMax;
+			target.netUpdate = true;
+		}
+		public override void ModifyHitPlayer(Player target, ref Player.HurtModifiers modifiers) {
+			modifiers.ScalingArmorPenetration += 1;
+		}
+		public override void OnHitPlayer(Player target, Player.HurtInfo info) {
+			target.GetModPlayer<EpikPlayer>().organRearrangement += 15;
+		}
+	}
 }

@@ -62,12 +62,26 @@ namespace EpikV2.Items {
 		public override void HoldItem(Player player) {
 			if (split > 0) {
 				float cooling = (8 - Item.useTime);
-				if (ARCool) cooling /= player.GetAmmoConsumptionMult();
+				if (ARCool) {
+					cooling /= player.GetAmmoConsumptionMult();
+					if (Item.mana > 0) {
+						if (player.GetModPlayer<EpikPlayer>().CheckFloatMana(Item, mult: 0.25f)) {
+							cooling *= 2f;
+						} else {
+							cooling *= 0.95f;
+						}
+						player.manaRegenDelay = (int)player.maxRegenDelay;
+					}
+				}
 				split -= cooling;
-			}
-			if (split <= 0) {
-				split = 0;
-				ARCool = false;
+				if (split <= 0) {
+					split = 0;
+					if (ARCool) {
+						player.itemAnimation = 0;
+						delay = 0;
+						ARCool = false;
+					}
+				}
 			}
 			if (delay > 0) {
 				delay--;
@@ -101,6 +115,7 @@ namespace EpikV2.Items {
 						split = 120;
 						player.controlUseTile = false;
 					}
+					player.CheckMana(Item, pay: true);
 				}
 				if (!player.controlUseTile && split > 90) {
 					SoundEngine.PlaySound(SoundID.Item11, position);

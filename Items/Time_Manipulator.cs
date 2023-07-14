@@ -113,7 +113,7 @@ namespace EpikV2.Items {
 				Main.itemAnimations[itemID]?.GetFrame(texture),
 				drawColor,
 				0,
-				default,
+				origin,
 				scale,
 				0,
 			0);

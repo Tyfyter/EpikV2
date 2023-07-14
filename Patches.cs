@@ -374,18 +374,18 @@ namespace EpikV2 {
 			}
 			if (self.luck > 0f) {
 				float luck = self.luck;
-				int baseDiv = 1;
-				for (; luck >= 1; luck -= 1) baseDiv++;
+				int baseDiv = 1 + (int)luck;
+				float subLuck = luck - (baseDiv - 1);
 				int div = baseDiv;
-				if (Main.rand.NextFloat() < luck) div++;
+				if (Main.rand.NextFloat() < subLuck) div++;
 				return Main.rand.Next(Main.rand.Next(range / div, range / baseDiv));
 			}
 			if (self.luck < 0f) {
 				float luck = self.luck;
-				int baseDiv = 1;
-				for (; luck <= -1; luck += 1) baseDiv++;
+				int baseDiv = 1 - (int)luck;
+				float subLuck = luck + (baseDiv - 1);
 				int div = baseDiv;
-				if (Main.rand.NextFloat() < -luck) div++;
+				if (Main.rand.NextFloat() < -subLuck) div++;
 				return Main.rand.Next(Main.rand.Next(range * baseDiv, range * div));
 			}
 			return Main.rand.Next(range);

@@ -218,6 +218,7 @@ namespace EpikV2 {
 			tag.Add("creationVersion", (int)creationVersion);
 		}
 		public override void LoadWorldData(TagCompound tag) {
+			tag.TryGet("worldVersion", out int lastVersion);
 			if (tag.TryGet("sacrifices", out List<string> _sacrifices)) {
 				Sacrifices = _sacrifices.Select(s => {
 					string[] segs = s.Split(':');
@@ -237,9 +238,7 @@ namespace EpikV2 {
 			}
 			if (tag.TryGet("naturalChests", out List<Vector2> worldNaturalChests)) {
 				naturalChests = worldNaturalChests.Select(Utils.ToPoint).ToHashSet();
-			}
-			tag.TryGet("worldVersion", out int lastVersion);
-			if ((WorldVersion)lastVersion < WorldVersion.RecordNaturalChests) {
+			} else {
 				for (int i = 0; i < Main.maxChests; i++) {
 					if (Main.chest[i] is Chest chest) {
 						NaturalChests.Add(new Point(chest.x, chest.y));

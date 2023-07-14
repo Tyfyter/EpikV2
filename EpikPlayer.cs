@@ -780,7 +780,7 @@ namespace EpikV2 {
 			preUpdateVel = Player.velocity;
 			preUpdateReleaseJump = Player.releaseJump;
 		}
-		public static void SlopingCollision(Terraria.On_Player.orig_SlopingCollision orig, Player self, bool fallThrough, bool ignorePlats) {
+		public static void SlopingCollision(On_Player.orig_SlopingCollision orig, Player self, bool fallThrough, bool ignorePlats) {
 			orig(self, fallThrough, ignorePlats);
 			sbyte x = 0, y = 0;
 			EpikPlayer epikPlayer = self.GetModPlayer<EpikPlayer>();
@@ -806,9 +806,9 @@ namespace EpikV2 {
 			}
 			epikPlayer.collide = (x, y);
 		}
-		public bool CheckFloatMana(Item item, float amount = -1, bool blockQuickMana = false) {
+		public bool CheckFloatMana(Item item, float amount = -1, float mult = 1f, bool blockQuickMana = false) {
 			if (amount <= -1) {
-				amount = Player.GetManaCost(item);
+				amount = Player.GetManaCost(item) * mult;
 			}
 			partialManaCost += amount;
 			int intManaCost = (int)partialManaCost;
@@ -992,12 +992,16 @@ namespace EpikV2 {
 		}
 		public override void ModifyLuck(ref float luck) {
 			luck += Player.luckPotion * 0.1f;
+			if (Player.usedGalaxyPearl) luck += 0.03f;
 			if (holdingVixi) {
 				holdingVixi = false;
 				luck += vixiLuck;
 				EpikExtensions.LinearSmoothing(ref vixiLuck, vixi_luck_min, (vixi_luck_max - vixi_luck_min) / (60f * 30));
 			} else {
 				vixiLuck = vixi_luck_min;
+			}
+			if (cursedCloverEquipped) {
+				luck -= 0.7f;
 			}
 		}
 		#endregion
@@ -1094,12 +1098,14 @@ namespace EpikV2 {
 			tag["usedTriangleManuscript"] = usedTriangleManuscript;
 			tag["triedTriangleManuscript"] = triedTriangleManuscript;
 			tag["oldWolfBlood"] = oldWolfBlood;
+			tag["nameColorOverride"] = nameColorOverride;
 		}
 		public override void LoadData(TagCompound tag) {
 			if (tag.TryGet("altNameColors", out byte altNameColors)) this.altNameColors = (AltNameColorTypes)altNameColors;
 			tag.TryGet("usedTriangleManuscript", out usedTriangleManuscript);
 			tag.TryGet("triedTriangleManuscript", out triedTriangleManuscript);
 			tag.TryGet("oldWolfBlood", out oldWolfBlood);
+			tag.TryGet("nameColorOverride", out nameColorOverride);
 		}
 		#endregion IO
 

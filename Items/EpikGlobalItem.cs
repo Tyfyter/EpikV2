@@ -34,9 +34,6 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults(Item item) {
 			RefreshCatgirlMeme(item);
-			if (EpikConfig.Instance.ThatFixFromNextUpdate) {
-				item.hasVanityEffects = true;
-			}
 		}
 		public void InitCatgirlMeme(Item item) {
 			if (item.type == ItemID.CatEars && nOwO is null) {
@@ -104,8 +101,8 @@ namespace EpikV2.Items {
 					OverrideColor = new Color(0, 0, 0, 1f)
 				});
 			}
-			if (EpikConfig.Instance.ThatFixFromNextUpdate) {
-				tooltips.RemoveAll((line) => line.Name.Equals("VanityLegal"));
+			if (PrefixLoader.GetPrefix(item.prefix) is IModifyTooltipsPrefix modifyTooltipsPrefix) {
+				modifyTooltipsPrefix.ModifyTooltips(item, tooltips);
 			}
 		}
 		public override void PostReforge(Item item) {
@@ -114,6 +111,21 @@ namespace EpikV2.Items {
 		public override void OnHitNPC(Item item, Player player, NPC target, NPC.HitInfo hit, int damageDone) {
 			if (PrefixLoader.GetPrefix(item.prefix) is IMeleeHitPrefix meleeHitPrefix) {
 				meleeHitPrefix.OnMeleeHitNPC(player, item, target, hit);
+			}
+		}
+		public override void ModifyWeaponDamage(Item item, Player player, ref StatModifier damage) {
+			if (PrefixLoader.GetPrefix(item.prefix) is IModifyDamagePrefix modifyDamagePrefix) {
+				modifyDamagePrefix.ModifyWeaponDamage(item, player, ref damage);
+			}
+		}
+		public override void OnConsumeMana(Item item, Player player, int manaConsumed) {
+			if (PrefixLoader.GetPrefix(item.prefix) is IManaPrefix manaPrefix) {
+				manaPrefix.OnConsumeMana(item, player, manaConsumed);
+			}
+		}
+		public override void OnMissingMana(Item item, Player player, int neededMana) {
+			if (PrefixLoader.GetPrefix(item.prefix) is IManaPrefix manaPrefix) {
+				manaPrefix.OnMissingMana(item, player, neededMana);
 			}
 		}
 		public override void PickAmmo(Item weapon, Item ammo, Player player, ref int type, ref float speed, ref StatModifier damage, ref float knockback) {

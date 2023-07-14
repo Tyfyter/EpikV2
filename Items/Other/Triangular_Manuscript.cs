@@ -77,7 +77,7 @@ namespace EpikV2.Items.Other {
 			float channelCost = 0;
 			int left = tilePos.X;
 			int bottom = tilePos.Y;
-			if (tile.TileFrameX > 36 * 50) {
+			if (tile.TileFrameX > 36 * 49) {
 				left--;
 			}
 			if (tile.TileFrameY % (18 * 3) < 36) {

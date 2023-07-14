@@ -100,8 +100,8 @@ Buffs: {
 	}
 
 	High_Buff: {
-		DisplayName: High_ Buff
-		Description: Mods.EpikV2.Buffs.High_Buff.Description
+		DisplayName: Really High
+		Description: Maybe lay off the reality-altering drugs
 	}
 }
 
@@ -522,6 +522,11 @@ Items: {
 	Lucky_Spring_Boots: {
 		DisplayName: Lucky Boots
 		Tooltip: "'They've never failed you'"
+	}
+
+	LuckyFishingLine: {
+		DisplayName: Lucky Fishing Line
+		Tooltip: "'Increases luck while fishing'"
 	}
 
 	Lucre_Launcher: {
@@ -949,6 +954,7 @@ Projectiles: {
 	MagShot.DisplayName: Helix Shot
 	Shroom_Shot.DisplayName: Infestation Round
 	Telescope_View_P.DisplayName: Telescope
+	Pentagram_Mango_Hitbox.DisplayName: Pentagram_ Mango_ Hitbox
 }
 
 DamageClasses: {
@@ -978,9 +984,15 @@ Biomes: {
 }
 
 Prefixes: {
+	Generic: {
+		ManaCost: "{0} mana cost"
+		Damage: "{0}{$LegacyTooltip.55}"
+	}
+
 	Beckoning_Prefix.DisplayName: Beckoning
 	Frogged_Prefix.DisplayName: Frogged
 	Poisoned_Prefix.DisplayName: Poisoned
+	Mana_Powered_Prefix.DisplayName: Mana-Powered
 }
 
 NPCs: {

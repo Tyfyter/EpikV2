@@ -311,10 +311,6 @@ namespace EpikV2 {
 		[DefaultValue(true)]
 		public bool RedLuck = true;
 
-		[Label("Equip Any Accessory in Vanity Slots")]
-		[DefaultValue(true)]
-		public bool ThatFixFromNextUpdate = true;
-
 		[Label("Unbreakable Fishing Line")]
 		[DefaultValue(true)]
 		public bool NoFishingBreak {
@@ -330,7 +326,7 @@ namespace EpikV2 {
 		}
 		static string NoBreakTooltipProcessor(string tooltipLine) {
 			if (tooltipLine == Language.GetTextValue("ItemTooltip.HighTestFishingLine")) {
-				return Language.GetTextValue("Mods.EpikV2.ItemTooltip.LuckyFishingLine");
+				return Language.GetOrRegister("Mods.EpikV2.Items.LuckyFishingLine.Tooltip").Value;
 			}
 			return tooltipLine;
 		}
@@ -368,7 +364,7 @@ namespace EpikV2 {
 		}
 		static void UpdateName(Item item) {
 			if (EpikConfig.Instance.NoFishingBreak) {
-				item.SetNameOverride(Language.GetOrRegister("Mods.EpikV2.ItemName.LuckyFishingLine").Value);
+				item.SetNameOverride(Language.GetOrRegister("Mods.EpikV2.Items.LuckyFishingLine.DisplayName").Value);
 			} else {
 				item.SetNameOverride(null);
 			}

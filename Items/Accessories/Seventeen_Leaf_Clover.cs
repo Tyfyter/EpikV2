@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using EpikV2.Rarities;
+using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,21 +18,22 @@ namespace EpikV2.Items.Accessories {
 			EpikV2.AddBalanceRarityOverride(Type, ItemRarityID.Blue);
 		}
 		public override void SetDefaults() {
-			Item.DefaultToAccessory(36, 36);
+			base.SetDefaults();
+			Item.width = 36;
+			Item.height = 36;
 		}
 		public override void UpdateEquip(Player player) {
-			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
-			epikPlayer.cursedCloverEquipped = true;
-			player.luck -= 0.7f;
+			player.GetModPlayer<EpikPlayer>().cursedCloverEquipped = true;
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			base.ModifyTooltips(tooltips);
+			Color curseColor = ModContent.GetInstance<CursedRarity>().RarityColor;
 			if (Main.LocalPlayer.GetModPlayer<EpikPlayer>().cursedCloverEquipped) {
 				tooltips.Add(new TooltipLine(Mod, "CurseDescription0", "No") {
-					OverrideColor = tooltips[0].OverrideColor
+					OverrideColor = curseColor
 				});
 				tooltips.Add(new TooltipLine(Mod, "CurseDescription1", "Reduces luck by 70%") {
-					OverrideColor = tooltips[0].OverrideColor
+					OverrideColor = curseColor
 				});
 			}
 		}

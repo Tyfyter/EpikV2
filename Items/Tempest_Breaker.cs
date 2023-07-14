@@ -67,7 +67,10 @@ namespace EpikV2.Items {
         public override void HoldItem(Player player) {
             player.handon = Item.handOnSlot;
         }
-        public override void AddRecipes() {
+		public override void HoldItemFrame(Player player) {
+			//player.handon = Item.handOnSlot;
+		}
+		public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemID.MartianConduitPlating, 15);
             recipe.AddIngredient(ItemID.SoulofMight, 5);
@@ -136,23 +139,15 @@ namespace EpikV2.Items {
                 knockback *= 1.5f;
             }
         }
-		/*public override void ModifyWeaponDamage(Player player, ref float add, ref float mult, ref float flat) {
-            flat+=dmg*2;
-            if(player.altFunctionUse==2) {
-                flat*=2f;
-                mult*=2f;
-            }
-        }
-		public override void ModifyWeaponKnockback(Player player, ref float knockback) {
-            knockback+=kb;
-            if(player.altFunctionUse==2) {
-                knockback*=1.5f;
-            }
-        }//*/
 		public override float UseSpeedMultiplier(Player player) {
 			return player.altFunctionUse == 2 ? 0.5f : 1f;
 		}
-        public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox) {
+		public override void ModifyItemScale(Player player, ref float scale) {
+			if (player.altFunctionUse == 2) {
+				scale *= 1.25f;
+			}
+		}
+		public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox) {
             int startupFrame = player.itemAnimationMax-Startup(player);
             //int endlag = Endlag(player);
             if(player.itemAnimation<startupFrame-7||player.itemAnimation>=startupFrame) {

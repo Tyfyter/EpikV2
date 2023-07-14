@@ -63,7 +63,7 @@ namespace EpikV2.Items {
                 CombinedHooks.ModifyManaCost(player, Item, ref reduce, ref mult);
                 float mana = (Item.mana * reduce * mult);
 
-                if (charge < maxCharge && epikPlayer.CheckFloatMana(Item, mana / 8, true)) {
+                if (charge < maxCharge && epikPlayer.CheckFloatMana(Item, mana / 8, blockQuickMana: true)) {
                     charge += 33 - Item.useTime;
                     if(charge >= maxCharge) {
                         charge = maxCharge;
@@ -71,7 +71,7 @@ namespace EpikV2.Items {
                     }
                 }
                 projectile.extraUpdates = charge / (maxCharge/3);
-                if(player.controlUseTile && epikPlayer.CheckFloatMana(Item, mana * 2, true)) {
+                if(player.controlUseTile && epikPlayer.CheckFloatMana(Item, mana * 2, blockQuickMana: true)) {
                     projectile.ai[0] = 1;
                     SoundEngine.PlaySound(SoundID.Item119, projectile.Center);
                 }else if(player.controlUseItem) {
