@@ -48,6 +48,7 @@ namespace EpikV2.Items {
 		    // DisplayName.SetDefault("Biome Key ");
 			// Tooltip.SetDefault("<right> or <switch> to change modes");
             Item.ResearchUnlockCount = 1;
+			Sets.IsValidForAltManaPoweredPrefix[Type] = false;
 		}
 		public virtual void SetNormalAnimation() {
 			Item.useStyle = ItemUseStyleID.Swing;
@@ -994,7 +995,7 @@ namespace EpikV2.Items {
 				return false;
 			}
 			SoundEngine.PlaySound(SoundID.Item1, position);
-			if (player.itemAnimation == player.itemTime) {
+			if (player.ItemUsesThisAnimation == 2) {
 				Projectile.NewProjectile(source, position, velocity, ProjectileType<Biome_Key_Jungle_Slash>(), (int)(damage * 1.5f), knockback, player.whoAmI);
 				player.itemTime = player.itemTime * 4 / 7;
 				player.itemTimeMax = player.itemTimeMax * 4 / 7;

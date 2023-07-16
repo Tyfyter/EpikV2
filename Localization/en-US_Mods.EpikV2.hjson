@@ -1005,6 +1005,13 @@ Prefixes: {
 	Frogged_Prefix.DisplayName: Frogged
 	Poisoned_Prefix.DisplayName: Poisoned
 	Mana_Powered_Prefix.DisplayName: Mana-Powered
+
+	Mana_Powered_Prefix_2: {
+		DisplayName: "{$Mods.EpikV2.Prefixes.Mana_Powered_Prefix.DisplayName}"
+		Tooltip0: Consumes {0} mana to shoot beam
+		Tooltip1: +{0}% beam damage
+		Tooltip1Alt: +{0}% damage with mana
+	}
 }
 
 NPCs: {
@@ -1156,7 +1163,7 @@ Configs: {
 
 		BloodNautilus: {
 			Label: Dreadnautilus
-			Tooltip: 
+			Tooltip:
 				'''
 				Makes Dreadnautilus vulnerable to knockback while charging, but gives it some flat knockback reduction
 				Disabled by default because 1.4.4 reduced its charge attack's tracking to manageable levels

@@ -178,6 +178,23 @@ namespace EpikV2.Items {
 				manaPrefix.OnMissingMana(item, player, neededMana);
 			}
 		}
+		public override bool CanShoot(Item item, Player player) {
+			if (PrefixLoader.GetPrefix(item.prefix) is IShootPrefix shootPrefix) {
+				return shootPrefix.CanShoot(item, player);
+			}
+			return true;
+		}
+		public override void ModifyShootStats(Item item, Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
+			if (PrefixLoader.GetPrefix(item.prefix) is IShootPrefix shootPrefix) {
+				shootPrefix.ModifyShootStats(item, player, ref position, ref velocity, ref type, ref damage, ref knockback);
+			}
+		}
+		public override bool Shoot(Item item, Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
+			if (PrefixLoader.GetPrefix(item.prefix) is IShootPrefix shootPrefix) {
+				return shootPrefix.Shoot(item, player, source, position, velocity, type, damage, knockback);
+			}
+			return true;
+		}
 		public override void PickAmmo(Item weapon, Item ammo, Player player, ref int type, ref float speed, ref StatModifier damage, ref float knockback) {
             if(weapon.type == Orion_Bow.ID) {
 				/*

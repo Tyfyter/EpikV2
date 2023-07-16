@@ -262,6 +262,21 @@ namespace EpikV2 {
 				}
 				return orig(player);
 			};
+			IL_Main.CraftItem += IL_Main_CraftItem;
+			On_Item.CanApplyPrefix += (orig, self, prefix) => self.ModItem is Biome_Key || orig(self, prefix);
+		}
+
+		private static void IL_Main_CraftItem(ILContext il) {
+			ILCursor c = new(il);
+			try {
+				c.GotoNext(MoveType.Before, ins => ins.MatchCallOrCallvirt<Item>("Prefix"));
+				c.EmitDelegate<Func<int, int>>((int pref) => {
+					return Main.LocalPlayer.adjShimmer ? -2 : pref;
+				});
+			} catch (Exception e) {
+				instance.Logger.Error("Error while modifying Main.CraftItem: ", e);
+				MonoModHooks.DumpIL(instance, il);
+			}
 		}
 
 		private static void IL_TeleportPylonsSystem_HandleTeleportRequest(ILContext il) {

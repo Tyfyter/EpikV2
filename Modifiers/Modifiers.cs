@@ -39,6 +39,11 @@ namespace EpikV2.Modifiers {
 	public interface IModifyTooltipsPrefix {
 		void ModifyTooltips(Item item, List<TooltipLine> tooltips);
 	}
+	public interface IShootPrefix {
+		public bool CanShoot(Item item, Player player) => true;
+		public void ModifyShootStats(Item item, Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) { }
+		public bool Shoot(Item item, Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) => true;
+	}
 	public class Frogged_Prefix : ModPrefix, IOnSpawnProjectilePrefix {
 		public override PrefixCategory Category => PrefixCategory.AnyWeapon;
 		public void OnProjectileSpawn(Projectile projectile, IEntitySource source) {
@@ -129,6 +134,50 @@ namespace EpikV2.Modifiers {
 		}
 		public override void Apply(Item item) {
 			item.mana += GetManaCost(item);
+		}
+		public override void ModifyValue(ref float valueMult) {
+			valueMult *= 1.15f;
+		}
+		public override float RollChance(Item item) => 0.5f;
+		public override bool CanRoll(Item item) => !Mana_Powered_Prefix_2.BeamMelee(item);
+	}
+	public class Mana_Powered_Prefix_2 : ModPrefix, IModifyTooltipsPrefix, IShootPrefix {
+		public const float damage_boost = 0.4f;
+		public override bool CanRoll(Item item) => Mana_Powered_Prefix_2.BeamMelee(item);
+		public static bool BeamMelee(Item item) {
+			return item.useStyle == ItemUseStyleID.Swing
+				&& item.shoot != ProjectileID.None
+				&& item.shootSpeed != 0f
+				&& ContentSamples.ProjectilesByType[item.shoot].aiStyle != 190
+				&& Sets.IsValidForAltManaPoweredPrefix[item.type]
+				&& item.CountsAsClass(DamageClass.Melee);
+		}
+		public override PrefixCategory Category => PrefixCategory.Melee;
+		public static int GetManaCost(Item item) =>
+			(int)(15 * ((item.shootsEveryUse ? item.useAnimation : (item.useAnimation * MathF.Ceiling(item.useTime / (float)item.useAnimation))) / 60f)) + 1;
+		public void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
+			int i = tooltips.FindLastIndex(line =>
+				line.Name.StartsWith("Tooltip")
+				|| line.Name is "Material" or "Consumable" or "Ammo" or "UseMana" or "TileBoost" or "Knockback"
+				|| line.Name.EndsWith("Power")
+			);
+			if (i == -1) i = tooltips.Count;
+			tooltips.Insert(++i, new TooltipLine(Mod, "PrefixTooltip0", Language.GetTextValue("Mods.EpikV2.Prefixes.Mana_Powered_Prefix_2.Tooltip0", GetManaCost(item))) {
+				IsModifier = true,
+				IsModifierBad = true
+			});
+			tooltips.Insert(++i, new TooltipLine(Mod, "PrefixTooltip1", Language.GetTextValue("Mods.EpikV2.Prefixes.Mana_Powered_Prefix_2.Tooltip1" + (item.noMelee?"Alt":""), (int)(damage_boost * 100))) {
+				IsModifier = true,
+				IsModifierBad = false
+			});
+		}
+		public void ModifyShootStats(Item item, Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
+			if (player.CheckMana(item, GetManaCost(item), pay:true)) {
+				damage += (int)(damage * damage_boost);
+			} else {
+				type = ProjectileID.None;
+			}
+			player.manaRegenDelay = (int)player.maxRegenDelay;
 		}
 		public override void ModifyValue(ref float valueMult) {
 			valueMult *= 1.15f;
