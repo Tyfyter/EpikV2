@@ -1,4 +1,5 @@
-﻿using EpikV2.Items.Armor;
+﻿using EpikV2.Items.Accessories;
+using EpikV2.Items.Armor;
 using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using System;
@@ -109,6 +110,23 @@ namespace EpikV2 {
 					SendOrePositions(whoAmI);
 					break;
 
+					case PacketType.useItem: {
+						packet = GetPacket();
+						packet.Write(PacketType.useItem);
+						byte itemType = reader.ReadByte();
+						packet.Write(itemType);
+						packet.Write(reader.ReadByte());
+						int length = 0;
+						switch (itemType) {
+							case UseItemType.refractionEnsign:
+							length = 8;
+							break;
+						}
+						packet.Write(reader.ReadBytes(length));
+						packet.Send();
+						break;
+					}
+
 					default:
 					Logger.WarnFormat("EpikV2: Unknown Message type: {0}", type);
 					break;
@@ -176,6 +194,17 @@ namespace EpikV2 {
 					ReceiveOrePositions(reader);
 					break;
 
+					case PacketType.useItem: {
+						byte itemType = reader.ReadByte();
+						Player otherPlayer = Main.player[reader.ReadByte()];
+						switch (itemType) {
+							case UseItemType.refractionEnsign:
+							EoL_Dash.Dash(otherPlayer.GetModPlayer<EpikPlayer>(), new(reader.ReadSingle(), reader.ReadSingle()));
+							break;
+						}
+						break;
+					}
+
 					default:
 					Logger.WarnFormat("EpikV2: Unknown Message type: {0}", type);
 					break;
@@ -210,6 +239,10 @@ namespace EpikV2 {
 			public const byte manuscriptSeekUpdate = 9;
 			public const byte orePositionSync = 10;
 			public const byte requestOrePositionSync = 10;
+			public const byte useItem = 11;
+		}
+		public static class UseItemType {
+			public const byte refractionEnsign = 0;
 		}
 	}
 	public partial class EpikPlayer : ModPlayer {

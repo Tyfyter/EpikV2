@@ -26,6 +26,11 @@ namespace EpikV2.Items.Accessories {
 		}
 		public override void UpdateEquip(Player player) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			epikPlayer.empressDashAltColor = DashAltColor;
+			epikPlayer.empressDashRestoreDye = DashRestoreDye;
+			if (player.whoAmI != Main.myPlayer) {
+				return;
+			}
 			bool oneTap = false;
 			int dashCooldownEnd = Main.CurrentFrameFlags.AnyActiveBossNPC ? -dash_cooldown_boss_increase : 0;
 			if (epikPlayer.empressDashCooldown > dashCooldownEnd) {
@@ -34,8 +39,6 @@ namespace EpikV2.Items.Accessories {
 				}
 				oneTap = true;
 			}
-			epikPlayer.empressDashAltColor = DashAltColor;
-			epikPlayer.empressDashRestoreDye = DashRestoreDye;
 			const int down = 0;
 			const int up = 1;
 			const int right = 2;
@@ -100,11 +103,23 @@ namespace EpikV2.Items.Accessories {
 			}
 			if (dashVelocity != default) {
 				dashVelocity += dashVelocity.SafeNormalize(default) * 0.5f;
-				epikPlayer.empressDashTime = 12;
-				epikPlayer.empressDashVelocity = dashVelocity * 2f;
-				epikPlayer.empressDashCount--;
-				Terraria.Audio.SoundEngine.PlaySound(SoundID.Item103.WithPitch(1), player.Center);
+				Dash(epikPlayer, dashVelocity);
+				if (Main.netMode == NetmodeID.MultiplayerClient) {
+					ModPacket packet = Mod.GetPacket();
+					packet.Write(EpikV2.PacketType.useItem);
+					packet.Write(EpikV2.UseItemType.refractionEnsign);
+					packet.Write((byte)player.whoAmI);
+					packet.Write(dashVelocity.X);
+					packet.Write(dashVelocity.Y);
+					packet.Send();
+				}
 			}
+		}
+		public static void Dash(EpikPlayer epikPlayer, Vector2 dashVelocity) {
+			epikPlayer.empressDashTime = 12;
+			epikPlayer.empressDashVelocity = dashVelocity * 2f;
+			epikPlayer.empressDashCount--;
+			Terraria.Audio.SoundEngine.PlaySound(SoundID.Item103.WithPitch(1), epikPlayer.Player.Center);
 		}
 	}
 	public class EoL_Dash_Alt : EoL_Dash {
