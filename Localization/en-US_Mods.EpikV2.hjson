@@ -111,7 +111,15 @@ Items: {
 	Generic: {
 		Switch: <switch> to change modes
 		RightOrSwitch: <right> or {$Mods.EpikV2.Items.Generic.Switch}
+		Strengthened: "{0} (Strengthened)"
+		DisabledUpgrade: "[c/a60000:This server does not have this item upgrade enabled,]\n[c/a60000:This item will only have its normal functionality]"
 	}
+
+	StrengthenedShimmerCloak.Tooltip:
+		'''
+		Allows you to double tap down to shimmer anywhere
+		Allows you to move while shimmering
+		'''
 
 	EoL_Dash: {
 		DisplayName: Refraction Ensign
@@ -1117,6 +1125,11 @@ Configs: {
 			Label: Perfect Cellphone allows pylon teleportation
 			Tooltip: ""
 		}
+
+		itemUpgradesConfig: {
+			Label: item Upgrades Config
+			Tooltip: ""
+		}
 	}
 
 	NPCChangesConfig: {
@@ -1139,6 +1152,15 @@ Configs: {
 
 		BloodNautilus: {
 			Label: Dreadnautilus
+			Tooltip: ""
+		}
+	}
+
+	ItemUpgradesConfig: {
+		Tooltip: ""
+
+		ShimmerCloak: {
+			Label: Shimmer Cloak
 			Tooltip: ""
 		}
 	}

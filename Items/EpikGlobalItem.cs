@@ -14,12 +14,15 @@ using Terraria.GameContent.ItemDropRules;
 using EpikV2.Modifiers;
 using System.IO;
 using Terraria.GameInput;
+using Terraria.Localization;
+using Terraria.GameContent;
 
 namespace EpikV2.Items {
     public partial class EpikGlobalItem : GlobalItem {
 		public override bool InstancePerEntity => true;
 		protected override bool CloneNewInstances => true;
 		bool? nOwO = null;
+		bool strengthened = false;
 		public override void OnCreated(Item item, ItemCreationContext context) {
 			if (context is RecipeItemCreationContext) {
 				InitCatgirlMeme(item);
@@ -86,20 +89,67 @@ namespace EpikV2.Items {
 				}
 			}
 		}
+		public override void UpdateAccessory(Item item, Player player, bool hideVisual) {
+			switch (item.type) {
+				case ItemID.ShimmerCloak:
+				if (!EpikConfig.Instance.itemUpgradesConfig.ShimmerCloak) break;
+				if (strengthened) {
+					if (player.controlDown && player.releaseDown && (player.doubleTapCardinalTimer[0] < 15)) {
+						player.AddBuff(BuffID.Shimmer, 60);
+					}
+					if (player.shimmering) {
+						player.frozen = false;
+					}
+				} else {
+					EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+					if (epikPlayer.empressTime > 0) {
+						strengthened = true;
+						epikPlayer.empressTime = 0;
+					}
+				}
+				break;
+			}
+		}
 		public override void LoadData(Item item, TagCompound tag) {
 			if (tag.ContainsKey("nOwO")) {
 				nOwO = tag.GetBool("nOwO");
 			}
+			tag.TryGet("strengthened", out strengthened);
 			RefreshCatgirlMeme(item);
 		}
 		public override void SaveData(Item item, TagCompound tag) {
 			if(nOwO is not null) tag.Add("nOwO", nOwO.Value);
+			if(strengthened) tag.Add("strengthened", true);
 		}
 		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
 			if (nOwO ?? false) {
 				tooltips.Add(new TooltipLine(Mod, "plank", EpikExtensions.GetHerbText()) {
 					OverrideColor = new Color(0, 0, 0, 1f)
 				});
+			}
+			if (strengthened) {
+				int lastTooltipIndex = tooltips.FindLastIndex(line => line.Name.StartsWith("Tooltip")) + 1;
+				switch (item.type) {
+					case ItemID.ShimmerCloak:
+					if (!EpikConfig.Instance.itemUpgradesConfig.ShimmerCloak) {
+						tooltips.Add(new TooltipLine(Mod, "DisabledUpgrade", Language.GetTextValue("Mods.EpikV2.Items.Generic.DisabledUpgrade")));
+						goto default;
+					}
+					string[] lines = Language.GetTextValue("Mods.EpikV2.Items.StrengthenedShimmerCloak.Tooltip").Split('\n');
+					float index = (float)Main.timeForVisualEffects * 0.05f;
+					for (int i = 0; i < lines.Length; i++) {
+						string text = string.Concat(lines[i].Select(l => {
+							index -= 0.025f * FontAssets.MouseText.Value.MeasureString(l.ToString()).X;
+							return $"[c/{(Color.Lerp(new Color(179, 153, 230), Color.SkyBlue, MathF.Sin(index)) * (Main.mouseTextColor / 255f)).Hex3()}:{l}]";
+						}));
+						tooltips.Insert(lastTooltipIndex++, new TooltipLine(Mod, "StrengthenedTooltip" + i, text));
+					}
+					goto default;
+
+					default:
+					tooltips[0].Text = Language.GetTextValue("Mods.EpikV2.Items.Generic.Strengthened", tooltips[0].Text);
+					break;
+				}
 			}
 			if (PrefixLoader.GetPrefix(item.prefix) is IModifyTooltipsPrefix modifyTooltipsPrefix) {
 				modifyTooltipsPrefix.ModifyTooltips(item, tooltips);

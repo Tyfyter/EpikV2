@@ -357,6 +357,15 @@ namespace EpikV2 {
 			[DefaultValue(true)]
 			public bool BloodNautilus = true;
 		}
+
+		public ItemUpgradesConfig itemUpgradesConfig = new ItemUpgradesConfig();
+		public class ItemUpgradesConfig : ModConfig {
+			public override ConfigScope Mode => ConfigScope.ServerSide;
+			public override bool Autoload(ref string name) => false;
+
+			[DefaultValue(true)]
+			public bool ShimmerCloak = true;
+		}
 	}
 	public class HighTestFishingLine : GlobalItem {
 		public override bool AppliesToEntity(Item entity, bool lateInstantiation) {

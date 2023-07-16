@@ -247,28 +247,29 @@ namespace EpikV2.Items {
 		}
 
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
-			tooltips.RemoveRange(1,tooltips.Count-1);
+			tooltips.RemoveRange(1, tooltips.Count-1);
 		}
 		public override bool CanResearch() => false;
 	}
 	public class EmpressDeath : ModItem {
-		public override string Texture => "Terraria/Images/Item_"+ItemID.GolemTrophy;
+		public override string Texture => "Terraria/Images/Item_"+ItemID.FairyQueenTrophy;
 		public override void SetStaticDefaults() {
 			// DisplayName.SetDefault("Empress of Light");
 			// Tooltip.SetDefault("");
 		}
 		public override void SetDefaults() {
-			Item.CloneDefaults(ItemID.GolemTrophy);
+			Item.CloneDefaults(ItemID.FairyQueenTrophy);
 		}
 
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
-			tooltips.RemoveRange(1,tooltips.Count-1);
+			tooltips.RemoveRange(1, tooltips.Count-1);
 		}
 		public override bool CanResearch() => false;
 	}
 	public partial class EpikGlobalItem : GlobalItem {
 		public override void UpdateInventory(Item item, Player player) {
-			if(player.GetModPlayer<EpikPlayer>().golemTime>0) {
+			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			if (epikPlayer.golemTime > 0) {
 				bool consumed = false;
 				if(item.type == ItemID.LargeAmber) {
 					item.type = SunstoneMaterial.id;
@@ -280,14 +281,13 @@ namespace EpikV2.Items {
 					consumed = true;
 				}
 				if(consumed) {
-					player.GetModPlayer<EpikPlayer>().golemTime = 0;
+					epikPlayer.golemTime = 0;
 				}
-			}else if(item.type == ItemID.LargeDiamond && player.GetModPlayer<EpikPlayer>().empressTime > 0) {
+			}else if(item.type == ItemID.LargeDiamond && epikPlayer.empressTime > 0) {
 				item.type = MoonlaceMaterial.id;
 				item.SetDefaults(item.type);
 			}
 			if(item.type == ItemID.LargeRuby) {
-				EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 				if(epikPlayer.sacrifice > 0) {
 					epikPlayer.sacrifice = 0;
 					item.type = SanguineMaterialPartial.id;

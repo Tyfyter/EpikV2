@@ -593,6 +593,9 @@ namespace EpikV2 {
 					activeBuffs++;
 				}
 			}
+			/*if (shimmerCloak && Player.shimmering) {
+				Player.frozen = false;
+			}*/
 		}
 		public override void PostUpdateMiscEffects() {
 			if (Player.wet) {
