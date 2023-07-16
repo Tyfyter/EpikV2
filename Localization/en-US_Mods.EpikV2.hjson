@@ -112,7 +112,11 @@ Items: {
 		Switch: <switch> to change modes
 		RightOrSwitch: <right> or {$Mods.EpikV2.Items.Generic.Switch}
 		Strengthened: "{0} (Strengthened)"
-		DisabledUpgrade: "[c/a60000:This server does not have this item upgrade enabled,]\n[c/a60000:This item will only have its normal functionality]"
+		DisabledUpgrade:
+			'''
+			[c/a60000:This server does not have this item upgrade enabled,]
+			[c/a60000:This item will only have its normal functionality]
+			'''
 	}
 
 	StrengthenedShimmerCloak.Tooltip:
@@ -1118,7 +1122,7 @@ Configs: {
 
 		NoFishingBreak: {
 			Label: Unbreakable Fishing Line
-			Tooltip: ""
+			Tooltip: When enabled the High Test Fishing Line instead increases luck while fishing
 		}
 
 		PerfectCellPylon: {
@@ -1127,7 +1131,7 @@ Configs: {
 		}
 
 		itemUpgradesConfig: {
-			Label: item Upgrades Config
+			Label: Item Upgrades
 			Tooltip: ""
 		}
 	}
@@ -1137,22 +1141,26 @@ Configs: {
 
 		IlluminantSlime: {
 			Label: Illuminant Slimes
-			Tooltip: ""
+			Tooltip: Grants Illuminant Slimes the ability to invert their gravity
 		}
 
 		IlluminantBats: {
 			Label: Illuminant Bats
-			Tooltip: ""
+			Tooltip: Grants Illuminant Bats the ability to split temporarily
 		}
 
 		GoblinShark: {
 			Label: Hemogoblin Shark
-			Tooltip: ""
+			Tooltip: Makes Hemogoblin Sharks vulnerable to knockback, but gives them some flat knockback reduction
 		}
 
 		BloodNautilus: {
 			Label: Dreadnautilus
-			Tooltip: ""
+			Tooltip: 
+				'''
+				Makes Dreadnautilus vulnerable to knockback while charging, but gives it some flat knockback reduction
+				Disabled by default because 1.4.4 reduced its charge attack's tracking to manageable levels
+				'''
 		}
 	}
 

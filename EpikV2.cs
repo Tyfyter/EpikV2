@@ -277,44 +277,35 @@ namespace EpikV2 {
 			return item.OriginalRarity;
 		}
 	}
-	[Label("Settings")]
 	public class EpikConfig : ModConfig {
 		public static EpikConfig Instance;
 		public override ConfigScope Mode => ConfigScope.ServerSide;
 		[Header("Misc")]
 
-		[Label("Ancient Presents")]
 		[DefaultValue(true)]
 		public bool AncientPresents = true;
 
-		[Label("Remotely Balanced Ancient Presents")]
 		[DefaultValue(true)]
 		public bool BalancedAncientPresents = true;
 
-		[Label("Stronger Ancient Presents")]
 		[DefaultValue(false)]
 		public bool TooGoodAncientPresents = false;
 
-		[Label("Become a Constellation")]
 		[DefaultValue(false)]
 		public bool ConstellationDraco = false;
 
-		[Label("Infinite Universal Pylons")]
 		[DefaultValue(true)]
 		public bool InfiniteUniversalPylons = true;
 
-		[Label("Luck Affects Fishing")]
 		[DefaultValue(true)]
 		public bool LuckyFish = true;
 
-		[Label("Boundless Luck")]
 		[DefaultValue(true)]
 		public bool RedLuck = true;
 
 		[DefaultValue(true)]
 		public bool PerfectCellPylon = true;
 
-		[Label("Unbreakable Fishing Line")]
 		[DefaultValue(true)]
 		public bool NoFishingBreak {
 			get => noFishingBreak;
@@ -335,27 +326,22 @@ namespace EpikV2 {
 		}
 		bool noFishingBreak = true;
 
-		[Label("NPC Changes")]
 		public NPCChangesConfig npcChangesConfig = new NPCChangesConfig();
 		public class NPCChangesConfig : ModConfig {
 			public override ConfigScope Mode => ConfigScope.ServerSide;
 			public override bool Autoload(ref string name) => false;
 
-			[Label("Illuminant Slimes")]
 			[DefaultValue(true)]
 			public bool IlluminantSlime = true;
 
-			[Label("Illuminant Bats")]
 			[DefaultValue(true)]
 			public bool IlluminantBats = true;
 
-			[Label("Hemogoblin Shark")]
 			[DefaultValue(true)]
 			public bool GoblinShark = true;
 
-			[Label("Dreadnautilus")]
-			[DefaultValue(true)]
-			public bool BloodNautilus = true;
+			[DefaultValue(false)]
+			public bool BloodNautilus = false;
 		}
 
 		public ItemUpgradesConfig itemUpgradesConfig = new ItemUpgradesConfig();

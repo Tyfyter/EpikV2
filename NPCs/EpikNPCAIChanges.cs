@@ -259,7 +259,7 @@ namespace EpikV2.NPCs {
 				break;
 
 				case NPCID.BloodNautilus: {
-					float knockbackAdjustment = 6.75f + npc.strengthMultiplier * 0.25f;
+					float knockbackAdjustment = 6.0f + npc.strengthMultiplier * 0.5f;
 					modifiers.Knockback.Base -= knockbackAdjustment;
 					if (npc.ai[0] != 1) {
 						modifiers.Knockback *= 0;
