@@ -12,7 +12,7 @@ namespace EpikV2 {
 		public static bool[] IsValidForAltManaPoweredPrefix { get; private set; }
 		internal static void ResizeArrays() {
 			IsArrow = ProjectileID.Sets.Factory.CreateBoolSet();
-			IsValidForAltManaPoweredPrefix = ProjectileID.Sets.Factory.CreateBoolSet(true, ItemID.Hammush, ItemID.Bladetongue);
+			IsValidForAltManaPoweredPrefix = ItemID.Sets.Factory.CreateBoolSet(true, ItemID.Hammush, ItemID.Bladetongue);
 		}
 		internal static void SetupPostContentSampleSets() {
 			foreach (var item in ContentSamples.ItemsByType.Values) {

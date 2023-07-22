@@ -880,6 +880,16 @@ Items: {
 		DisplayName: Telescope
 		Tooltip: ""
 	}
+
+	Dashing_Hair_Dye: {
+		DisplayName: Dashing Hair Dye
+		Tooltip: ""
+	}
+
+	Lunar_Hair_Dye: {
+		DisplayName: Lunar Hair Dye
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck

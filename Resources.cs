@@ -1,6 +1,8 @@
 ﻿using EpikV2.Items;
 using EpikV2.Items.Accessories;
 using EpikV2.Items.Debugging;
+using EpikV2.Items.Other.HairDye;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
 using ReLogic.Graphics;
@@ -11,6 +13,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.Graphics.Effects;
 using Terraria.Graphics.Shaders;
@@ -92,6 +95,13 @@ namespace EpikV2 {
 				laserBowOverlayShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/LaserBow", AssetRequestMode.ImmediateLoad).Value), "LaserBow");
 				chimeraShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", AssetRequestMode.ImmediateLoad).Value), "Chimerebos");
 				opaqueChimeraShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", AssetRequestMode.ImmediateLoad).Value), "ChimerebosOpaque");
+				
+				dashingHairDyeShader = new NoBaseHairShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/BorderedHairDye", AssetRequestMode.ImmediateLoad).Value), "DashingDye");
+				dashingDyeShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/BorderedHairDye", AssetRequestMode.ImmediateLoad).Value), "DashingDye");
+				GameShaders.Armor.BindShader(ItemType<Dashing_Hair_Dye>(), dashingDyeShader);
+				lunarHairDyeShader = new LunarHairShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/BorderedHairDye", AssetRequestMode.ImmediateLoad).Value), "LunarDye");
+				lunarHairDyeShader.UseImage("Images/Misc/noise");
+				//lunarHairDyeShader.UseNonVanillaImage(nebulaDistortionTexture);
 
 				empressWingsShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Mask", AssetRequestMode.ImmediateLoad).Value), "EmpressWings");
 				normalRainbowTexture = Request<Texture2D>("Terraria/Images/Extra_156");
@@ -195,6 +205,9 @@ namespace EpikV2 {
 			public ArmorShaderData laserBowOverlayShader;
 			public ArmorShaderData chimeraShader;
 			public ArmorShaderData opaqueChimeraShader;
+			public HairShaderData dashingHairDyeShader;
+			public ArmorShaderData dashingDyeShader;
+			public HairShaderData lunarHairDyeShader;
 			public ArmorShaderData empressWingsShader;
 			public ArmorShaderData empressWingsShaderAlt;
 			public ArmorShaderData empressWingsShaderAurora;
@@ -204,6 +217,21 @@ namespace EpikV2 {
 			public Asset<Texture2D> altRainbowTexture2;
 			public Asset<Texture2D> testDistortionTexture;
 			//public Effect trailShader;
+			public class NoBaseHairShaderData : HairShaderData {
+				public NoBaseHairShaderData(Ref<Effect> shader, string passName) : base(shader, passName) { }
+				public override Color GetColor(Player player, Color lightColor) => lightColor;
+			}
+			public class LunarHairShaderData : HairShaderData {
+				public LunarHairShaderData(Ref<Effect> shader, string passName) : base(shader, passName) { }
+				public override Color GetColor(Player player, Color lightColor) => lightColor;
+				public override void Apply(Player player, DrawData? drawData = null) {
+					if (drawData.HasValue) {
+						UseTargetPosition(Main.screenPosition + drawData.Value.position);
+					}
+					Shader.Parameters["zoom"].SetValue(Main.GameViewMatrix.TransformationMatrix);
+					base.Apply(player, drawData);
+				}
+			}
 		}
 		public class FontCache {
 			FieldInfo _spriteCharacters;
