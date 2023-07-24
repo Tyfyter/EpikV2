@@ -16,10 +16,12 @@ using static Terraria.GameContent.Bestiary.BestiaryDatabaseNPCsPopulator;
 namespace EpikV2.NPCs {
     public class Bobber_Snail : ModNPC {
         public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("Bobber Snail");
+			// DisplayName.SetDefault("Bobber Snail");
+			Main.npcFrameCount[Type] = Main.npcFrameCount[NPCID.Snail];
         }
         public override void SetDefaults() {
             NPC.CloneDefaults(NPCID.Snail);
+			NPC.catchItem = ModContent.ItemType<Bobber_Snail_Item>();
         }
         public override float SpawnChance(NPCSpawnInfo spawnInfo) {
 			for (int i = 0; i < 3; i++) {
