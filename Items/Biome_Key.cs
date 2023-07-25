@@ -133,7 +133,7 @@ namespace EpikV2.Items {
 					int prefix = Item.prefix;
 					if (keyValuePairs is null) keyValuePairs = new();
 					ItemLoader.PreReforge(Item);
-					Item.SetDefaults(Biome_Keys[targetMode].WeaponID);
+					Item.ChangeItemType(Biome_Keys[targetMode].WeaponID);
 					Item.Prefix(prefix);
 					ItemLoader.PostReforge(Item);
 					player.altFunctionUse = 0;
@@ -297,8 +297,8 @@ namespace EpikV2.Items {
 			Item.DamageType = Biome_Key_Corrupt_Damage.ID;
 			Item.shoot = ProjectileType<Biome_Key_Corrupt_Slash>();
 			Item.shootSpeed = 12;
-			Item.useTime = 20;
-			Item.useAnimation = 60;
+			Item.useTime = 15;
+			Item.useAnimation = 45;
 			Item.reuseDelay = 20;
 			Item.UseSound = null;
 		}
@@ -317,11 +317,11 @@ namespace EpikV2.Items {
 				return false;
 			}
 			SoundEngine.PlaySound(SoundID.Item1, position);
-			if (player.itemAnimation == player.itemTime) {
+			if (player.ItemUsesThisAnimation == 3) {
 				Projectile.NewProjectile(source, position, velocity * 1.25f, ProjectileType<Biome_Key_Corrupt_Stab>(), (int)(damage * 1.5f), knockback, player.whoAmI);
 				return false;
 			}
-			Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai1: player.itemAnimation == player.itemAnimationMax * 2 / 3f ? 1 : -1);
+			Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai1: player.ItemUsesThisAnimation == 1 ? 1 : -1);
 			return false;
 		}
 	}
@@ -382,9 +382,9 @@ namespace EpikV2.Items {
 			player.velocity = Projectile.timeLeft > 1 ? Projectile.velocity : player.velocity * 0.75f;
 			Projectile.rotation = Projectile.velocity.ToRotation();
 			Projectile.Center = player.MountedCenter + Projectile.velocity;
-			Projectile.timeLeft = player.itemTime * Projectile.MaxUpdates;
+			Projectile.timeLeft = (int)(player.itemTime * Projectile.MaxUpdates * 0.75f);
 			player.heldProj = Projectile.whoAmI;
-			player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation + MathHelper.PiOver2);
+			player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation - MathHelper.PiOver2);
 			Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center + Projectile.velocity * 4, Vector2.Zero, ProjectileType<Biome_Key_Corrupt_Fire>(), Projectile.damage / 3, Projectile.knockBack, Projectile.owner);
 		}
 		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
@@ -1617,7 +1617,7 @@ namespace EpikV2.Items {
 				return false;
 			}
 			SoundEngine.PlaySound(SoundID.Item1, position);
-			Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai1: player.itemAnimation == player.itemTime ? -1 : 1);
+			Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai1: player.ItemUsesThisAnimation == 1 ? 1 : -1);
 			return false;
 		}
 	}

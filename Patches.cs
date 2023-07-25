@@ -45,6 +45,8 @@ using Mono.Cecil;
 using ParameterAttributes = Mono.Cecil.ParameterAttributes;
 using EpikV2.CrossMod;
 using Terraria.ObjectData;
+using Humanizer;
+using EpikV2.Items.Accessories;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -264,6 +266,37 @@ namespace EpikV2 {
 			};
 			IL_Main.CraftItem += IL_Main_CraftItem;
 			On_Item.CanApplyPrefix += (orig, self, prefix) => self.ModItem is Biome_Key || orig(self, prefix);
+			MonoModHooks.Modify(typeof(AccessorySlotLoader).GetMethod("DrawSlot", BindingFlags.NonPublic | BindingFlags.Instance), IL_AccessorySlotLoader_DrawSlot);
+		}
+		private static void IL_AccessorySlotLoader_DrawSlot(ILContext il) {
+			ILCursor c = new(il);
+			try {
+				int invArg = -1;
+				int contextArg = -1;
+				int slotArg = -1;
+				c.GotoNext(MoveType.AfterLabel,
+					i => i.MatchLdarg(out invArg),
+					i => i.MatchLdarg(out contextArg),
+					i => i.MatchCall(typeof(Math), "Abs"),
+					i => i.MatchLdarg(out slotArg),
+					i => i.MatchCallOrCallvirt<ItemSlot>("MouseHover")
+				);
+				c.Goto(c.IncomingLabels.First().Branches.First(), MoveType.After);
+				c.Emit(OpCodes.Ldarg, invArg);
+				c.Emit(OpCodes.Ldarg, contextArg);
+				c.Emit(OpCodes.Ldarg, slotArg);
+				c.EmitDelegate<Action<Item[], int, int>>((inv, context, slot) => {
+					if (Main.mouseRight && inv[slot]?.ModItem is Loadout_Share loadoutShare) {
+						if (Main.mouseRightRelease) {
+							loadoutShare.RightClick(Main.LocalPlayer);
+						}
+						return;
+					}
+				});
+			} catch (Exception e) {
+				instance.Logger.Error("Error while modifying AccessorySlotLoader.DrawSlot: ", e);
+				MonoModHooks.DumpIL(instance, il);
+			}
 		}
 
 		private static void IL_Main_CraftItem(ILContext il) {

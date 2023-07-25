@@ -890,6 +890,16 @@ Items: {
 		DisplayName: Lunar Hair Dye
 		Tooltip: ""
 	}
+
+	Loadout_Share: {
+		DisplayName: Loadout Share
+		Tooltip: ""
+	}
+
+	Loadout_Share_Left: {
+		DisplayName: Loadout Share
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck

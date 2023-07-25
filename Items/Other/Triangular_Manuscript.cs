@@ -364,7 +364,7 @@ namespace EpikV2.Items.Other {
 			}
 		}
 		public override void PostDraw(Color lightColor) {
-			if (items.Values is null) return;
+			if (items?.Values is null) return;
 			SelectableItem[] itemValues = items.Values.ToArray();
 			for (int i = 0; i < itemValues.Length; i++) {
 				SelectableItem item = itemValues[i];

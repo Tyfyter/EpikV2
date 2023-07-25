@@ -151,7 +151,7 @@ namespace EpikV2.Items {
 					default:
 					break;
 				}
-				Item.SetDefaults(GetSlotContents(slotIndex));
+				Item.ChangeItemType(GetSlotContents(slotIndex));
 			}
 			Main.LocalPlayer.GetModPlayer<EpikPlayer>().switchBackSlot = Main.LocalPlayer.selectedItem;
 		}
