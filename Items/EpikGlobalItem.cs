@@ -88,6 +88,11 @@ namespace EpikV2.Items {
 					}
 				}
 			}
+			switch (item.type) {
+				case ItemID.UmbrellaHat:
+				player.GetModPlayer<EpikPlayer>().umbrellaHat = true;
+				break;
+			}
 		}
 		public override void UpdateAccessory(Item item, Player player, bool hideVisual) {
 			switch (item.type) {

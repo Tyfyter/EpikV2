@@ -20,9 +20,7 @@ using System.IO;
 namespace EpikV2.Projectiles {
     public class EpikGlobalProjectile : GlobalProjectile {
 		public override bool InstancePerEntity => true;
-		protected override bool CloneNewInstances => true;
         internal bool jade = false;
-        [CloneByReference]
         public ModPrefix prefix;
         public bool controledNPCProjectile = false;
         byte partyCannonEffect = 0;
@@ -83,6 +81,17 @@ namespace EpikV2.Projectiles {
 		public override void PostAI(Projectile projectile) {
             EpikV2.KaleidoscopeColorType = 0;
         }
+		public override bool CanHitPlayer(Projectile projectile, Player target) {
+			if (projectile.aiStyle == ProjAIStyleID.Boulder && target.GetModPlayer<EpikPlayer>().umbrellaHat) {
+				Rectangle intersection = Rectangle.Intersect(projectile.Hitbox, target.Hitbox);
+				if (intersection.Height <= projectile.velocity.Y * 2) {
+					projectile.velocity.Y *= -0.99f;
+					projectile.velocity.X += (24 - intersection.Width) * 0.1f * Math.Sign(intersection.Center.X - target.Center.X);
+					return false;
+				}
+			}
+			return true;
+		}
 		public override void ModifyHitNPC(Projectile projectile, NPC target, ref NPC.HitModifiers modifiers) {
             if (prefix is IProjectileHitPrefix hitPrefix) {
                 hitPrefix.ModifyProjectileHitNPC(projectile, target, ref modifiers);

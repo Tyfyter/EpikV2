@@ -236,7 +236,15 @@ namespace EpikV2.NPCs
         }
 
 		public override bool CanHitPlayer(NPC npc, Player target, ref int cooldownSlot){
-            if(jaded || scorpioTime>0)return false;
+            if(jaded || scorpioTime > 0)return false;
+			if (npc.aiStyle == NPCAIStyleID.Slime && target.GetModPlayer<EpikPlayer>().umbrellaHat) {
+				Rectangle intersection = Rectangle.Intersect(npc.Hitbox, target.Hitbox);
+				if (intersection != default && intersection.Height <= npc.velocity.Y * 2) {
+					npc.velocity.Y *= -0.75f;
+					npc.velocity.X += (24 - intersection.Width) * 0.1f * Math.Sign(intersection.Center.X - target.Center.X);
+					return false;
+				}
+			}
 			return base.CanHitPlayer(npc, target, ref cooldownSlot);
         }
         public override void SetBestiary(NPC npc, BestiaryDatabase database, BestiaryEntry bestiaryEntry) {
@@ -393,6 +401,37 @@ namespace EpikV2.NPCs
                 spriteBatch.Restart();
             }
 		}
+		public override void GetChat(NPC npc, ref string chat) {
+			WeightedRandom<string> chatValues = new WeightedRandom<string>();
+			float vanillaWeight = 0;
+			switch (npc.type) {
+				case NPCID.PartyGirl:
+				if (NPC.freeCake) {
+					vanillaWeight = 3;
+					break;
+				}
+				vanillaWeight += 7;
+				if (Main.LocalPlayer.Male) vanillaWeight += 0.2f;
+				if (DD2Event.DownedInvasionT1) vanillaWeight += 0.2f;
+				if (NPC.AnyNPCs(NPCID.Stylist)) vanillaWeight += 0.2f;
+				if (Main.LocalPlayer.ZoneGraveyard) vanillaWeight += 0.333f;
+				if (BirthdayParty.PartyIsUp) vanillaWeight += 0.333f;
+				if (Main.raining && !Main.IsItStorming) vanillaWeight += 0.333f;
+				if (Main.IsItAHappyWindyDay) vanillaWeight += 0.333f;
+				if (Main.IsItStorming) vanillaWeight += 0.333f;
+
+				if (Main.slimeRain) {
+					chatValues.Add(Language.GetTextValue("Mods.EpikV2.Dialogue.PartyGirl.SlimeRain"), Main.slimeWarningTime > 0 ? 14f : 1f);
+				}
+				break;
+
+				default:
+				vanillaWeight = 1;
+				break;
+			}
+			chatValues.Add(chat, vanillaWeight);
+			chat = chatValues;
+		}
 		public override void ModifyShop(NPCShop shop) {
 			switch (shop.NpcType) {
 				case NPCID.TravellingMerchant:
@@ -426,6 +465,13 @@ namespace EpikV2.NPCs
 				shop.Add<Party_Pylon_Item>(
 					Condition.HappyEnoughToSellPylons,
 					Condition.BirthdayParty
+				);
+				shop.Add(
+					ItemID.UmbrellaHat,
+					new Condition(
+						Language.GetText("Mods.EpikV2.Conditions.SlimeRain"),
+						() => Main.slimeRain
+					)
 				);
 				break;
 			}

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using EpikV2.Reflection;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,6 @@ using Terraria.UI;
 
 namespace EpikV2.Items.Accessories {
 	public class Loadout_Share : ModItem {
-		public override string Texture => "EpikV2/Items/Accessories/Seventeen_Leaf_Clover";
 		public override void SetStaticDefaults() {
 			On_ItemSlot.AccCheck_ForLocalPlayer += (orig, itemCollection, item, slot) => {
 				if (item?.ModItem is Loadout_Share) return false;
@@ -45,11 +45,12 @@ namespace EpikV2.Items.Accessories {
 			if (fromShare) return;
 			EquipmentLoadout otherLoadout = GetOtherLoadout(player, Offset);
 			fromShare = true;
-			player.ApplyEquipFunctional(otherLoadout.Armor[currentSlot], hideVisual);
+			Item other = otherLoadout.Armor[currentSlot];
+			player.ApplyEquipFunctional(other, hideVisual);
 			if (!hideVisual) {
-				Item other = otherLoadout.Armor[currentSlot];
 				if (!player.ItemIsVisuallyIncompatible(other)) {
 					player.UpdateVisibleAccessory(currentSlot, other);
+					PlayerMethods.UpdateItemDye(player, false, false, other, player.dye[currentSlot]);
 				}
 			}
 			equippedSlot = currentSlot;
@@ -92,6 +93,7 @@ namespace EpikV2.Items.Accessories {
 		}
 	}
 	public class Loadout_Share_Left : Loadout_Share {
+		public override string Texture => "EpikV2/Items/Accessories/Loadout_Share";
 		public override void SetStaticDefaults() { }
 		public override int SwapType => ModContent.ItemType<Loadout_Share>();
 		public override int Offset => -1;

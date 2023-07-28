@@ -80,6 +80,7 @@ namespace EpikV2 {
 		public bool spadeBuff = false;
 		public bool clubBuff = false;
 		#endregion
+		public bool umbrellaHat = false;
 		public Vector2 renderedOldVelocity;
 		public Vector2 hatOffset;
 		public bool championsHelm = false;
@@ -241,6 +242,7 @@ namespace EpikV2 {
 				magiciansHatDamage = 0;
 				magiciansHatDecay = 0;
 			}
+			umbrellaHat = false;
 			magiciansHat = false;
 			spadeBuff = false;
 			clubBuff = false;

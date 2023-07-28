@@ -6,6 +6,7 @@ Conditions: {
 	KillsGuide: This kills the [strike:crab] Guide
 	Retro: A few decades ago
 	PartyTime: A few decades ago
+	SlimeRain: During {$Bestiary_Events.SlimeRain}
 }
 
 Buffs: {
@@ -1040,6 +1041,8 @@ NPCs: {
 	Vile_Spirit.DisplayName: Vile Spirit
 	Wrong_Spawn_NPC.DisplayName: Wrong Spawn NPC (You're so incredibly high lmao)
 }
+
+Dialogue.PartyGirl.SlimeRain: Stuff's gonna start falling! You better duck for cover.
 
 Tiles: {
 	Buried_Chest: {
