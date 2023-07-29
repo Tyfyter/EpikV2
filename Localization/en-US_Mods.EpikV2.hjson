@@ -9,6 +9,24 @@ Conditions: {
 	SlimeRain: During {$Bestiary_Events.SlimeRain}
 }
 
+DropConditions: {
+	KilledByPlayerAndNoPurchaseCondition:
+		'''
+		Without purchasing an item
+		Must be killed by a player
+		'''
+	MobilePresentCondition: With the "Ancient Presents" option enabled
+	MobilePresentXmasCondition: With the "Ancient Presents" option enabled during Christmas (except with Frost Moon active)
+	MobilePresentFrostMoonCondition: With the "Ancient Presents" option enabled during the frost moon
+	TriangularManuscriptCondition:
+		'''
+		In worlds created before v0.3.7
+		Must be killed by a player
+		Must be killed during the day
+		'''
+	BiomeKeyConfigCondition: With the "Rare biome enemies drop Biome keys" option enabled
+}
+
 Buffs: {
 	Mana_Withdrawal_Debuff: {
 		DisplayName: Mana Withdrawal
@@ -1090,7 +1108,7 @@ Configs: {
 		}
 
 		None.Label: None
-		LSD.Label: L S D
+		LSD.Label: LSD
 		All.Label: All
 	}
 
@@ -1163,6 +1181,11 @@ Configs: {
 		itemUpgradesConfig: {
 			Label: Item Upgrades
 			Tooltip: ""
+		}
+
+		BiomeMimicKeys: {
+			Label: Rare biome enemies drop Biome keys
+			Tooltip: Gives Biome Mimics, Sand Elementals, and Ice Golems a heightened drop chance for their respective biome keys
 		}
 	}
 

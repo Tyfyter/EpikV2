@@ -46,6 +46,7 @@ using Terraria.Localization;
 using Terraria.GameContent.NetModules;
 using EpikV2.CrossMod;
 using EpikV2.Items.Armor;
+using static Tyfyter.Utils.MiscUtils;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -78,7 +79,18 @@ namespace EpikV2 {
 		internal static Dictionary<int, int> itemRarityOverrides;
 		internal static Dictionary<int, int> rarityTiers;
 		internal static List<Func<float>> modRarityChecks;
+		public BidirectionalDictionary<int, int> biomeKeyDropEnemies;
 		//public static MotionArmorShaderData motionBlurShader;
+		public EpikV2() : base() {
+			biomeKeyDropEnemies = new() {
+				[NPCID.BigMimicCorruption] = ItemID.CorruptionKey,
+				[NPCID.BigMimicCrimson] = ItemID.CrimsonKey,
+				[NPCID.BigMimicHallow] = ItemID.HallowedKey,
+				[NPCID.BigMimicJungle] = ItemID.JungleKey,
+				[NPCID.IceGolem] = ItemID.FrozenKey,
+				[NPCID.SandElemental] = ItemID.DungeonDesertKey,
+			};
+		}
 		public override object Call(params object[] args) {
 			if (args.Length > 0) {
 				switch (args[0]) {
@@ -193,6 +205,7 @@ namespace EpikV2 {
 		}
 		public override void PostSetupContent() {
 			Sets.SetupPostContentSampleSets();
+			EpikIntegration.EnabledMods.CheckEnabled();
 		}
 		public static short SetStaticDefaultsGlowMask(ModItem modItem) {
 			if (Main.netMode != NetmodeID.Server) {
@@ -305,6 +318,9 @@ namespace EpikV2 {
 
 		[DefaultValue(true)]
 		public bool PerfectCellPylon = true;
+
+		[DefaultValue(true)]
+		public bool BiomeMimicKeys = true;
 
 		[DefaultValue(true)]
 		public bool NoFishingBreak {

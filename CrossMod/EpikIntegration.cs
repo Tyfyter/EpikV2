@@ -1,4 +1,5 @@
-﻿using EpikV2.Items;
+﻿using AltLibrary.Common.AltBiomes;
+using EpikV2.Items;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -20,11 +21,13 @@ namespace EpikV2.CrossMod {
 			public static bool RecipeBrowser { get; private set; } = false;
 			public static Mod Origins { get; private set; }
 			public static bool GraphicsLib { get; private set; } = false;
+			public static bool AltLibrary { get; private set; }
 			public static bool CharLoader { get; private set; }
 			internal static void ResetEnabled() {
 				RecipeBrowser = false;
 				Origins = null;
 				GraphicsLib = false;
+				AltLibrary = false;
 				CharLoader = false;
 				Chars = null;
 			}
@@ -32,6 +35,10 @@ namespace EpikV2.CrossMod {
 				RecipeBrowser = ModLoader.TryGetMod("RecipeBrowser", out Mod recipeBrowser) && recipeBrowser.Version >= new Version(0, 5);
 				Origins = ModLoader.TryGetMod("Origins", out Mod origins) ? origins : null;
 				GraphicsLib = ModLoader.TryGetMod("GraphicsLib", out _);
+				if (AltLibrary = ModLoader.TryGetMod("AltLibrary", out _)) {
+					AltLibIntegration();
+				}
+
 				CharLoader = ModLoader.TryGetMod("CharLoader", out Mod charLoader);
 				Chars = new();
 				if (CharLoader) {
@@ -64,6 +71,11 @@ namespace EpikV2.CrossMod {
 						"BothBuffing"
 					);
 				}
+				if (Origins is not null) {
+					ExplosiveDamageClasses = (IDictionary<DamageClass, DamageClass>)origins.Call("GetExplosiveClassesDict");
+				} else {
+					ExplosiveDamageClasses = new MirrorDictionary<DamageClass>();
+				}
 			}
 		}
 		public static CustomChars Chars { get; private set; }
@@ -85,21 +97,13 @@ namespace EpikV2.CrossMod {
 			ModEvilBiomes = null;
 			ExplosiveDamageClasses = null;
 		}
-		internal static void PostAddRecipes() {
-			if (EnabledMods.Origins is Mod origins) {
-				ExplosiveDamageClasses = (IDictionary<DamageClass, DamageClass>)origins.Call("GetExplosiveClassesDict");
-			} else {
-				ExplosiveDamageClasses = new MirrorDictionary<DamageClass>();
+		[JITWhenModsEnabled("AltLibrary")]
+		static void AltLibIntegration() {
+			foreach (AltBiome biome in AltLibrary.AltLibrary.GetAltBiomes()) {
+				if (biome.MimicType.HasValue && biome.BiomeKeyItem.HasValue) {
+					EpikV2.instance.biomeKeyDropEnemies.Add(biome.MimicType.Value, biome.BiomeKeyItem.Value);
+				}
 			}
-			/*
-			try {
-				RecipeBrowser.LootCache.instance.lootInfos.Add(
-					new RecipeBrowser.JSONItem(EpikV2.instance.Name, "GolemDeath", ModContent.ItemType<GolemDeath>()),
-					new List<RecipeBrowser.JSONNPC>() { new RecipeBrowser.JSONNPC("Terraria", "Golem", NPCID.Golem) }
-				);
-				EpikV2.instance.Logger.Info("Added Recipe Browser integration");
-			} catch(Exception){}
-			//*/
 		}
 	}
 }

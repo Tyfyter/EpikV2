@@ -6,3 +6,4 @@ homepage = https://tyfyter.github.io/
 displayName = EpikV2
 buildIgnore = Unused\*
 includeSource = true
+weakReferences = AltLibrary

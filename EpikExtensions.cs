@@ -550,6 +550,58 @@ namespace EpikV2 {
 		public static int GetItemBaseRarity(Item item) {
 			return ContentSamples.ItemsByType[item.type].rare;
 		}
+		public static Color GetRarityColor(int rare, bool expert = false, bool master = false) {
+			if (rare >= ItemRarityID.Count) {
+				return RarityLoader.GetRarity(rare).RarityColor;
+			}
+			switch (rare) {
+				case ItemRarityID.Quest:
+				return Colors.RarityAmber;
+
+				case ItemRarityID.Gray:
+				return Colors.RarityTrash;
+
+				case ItemRarityID.Blue:
+				return Colors.RarityBlue;
+
+				case ItemRarityID.Green:
+				return Colors.RarityGreen;
+
+				case ItemRarityID.Orange:
+				return Colors.RarityOrange;
+
+				case ItemRarityID.LightRed:
+				return Colors.RarityRed;
+
+				case ItemRarityID.Pink:
+				return Colors.RarityPink;
+
+				case ItemRarityID.LightPurple:
+				return Colors.RarityPurple;
+
+				case ItemRarityID.Lime:
+				return Colors.RarityLime;
+
+				case ItemRarityID.Yellow:
+				return Colors.RarityYellow;
+
+				case ItemRarityID.Cyan:
+				return Colors.RarityCyan;
+
+				case ItemRarityID.Red:
+				return Colors.RarityDarkRed;
+
+				case ItemRarityID.Purple:
+				return Colors.RarityDarkPurple;
+			}
+			if (expert || rare == -12) {
+				return Main.DiscoColor;
+			}
+			if (master || rare == -13) {
+				return new Color(255, (int)(Main.masterColor * 200), 0);
+			}
+			return Colors.RarityNormal;
+		}
 		public static int GetPrefixRarityOffset(Item item) {
 			int rare = 0;
 			float value = GetPrefixValue(item.prefix, out int _) * (1f + item.crit * 0.02f);

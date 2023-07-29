@@ -287,11 +287,9 @@ namespace EpikV2 {
 				c.Emit(OpCodes.Ldarg, contextArg);
 				c.Emit(OpCodes.Ldarg, slotArg);
 				c.EmitDelegate<Action<Item[], int, int>>((inv, context, slot) => {
-					if (Main.mouseRight && inv[slot]?.ModItem is Loadout_Share loadoutShare) {
-						if (Main.mouseRightRelease) {
-							loadoutShare.RightClick(Main.LocalPlayer);
-						}
-						return;
+				if (Main.mouseRight && Main.mouseRightRelease && (context == ItemSlot.Context.EquipAccessory || ItemSlot.ShiftInUse) && inv[slot]?.ModItem is Loadout_Share loadoutShare) {
+						loadoutShare.RightClick(Main.LocalPlayer);
+						Main.mouseRightRelease = false;
 					}
 				});
 			} catch (Exception e) {

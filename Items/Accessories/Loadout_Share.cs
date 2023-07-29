@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,16 +60,86 @@ namespace EpikV2.Items.Accessories {
 		public override void UpdateEquip(Player player) {
 			if (fromShare) return;
 			fromShare = true;
-			EquipmentLoadout otherLoadout = GetOtherLoadout(player, Offset);
-			player.GrantArmorBenefits(otherLoadout.Armor[currentSlot]);
+			player.GrantArmorBenefits(GetOtherLoadout(player, Offset).Armor[currentSlot]);
 			fromShare = false;
 		}
+		public override void UpdateVanity(Player player) {
+			if (fromShare) return;
+			fromShare = true;
+			EquipmentLoadout otherLoadout = GetOtherLoadout(player, Offset);
+			Item other = otherLoadout.Armor[currentSlot];
+			if (!player.ItemIsVisuallyIncompatible(other)) {
+				player.UpdateVisibleAccessory(currentSlot, other);
+				PlayerMethods.UpdateItemDye(player, false, false, other, player.dye[currentSlot % player.dye.Length]);
+			}
+			equippedSlot = currentSlot;
+			fromShare = false;
+		}
+		public override void ModifyTooltips(List<TooltipLine> tooltips) {
+			if (equippedSlot >= 0) {
+				EquipmentLoadout otherLoadout = GetOtherLoadout(Main.LocalPlayer, Offset);
+				Item other = otherLoadout.Armor[equippedSlot];
+				int yoyoLogo = -1; int researchLine = -1; float oldKB = other.knockBack; int numLines = 1; string[] toolTipLine = new string[30]; bool[] preFixLine = new bool[30]; bool[] badPreFixLine = new bool[30]; string[] toolTipNames = new string[30];
+				Main.MouseText_DrawItemTooltip_GetLinesInfo(other, ref yoyoLogo, ref researchLine, oldKB, ref numLines, toolTipLine, preFixLine, badPreFixLine, toolTipNames, out var prefixlineIndex);
+
+				List<TooltipLine> otherTooltips = new();
+				for (int j = 0; j < numLines; j++) {
+					TooltipLine tooltip = new TooltipLine(Mod, toolTipNames[j], toolTipLine[j]);
+					tooltip.IsModifier = preFixLine[j];
+					tooltip.IsModifierBad = badPreFixLine[j];
+					otherTooltips.Add(tooltip);
+				}
+				if (Item.prefix >= PrefixID.Count && prefixlineIndex != -1) {
+					IEnumerable<TooltipLine> tooltipLines = PrefixLoader.GetPrefix(Item.prefix)?.GetTooltipLines(Item);
+					if (tooltipLines != null) {
+						foreach (TooltipLine line in tooltipLines) {
+							otherTooltips.Insert(prefixlineIndex, line);
+							prefixlineIndex++;
+						}
+					}
+				}
+				List<TooltipLine> lines = ItemLoader.ModifyTooltips(other, ref numLines, toolTipNames, ref toolTipLine, ref preFixLine, ref badPreFixLine, ref yoyoLogo, out var overrideColor, prefixlineIndex);
+				lines[0].OverrideColor = EpikExtensions.GetRarityColor(other.rare, other.expert, other.master) * (Main.mouseTextColor / 255f);
+				
+				tooltips.Clear();
+				for (int i = 0; i < numLines; i++) {
+					lines[i].OverrideColor = (lines[i].OverrideColor ?? Main.MouseTextColorReal).MultiplyRGB(new Color(200, 255, 200));
+					tooltips.Add(lines[i]);
+				}
+				tooltips.Add(new(Mod, "LoadoutShare", Item.Name) {
+					OverrideColor = Main.MouseTextColorReal.MultiplyRGB(new Color(200, 255, 200))
+				});
+			}
+		}
+		public override bool PreDrawTooltip(ReadOnlyCollection<TooltipLine> lines, ref int x, ref int y) {
+			if (equippedSlot >= 0) {
+				return GetOtherLoadout(Main.LocalPlayer, Offset).Armor[equippedSlot]?.ModItem?.PreDrawTooltip(lines, ref x, ref y) ?? true;
+			}
+			return true;
+		}
+		public override void PostDrawTooltip(ReadOnlyCollection<DrawableTooltipLine> lines) {
+			if (equippedSlot >= 0) {
+				GetOtherLoadout(Main.LocalPlayer, Offset).Armor[equippedSlot]?.ModItem?.PostDrawTooltip(lines);
+			}
+		}
+		public override bool PreDrawTooltipLine(DrawableTooltipLine line, ref int yOffset) {
+			if (equippedSlot >= 0) {
+				return GetOtherLoadout(Main.LocalPlayer, Offset).Armor[equippedSlot]?.ModItem?.PreDrawTooltipLine(line, ref yOffset) ?? true;
+			}
+			return true;
+		}
+		public override void PostDrawTooltipLine(DrawableTooltipLine line) {
+			if (equippedSlot >= 0) {
+				GetOtherLoadout(Main.LocalPlayer, Offset).Armor[equippedSlot]?.ModItem?.PostDrawTooltipLine(line);
+			}
+		}
+
 		public override bool CanEquipAccessory(Player player, int slot, bool modded) => !modded;
 		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
 			if (equippedSlot >= 0) {
-				equippedSlot = -1;
 				EquipmentLoadout otherLoadout = GetOtherLoadout(Main.LocalPlayer, Offset);
-				Item other = otherLoadout.Armor[currentSlot];
+				Item other = otherLoadout.Armor[equippedSlot];
+				equippedSlot = -1;
 				Main.instance.LoadItem(other.type);
 				Texture2D itemTexture = TextureAssets.Item[other.type].Value;
 				Rectangle otherFrame = (Main.itemAnimations[other.type] == null) ? itemTexture.Frame()

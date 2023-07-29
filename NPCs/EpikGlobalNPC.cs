@@ -314,6 +314,9 @@ namespace EpikV2.NPCs
 				npcLoot.Add(ItemDropRule.ByCondition(new TriangularManuscriptCondition(), ModContent.ItemType<Triangular_Manuscript>()));
 				break;
             }
+			if (instance.biomeKeyDropEnemies.TryGetValue(npc.type, out int keyType)) {
+				npcLoot.Add(ItemDropRule.ByCondition(new BiomeKeyConfigCondition(), keyType, 50));
+			}
 		}
 		public override void OnKill(NPC npc){
 			switch (npc.type) {
@@ -474,6 +477,10 @@ namespace EpikV2.NPCs
 					)
 				);
 				break;
+
+				case NPCID.WitchDoctor:
+				shop.Add<Loadout_Share>();
+				break;
 			}
 		}
 		public override void SetupTravelShop(int[] shop, ref int nextSlot) {
@@ -513,27 +520,32 @@ namespace EpikV2.NPCs
     public class KilledByPlayerAndNoPurchaseCondition : IItemDropRuleCondition {
         public bool CanDrop(DropAttemptInfo info) => info.npc?.lastInteraction == info.player?.whoAmI && !(info.npc.GetGlobalNPC<EpikGlobalNPC>()?.itemPurchasedFrom??true);
         public bool CanShowItemDropInUI() => true;
-        public string GetConditionDescription() => "Without purchasing an item";
-    }
+        public string GetConditionDescription() => Language.GetOrRegister("Mods.EpikV2.DropConditions.KilledByPlayerAndNoPurchaseCondition").Value;
+	}
     public class MobilePresentCondition : IItemDropRuleCondition {
         public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents;
         public bool CanShowItemDropInUI() => EpikConfig.Instance.AncientPresents;
-        public string GetConditionDescription() => "";
-    }
+        public string GetConditionDescription() => Language.GetOrRegister("Mods.EpikV2.DropConditions.MobilePresentCondition").Value;
+	}
     public class MobilePresentXmasCondition : IItemDropRuleCondition {
         public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents && !Main.snowMoon && Main.xMas;
         public bool CanShowItemDropInUI() => EpikConfig.Instance.AncientPresents;
-        public string GetConditionDescription() => "During Christmas (except with Frost Moon active)";
-    }
+        public string GetConditionDescription() => Language.GetOrRegister("Mods.EpikV2.DropConditions.MobilePresentXmasCondition").Value;
+	}
     public class MobilePresentFrostMoonCondition : IItemDropRuleCondition {
         public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.AncientPresents && Main.snowMoon;
-        public bool CanShowItemDropInUI() => EpikConfig.Instance.AncientPresents ;
-        public string GetConditionDescription() => "During the frost moon";
+        public bool CanShowItemDropInUI() => EpikConfig.Instance.AncientPresents;
+        public string GetConditionDescription() => Language.GetOrRegister("Mods.EpikV2.DropConditions.MobilePresentFrostMoonCondition").Value;
 	}
 	public class TriangularManuscriptCondition : IItemDropRuleCondition {
 		public bool CanDrop(DropAttemptInfo info) => Main.dayTime && info.npc.AnyInteractions() && EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscript;
 		public bool CanShowItemDropInUI() => EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscript;
-		public string GetConditionDescription() => "In worlds created before v0.3.7\nmust be killed by a player\nmust be killed during the day";
+		public string GetConditionDescription() => Language.GetOrRegister("Mods.EpikV2.DropConditions.TriangularManuscriptCondition").Value;
+	}
+	public class BiomeKeyConfigCondition : IItemDropRuleCondition {
+		public bool CanDrop(DropAttemptInfo info) => EpikConfig.Instance.BiomeMimicKeys;
+		public bool CanShowItemDropInUI() => true;
+		public string GetConditionDescription() => Language.GetOrRegister("Mods.EpikV2.DropConditions.BiomeKeyConfigCondition").Value;
 	}
 	public class DummyCondition : IItemDropRuleCondition {
 		readonly string descriptionKey;
