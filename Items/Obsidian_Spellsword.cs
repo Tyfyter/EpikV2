@@ -67,6 +67,7 @@ namespace EpikV2.Items {
 			SetStats(null, broken = false);
 			Item.autoReuse = true;
 			Item.glowMask = customGlowMask;
+			Item.value = Item.sellPrice(gold: 1);
 		}
 
 		void SetStats(Player player, bool broken, bool fromNet = false) {

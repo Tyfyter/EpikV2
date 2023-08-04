@@ -302,13 +302,24 @@ namespace EpikV2 {
 			ILCursor c = new(il);
 			try {
 				c.GotoNext(MoveType.Before, ins => ins.MatchCallOrCallvirt<Item>("Prefix"));
-				c.EmitDelegate<Func<int, int>>((int pref) => {
-					return Main.LocalPlayer.adjShimmer ? -2 : pref;
-				});
+				c.Remove();
+				c.EmitDelegate<Func<Item, int, bool>>(ShimmerReforge);
 			} catch (Exception e) {
-				instance.Logger.Error("Error while modifying Main.CraftItem: ", e);
-				MonoModHooks.DumpIL(instance, il);
+				throw new ILPatchFailureException(instance, il, e);
 			}
+		}
+		internal static bool ShimmerReforge(Item item, int prefix) {
+			if (prefix != -1 || !Main.LocalPlayer.adjShimmer) return item.Prefix(prefix);
+			if (!item.Prefix(-3)) return false;
+			int value = ContentSamples.ItemsByType[item.type].value;
+			item.Prefix(-2);
+			int tries = 0;
+			while (value > item.value) {
+				item.SetDefaults(item.type);
+				item.Prefix(-2);
+				if (++tries > 1000) break;
+			}
+			return true;
 		}
 
 		private static void IL_TeleportPylonsSystem_HandleTeleportRequest(ILContext il) {
