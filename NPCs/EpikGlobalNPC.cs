@@ -437,10 +437,6 @@ namespace EpikV2.NPCs
 		}
 		public override void ModifyShop(NPCShop shop) {
 			switch (shop.NpcType) {
-				case NPCID.TravellingMerchant:
-				shop.Add<Step2>(new Condition(Language.GetText("Mods.EpikV2.Conditions.QueenBeeActive"), () => NPC.npcsFoundForCheckActive[NPCID.QueenBee]));
-				break;
-
 				case NPCID.GoblinTinkerer:
 				shop.Add<Spring_Boots>();
 				break;
@@ -469,6 +465,7 @@ namespace EpikV2.NPCs
 					Condition.HappyEnoughToSellPylons,
 					Condition.BirthdayParty
 				);
+				shop.Add<Step2>(new Condition(Language.GetText("Mods.EpikV2.Conditions.QueenBeeActive"), () => NPC.npcsFoundForCheckActive[NPCID.QueenBee]));
 				shop.Add(
 					ItemID.UmbrellaHat,
 					new Condition(

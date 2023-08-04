@@ -12,6 +12,7 @@ using Terraria.DataStructures;
 using Terraria.Enums;
 using Terraria.GameContent;
 using Terraria.GameContent.Drawing;
+using Terraria.GameContent.Items;
 using Terraria.GameContent.UI.Chat;
 using Terraria.GameInput;
 using Terraria.ID;
@@ -45,8 +46,6 @@ namespace EpikV2.Items {
 		public static int? forcedSwitchIndex = null;
 		Dictionary<string, object> keyValuePairs;
 		public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Biome Key ");
-			// Tooltip.SetDefault("<right> or <switch> to change modes");
             Item.ResearchUnlockCount = 1;
 			Sets.IsValidForAltManaPoweredPrefix[Type] = false;
 		}
@@ -57,7 +56,10 @@ namespace EpikV2.Items {
 		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.Keybrand);
-            Item.value = 1000000;
+			if (Item.Variant == ItemVariants.WeakerVariant) {
+				Item.damage = 37;
+			}
+			Item.value = 1000000;
             Item.rare = ItemRarityID.Purple;
             Item.autoReuse = true;
 			SetNormalAnimation();
@@ -133,7 +135,9 @@ namespace EpikV2.Items {
 					int prefix = Item.prefix;
 					if (keyValuePairs is null) keyValuePairs = new();
 					ItemLoader.PreReforge(Item);
-					Item.ChangeItemType(Biome_Keys[targetMode].WeaponID);
+					bool fav = Item.favorited;
+					Item.SetDefaults(Biome_Keys[targetMode].WeaponID, noMatCheck: false, Item.Variant);
+					Item.favorited = fav;
 					Item.Prefix(prefix);
 					ItemLoader.PostReforge(Item);
 					player.altFunctionUse = 0;

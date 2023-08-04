@@ -68,8 +68,6 @@ namespace EpikV2.Tiles {
 
 		public override void KillMultiTile(int i, int j, int frameX, int frameY) {
 			ModContent.GetInstance<Party_Pylon_TE>().Kill(i, j);
-
-			Item.NewItem(new EntitySource_TileBreak(i, j), i * 16, j * 16, 2, 3, ModContent.ItemType<Party_Pylon_Item>());
 		}
 
 		public override bool ValidTeleportCheck_NPCCount(TeleportPylonInfo pylonInfo, int defaultNecessaryNPCCount) {

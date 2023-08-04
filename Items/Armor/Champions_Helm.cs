@@ -45,20 +45,35 @@ namespace EpikV2.Items.Armor {
         public override void UpdateVanity(Player player) {
             Lighting.AddLight(player.Center+new Vector2(3*player.direction,-6), new Vector3(0.1f, 0, 0));
         }
-        public override void AddRecipes(){
-            int[] helmets = { ItemID.HallowedMask, ItemID.HallowedHelmet };
+        public override void AddRecipes() {
+			if (ModLoader.HasMod("AltLibrary")) {
+				RegisterAltLibRecipes();
+				return;
+			}
+			int[] helmets = { ItemID.HallowedMask, ItemID.HallowedHelmet };
             int[] bars = { ItemID.TitaniumBar, ItemID.AdamantiteBar };
-            Recipe recipe;
             for(int i0 = 0; i0 < helmets.Length; i0++) {
                 for(int i1 = 0; i1 < bars.Length; i1++) {
-                    recipe = Recipe.Create(Type);
-                    recipe.AddIngredient(SanguineMaterial.ID, 1);
-                    recipe.AddIngredient(helmets[i0], 1);
-                    recipe.AddIngredient(bars[i1], 5);
-                    recipe.AddTile(TileID.MythrilAnvil);
-                    recipe.Register();
+					CreateRecipe()
+					.AddIngredient(SanguineMaterial.ID, 1)
+                    .AddIngredient(helmets[i0], 1)
+                    .AddIngredient(bars[i1], 5)
+                    .AddTile(TileID.MythrilAnvil)
+                    .Register();
                 }
             }
+		}
+		[JITWhenModsEnabled("AltLibrary")]
+		void RegisterAltLibRecipes() {
+			int[] helmets = { ItemID.HallowedMask, ItemID.HallowedHelmet };
+			for (int i0 = 0; i0 < helmets.Length; i0++) {
+				CreateRecipe()
+				.AddIngredient(SanguineMaterial.ID, 1)
+				.AddIngredient(helmets[i0], 1)
+				.AddRecipeGroup("AdamantiteBars", 5)
+				.AddTile(TileID.MythrilAnvil)
+				.Register();
+			}
 		}
 	}
 }

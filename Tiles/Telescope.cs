@@ -40,9 +40,6 @@ namespace EpikV2.Tiles {
 		public override bool HasSmartInteract(int i, int j, SmartInteractScanSettings settings) {
 			return true;
 		}
-		public override void KillMultiTile(int i, int j, int frameX, int frameY) {
-			Item.NewItem(new EntitySource_TileBreak(i, j), i * 16, j * 16, 64, 32, ModContent.ItemType<Telescope_Item>());
-		}
 
 		public override bool RightClick(int i, int j) {
 			Tile tile = Main.tile[i, j];
@@ -153,6 +150,10 @@ namespace EpikV2.Tiles {
 			Item.createTile = ModContent.TileType<Telescope>();
 		}
 		public override void AddRecipes() {
+			if (ModLoader.HasMod("AltLibrary")) {
+				RegisterAltLibRecipes();
+				return;
+			}
 			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ItemID.SilverBar, 8);
 			recipe.AddIngredient(ItemID.Lens, 2);
@@ -166,6 +167,15 @@ namespace EpikV2.Tiles {
 			recipe.AddTile(TileID.Tables);
 			recipe.AddTile(TileID.Chairs);
 			recipe.Register();
+		}
+		[JITWhenModsEnabled("AltLibrary")]
+		void RegisterAltLibRecipes() {
+			CreateRecipe()
+			.AddRecipeGroup("SilverBars", 8)
+			.AddIngredient(ItemID.Lens, 2)
+			.AddTile(TileID.Tables)
+			.AddTile(TileID.Chairs)
+			.Register();
 		}
 	}
 }
