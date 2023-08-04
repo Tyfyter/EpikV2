@@ -309,10 +309,6 @@ namespace EpikV2.NPCs
 					new Conditions.IsMasterMode()
 				)));
                 break;
-
-				case NPCID.Clothier:
-				npcLoot.Add(ItemDropRule.ByCondition(new TriangularManuscriptCondition(), ModContent.ItemType<Triangular_Manuscript>()));
-				break;
             }
 			if (instance.biomeKeyDropEnemies.TryGetValue(npc.type, out int keyType)) {
 				npcLoot.Add(ItemDropRule.ByCondition(new BiomeKeyConfigCondition(), keyType, 50));
@@ -537,7 +533,7 @@ namespace EpikV2.NPCs
         public bool CanShowItemDropInUI() => EpikConfig.Instance.AncientPresents;
         public string GetConditionDescription() => Language.GetOrRegister("Mods.EpikV2.DropConditions.MobilePresentFrostMoonCondition").Value;
 	}
-	public class TriangularManuscriptCondition : IItemDropRuleCondition {
+	public class TriangularManuscriptAmuletCondition : IItemDropRuleCondition {
 		public bool CanDrop(DropAttemptInfo info) => Main.dayTime && info.npc.AnyInteractions() && EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscriptAmulet;
 		public bool CanShowItemDropInUI() => EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscriptAmulet;
 		public string GetConditionDescription() => Language.GetOrRegister("Mods.EpikV2.DropConditions.TriangularManuscriptCondition").Value;
