@@ -1,7 +1,8 @@
 Triangular_Manuscript: {
-	Name: The Triangular Book of the Count of St. Germain
+	Name: The Triangular Manuscript
 	Journal:
 		'''
+		[header:The Triangular  Book of the Count of St. Germain]
 		[c/{$Colors.EpikV2.Journal.Note}:Someone has struck out much of the original text — replacing it in what appears to be blood — and most of the page is torn off]:
 		[strike:The holy magic indicated to Moses]
 		[strike:discovered in an Egyptian monument]
