@@ -465,7 +465,10 @@ namespace EpikV2.NPCs
 					Condition.HappyEnoughToSellPylons,
 					Condition.BirthdayParty
 				);
-				shop.Add<Step2>(new Condition(Language.GetText("Mods.EpikV2.Conditions.QueenBeeActive"), () => NPC.npcsFoundForCheckActive[NPCID.QueenBee]));
+				shop.Add<Step2>(
+					new Condition(Language.GetText("Mods.EpikV2.Conditions.QueenBeeActive"), () => NPC.npcsFoundForCheckActive[NPCID.QueenBee])
+					.Or(Condition.DontStarveWorld)
+				);
 				shop.Add(
 					ItemID.UmbrellaHat,
 					new Condition(
@@ -481,19 +484,19 @@ namespace EpikV2.NPCs
 			}
 		}
 		public override void SetupTravelShop(int[] shop, ref int nextSlot) {
-            Player player = null;
+            Player player = new Player();
             for (int j = 0; j < 255; j++) {
                 Player currentPlayer = Main.player[j];
-                if (currentPlayer.active && (player == null || player.luck < currentPlayer.luck)) {
+                if (currentPlayer.active && player.luck < currentPlayer.luck) {
                     player = currentPlayer;
                 }
-            }
-            if (player == null) {
-                player = new Player();
             }
             if (Main.GetMoonPhase() == MoonPhase.Full || player.RollLuck(7) == 0) {
                 shop[nextSlot++] = ModContent.ItemType<Totally_Not_Shimmer>();
             }
+			if (Star.starfallBoost > 3f) {
+				shop[nextSlot++] = ModContent.ItemType<Triangular_Manuscript>();
+			}
         }
         public void SetBounceTime(int time, int count = 1) {
             bounceTime = time;
@@ -535,8 +538,8 @@ namespace EpikV2.NPCs
         public string GetConditionDescription() => Language.GetOrRegister("Mods.EpikV2.DropConditions.MobilePresentFrostMoonCondition").Value;
 	}
 	public class TriangularManuscriptCondition : IItemDropRuleCondition {
-		public bool CanDrop(DropAttemptInfo info) => Main.dayTime && info.npc.AnyInteractions() && EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscript;
-		public bool CanShowItemDropInUI() => EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscript;
+		public bool CanDrop(DropAttemptInfo info) => Main.dayTime && info.npc.AnyInteractions() && EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscriptAmulet;
+		public bool CanShowItemDropInUI() => EpikWorld.WorldCreationVersion < WorldCreationVersion.TriangularManuscriptAmulet;
 		public string GetConditionDescription() => Language.GetOrRegister("Mods.EpikV2.DropConditions.TriangularManuscriptCondition").Value;
 	}
 	public class BiomeKeyConfigCondition : IItemDropRuleCondition {

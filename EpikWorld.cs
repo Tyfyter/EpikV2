@@ -255,6 +255,6 @@ namespace EpikV2 {
 	}
 	public enum WorldCreationVersion {
 		Unversioned,
-		TriangularManuscript
+		TriangularManuscriptAmulet
 	}
 }

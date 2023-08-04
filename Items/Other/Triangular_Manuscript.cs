@@ -1,6 +1,7 @@
 ﻿using EpikV2.Items.Accessories;
 using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.GameContent;
 using Terraria.Graphics;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using Terraria.Utilities;
 using Tyfyter.Utils;
 
@@ -31,7 +35,11 @@ namespace EpikV2.Items.Other {
 			Item.maxStack = 1;
 		}
 		public override bool? UseItem(Player player) {
-			player.GetModPlayer<EpikPlayer>().triedTriangleManuscript = true;
+			ref bool triedTriangleManuscript = ref player.GetModPlayer<EpikPlayer>().triedTriangleManuscript;
+			if (!triedTriangleManuscript) {
+				if (ModLoader.HasMod("Origins")) Triangular_Manuscript_Quest.GiveQuestNotification();
+				triedTriangleManuscript = true;
+			}
 			return null;
 		}
 		public override bool CanShoot(Player player) {
@@ -114,12 +122,15 @@ namespace EpikV2.Items.Other {
 					}
 					if (channelTarget == 0) {
 						channelTarget = 2;
-						channelRate = 0.005f;
-						channelCost = 1f;
+						channelRate = 0.0075f;
+						channelCost = 0.75f;
 					}
 					break;
 				}
 				case 2: {
+					if (channel) {
+						Projectile.ai[1] = 0;
+					}
 					for (int i = 0; i < 4; i++) {
 						int xOffset = 0;
 						switch (i) {
@@ -165,8 +176,8 @@ namespace EpikV2.Items.Other {
 					}
 					if (channelTarget == 0) {
 						channelTarget = 4;
-						channelRate = 0.003f;
-						channelCost = 2f;
+						channelRate = 0.005f;
+						channelCost = 1.5f;
 					}
 					goto case 1;
 				}
@@ -182,15 +193,21 @@ namespace EpikV2.Items.Other {
 							Projectile.owner
 						);
 					} else {
-						Projectile.NewProjectile(
-							Projectile.GetSource_FromThis(),
-							new Vector2(left * 16 + 16, bottom * 16 - 16),
-							default,
-							ModContent.ProjectileType<Triangular_Manuscript_Seek_P>(),
-							75,
-							16,
-							Projectile.owner
-						);
+						if (false) {
+
+						} else {
+							for (int i = 0; i < 3; i++) {
+								Projectile.NewProjectile(
+									Projectile.GetSource_FromThis(),
+									new Vector2(left * 16 + 16, bottom * 16 - 16) + new Vector2(Main.rand.NextFloat(-16, 16) * 16, -160),
+									new Vector2(Main.rand.NextFloat(-1, 1), 4),
+									ModContent.ProjectileType<Vile_Spirit_Spread_Summon>(),
+									0,
+									0,
+									Projectile.owner
+								);
+							}
+						}
 					}
 					owner.GetModPlayer<EpikPlayer>().usedTriangleManuscript = true;
 					goto case -1;
@@ -231,6 +248,43 @@ namespace EpikV2.Items.Other {
 		}
 		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
 			modifiers.HitDirectionOverride = target.Center.X < Projectile.Center.X ? -1 : 1;
+		}
+		public override bool PreDraw(ref Color lightColor) {
+			Point tilePos = Projectile.position.ToTileCoordinates();
+			Tile tile = Main.tile[tilePos];
+			int left = tilePos.X;
+			int bottom = tilePos.Y;
+			if (tile.TileFrameX > 36 * 49) {
+				left--;
+			}
+			if (tile.TileFrameY % (18 * 3) < 36) {
+				bottom++;
+				if (tile.TileFrameY % (18 * 3) < 18) {
+					bottom++;
+				}
+			}
+			Vector2 bottomLeftPos = new Vector2(left, bottom) * 16;
+			Vector2 offset = new Vector2(0, 0);
+			const float jitterRange = 0.5f;
+			if (tile.HasTile && tile.TileType == TileID.Statues && tile.TileFrameX >= 36 * 49 && tile.TileFrameX < 36 * 50) {
+				for (int i = 0; i < 2; i++) {
+					for (int j = 0; j < 3; j++) {
+						int frameX = 36 * 49 + 18 * i;
+						if (Projectile.ai[1] < 0) offset = new Vector2(Main.rand.NextFloat(-jitterRange, jitterRange), 0);
+						Main.EntitySpriteDraw(
+							TextureAssets.Tile[TileID.Statues].Value,
+							bottomLeftPos + offset + new Vector2(i, (j - 2) * 0.9999f) * 16 - Main.screenPosition,
+							new Rectangle(frameX, j * 18, 16, 18),
+							Lighting.GetColor(left + i, bottom + j - 2) * Math.Clamp(Projectile.ai[1] * (-1 / 180f), 0, 1),
+							0,
+							new Vector2(0, -2),
+							Vector2.One,
+							SpriteEffects.None,
+						0);
+					}
+				}
+			}
+			return false;
 		}
 	}
 
@@ -354,6 +408,7 @@ namespace EpikV2.Items.Other {
 							Triangular_Manuscript.SpawnGuidingSpirit(item.position, item.chestPositions.Get() + new Vector2(16, 16));
 							Projectile.Kill();
 						}
+						EpikPlayer.nextMouseInterface = true;
 						break;
 					}
 				}
@@ -740,9 +795,9 @@ namespace EpikV2.Items.Other {
 			}
 		}
 	}
-#if false //TODO: remove after updating Origins
 	[ExtendsFromMod("Origins")]
 	public class Triangular_Manuscript_Quest : Origins.Questing.Quest {
+		public override bool SaveToWorld => false;
 		public override void SetStaticDefaults() {
 			NameKey = "Mods.EpikV2.Origins.Quests.Triangular_Manuscript.Name";
 		}
@@ -750,8 +805,16 @@ namespace EpikV2.Items.Other {
 			return Main.LocalPlayer.GetModPlayer<EpikPlayer>().triedTriangleManuscript;
 		}
 		public override string GetJournalPage() {
-			return "beezechurger";
+			return Language.GetOrRegister("Mods.EpikV2.Origins.Quests.Triangular_Manuscript.Journal").Value;
+		}
+		public override void SaveData(TagCompound tag) {
+			tag["HasNotification"] = HasNotification;
+		}
+		public override void LoadData(TagCompound tag) {
+			HasNotification = tag.TryGet("HasNotification", out bool hasNotification) && hasNotification;
+		}
+		internal static void GiveQuestNotification() {
+			ModContent.GetInstance<Triangular_Manuscript_Quest>().HasNotification = true;
 		}
 	}
-#endif
 }

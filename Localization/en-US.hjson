@@ -1,1 +1,6 @@
-Mods.EpikV2.Origins.Quests.Triangular_Manuscript.Name: Arcane Knowledge
+﻿Colors.EpikV2: {
+	Journal:{
+		Blood: "aa6666"
+		Note: "555555"
+	}
+}

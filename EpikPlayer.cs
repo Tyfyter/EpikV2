@@ -144,6 +144,7 @@ namespace EpikV2 {
 		public bool perfectCellphone = false;
 
 		public static BitsBytes ItemChecking;
+		public static bool nextMouseInterface;
 
 		public override void ResetEffects() {
 			//majesticWings = false;
@@ -339,6 +340,10 @@ namespace EpikV2 {
 						proj.ModProjectile?.OnTileCollide(proj.velocity);
 					}
 				}
+			}
+			if (nextMouseInterface) {
+				Player.mouseInterface = true;
+				nextMouseInterface = false;
 			}
 		}
 		public override bool ShiftClickSlot(Item[] inventory, int context, int slot) {

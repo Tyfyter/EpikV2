@@ -43,7 +43,7 @@ namespace EpikV2.Items.Armor {
             }
         }
         public override void UpdateVanity(Player player) {
-            Lighting.AddLight(player.Center+new Vector2(3*player.direction,-6), new Vector3(0.1f, 0, 0));
+            Lighting.AddLight(player.Center + new Vector2(3*player.direction,-6), new Vector3(0.1f, 0, 0));
         }
         public override void AddRecipes() {
 			if (ModLoader.HasMod("AltLibrary")) {

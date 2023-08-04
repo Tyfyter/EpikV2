@@ -1057,4 +1057,36 @@ namespace EpikV2 {
 			return false;
 		}
 	}
+	public static class ConditionExtensions {
+		public static Condition CommaAnd(this Condition a, Condition b) {
+			return new Condition(
+				Language.GetOrRegister("Mods.Origins.Conditions.Comma").WithFormatArgs(a.Description, b.Description),
+				() => a.Predicate() && b.Predicate()
+			);
+		}
+		public static Condition And(this Condition a, Condition b) {
+			return new Condition(
+				Language.GetOrRegister("Mods.Origins.Conditions.And").WithFormatArgs(a.Description, b.Description),
+				() => a.Predicate() && b.Predicate()
+			);
+		}
+		public static Condition CommaOr(this Condition a, Condition b) {
+			return new Condition(
+				Language.GetOrRegister("Mods.Origins.Conditions.Comma").WithFormatArgs(a.Description, b.Description),
+				() => a.Predicate() || b.Predicate()
+			);
+		}
+		public static Condition Or(this Condition a, Condition b) {
+			return new Condition(
+				Language.GetOrRegister("Mods.Origins.Conditions.Or").WithFormatArgs(a.Description, b.Description),
+				() => a.Predicate() || b.Predicate()
+			);
+		}
+		public static Condition Not(this Condition value) {
+			return new Condition(
+				Language.GetOrRegister("Mods.Origins.Conditions.Not").WithFormatArgs(value.Description),
+				() => !value.Predicate()
+			);
+		}
+	}
 }
