@@ -613,6 +613,7 @@ namespace EpikV2 {
 			ILCursor c = new ILCursor(il);
 			if (c.TryGotoNext(MoveType.After, i => i.MatchLdcI4(6), i => i.MatchLdcI4(0), i => i.MatchCallvirt(typeof(OverlayManager), "Draw"))) {
 				c.EmitDelegate((Action)(() => {
+					drawAfterNPCs ??= new();
 					for (int i = 0; i < drawAfterNPCs.Count; i++) {
 						drawAfterNPCs[i].DrawPostNPCLayer();
 					}

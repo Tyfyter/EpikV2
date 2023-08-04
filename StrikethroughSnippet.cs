@@ -15,15 +15,14 @@ using Terraria.UI.Chat;
 namespace EpikV2 {
 	public class StrikethroughHandler : ITagHandler {
 		public class StrikethroughSnippet : TextSnippet {
-			public StrikethroughSnippet(string text) {
-				Text = text;
-			}
+			public StrikethroughSnippet(string text = "") : base(text) {}
+			public StrikethroughSnippet(string text, Color color, float scale = 1) : base(text, color, scale) {}
 			public override bool UniqueDraw(bool justCheckingString, out Vector2 size, SpriteBatch spriteBatch, Vector2 position = default(Vector2), Color color = default(Color), float scale = 1) {
 				StringBuilder builder = new StringBuilder();
 				Vector2 dimensions = FontAssets.MouseText.Value.MeasureString(Text);
 				DynamicSpriteFont strikethroughFont = Resources.Fonts.Unkerned;
 				size = dimensions;
-				if (justCheckingString) return false;
+				if (justCheckingString) return true;
 				const char strike = '–';
 				float strikeWidth = strikethroughFont.MeasureString(strike.ToString()).X - 2;
 				for (int i = (int)Math.Ceiling(dimensions.X / strikeWidth); i-- > 0;) {
@@ -36,7 +35,7 @@ namespace EpikV2 {
 			}
 		}
 		public TextSnippet Parse(string text, Color baseColor = default(Color), string options = null) {
-			return new StrikethroughSnippet(text);
+			return new StrikethroughSnippet(text, baseColor);
 		}
 	}
 }

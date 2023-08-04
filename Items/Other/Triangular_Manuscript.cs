@@ -22,10 +22,6 @@ using Tyfyter.Utils;
 
 namespace EpikV2.Items.Other {
 	public class Triangular_Manuscript : ModItem {
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Triangular Manuscript");
-			Item.ResearchUnlockCount = 1;
-		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.FallenStar);
 			Item.shoot = Triangular_Manuscript_P.ID;

@@ -1,6 +1,6 @@
-﻿Colors.EpikV2: {
-	Journal:{
-		Blood: "aa6666"
+Colors.EpikV2: {
+	Journal: {
+		Blood: "660000"
 		Note: "555555"
 	}
 }
