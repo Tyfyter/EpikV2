@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EpikV2.Reflection;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -54,52 +55,13 @@ namespace EpikV2.Items {
 				for (int j = 0; j < Biome_Key.Biome_Key_Alternates[i].Count; j++) {
 					if (Biome_Key.Biome_Key_Alternates[i][j] == item.type) {
 						item.type = Biome_Key.Biome_Key_Alternates[i][(j + 1) % Biome_Key.Biome_Key_Alternates[i].Count];
+						item.shimmered = true;
 						NetMessage.SendData(MessageID.SyncItem, -1, -1, null, item.whoAmI);
 						return;
 					}
 				}
 			}
-			bool foundRecipe = false;
-			Recipe recipe = null;
-			for (int i = 0; i < Main.recipe.Length; i++) {
-				recipe = Main.recipe[i];
-				if (recipe.createItem.type == item.type && recipe.createItem.stack <= item.stack) {
-					foundRecipe = true;
-					break;
-				}
-			}
-			if (!foundRecipe) {
-				return;
-			}
-			int decraftAmount = item.stack / recipe.createItem.stack;
-
-			foreach (Item currentIngredient in recipe.requiredItem) {
-				if (currentIngredient.type <= ItemID.None) {
-					break;
-				}
-				int currentItemTotalStack = decraftAmount * currentIngredient.stack;
-				if ((bool)typeof(Recipe).GetField("alchemy", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(recipe)) {
-					for (int i = currentItemTotalStack; i > 0; i--) {
-						if (Main.rand.NextBool(3)) {
-							currentItemTotalStack--;
-						}
-					}
-				}
-				while (currentItemTotalStack > 0) {
-					int currentItemStack = currentItemTotalStack;
-					if (currentItemStack > 9999) {
-						currentItemStack = 9999;
-					}
-					currentItemTotalStack -= currentItemStack;
-					int itemIndex = Item.NewItem(Item.GetSource_None(), (int)item.position.X, (int)item.position.Y, item.width, item.height, currentIngredient.type);
-					Main.item[itemIndex].stack = currentItemStack;
-					NetMessage.SendData(MessageID.SyncItem, -1, -1, null, itemIndex);
-				}
-			}
-			item.stack -= decraftAmount * recipe.createItem.stack;
-			if (item.stack <= 0) {
-				item.TurnToAir();
-			}
+			ItemMethods.GetShimmered(item);
 		}
 	}
 }

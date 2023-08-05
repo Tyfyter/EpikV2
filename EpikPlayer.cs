@@ -605,13 +605,15 @@ namespace EpikV2 {
 			}*/
 		}
 		public override void PostUpdateMiscEffects() {
-			if (Player.wet) {
+			bool isWet = false;
+			if (Player.wet && !Player.lavaWet && !Player.honeyWet && !Player.shimmerWet) {
 				Player.AddBuff(BuffID.Wet, 600);
+				isWet = true;
 			}
 			if (Player.position.X > 4 * 16 && Player.position.Y > 3 * 16) Player.AdjTiles();
 			bool adjCampfire = Player.adjTile[TileID.Campfire];
 			bool changeCampfire = adjCampfire != Player.oldAdjTile[TileID.Campfire];
-			bool changeWet = !Main.expertMode && (Player.wet || Player.dripping) != oldWet;
+			bool changeWet = !Main.expertMode && (isWet || Player.dripping) != oldWet;
 			const float warmCoefficient = 0.5f;
 			const float wetCoefficient = 1.5f;
 			int buffsProcessed = 0;
@@ -647,7 +649,7 @@ namespace EpikV2 {
 					break;
 				}
 			}
-			oldWet = Player.wet || Player.dripping;
+			oldWet = isWet || Player.dripping;
 			if (Player.dripping) {
 				if (!Player.wet && Main.rand.NextBool(4)) {
 					Vector2 position = Player.position;
