@@ -14,7 +14,7 @@ namespace EpikV2.Reflection {
 	public class ItemMethods : ILoadable {
 		private static Action _GetShimmered;
 		public void Load(Mod mod) {
-			_GetShimmered = typeof(Player).GetMethod("GetShimmered", BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate<Action>(new Item());
+			_GetShimmered = typeof(Item).GetMethod("GetShimmered", BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate<Action>(new Item());
 		}
 		public void Unload() {
 			_GetShimmered = null;

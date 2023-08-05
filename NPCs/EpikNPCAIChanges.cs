@@ -28,89 +28,103 @@ namespace EpikV2.NPCs {
 		public override bool AppliesToEntity(NPC entity, bool lateInstantiation) {
 			switch (entity.type) {
 				case NPCID.IlluminantBat:
-                return EpikConfig.Instance.npcChangesConfig.IlluminantBats;
-
                 case NPCID.IlluminantSlime:
-                return EpikConfig.Instance.npcChangesConfig.IlluminantSlime;
-
                 case NPCID.GoblinShark:
-                return EpikConfig.Instance.npcChangesConfig.GoblinShark;
-
                 case NPCID.BloodNautilus:
-                return EpikConfig.Instance.npcChangesConfig.BloodNautilus;
+                return true;
             }
             return false;
 		}
+		static bool ShouldApply(NPC npc) {
+			switch (npc.type) {
+				case NPCID.IlluminantBat:
+				return EpikConfig.Instance.npcChangesConfig.IlluminantBats;
+
+				case NPCID.IlluminantSlime:
+				return EpikConfig.Instance.npcChangesConfig.IlluminantSlime;
+
+				case NPCID.GoblinShark:
+				return EpikConfig.Instance.npcChangesConfig.GoblinShark;
+
+				case NPCID.BloodNautilus:
+				return EpikConfig.Instance.npcChangesConfig.BloodNautilus;
+			}
+			return false;
+		}
 		public float dreadNautilusKnockbackValue = 0;
         public override bool PreAI(NPC npc) {
+			if (!ShouldApply(npc)) return true;
             switch (npc.type) {
-                case NPCID.IlluminantSlime:
-                npc.directionY = 1;
-                npc.noGravity = false;
-                if (npc.ai[1] == -1) {
-                    npc.ai[1] = -2;
-                } else if (npc.ai[1] == -2) {
-                    npc.directionY = -1;
-                    npc.noGravity = true;
-                    IllSlimeAI(npc);
-                    return false;
-                }
-                break;
+                case NPCID.IlluminantSlime: {
+					npc.directionY = 1;
+					npc.noGravity = false;
+					if (npc.ai[1] == -1) {
+						npc.ai[1] = -2;
+					} else if (npc.ai[1] == -2) {
+						npc.directionY = -1;
+						npc.noGravity = true;
+						IllSlimeAI(npc);
+						return false;
+					}
+					break;
+				}
 
-                case NPCID.IlluminantBat:
-                if (npc.ai[0] == 0) {
-                    if (npc.ai[1] >= 200) {
-                        npc.ai[3]++;
-                        if (Main.rand.Next(1, 5) < npc.ai[3]) {
-                            npc.ai[3] = 0;
-                            npc.ai[0] = 1;
-                            npc.netUpdate = true;
-                            for (int i = (int)Math.Ceiling(npc.life / 20f); i-- > 0;) {
-                                NPC.NewNPCDirect(
-                                    npc.GetSource_FromAI(),
-                                    (int)npc.Center.X,
-                                    (int)npc.Center.Y,
-                                    NPCID.IlluminantBat,
-                                    ai0: -1,
-                                    ai3: npc.whoAmI
-                                ).velocity += new Vector2(6, 0).RotatedBy(Main.rand.NextFloat(TwoPi));
-                            }
-                        }
-                    }
-                } else if (npc.ai[0] == 1) {
-                    npc.hide = true;
-                    npc.chaseable = false;
-                    if (++npc.ai[3] >= 200) {
-                        npc.ai[3] = 0;
-                        npc.ai[0] = 0;
-                        npc.hide = false;
-                        npc.chaseable = true;
-                        npc.netUpdate = true;
-                    }
-                } else if (npc.ai[0] == -1) {
-                    NPC parent = Main.npc[(int)npc.ai[3]];
-                    if (npc.realLife == -1) npc.netUpdate = true;
-                    npc.realLife = (int)npc.ai[3];
-                    npc.scale = 0.75f;
-                    npc.lifeMax = 20;
-                    npc.life = npc.lifeMax;
-                    npc.defense = 0;
-                    npc.velocity = Vector2.Lerp(npc.velocity, parent.Center - npc.Center, (float)Math.Pow(Clamp((parent.ai[3] - 175) / 25, 0.01f, 1), 2));
-                    npc.target = parent.target;
-                    if (parent.ai[3] > 175) {
-                        npc.noTileCollide = true;
-                    }
-                    if (parent.ai[0] != 1 || !parent.active) {
-                        npc.active = false;
-                    }
-                }
-                //if (npc.HasPlayerTarget) Main.player[npc.target].chatOverhead.NewMessage($"{npc.ai[0]}\n{npc.ai[1]}\n{npc.ai[2]}\n{npc.ai[3]}\n{npc.aiAction}\n                           ", 5);
-                break;
-            }
+                case NPCID.IlluminantBat: {
+					if (npc.ai[0] == 0) {
+						if (npc.ai[1] >= 200) {
+							npc.ai[3]++;
+							if (Main.rand.Next(1, 5) < npc.ai[3]) {
+								npc.ai[3] = 0;
+								npc.ai[0] = 1;
+								npc.netUpdate = true;
+								for (int i = (int)Math.Ceiling(npc.life / 20f); i-- > 0;) {
+									NPC.NewNPCDirect(
+										npc.GetSource_FromAI(),
+										(int)npc.Center.X,
+										(int)npc.Center.Y,
+										NPCID.IlluminantBat,
+										ai0: -1,
+										ai3: npc.whoAmI
+									).velocity += new Vector2(6, 0).RotatedBy(Main.rand.NextFloat(TwoPi));
+								}
+							}
+						}
+					} else if (npc.ai[0] == 1) {
+						npc.hide = true;
+						npc.chaseable = false;
+						if (++npc.ai[3] >= 200) {
+							npc.ai[3] = 0;
+							npc.ai[0] = 0;
+							npc.hide = false;
+							npc.chaseable = true;
+							npc.netUpdate = true;
+						}
+					} else if (npc.ai[0] == -1) {
+						NPC parent = Main.npc[(int)npc.ai[3]];
+						if (npc.realLife == -1) npc.netUpdate = true;
+						npc.realLife = (int)npc.ai[3];
+						npc.scale = 0.75f;
+						npc.lifeMax = 20;
+						npc.life = npc.lifeMax;
+						npc.defense = 0;
+						npc.velocity = Vector2.Lerp(npc.velocity, parent.Center - npc.Center, (float)Math.Pow(Clamp((parent.ai[3] - 175) / 25, 0.01f, 1), 2));
+						npc.target = parent.target;
+						if (parent.ai[3] > 175) {
+							npc.noTileCollide = true;
+						}
+						if (parent.ai[0] != 1 || !parent.active) {
+							npc.active = false;
+						}
+					}
+					//if (npc.HasPlayerTarget) Main.player[npc.target].chatOverhead.NewMessage($"{npc.ai[0]}\n{npc.ai[1]}\n{npc.ai[2]}\n{npc.ai[3]}\n{npc.aiAction}\n                           ", 5);
+					break;
+				}
+			}
             return true;
         }
         public override void PostAI(NPC npc) {
-            switch (npc.type) {
+			if (!ShouldApply(npc)) return;
+			switch (npc.type) {
                 case NPCID.IlluminantSlime:
                 if (npc.aiAction == 1 && npc.ai[0] == -4) {
                     npc.ai[1] = npc.ai[1] < 0 ? 1 : -1;
@@ -145,7 +159,8 @@ namespace EpikV2.NPCs {
             }
         }
         public override bool SpecialOnKill(NPC npc) {
-            return npc.type == NPCID.IlluminantBat && npc.ai[0] == -1;
+			if (!ShouldApply(npc)) return false;
+			return npc.type == NPCID.IlluminantBat && npc.ai[0] == -1;
         }
         static void IllSlimeAI(NPC npc) {
             if (npc.ai[2] > 1f) {
@@ -242,7 +257,8 @@ namespace EpikV2.NPCs {
             }
         }
         public override void SetDefaults(NPC npc) {
-            switch (npc.type) {
+			if (!ShouldApply(npc)) return;
+			switch (npc.type) {
                 case NPCID.GoblinShark:
                 npc.knockBackResist += 0.1f;
                 break;
@@ -253,6 +269,7 @@ namespace EpikV2.NPCs {
             }
         }
         public override void ModifyIncomingHit(NPC npc, ref NPC.HitModifiers modifiers) {
+			if (!ShouldApply(npc)) return;
 			switch (npc.type) {
 				case NPCID.GoblinShark:
 				modifiers.Knockback.Base -= 7.5f;
@@ -275,6 +292,7 @@ namespace EpikV2.NPCs {
             }
         }
 		public override void OnHitNPC(NPC npc, NPC target, NPC.HitInfo hit) {
+			if (!ShouldApply(npc)) return;
 			switch (npc.type) {
 				case NPCID.BloodNautilus: {
 					if (npc.ai[0] == 1) {
@@ -323,22 +341,26 @@ namespace EpikV2.NPCs {
 				}
 			}
 		}
-		public override bool CanHitNPC(NPC npc, NPC target)/* tModPorter Suggestion: Return true instead of null */ {
-            if (npc.type == NPCID.IlluminantBat && npc.ai[0] == 1) return false;
-            return base.CanHitNPC(npc, target);
+		public override bool CanHitNPC(NPC npc, NPC target){
+			if (!ShouldApply(target)) return true;
+			if (npc.type == NPCID.IlluminantBat && npc.ai[0] == 1) return false;
+            return true;
         }
 
         public override bool? CanBeHitByProjectile(NPC target, Projectile projectile) {
-            if (target.type == NPCID.IlluminantBat && target.ai[0] == 1) return false;
+			if (!ShouldApply(target)) return null;
+			if (target.type == NPCID.IlluminantBat && target.ai[0] == 1) return false;
             return base.CanBeHitByProjectile(target, projectile);
         }
 
         public override bool CanHitPlayer(NPC npc, Player target, ref int cooldownSlot) {
-            if (npc.type == NPCID.IlluminantBat && npc.ai[0] == 1) return false;
-            return base.CanHitPlayer(npc, target, ref cooldownSlot);
+			if (!ShouldApply(npc)) return true;
+			if (npc.type == NPCID.IlluminantBat && npc.ai[0] == 1) return false;
+            return true;
         }
         public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor) {
-            if (npc.type == NPCID.IlluminantSlime && npc.noGravity) {
+			if (!ShouldApply(npc)) return true;
+			if (npc.type == NPCID.IlluminantSlime && npc.noGravity) {
                 Texture2D texture = TextureAssets.Npc[npc.type].Value;
                 Vector2 halfSize = new Vector2(texture.Width / 2, texture.Height / Main.npcFrameCount[npc.type] / 2);
                 float npcAddedHeight = Main.NPCAddHeight(npc);
