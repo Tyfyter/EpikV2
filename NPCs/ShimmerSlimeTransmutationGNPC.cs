@@ -1,4 +1,4 @@
-﻿/*using AltLibrary.Common.AltBiomes;
+﻿using AltLibrary.Common.AltBiomes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -7,12 +7,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
+using Terraria.UI;
 
 namespace EpikV2.NPCs {
 	public class ShimmerSlimeTransmutation : GlobalNPC {
+		public override bool InstancePerEntity => true;
 		public static Dictionary<int, int> transmutations;
+		public static Dictionary<int, Condition> transmutationConditions;
 		public override bool AppliesToEntity(NPC entity, bool lateInstantiation) => entity.type == NPCID.ShimmerSlime;
 		public override void AI(NPC npc) {
 			if (npc.ai[1] == 0) {
@@ -26,7 +31,7 @@ namespace EpikV2.NPCs {
 			} else {
 				Item item = Main.item[(int)npc.ai[1] - 1];
 				item.Center = npc.Center;
-				item.GetGlobalItem<ShimmerSlimeHeldItem>().shimmerHeld = npc.whoAmI;
+				if(item.TryGetGlobalItem(out ShimmerSlimeHeldItem shimmerSlimeHeldItem)) shimmerSlimeHeldItem.shimmerHeld = npc.whoAmI;
 			}
 		}
 		public override void OnKill(NPC npc) {
@@ -36,8 +41,19 @@ namespace EpikV2.NPCs {
 				gItem.oldShimmerHeld = -1;
 			}
 		}
-		public override bool PreDraw(NPC npc, SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor) {
-			return true;
+		public override void PostDraw(NPC npc, SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor) {
+			if (npc.ai[1] != 0) {
+				Item item = Main.item[(int)npc.ai[1] - 1];
+				ItemSlot.DrawItemIcon(
+					item,
+					ItemSlot.Context.MouseItem,
+					spriteBatch,
+					npc.Center - screenPos,
+					1,
+					18,
+					drawColor * 0.5f
+				);
+			}
 		}
 		public override void Load() {
 			transmutations = new() {
@@ -48,18 +64,62 @@ namespace EpikV2.NPCs {
 				[ItemID.FrozenKey] = ItemID.StaffoftheFrostHydra,
 				[ItemID.DungeonDesertKey] = ItemID.StormTigerStaff,
 			};
-			if (ModLoader.HasMod("AltLibrary")) RegisterAltLibTransmutations();
+			transmutationConditions = new() {
+				[ItemID.ScourgeoftheCorruptor] = Condition.DownedPlantera,
+				[ItemID.VampireKnives] = Condition.DownedPlantera,
+				[ItemID.RainbowGun] = Condition.DownedPlantera,
+				[ItemID.PiranhaGun] = Condition.DownedPlantera,
+				[ItemID.StaffoftheFrostHydra] = Condition.DownedPlantera,
+				[ItemID.StormTigerStaff] = Condition.DownedPlantera,
+			};
 		}
 		[JITWhenModsEnabled("AltLibrary")]
-		static void RegisterAltLibTransmutations() {
+		internal static void RegisterAltLibTransmutations() {
 			foreach (AltBiome biome in AltLibrary.AltLibrary.GetAltBiomes()) {
 				if (biome.BiomeKeyItem.HasValue && biome.BiomeChestItem.HasValue) {
 					transmutations.Add(biome.BiomeKeyItem.Value, biome.BiomeChestItem.Value);
+					transmutationConditions.Add(biome.BiomeChestItem.Value, Condition.DownedPlantera);
 				}
 			}
 		}
 		public override void Unload() {
 			transmutations = null;
+			transmutationConditions = null;
+			validSources = null;
+		}
+		static (Point pos, int itemID)[] validSources;
+		public (Point pos, int itemID)[] GetSourcesForPosition(int spawnTileX, int spawnTileY) {
+			const int dist = 16;
+			const int distSQ = dist * dist;
+			return ModContent.GetInstance<ShimmerSlimeSystem>().SlimePositions.Where(p => {
+				if (transmutationConditions.TryGetValue(p.itemID, out Condition condition) && !condition.IsMet()) return false;
+				int aSQ = p.pos.X - spawnTileX;
+				int bSQ = p.pos.Y - spawnTileY;
+				return (aSQ * aSQ) + (bSQ * bSQ) < distSQ;
+			}).ToArray();
+		}
+		public override void EditSpawnPool(IDictionary<int, float> pool, NPCSpawnInfo spawnInfo) {
+			validSources = GetSourcesForPosition(spawnInfo.SpawnTileX, spawnInfo.SpawnTileY);
+			if (validSources.Length > 0) {
+				pool.Add(NPCID.ShimmerSlime, 1);
+			}
+		}
+		public override void OnSpawn(NPC npc, IEntitySource source) {
+			if (source is EntitySource_SpawnNPC) {
+				if ((validSources?.Length ?? 0) <= 0) validSources = GetSourcesForPosition((int)(npc.position.X / 16), (int)(npc.position.Y / 16));
+				if (validSources.Length > 0) {
+					var transmutation = Main.rand.Next(validSources);
+					npc.ai[1] = Item.NewItem(source, npc.Center, transmutation.itemID) + 1;
+					var slimePositions = ModContent.GetInstance<ShimmerSlimeSystem>().SlimePositions;
+					for (int i = 0; i < slimePositions.Count; i++) {
+						if (slimePositions[i].pos == transmutation.pos && slimePositions[i].itemID == transmutation.itemID) {
+							slimePositions.RemoveAt(i);
+							break;
+						}
+					}
+				}
+				validSources = null;
+			}
 		}
 	}
 	public class ShimmerSlimeHeldItem : GlobalItem {
@@ -72,13 +132,42 @@ namespace EpikV2.NPCs {
 		public override bool CanStackInWorld(Item destination, Item source) => !IsShimmerHeld;
 		public override void PostUpdate(Item item) {
 			if (!IsShimmerHeld && WasShimmerHeld) {
-				//Main.NewText("Shimmer slime despawned");
+				if (!ShimmerSlimeTransmutation.transmutations.TryGetValue(item.type, out int transmuteType)) transmuteType = item.type;
+				ModContent.GetInstance<ShimmerSlimeSystem>().SlimePositions.Add((item.Center.ToTileCoordinates(), transmuteType));
+				item.TurnToAir();
+			}
+			if (IsShimmerHeld) {
+				item.Center = Main.npc[shimmerHeld].Center;
 			}
 			oldShimmerHeld = shimmerHeld;
 			shimmerHeld = -1;
 		}
 		public override bool PreDrawInWorld(Item item, SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI) {
-			return true;
+			return !WasShimmerHeld;
 		}
 	}
-}*/
+	public class ShimmerSlimeSystem : ModSystem {
+		List<(Point pos, int itemID)> slimePositions;
+		public List<(Point pos, int itemID)> SlimePositions => slimePositions ??= new();
+		public override void PostAddRecipes() {
+			if (ModLoader.HasMod("AltLibrary")) ShimmerSlimeTransmutation.RegisterAltLibTransmutations();
+		}
+		public override void LoadWorldData(TagCompound tag) {
+			slimePositions = new();
+			if (tag.TryGet("positions", out List<TagCompound> positions)) {
+				foreach (var position in positions) {
+					slimePositions.Add((position.Get<Vector2>("pos").ToPoint(), position.Get<int>("itemID")));
+				}
+			}
+		}
+		public override void SaveWorldData(TagCompound tag) {
+			tag["positions"] = slimePositions.Select(p => new TagCompound() {
+				["pos"] = p.pos.ToVector2(),
+				["itemID"] = p.itemID
+			}).ToList();
+		}
+		public override void ClearWorld() {
+			slimePositions = null;
+		}
+	}
+}

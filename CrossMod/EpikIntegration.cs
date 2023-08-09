@@ -105,5 +105,7 @@ namespace EpikV2.CrossMod {
 				}
 			}
 		}
+		[JITWhenModsEnabled("Origins")]
+		internal static bool Origins_rainedOnPlayer => Origins.Origins.rainedOnPlayer;
 	}
 }

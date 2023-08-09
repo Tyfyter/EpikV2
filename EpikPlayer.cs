@@ -25,6 +25,7 @@ using System.IO;
 using EpikV2.Layers;
 using EpikV2.Items.Accessories;
 using EpikV2.Items.Armor;
+using EpikV2.CrossMod;
 
 namespace EpikV2 {
 	public partial class EpikPlayer : ModPlayer {
@@ -852,7 +853,10 @@ namespace EpikV2 {
 			bool wet = Player.wet;
 			Vector2 dist;
 			Rain rain;
-			if (Main.netMode != NetmodeID.SinglePlayer || EpikWorld.Raining) for (int i = 0; i < Main.maxRain && !wet; i++) {
+			if (EpikIntegration.EnabledMods.Origins is not null) {
+				wet = EpikIntegration.Origins_rainedOnPlayer;
+			} else if (Main.netMode != NetmodeID.SinglePlayer || EpikWorld.Raining) {
+				for (int i = 0; i < Main.maxRain && !wet; i++) {
 					rain = Main.rain[i];
 					if (rain.active) {
 						dist = new Vector2(2, 40).RotatedBy(rain.rotation);
@@ -863,6 +867,7 @@ namespace EpikV2 {
 						}
 					}
 				}
+			}
 			//if(PlayerInput.Triggers.JustPressed.Jump)SendMessage(wet+" "+wetTime+" "+EpikWorld.raining);
 			if (oily && Main.netMode != NetmodeID.SinglePlayer && Player.wingTimeMax != (wet ? 60 : 0)) {
 				ModPacket packet = Mod.GetPacket(3);

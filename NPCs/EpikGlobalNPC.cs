@@ -63,7 +63,6 @@ namespace EpikV2.NPCs
         public int jadeWhipCrit;
         public override void SetStaticDefaults() {
             NPCHappiness.Get(NPCID.PartyGirl).SetBiomeAffection<PartyBiome>(AffectionLevel.Love);
-            NPCHappiness.Get(NPCID.PartyGirl).SetBiomeAffection(new PartyBiome(), AffectionLevel.Love);
         }
         public override bool PreAI(NPC npc) {
             if(Ashen_Glaive_P.marks[npc.whoAmI]>0) {
