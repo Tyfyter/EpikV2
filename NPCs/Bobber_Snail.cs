@@ -16,7 +16,7 @@ using static Terraria.GameContent.Bestiary.BestiaryDatabaseNPCsPopulator;
 namespace EpikV2.NPCs {
     public class Bobber_Snail : ModNPC {
         public override void SetStaticDefaults() {
-			//Main.npcFrameCount[Type] = Main.npcFrameCount[NPCID.Snail];
+			Main.npcFrameCount[Type] = Main.npcFrameCount[NPCID.Snail];
         }
         public override void SetDefaults() {
             NPC.CloneDefaults(NPCID.Snail);

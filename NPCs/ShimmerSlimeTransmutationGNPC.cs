@@ -161,7 +161,7 @@ namespace EpikV2.NPCs {
 			}
 		}
 		public override void SaveWorldData(TagCompound tag) {
-			tag["positions"] = slimePositions.Select(p => new TagCompound() {
+			if (slimePositions is not null) tag["positions"] = slimePositions.Select(p => new TagCompound() {
 				["pos"] = p.pos.ToVector2(),
 				["itemID"] = p.itemID
 			}).ToList();

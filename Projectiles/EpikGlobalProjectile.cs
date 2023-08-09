@@ -68,8 +68,43 @@ namespace EpikV2.Projectiles {
                 EpikV2.KaleidoscopeColorType = 1;
 				EpikV2.KaleidoscopeColorData = EpikV2.GetSpecialNameData(Main.player[projectile.owner]);
             }
-			if (projectile.bobber && projectile.ai[1] == 0f && Main.myPlayer == projectile.owner && Main.LocalPlayer.GetModPlayer<EpikPlayer>().bobberSnail) {
-				projectile.localAI[1] += 1.5f;
+			if (projectile.bobber && projectile.ai[1] == 0f && Main.myPlayer == projectile.owner) {
+				if (Main.LocalPlayer.GetModPlayer<EpikPlayer>().bobberSnail) {
+					projectile.localAI[1] += 1.5f;
+				}
+				Vector3 glow = default;
+				switch (projectile.type) {
+					/*case ProjectileID.FishingBobberGlowingStar:
+					glow = new(0.6f, 0.5f, 0.1f);
+					break;
+					case ProjectileID.FishingBobberGlowingLava:
+					glow = new(0.8f, 0.35f, 0f);
+					break;
+					case ProjectileID.FishingBobberGlowingKrypton:
+					glow = new(0f, 0.65f, 0f);
+					break;
+					case ProjectileID.FishingBobberGlowingXenon:
+					glow = new(0f, 0.35f, 0.7f);
+					break;
+					case ProjectileID.FishingBobberGlowingArgon:
+					glow = new(0.9f, 0f, 0.5f);
+					break;
+					case ProjectileID.FishingBobberGlowingViolet:
+					glow = new(0.75f, 0f, 0.75f);
+					break;*/
+					case ProjectileID.FishingBobberGlowingRainbow:
+					projectile.localAI[1] += 1f;
+					break;
+				}
+				if (glow != default) {
+					Vector3 light = Lighting.GetColor(projectile.Center.ToTileCoordinates()).ToVector3();
+					glow.Normalize();
+					light.Normalize();
+					float dot = (1 - Vector3.Dot(glow, light));
+					Main.LocalPlayer.chatOverhead.NewMessage(dot+"", 5);
+					dot *= dot;
+					projectile.localAI[1] += dot;
+				}
 			}
             return true;
 		}
