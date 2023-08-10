@@ -36,7 +36,7 @@ namespace EpikV2.Items.Debugging {
         }
 		public override bool? UseItem(Player player) {
             if (soundStyle == default) return false;
-            SoundEngine.PlaySound(soundStyle);
+			SoundEngine.PlaySound(soundStyle);
             player.chatOverhead.NewMessage("Item" + id, 30);
 			return true;
 		}

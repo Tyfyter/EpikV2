@@ -25,11 +25,22 @@ namespace EpikV2.NPCs {
 					Item item = Main.item[i];
 					if (item.active && npc.Hitbox.Intersects(item.Hitbox) && transmutations.ContainsKey(item.type)) {
 						npc.ai[1] = i + 1;
+						Terraria.Audio.SoundEngine.PlaySound(SoundID.Drip.WithPitch(-1), npc.Center);
+						Terraria.Audio.SoundEngine.PlaySound(SoundID.CoinPickup.WithPitch(-1), npc.Center);
+						if (item.stack > 1) {
+							int splitItem = Item.NewItem(item.GetSource_DropAsItem(), item.Hitbox, item);
+							Main.item[splitItem].stack -= 1;
+							item.stack = 1;
+							NetMessage.SendData(MessageID.SyncItem, number: i);
+							NetMessage.SendData(MessageID.SyncItem, number: splitItem);
+							if (item.TryGetGlobalItem(out ShimmerSlimeHeldItem shimmerSlimeHeldItem)) shimmerSlimeHeldItem.shimmerHeld = npc.whoAmI;
+						}
 						break;
 					}
 				}
 			} else {
 				Item item = Main.item[(int)npc.ai[1] - 1];
+				if (!item.active) npc.ai[1] = 0;
 				item.Center = npc.Center;
 				if(item.TryGetGlobalItem(out ShimmerSlimeHeldItem shimmerSlimeHeldItem)) shimmerSlimeHeldItem.shimmerHeld = npc.whoAmI;
 			}
@@ -128,8 +139,8 @@ namespace EpikV2.NPCs {
 		public int shimmerHeld = -1;
 		bool IsShimmerHeld => shimmerHeld >= 0;
 		bool WasShimmerHeld => oldShimmerHeld >= 0;
-		public override bool CanPickup(Item item, Player player) => !IsShimmerHeld;
-		public override bool CanStackInWorld(Item destination, Item source) => !IsShimmerHeld;
+		public override bool CanPickup(Item item, Player player) => !IsShimmerHeld && !WasShimmerHeld;
+		public override bool CanStackInWorld(Item destination, Item source) => !IsShimmerHeld && !WasShimmerHeld;
 		public override void PostUpdate(Item item) {
 			if (!IsShimmerHeld && WasShimmerHeld) {
 				if (!ShimmerSlimeTransmutation.transmutations.TryGetValue(item.type, out int transmuteType)) transmuteType = item.type;
