@@ -222,9 +222,9 @@ namespace EpikV2 {
 			IL_Player.UpdateBuffs += (ILContext il) => {
 				ILCursor c = new ILCursor(il);
 				if (c.TryGotoNext(MoveType.AfterLabel,
-					ins => ins.MatchLdarg(0),
-					ins => ins.MatchLdcI4(1),
-					ins => ins.MatchStfld<Player>("wereWolf"))) {
+				ins => ins.MatchLdarg(0),
+				ins => ins.MatchLdcI4(1),
+				ins => ins.MatchStfld<Player>("wereWolf"))) {
 					ILLabel skipLabel = default;
 					if (c.TryGotoPrev(MoveType.After, ins => ins.MatchBrtrue(out skipLabel))) {
 						ILLabel wolfLabel = c.MarkLabel();
@@ -234,8 +234,8 @@ namespace EpikV2 {
 							ins => ins.MatchBrfalseLoose(skipLabel)
 						);
 						if (c.TryGotoPrev(MoveType.AfterLabel,
-							ins => ins.MatchLdsfld<Main>("dayTime"),
-							ins => ins.MatchBrtrueLoose(skipLabel))) {
+						ins => ins.MatchLdsfld<Main>("dayTime"),
+						ins => ins.MatchBrtrueLoose(skipLabel))) {
 
 							c.Emit(OpCodes.Ldarg_0);
 							c.Emit(OpCodes.Ldfld, wolfAcc);
