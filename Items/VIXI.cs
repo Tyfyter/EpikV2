@@ -102,6 +102,7 @@ namespace EpikV2.Items {
 					Projectile.scale *= itemUse.Item.scale;
 				}
 				SoundEngine.PlaySound(in SoundID.Item1, Projectile.Center);
+				SoundEngine.PlaySound(SoundID.Item90.WithPitchRange(0.9f, 1f).WithVolumeScale(0.85f), Projectile.Center);
 			}
 		}
 		public override void AI() {
@@ -258,6 +259,7 @@ namespace EpikV2.Items {
 		public override void OnSpawn(IEntitySource source) {
 			Projectile.ai[1] = -1;
 			base.OnSpawn(source);
+			SoundEngine.PlaySound(SoundID.Item90.WithPitchRange(0.9f, 1f).WithVolumeScale(0.85f), Projectile.Center);
 		}
 		public override void AI() {
 			Player player = Main.player[Projectile.owner];

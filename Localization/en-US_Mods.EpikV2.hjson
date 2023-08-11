@@ -919,6 +919,11 @@ Items: {
 		DisplayName: Loadout Share
 		Tooltip: ""
 	}
+
+	Scimitar_Of_The_Rising_Sun: {
+		DisplayName: Scimitar Of The Rising Sun
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck
@@ -1006,6 +1011,7 @@ Projectiles: {
 	Shroom_Shot.DisplayName: Infestation Round
 	Telescope_View_P.DisplayName: Telescope
 	Pentagram_Mango_Hitbox.DisplayName: Pentagram_ Mango_ Hitbox
+	Scimitar_Of_The_Rising_Sun_Slash.DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Slash
 }
 
 DamageClasses: {
