@@ -53,6 +53,16 @@ namespace EpikV2.Items.Weapons {
 					player.itemTime = 0;
 					return false;
 				}
+				if (player.controlUseTile) {
+					switch (0) {
+						case 0:
+						player.velocity *= 0.85f;
+						player.velocity += velocity * 3;
+						Projectile.NewProjectile(source, position, velocity, ProjectileType<Scimitar_Of_The_Rising_Sun_Nightjar_Slash>(), damage, knockback, player.whoAmI, ai1: 1);
+						break;
+					}
+					return false;
+				}
 				Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai1: player.ItemUsesThisAnimation == 1 ? 1 : -1);
 				return false;
 			}
@@ -68,7 +78,7 @@ namespace EpikV2.Items.Weapons {
 			const float startup = 0.25f;
 			const float end = 0.25f;
 			Player player = Main.player[Projectile.owner];
-			float factor = (player.itemTime / (float)player.itemTimeMax) * (1 + startup + end) - startup;
+			float factor = (player.itemTime / (float)player.itemTimeMax) * (1 + startup + end) - end;
 			Projectile.rotation = MathHelper.Lerp(
 				2.5f,
 				-2.5f,
@@ -84,9 +94,55 @@ namespace EpikV2.Items.Weapons {
 			if (Projectile.localAI[1] > 0) {
 				Projectile.localAI[1]--;
 			}
-			if (factor > 0 && Projectile.localAI[2] == 0) {
+			if (factor < 1 && Projectile.localAI[2] == 0) {
 				Projectile.localAI[2] = 1;
 				SoundEngine.PlaySound(SoundID.Item71.WithPitchRange(0.25f, 0.4f), Projectile.Center);
+			}
+		}
+		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
+			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
+			bool? value = base.Colliding(projHitbox, targetHitbox);
+
+			if (value ?? false && Projectile.localAI[1] == 0) {
+				//use AshTreeShake for deflects
+				ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.ChlorophyteLeafCrystalShot, new ParticleOrchestraSettings {
+					PositionInWorld = Rectangle.Intersect(lastHitHitbox, targetHitbox).Center(),
+					UniqueInfoPiece = -15,
+					MovementVector = Projectile.velocity.SafeNormalize(default)
+				}, Projectile.owner);
+				Projectile.localAI[1] = 15;
+			}
+			return value;
+		}
+	}
+	public class Scimitar_Of_The_Rising_Sun_Nightjar_Slash : Slashy_Sword_Projectile {
+		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
+		protected override int HitboxPrecision => 2;
+		public override void AI() {
+			const float startup = 1f;
+			const float end = 0.25f;
+			Player player = Main.player[Projectile.owner];
+			float factor = (player.itemTime / (float)player.itemTimeMax) * (1 + startup + end) - end;
+			Projectile.rotation = MathHelper.Lerp(
+				2.5f,
+				-2.5f,
+				MathHelper.Clamp(factor, 0, 1)
+			) * Projectile.ai[1];
+
+			float realRotation = Projectile.rotation + Projectile.velocity.ToRotation();
+			Projectile.timeLeft = player.itemTime * Projectile.MaxUpdates;
+			player.heldProj = Projectile.whoAmI;
+			player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, realRotation - MathHelper.PiOver2);
+			Projectile.Center = player.GetFrontHandPosition(Player.CompositeArmStretchAmount.Full, realRotation - MathHelper.PiOver2) - Projectile.velocity;// player.MountedCenter - Projectile.velocity + (Vector2)new PolarVec2(32, realRotation);
+			player.direction = Math.Sign(Projectile.velocity.X);
+			if (Projectile.localAI[1] > 0) {
+				Projectile.localAI[1]--;
+			}
+			if (factor < 1 && Projectile.localAI[2] == 0) {
+				Projectile.localAI[2] = 1;
+				SoundEngine.PlaySound(SoundID.Item71.WithPitchRange(0.25f, 0.4f), Projectile.Center);
+				player.velocity -= Projectile.velocity * 3;
 			}
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
