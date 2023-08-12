@@ -23,7 +23,8 @@ namespace EpikV2.Projectiles {
         internal bool jade = false;
         public ModPrefix prefix;
         public bool controledNPCProjectile = false;
-        byte partyCannonEffect = 0;
+		public byte partyCannonEffect = 0;
+        public byte deflectState = 0;
 		public override void OnSpawn(Projectile projectile, IEntitySource source) {
 			if (projectile.type == ProjectileID.ConfettiGun && projectile.damage == 0) {
                 partyCannonEffect = ((source is EntitySource_Wiring) ? (byte)2 : (byte)1);
@@ -117,6 +118,7 @@ namespace EpikV2.Projectiles {
             EpikV2.KaleidoscopeColorType = 0;
         }
 		public override bool CanHitPlayer(Projectile projectile, Player target) {
+			if (deflectState == 2) return false;
 			if (projectile.aiStyle == ProjAIStyleID.Boulder && target.GetModPlayer<EpikPlayer>().umbrellaHat) {
 				Rectangle intersection = Rectangle.Intersect(projectile.Hitbox, target.Hitbox);
 				if (intersection.Height <= projectile.velocity.Y * 2) {
@@ -133,7 +135,8 @@ namespace EpikV2.Projectiles {
             }
         }
 		public override void ModifyHitPlayer(Projectile projectile, Player target, ref Player.HurtModifiers modifiers) {
-            if (projectile.type == ProjectileID.ConfettiGun && !target.noKnockback) {
+			if (deflectState == 1) modifiers.FinalDamage *= 0.15f;
+			if (projectile.type == ProjectileID.ConfettiGun && !target.noKnockback) {
                 target.GetModPlayer<EpikPlayer>().noKnockbackOnce = true;
             }
 		}

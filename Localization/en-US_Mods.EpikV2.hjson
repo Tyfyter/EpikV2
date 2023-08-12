@@ -1013,6 +1013,8 @@ Projectiles: {
 	Pentagram_Mango_Hitbox.DisplayName: Pentagram_ Mango_ Hitbox
 	Scimitar_Of_The_Rising_Sun_Slash.DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Slash
 	Scimitar_Of_The_Rising_Sun_Nightjar_Slash.DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Nightjar_ Slash
+	Scimitar_Of_The_Rising_Sun_Block.DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Block
+	Scimitar_Of_The_Rising_Sun_Reverse_Nightjar_Slash.DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Reverse_ Nightjar_ Slash
 }
 
 DamageClasses: {

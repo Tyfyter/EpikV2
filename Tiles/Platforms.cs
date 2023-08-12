@@ -16,10 +16,14 @@ namespace EpikV2.Tiles {
 	public abstract class Alt_Platform_Item<TileClass> : ModItem where TileClass : ModTile {
 		public override string Texture => "Terraria/Images/Item_" + BaseTypeID;
 		public abstract int BaseTypeID { get; }
+		public virtual bool Shimmerable => true;
 		public override void SetStaticDefaults() {
 			Item.ResearchUnlockCount = CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[BaseTypeID];
-			///TODO: this once 1.4.4
-			//ItemID.Sets.DrawUnsafeIndicator[Type] = true;
+			if (Shimmerable) {
+				ItemID.Sets.ShimmerTransformToItem[Type] = BaseTypeID;
+				ItemID.Sets.ShimmerTransformToItem[BaseTypeID] = Type;
+			}
+			ItemID.Sets.DrawUnsafeIndicator[Type] = true;
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(BaseTypeID);
@@ -71,6 +75,7 @@ namespace EpikV2.Tiles {
 		public override void SetStaticDefaults() {
 			// DisplayName.SetDefault("Slippery Frozen Platform");
 			base.SetStaticDefaults();
+			ItemID.Sets.DrawUnsafeIndicator[Type] = true;
 		}
 	}
 	public class Slippery_Ice_Platform : Platform_Tile {
@@ -78,8 +83,6 @@ namespace EpikV2.Tiles {
 			base.SetStaticDefaults();
 
 			AddMapEntry(new Color(144, 195, 232));
-
-			//ItemDrop/* tModPorter Note: Removed. Tiles and walls will drop the item which places them automatically. Use RegisterItemDrop to alter the automatic drop if necessary. */ = ModContent.ItemType<Slippery_Ice_Platform_Item>();
 		}
 
 		public override void PostSetDefaults() => Main.tileNoSunLight[Type] = false;
@@ -92,6 +95,7 @@ namespace EpikV2.Tiles {
 		public override void SetStaticDefaults() {
 			// DisplayName.SetDefault("Sticky Honey Platform");
 			base.SetStaticDefaults();
+			ItemID.Sets.DrawUnsafeIndicator[Type] = true;
 		}
 	}
 	public class Sticky_Honey_Platform : Platform_Tile {
@@ -100,7 +104,6 @@ namespace EpikV2.Tiles {
 
 			AddMapEntry(new Color(255, 156, 12));
 			DustType = DustID.Honey2;
-			//ItemDrop/* tModPorter Note: Removed. Tiles and walls will drop the item which places them automatically. Use RegisterItemDrop to alter the automatic drop if necessary. */ = ModContent.ItemType<Sticky_Honey_Platform_Item>();
 		}
 
 		public override void PostSetDefaults() => Main.tileNoSunLight[Type] = false;
@@ -113,16 +116,14 @@ namespace EpikV2.Tiles {
 		public override void SetStaticDefaults() {
 			// DisplayName.SetDefault("Sandy Sandstone Platform");
 			base.SetStaticDefaults();
+			ItemID.Sets.DrawUnsafeIndicator[Type] = true;
 		}
 	}
 	public class Sandy_Sandstone_Platform : Platform_Tile {
 		public override bool LavaDeath => false;
 		public override void SetStaticDefaults() {
 			base.SetStaticDefaults();
-
 			AddMapEntry(new Color(178, 114, 68));
-
-			//ItemDrop/* tModPorter Note: Removed. Tiles and walls will drop the item which places them automatically. Use RegisterItemDrop to alter the automatic drop if necessary. */ = ModContent.ItemType<Sandy_Sandstone_Platform_Item>();
 		}
 
 		public override void PostSetDefaults() => Main.tileNoSunLight[Type] = false;
