@@ -67,22 +67,18 @@ namespace EpikV2.NPCs {
 			}
 		}
 		public override void Load() {
-			transmutations = new() {
-				[ItemID.CorruptionKey] = ItemID.ScourgeoftheCorruptor,
-				[ItemID.CrimsonKey] = ItemID.VampireKnives,
-				[ItemID.HallowedKey] = ItemID.RainbowGun,
-				[ItemID.JungleKey] = ItemID.PiranhaGun,
-				[ItemID.FrozenKey] = ItemID.StaffoftheFrostHydra,
-				[ItemID.DungeonDesertKey] = ItemID.StormTigerStaff,
-			};
-			transmutationConditions = new() {
-				[ItemID.ScourgeoftheCorruptor] = Condition.DownedPlantera,
-				[ItemID.VampireKnives] = Condition.DownedPlantera,
-				[ItemID.RainbowGun] = Condition.DownedPlantera,
-				[ItemID.PiranhaGun] = Condition.DownedPlantera,
-				[ItemID.StaffoftheFrostHydra] = Condition.DownedPlantera,
-				[ItemID.StormTigerStaff] = Condition.DownedPlantera,
-			};
+			AddTransmutation(ItemID.CorruptionKey, ItemID.ScourgeoftheCorruptor, Condition.DownedPlantera);
+			AddTransmutation(ItemID.CrimsonKey, ItemID.VampireKnives, Condition.DownedPlantera);
+			AddTransmutation(ItemID.HallowedKey, ItemID.RainbowGun, Condition.DownedPlantera);
+			AddTransmutation(ItemID.JungleKey, ItemID.PiranhaGun, Condition.DownedPlantera);
+			AddTransmutation(ItemID.FrozenKey, ItemID.StaffoftheFrostHydra, Condition.DownedPlantera);
+			AddTransmutation(ItemID.DungeonDesertKey, ItemID.StormTigerStaff, Condition.DownedPlantera);
+		}
+		public static void AddTransmutation(int ingredient, int result, Condition condition = null) {
+			transmutations ??= new();
+			transmutationConditions ??= new();
+			transmutations.Add(ingredient, result);
+			if (condition is not null) transmutationConditions.Add(result, condition);
 		}
 		[JITWhenModsEnabled("AltLibrary")]
 		internal static void RegisterAltLibTransmutations() {
@@ -121,6 +117,7 @@ namespace EpikV2.NPCs {
 				if (validSources.Length > 0) {
 					var transmutation = Main.rand.Next(validSources);
 					npc.ai[1] = Item.NewItem(source, npc.Center, transmutation.itemID) + 1;
+					Mod.Logger.Info($"Shimmer slime spawned holding {transmutation.itemID}");
 					var slimePositions = ModContent.GetInstance<ShimmerSlimeSystem>().SlimePositions;
 					for (int i = 0; i < slimePositions.Count; i++) {
 						if (slimePositions[i].pos == transmutation.pos && slimePositions[i].itemID == transmutation.itemID) {
@@ -145,6 +142,7 @@ namespace EpikV2.NPCs {
 			if (!IsShimmerHeld && WasShimmerHeld) {
 				if (!ShimmerSlimeTransmutation.transmutations.TryGetValue(item.type, out int transmuteType)) transmuteType = item.type;
 				ModContent.GetInstance<ShimmerSlimeSystem>().SlimePositions.Add((item.Center.ToTileCoordinates(), transmuteType));
+				Mod.Logger.Info($"Shimmer slime despawned holding {Lang.GetItemNameValue(item.type)}, adding {Lang.GetItemNameValue(transmuteType)} to active transmutations");
 				item.TurnToAir();
 			}
 			if (IsShimmerHeld) {

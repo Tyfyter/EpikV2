@@ -40,7 +40,7 @@ namespace EpikV2.Items.Weapons {
 					ProjectileType<Scimitar_Of_The_Rising_Sun_Mortal_Draw>(),
 					startVelocityMult: new(0.75f),
 					knockbackMult: 1.25f,
-					manaCost: 18
+					manaCost: Mortal_Draw.mana_cost
 				));
 				return arts;
 			}
@@ -73,12 +73,13 @@ namespace EpikV2.Items.Weapons {
 				ProjectileType<Scimitar_Of_The_Rising_Sun_Sakura_Dance_1>(),
 				startVelocityMult: new(0.85f),
 				directionalVelocity: new(0f),
-				manaCost: 8,
+				manaCost: Sakura_Dance.mana_cost,
 				ai1: -1
 			));
+			ShimmerSlimeTransmutation.AddTransmutation(ItemID.Katana, Type, Condition.DownedMechBossAny);
 		}
 		public override void SetDefaults() {
-			Item.damage = 80;
+			Item.damage = 90;
 			Item.DamageType = DamageClass.Melee;
 			Item.shoot = ProjectileType<Scimitar_Of_The_Rising_Sun_Slash>();
 			Item.knockBack = 5;
@@ -183,8 +184,9 @@ namespace EpikV2.Items.Weapons {
 		public void DrawSlots() {
 			Player player = Main.LocalPlayer;
 			Texture2D backTexture = TextureAssets.InventoryBack13.Value;
-			float posX = (player.Center.X - Main.screenPosition.X) - (CombatArts.Count / 2) * (backTexture.Width + 4);
-			for (int i = 0; i < CombatArts.Count; i++) {
+			List<SotRS_Combat_Art> combatArts = CombatArts;
+			float posX = (player.Center.X - Main.screenPosition.X) - (combatArts.Count / 2) * (backTexture.Width + 4);
+			for (int i = 0; i < combatArts.Count; i++) {
 				if (ItemSelected(i)) {
 					if (Main.hotbarScale[i] < 1f) {
 						Main.hotbarScale[i] += 0.05f;
@@ -196,9 +198,9 @@ namespace EpikV2.Items.Weapons {
 				int posY = (int)(player.Bottom.Y - Main.screenPosition.Y + 8 + 22f * (1f - hotbarScale));
 				int a = (int)(75f + 150f * hotbarScale);
 				Color lightColor = new Color(255, 255, 255, a);
-				Item potentialItem = new Item(GetSlotContents(i));
+				Item potentialItem = new Item(combatArts[i].itemIcon);
 
-				if (!player.hbLocked && !PlayerInput.IgnoreMouseInterface && Main.mouseX >= posX && (float)Main.mouseX <= (float)posX + (float)backTexture.Width * Main.hotbarScale[i] && Main.mouseY >= posY && (float)Main.mouseY <= (float)posY + (float)backTexture.Height * Main.hotbarScale[i] && !player.channel) {
+				if (!player.hbLocked && !PlayerInput.IgnoreMouseInterface && Main.mouseX >= posX && Main.mouseX <= (float)posX + backTexture.Width * Main.hotbarScale[i] && Main.mouseY >= posY && Main.mouseY <= posY + backTexture.Height * Main.hotbarScale[i] && !player.channel) {
 					player.mouseInterface = true;
 					if (Main.mouseLeft && !player.hbLocked && !Main.blockMouse) {
 						SelectItem(i);
@@ -352,6 +354,8 @@ namespace EpikV2.Items.Weapons {
 			Rectangle deflectHitbox = Projectile.Hitbox;
 			deflectHitbox.Offset((Projectile.velocity * 2).ToPoint());
 			deflectHitbox.Inflate(4, 4);
+			int scaleEffect = (int)(deflectHitbox.Width * (Projectile.scale - 1) * 0.5f);
+			deflectHitbox.Inflate(scaleEffect, scaleEffect);
 			for (int i = 0; i < Main.maxProjectiles; i++) {
 				if (i == Projectile.whoAmI) continue;
 				Projectile other = Main.projectile[i];
@@ -382,6 +386,17 @@ namespace EpikV2.Items.Weapons {
 							}
 						}
 						otherHitbox.Offset(other.velocity.ToPoint());
+					}
+				}
+			}
+			int blockDebuff = BuffType<Scimitar_Of_The_Rising_Sun_Block_Debuff>();
+			for (int i = 0; i < Main.maxNPCs; i++) {
+				NPC target = Main.npc[i];
+				if (target.active && target.damage > 0) {
+					Rectangle otherHitbox = target.Hitbox;
+					if (otherHitbox.Intersects(deflectHitbox) && !target.HasBuff(blockDebuff)) {
+						target.AddBuff(blockDebuff, 5);
+						target.GetGlobalNPC<EpikGlobalNPC>().sotrsBlockKnockback = Projectile.knockBack;
 					}
 				}
 			}
@@ -428,6 +443,9 @@ namespace EpikV2.Items.Weapons {
 			return false;
 		}
 	}
+	public class Scimitar_Of_The_Rising_Sun_Block_Debuff : ModBuff {
+		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+	}
 	public class Nightjar_Slash : ModItem {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		public override void SetDefaults() {
@@ -469,11 +487,13 @@ namespace EpikV2.Items.Weapons {
 		}
 	}
 	public class Sakura_Dance : ModItem {
+		public const int mana_cost = 8;
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		public override void SetDefaults() {
 			Item.damage = 100;
 			Item.useStyle = 1;
 			Item.knockBack = 1;
+			Item.mana = mana_cost;
 		}
 	}
 	public class Scimitar_Of_The_Rising_Sun_Sakura_Dance_1 : Scimitar_Of_The_Rising_Sun_Slash {
@@ -494,7 +514,7 @@ namespace EpikV2.Items.Weapons {
 		protected override float MaxAngle => MathHelper.Pi;
 		public override void SetDefaults() {
 			base.SetDefaults();
-			Projectile.MaxUpdates = 3;
+			Projectile.MaxUpdates = 4;
 		}
 		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
 			float factor = 0.75f + Projectile.ai[0] * 0.25f;
@@ -562,7 +582,7 @@ namespace EpikV2.Items.Weapons {
 		protected override float MaxAngle => 2.5f;
 		public override void SetDefaults() {
 			base.SetDefaults();
-			Projectile.MaxUpdates = 3;
+			Projectile.MaxUpdates = 4;
 		}
 		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
 			float factor = 0.75f + Projectile.ai[0] * 0.25f;
@@ -614,7 +634,7 @@ namespace EpikV2.Items.Weapons {
 		protected override float SwingStartVelocity => 0.75f;
 		public override void SetDefaults() {
 			base.SetDefaults();
-			Projectile.MaxUpdates = 3;
+			Projectile.MaxUpdates = 4;
 		}
 		public override void AI() {
 			base.AI();
@@ -642,11 +662,13 @@ namespace EpikV2.Items.Weapons {
 		}
 	}
 	public class Mortal_Draw : ModItem {
+		public const int mana_cost = 18;
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		public override void SetDefaults() {
 			Item.damage = 100;
 			Item.useStyle = 1;
 			Item.knockBack = 1;
+			Item.mana = mana_cost;
 		}
 	}
 	public struct SwingDrawer {

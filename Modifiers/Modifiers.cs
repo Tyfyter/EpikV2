@@ -188,13 +188,14 @@ namespace EpikV2.Modifiers {
 	public class Mortal_Prefix : ModPrefix {
 		public override PrefixCategory Category => PrefixCategory.Melee;
 		public override void SetStats(ref float damageMult, ref float knockbackMult, ref float useTimeMult, ref float scaleMult, ref float shootSpeedMult, ref float manaMult, ref int critBonus) {
-			damageMult = 1.18f;
+			damageMult = 1.85f;
 			knockbackMult = 1.1f;
 			critBonus = 6;
 			useTimeMult = 0.88f;
 			shootSpeedMult = 1.1f;
-			scaleMult = 1.18f;
+			scaleMult = 1.22f;
 		}
-		public override float RollChance(Item item) => item.type == ModContent.ItemType<Scimitar_Of_The_Rising_Sun>() ? 0.5f : 0;
+		public override float RollChance(Item item) => NPC.downedPlantBoss ? 1f : 0;
+		public override bool CanRoll(Item item) => item.type == ModContent.ItemType<Scimitar_Of_The_Rising_Sun>();
 	}
 }

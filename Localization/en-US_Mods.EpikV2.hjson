@@ -122,6 +122,11 @@ Buffs: {
 		DisplayName: Really High
 		Description: Maybe lay off the reality-altering drugs
 	}
+
+	Scimitar_Of_The_Rising_Sun_Block_Debuff: {
+		DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Block_ Debuff
+		Description: Mods.EpikV2.Buffs.Scimitar_Of_The_Rising_Sun_Block_Debuff.Description
+	}
 }
 
 Empowerment.SolarRejuvenation: Solar Rejuvenation

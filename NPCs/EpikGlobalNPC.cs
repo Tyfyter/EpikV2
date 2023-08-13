@@ -6,11 +6,13 @@ using EpikV2.Items;
 using EpikV2.Items.Accessories;
 using EpikV2.Items.Armor;
 using EpikV2.Items.Other;
+using EpikV2.Items.Weapons;
 using EpikV2.Projectiles;
 using EpikV2.Tiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.Enums;
 using Terraria.GameContent;
@@ -61,7 +63,8 @@ namespace EpikV2.NPCs
         public int jadeWhipTime;
         public int jadeWhipDamage;
         public int jadeWhipCrit;
-        public override void SetStaticDefaults() {
+		public float sotrsBlockKnockback = 0;
+		public override void SetStaticDefaults() {
             NPCHappiness.Get(NPCID.PartyGirl).SetBiomeAffection<PartyBiome>(AffectionLevel.Love);
         }
         public override bool PreAI(NPC npc) {
@@ -223,8 +226,22 @@ namespace EpikV2.NPCs
         public override void ModifyHitPlayer(NPC npc, Player target, ref Player.HurtModifiers modifiers) {
             if(npc.HasBuff(Sovereign_Debuff.ID)) {
 				modifiers.SourceDamage *= 0.85f;
-            }
-        }
+			}
+			if (npc.HasBuff<Scimitar_Of_The_Rising_Sun_Block_Debuff>()) {
+				Vector2 intersectCenter = Rectangle.Intersect(target.Hitbox, npc.Hitbox).Center();
+				SoundEngine.PlaySound(SoundID.Item37.WithVolume(0.95f).WithPitch(0.41f).WithPitchVarience(0), intersectCenter);
+				SoundEngine.PlaySound(SoundID.Item35.WithVolume(0.5f).WithPitch(-0.1667f), intersectCenter);
+				modifiers.FinalDamage *= 0.15f;
+				float totalKnockback = npc.velocity.X * 0.5f + sotrsBlockKnockback;
+				modifiers.Knockback *= 0;
+				modifiers.Knockback.Flat += Math.Abs(totalKnockback * (1 - npc.knockBackResist)) * 0.75f;
+				if (NPCID.Sets.ProjectileNPC[npc.type]) {
+					npc.StrikeInstantKill();
+				} else {
+					npc.velocity.X = totalKnockback * npc.knockBackResist * -2 * modifiers.HitDirection;
+				}
+			}
+		}
         public override bool CanHitNPC(NPC npc, NPC target)/* tModPorter Suggestion: Return true instead of null */{
             if(jaded || scorpioTime>0)return false;
             return base.CanHitNPC(npc, target);
