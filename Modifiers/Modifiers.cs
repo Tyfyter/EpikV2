@@ -10,6 +10,7 @@ using Terraria.ID;
 using EpikV2.Projectiles;
 using Microsoft.Xna.Framework;
 using Terraria.Localization;
+using EpikV2.Items.Weapons;
 
 namespace EpikV2.Modifiers {
 	public interface IOnSpawnProjectilePrefix {
@@ -183,5 +184,17 @@ namespace EpikV2.Modifiers {
 			valueMult *= 1.15f;
 		}
 		public override float RollChance(Item item) => 0.5f;
+	}
+	public class Mortal_Prefix : ModPrefix {
+		public override PrefixCategory Category => PrefixCategory.Melee;
+		public override void SetStats(ref float damageMult, ref float knockbackMult, ref float useTimeMult, ref float scaleMult, ref float shootSpeedMult, ref float manaMult, ref int critBonus) {
+			damageMult = 1.18f;
+			knockbackMult = 1.1f;
+			critBonus = 6;
+			useTimeMult = 0.88f;
+			shootSpeedMult = 1.1f;
+			scaleMult = 1.18f;
+		}
+		public override float RollChance(Item item) => item.type == ModContent.ItemType<Scimitar_Of_The_Rising_Sun>() ? 0.5f : 0;
 	}
 }

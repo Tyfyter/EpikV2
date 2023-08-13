@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EpikV2.Modifiers;
 using EpikV2.NPCs;
 using EpikV2.Projectiles;
+using EpikV2.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Terraria;
@@ -15,7 +17,10 @@ using Terraria.GameContent.Drawing;
 using Terraria.GameContent.Items;
 using Terraria.GameContent.UI.Chat;
 using Terraria.GameInput;
+using Terraria.Graphics;
+using Terraria.Graphics.Shaders;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.Utilities;
@@ -23,21 +28,52 @@ using Tyfyter.Utils;
 using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items.Weapons {
-	public class Scimitar_Of_The_Rising_Sun : ModItem {
-		public static List<SotRS_Combat_Art> CombatArts { get; private set; } = new();
-		public override void Unload() => CombatArts = null;
+	public class Scimitar_Of_The_Rising_Sun : ModItem, IMultiModeItem {
+		public static List<SotRS_Combat_Art> BaseCombatArts { get; private set; } = new();
+		public List<SotRS_Combat_Art> CombatArts {
+			get {
+				var arts = BaseCombatArts.ToList();
+				if (Item.prefix == PrefixType<Mortal_Prefix>()) arts.Add(new(
+					ItemType<Mortal_Draw>(),
+					2.5f,
+					4f,
+					ProjectileType<Scimitar_Of_The_Rising_Sun_Mortal_Draw>(),
+					startVelocityMult: new(0.75f),
+					knockbackMult: 1.25f,
+					manaCost: 18
+				));
+				return arts;
+			}
+		}
+		public override void Unload() => BaseCombatArts = null;
+		int mode = 0;
 		public override void SetStaticDefaults() {
-			CombatArts.Add(new(
+			Sets.IsValidForAltManaPoweredPrefix[Type] = false;
+			BaseCombatArts.Add(new(
+				ItemType<Nightjar_Slash>(),
 				0.85f,
+				1f,
 				ProjectileType<Scimitar_Of_The_Rising_Sun_Nightjar_Slash>(),
 				startVelocityMult: new(0.85f),
 				directionalVelocity: new(3)
 			));
-			CombatArts.Add(new(
+			BaseCombatArts.Add(new(
+				ItemType<Reverse_Nightjar_Slash>(),
 				0.85f,
+				1f,
 				ProjectileType<Scimitar_Of_The_Rising_Sun_Reverse_Nightjar_Slash>(),
 				startVelocityMult: new(0.85f),
 				directionalVelocity: new(-0.15f),
+				ai1: -1
+			));
+			BaseCombatArts.Add(new(
+				ItemType<Sakura_Dance>(),
+				0.85f,
+				1.65f,
+				ProjectileType<Scimitar_Of_The_Rising_Sun_Sakura_Dance_1>(),
+				startVelocityMult: new(0.85f),
+				directionalVelocity: new(0f),
+				manaCost: 8,
 				ai1: -1
 			));
 		}
@@ -45,13 +81,14 @@ namespace EpikV2.Items.Weapons {
 			Item.damage = 80;
 			Item.DamageType = DamageClass.Melee;
 			Item.shoot = ProjectileType<Scimitar_Of_The_Rising_Sun_Slash>();
-			Item.knockBack = 6;
+			Item.knockBack = 5;
 			Item.shootSpeed = 8;
 			Item.useTime = 20;
 			Item.useAnimation = 20;
 			Item.useStyle = ItemUseStyleID.Swing;
 			Item.noUseGraphic = true;
 			Item.noMelee = true;
+			Item.value = Item.sellPrice(gold: 5);
 		}
 		public override bool AltFunctionUse(Player player) => true;
 		public override bool CanUseItem(Player player) {
@@ -60,7 +97,7 @@ namespace EpikV2.Items.Weapons {
 		public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
 			if (player.altFunctionUse == 2) {
 				damage /= 5;
-				knockback *= 1.5f;
+				knockback *= 0.5f;
 				type = ProjectileType<Scimitar_Of_The_Rising_Sun_Block>();
 			}
 		}
@@ -77,9 +114,11 @@ namespace EpikV2.Items.Weapons {
 					return false;
 				}
 				if (player.controlUseTile) {
-					SotRS_Combat_Art combatArt = CombatArts[1];
+					SotRS_Combat_Art combatArt = CombatArts[mode];
 					player.velocity *= combatArt.startVelocityMult;
 					player.velocity += velocity * combatArt.directionalVelocity + new Vector2(velocity.Y, -velocity.X) * combatArt.perpendicularVelocity * player.direction + combatArt.absoluteVelocity;
+					player.itemAnimationMax = player.itemTimeMax = (int)(player.itemTimeMax * combatArt.useTimeMult);
+					player.itemAnimation = player.itemTime = (int)(player.itemTime * combatArt.useTimeMult);
 					Projectile.NewProjectile(
 						source,
 						position,
@@ -88,9 +127,12 @@ namespace EpikV2.Items.Weapons {
 						(int)(damage * combatArt.damageMult),
 						knockback * combatArt.knockbackMult,
 						player.whoAmI,
-						ai0: combatArt.ai0,
+						ai0: combatArt.manaCost <= 0 || player.CheckMana(Item, combatArt.manaCost, true) ? 1 : 0,
 						ai1: combatArt.ai1
 					);
+					if (combatArt.manaCost > 0) {
+						player.manaRegenDelay = (int)player.maxRegenDelay;
+					}
 					return false;
 				}
 				Projectile.NewProjectile(source, position, velocity, type, damage, knockback, player.whoAmI, ai1: player.ItemUsesThisAnimation == 1 ? 1 : -1);
@@ -98,32 +140,112 @@ namespace EpikV2.Items.Weapons {
 			}
 			return true;
 		}
+		public override void ModifyTooltips(List<TooltipLine> tooltips) {
+			SotRS_Combat_Art combatArt = CombatArts[mode];
+			Item art = new(combatArt.itemIcon);
+			int yoyoLogo = -1; int researchLine = -1; float oldKB = art.knockBack; int numLines = 1; string[] toolTipLine = new string[30]; string[] toolTipNames = new string[30];
+			Main.MouseText_DrawItemTooltip_GetLinesInfo(art, ref yoyoLogo, ref researchLine, oldKB, ref numLines, toolTipLine, new bool[30], new bool[30], toolTipNames, out _);
+			int knockbackIndex = tooltips.FindIndex(l => l.Name == "Knockback") + 1;
+			for (int i = 0; i < numLines; i++) {
+				TooltipLine tooltip = new TooltipLine(Mod, toolTipNames[i], toolTipLine[i]);
+				switch (tooltip.Name) {
+					case "ItemName":
+					tooltip.Text = Language.GetTextValue("Mods.EpikV2.Items.Scimitar_Of_The_Rising_Sun.Combat_Art", tooltip.Text);
+					break;
+					case "Damage":
+					tooltip.Text = (int)(combatArt.damageMult * 100) + Language.GetText("LegacyTooltip.39").Value;
+					break;
+					case "CritChance":
+					continue;
+					case "Speed":
+					tooltip.Text = (int)((1 / combatArt.useTimeMult) * 100) + Language.GetText("LegacyTooltip.40").Value;
+					break;
+					case "Knockback":
+					tooltip.Text = (int)(combatArt.knockbackMult * 100) + Language.GetText("LegacyTooltip.45").Value;
+					break;
+				}
+				tooltip.OverrideColor = Main.MouseTextColorReal * 0.85f;
+				tooltips.Insert(knockbackIndex + i, tooltip);
+			}
+
+		}
 		public override bool MeleePrefix() => true;
+		public int GetSlotContents(int slotIndex) => slotIndex < CombatArts.Count ? CombatArts[slotIndex].itemIcon : 0;
+		public bool ItemSelected(int slotIndex) {
+			return mode == slotIndex;
+		}
+		public void SelectItem(int slotIndex) {
+			if (slotIndex < CombatArts.Count) {
+				mode = slotIndex;
+			}
+			Main.LocalPlayer.GetModPlayer<EpikPlayer>().switchBackSlot = Main.LocalPlayer.selectedItem;
+		}
+		public void DrawSlots() {
+			Player player = Main.LocalPlayer;
+			Texture2D backTexture = TextureAssets.InventoryBack13.Value;
+			float posX = (player.Center.X - Main.screenPosition.X) - (CombatArts.Count / 2) * (backTexture.Width + 4);
+			for (int i = 0; i < CombatArts.Count; i++) {
+				if (ItemSelected(i)) {
+					if (Main.hotbarScale[i] < 1f) {
+						Main.hotbarScale[i] += 0.05f;
+					}
+				} else if (Main.hotbarScale[i] > 0.75) {
+					Main.hotbarScale[i] -= 0.05f;
+				}
+				float hotbarScale = Main.hotbarScale[i];
+				int posY = (int)(player.Bottom.Y - Main.screenPosition.Y + 8 + 22f * (1f - hotbarScale));
+				int a = (int)(75f + 150f * hotbarScale);
+				Color lightColor = new Color(255, 255, 255, a);
+				Item potentialItem = new Item(GetSlotContents(i));
+
+				if (!player.hbLocked && !PlayerInput.IgnoreMouseInterface && Main.mouseX >= posX && (float)Main.mouseX <= (float)posX + (float)backTexture.Width * Main.hotbarScale[i] && Main.mouseY >= posY && (float)Main.mouseY <= (float)posY + (float)backTexture.Height * Main.hotbarScale[i] && !player.channel) {
+					player.mouseInterface = true;
+					if (Main.mouseLeft && !player.hbLocked && !Main.blockMouse) {
+						SelectItem(i);
+					}
+					Main.hoverItemName = potentialItem.AffixName();
+				}
+				float oldInventoryScale = Main.inventoryScale;
+				Main.inventoryScale = hotbarScale;
+				ModeSwitchHotbar.DrawColoredItemSlot(
+					Main.spriteBatch,
+					ref potentialItem,
+					new Vector2(posX, posY),
+					backTexture,
+					Color.Wheat,
+					lightColor);
+				Main.inventoryScale = oldInventoryScale;
+				posX += (int)(backTexture.Width * Main.hotbarScale[i]) + 4;
+			}
+		}
 	}
 	public class Scimitar_Of_The_Rising_Sun_Slash : Slashy_Sword_Projectile {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
-		protected override int HitboxPrecision => 2;
+		protected override int HitboxSteps => 2;
 		protected virtual float Startup => 0.25f;
 		protected virtual float End => 0.25f;
 		protected virtual float SwingStartVelocity => 1f;
 		protected virtual float SwingEndVelocity => 1f;
 		protected virtual float TimeoutVelocity => 1f;
+		protected virtual float MinAngle => -2.5f;
+		protected virtual float MaxAngle => 2.5f;
 		protected float SwingFactor {
 			get => Projectile.ai[2];
 			set => Projectile.ai[2] = value;
 		}
 		public override void AI() {
 			Player player = Main.player[Projectile.owner];
-			SwingFactor = (player.itemTime / (float)player.itemTimeMax) * (1 + Startup + End) - End;
+			float updateOffset = (Projectile.MaxUpdates - (Projectile.numUpdates + 1)) / (float)(Projectile.MaxUpdates + 1);
+			SwingFactor = ((player.itemTime - updateOffset) / (float)player.itemTimeMax) * (1 + Startup + End) - End;
 			Projectile.rotation = MathHelper.Lerp(
-				2.5f,
-				-2.5f,
+				MaxAngle,
+				MinAngle,
 				MathHelper.Clamp(SwingFactor, 0, 1)
 			) * Projectile.ai[1];
 
 			float realRotation = Projectile.rotation + Projectile.velocity.ToRotation();
-			Projectile.timeLeft = player.itemTime * Projectile.MaxUpdates;
+			Projectile.timeLeft = (player.itemTime - 1) * Projectile.MaxUpdates;
 			player.heldProj = Projectile.whoAmI;
 			player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, realRotation - MathHelper.PiOver2);
 			Projectile.Center = player.GetFrontHandPosition(Player.CompositeArmStretchAmount.Full, realRotation - MathHelper.PiOver2) - Projectile.velocity;// player.MountedCenter - Projectile.velocity + (Vector2)new PolarVec2(32, realRotation);
@@ -141,6 +263,10 @@ namespace EpikV2.Items.Weapons {
 				player.velocity *= SwingEndVelocity;
 			}
 		}
+		public override bool? CanDamage() {
+			if (SwingFactor > 0 && SwingFactor < 1) return null;
+			return false;
+		}
 		public override void Kill(int timeLeft) {
 			Main.player[Projectile.owner].velocity *= TimeoutVelocity;
 		}
@@ -148,7 +274,7 @@ namespace EpikV2.Items.Weapons {
 			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
 			bool? value = base.Colliding(projHitbox, targetHitbox);
 
-			if (value ?? false && Projectile.localAI[1] == 0) {
+			if ((value ?? false) && Projectile.localAI[1] == 0) {
 				//use AshTreeShake for deflects
 				ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.ChlorophyteLeafCrystalShot, new ParticleOrchestraSettings {
 					PositionInWorld = Rectangle.Intersect(lastHitHitbox, targetHitbox).Center(),
@@ -186,6 +312,7 @@ namespace EpikV2.Items.Weapons {
 				Projectile.Kill();
 				return;
 			}
+			player.velocity.X *= 0.985f;
 			bool canBlock = true;
 			if (!player.controlUseTile || Projectile.ai[1] == 1) {
 				Projectile.ai[1] = 1;
@@ -223,7 +350,8 @@ namespace EpikV2.Items.Weapons {
 
 			if (!canBlock) return;
 			Rectangle deflectHitbox = Projectile.Hitbox;
-			deflectHitbox.Offset(Projectile.velocity.ToPoint());
+			deflectHitbox.Offset((Projectile.velocity * 2).ToPoint());
+			deflectHitbox.Inflate(4, 4);
 			for (int i = 0; i < Main.maxProjectiles; i++) {
 				if (i == Projectile.whoAmI) continue;
 				Projectile other = Main.projectile[i];
@@ -231,6 +359,7 @@ namespace EpikV2.Items.Weapons {
 					Rectangle otherHitbox = other.Hitbox;
 					ref byte deflectState = ref other.GetGlobalProjectile<EpikGlobalProjectile>().deflectState;
 					for (int j = other.MaxUpdates; j-->0;) {
+						if (deflectState != 0) break;
 						if (otherHitbox.Intersects(deflectHitbox)) {
 							Vector2 intersectCenter = Rectangle.Intersect(deflectHitbox, otherHitbox).Center();
 							if (Projectile.timeLeft > deflect_threshold) {
@@ -243,22 +372,33 @@ namespace EpikV2.Items.Weapons {
 								if (other.penetrate == 1) other.Kill();
 								SoundEngine.PlaySound(SoundID.Item37.WithVolume(0.95f).WithPitch(0.41f).WithPitchVarience(0), intersectCenter);
 								SoundEngine.PlaySound(SoundID.Item35.WithVolume(1f).WithPitch(1f), intersectCenter);
+								player.velocity += other.velocity * 0.25f;
 							} else {
 								deflectState = 1;
 								SoundEngine.PlaySound(SoundID.Item37.WithVolume(0.95f).WithPitch(0.41f).WithPitchVarience(0), intersectCenter);
-								SoundEngine.PlaySound(SoundID.Item35.WithVolume(0.5f).WithPitch(-0.0833f), intersectCenter);
+								SoundEngine.PlaySound(SoundID.Item35.WithVolume(0.5f).WithPitch(-0.1667f), intersectCenter);
+								player.velocity += other.velocity * 0.25f;
 								//SoundEngine.PlaySound(SoundID.NPCHit4, intersectCenter);
 							}
-							if (deflectState != 0) break;
 						}
 						otherHitbox.Offset(other.velocity.ToPoint());
 					}
 				}
 			}
 		}
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			Player player = Main.player[Projectile.owner];
+			float totalKnockback = target.velocity.X - player.velocity.X;
+			modifiers.Knockback.Flat += Math.Abs(totalKnockback);
+			player.velocity.X += totalKnockback * (1 - target.knockBackResist);
+		}
+		public override bool? CanHitNPC(NPC target) {
+			if (target.damage <= 0) return false;
+			return null;
+		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			if (target.damage > 0) {
-				Main.player[Projectile.owner].GiveImmuneTimeForCollisionAttack(4);
+				Main.player[Projectile.owner].GiveImmuneTimeForCollisionAttack(14);
 				Rectangle deflectHitbox = Projectile.Hitbox;
 				deflectHitbox.Offset(Projectile.velocity.ToPoint());
 				Vector2 intersectCenter = Rectangle.Intersect(deflectHitbox, target.Hitbox).Center();
@@ -288,18 +428,34 @@ namespace EpikV2.Items.Weapons {
 			return false;
 		}
 	}
+	public class Nightjar_Slash : ModItem {
+		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		public override void SetDefaults() {
+			Item.damage = 100;
+			Item.useStyle = 1;
+			Item.knockBack = 1;
+		}
+	}
 	public class Scimitar_Of_The_Rising_Sun_Nightjar_Slash : Scimitar_Of_The_Rising_Sun_Slash {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
-		protected override int HitboxPrecision => 2;
+		protected override int HitboxSteps => 2;
 		protected override float Startup => 1f;
 		protected override float End => 0.25f;
 		protected override float SwingStartVelocity => 0.25f;
 	}
+	public class Reverse_Nightjar_Slash : ModItem {
+		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		public override void SetDefaults() {
+			Item.damage = 100;
+			Item.useStyle = 1;
+			Item.knockBack = 1;
+		}
+	}
 	public class Scimitar_Of_The_Rising_Sun_Reverse_Nightjar_Slash : Scimitar_Of_The_Rising_Sun_Slash {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
-		protected override int HitboxPrecision => 2;
+		protected override int HitboxSteps => 2;
 		protected override float Startup => 0.2f;
 		protected override float End => 1f;
 		protected override float SwingEndVelocity => 0.75f;
@@ -312,6 +468,283 @@ namespace EpikV2.Items.Weapons {
 			}
 		}
 	}
+	public class Sakura_Dance : ModItem {
+		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		public override void SetDefaults() {
+			Item.damage = 100;
+			Item.useStyle = 1;
+			Item.knockBack = 1;
+		}
+	}
+	public class Scimitar_Of_The_Rising_Sun_Sakura_Dance_1 : Scimitar_Of_The_Rising_Sun_Slash {
+		public const int trail_length = 20;
+		public override void SetStaticDefaults() {
+			base.SetStaticDefaults();
+			ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+			ProjectileID.Sets.TrailCacheLength[Projectile.type] = trail_length * 2;
+		}
+		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
+		protected override int HitboxSteps => 2 + 1 * (int)Projectile.ai[0];
+		protected override float Startup => 0.25f;
+		protected override float End => 1.5f;
+		protected override float SwingEndVelocity => 0.75f;
+		protected override float TimeoutVelocity => 0.75f;
+		protected override float MinAngle => -2.5f;
+		protected override float MaxAngle => MathHelper.Pi;
+		public override void SetDefaults() {
+			base.SetDefaults();
+			Projectile.MaxUpdates = 3;
+		}
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			float factor = 0.75f + Projectile.ai[0] * 0.25f;
+			modifiers.SourceDamage *= factor;
+			modifiers.Knockback *= factor;
+		}
+		public override void OnSpawn(IEntitySource source) {
+			base.OnSpawn(source);
+			for (int i = 0; i < Projectile.oldPos.Length; i++) {
+				Projectile.oldPos[i] = Projectile.position;
+				Projectile.oldRot[i] = Projectile.rotation;
+			}
+		}
+		public override void AI() {
+			base.AI();
+			Player player = Main.player[Projectile.owner];
+			if (SwingFactor < 0.65f && Projectile.localAI[2] < 11) {
+				Projectile.localAI[2] = 11;
+				player.velocity *= 0.85f;
+				if (player.velocity.Y > 0) player.velocity.Y = 0;
+				player.velocity.Y -= 9 * (0.75f + Projectile.ai[0] * 0.25f);
+			}
+			if (player.manaRegenDelay < 15) player.manaRegenDelay = 15;
+			Projectile.spriteDirection = (SwingFactor > 0 && SwingFactor < 1) ? 1 : 0;
+		}
+		public override void Kill(int timeLeft) {
+			Player player = Main.player[Projectile.owner];
+			player.itemTime = player.itemTimeMax;
+			Projectile.NewProjectile(
+				Projectile.GetSource_FromAI(),
+				Projectile.Center,
+				Projectile.velocity,
+				ProjectileType<Scimitar_Of_The_Rising_Sun_Sakura_Dance_2>(),
+				Projectile.damage,
+				Projectile.knockBack,
+				Projectile.owner,
+				ai0: Projectile.ai[0],
+				ai1: Projectile.ai[1]
+			);
+		}
+		public override bool PreDraw(ref Color lightColor) {
+			SwingDrawer trailDrawer = default(SwingDrawer);
+			trailDrawer.ColorStart = Color.White;
+			trailDrawer.ColorEnd = Color.White * 0.5f;
+			trailDrawer.Length = (Projectile.velocity.Length() / 12f) * Projectile.width * 0.95f * HitboxSteps;
+			trailDrawer.Draw(Projectile);
+			return base.PreDraw(ref lightColor);
+		}
+	}
+	public class Scimitar_Of_The_Rising_Sun_Sakura_Dance_2 : Scimitar_Of_The_Rising_Sun_Slash {
+		public const int trail_length = 20;
+		public override void SetStaticDefaults() {
+			base.SetStaticDefaults();
+			ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+			ProjectileID.Sets.TrailCacheLength[Projectile.type] = trail_length * 2;
+		}
+		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
+		protected override int HitboxSteps => 3 + 2 * (int)Projectile.ai[0];
+		protected override float Startup => 0f;
+		protected override float End => 1.5f;
+		protected override float SwingEndVelocity => 0.75f;
+		protected override float TimeoutVelocity => 0.75f;
+		protected override float MinAngle => -MathHelper.Pi;
+		protected override float MaxAngle => 2.5f;
+		public override void SetDefaults() {
+			base.SetDefaults();
+			Projectile.MaxUpdates = 3;
+		}
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			float factor = 0.75f + Projectile.ai[0] * 0.25f;
+			modifiers.SourceDamage *= factor;
+			modifiers.Knockback *= factor;
+		}
+		public override void OnSpawn(IEntitySource source) {
+			if (source is EntitySource_Parent parentSource && parentSource.Entity is Projectile parent) {
+				Projectile.scale *= parent.scale;
+			}
+			for (int i = 0; i < Projectile.oldPos.Length; i++) {
+				Projectile.oldPos[i] = Projectile.position;
+				Projectile.oldRot[i] = Projectile.rotation;
+			}
+		}
+		public override void AI() {
+			base.AI();
+			Player player = Main.player[Projectile.owner];
+			if (SwingFactor < 0.65f && Projectile.localAI[2] < 11) {
+				Projectile.localAI[2] = 11;
+				player.velocity *= 0.85f;
+				if (player.velocity.Y > 0) player.velocity.Y = 0;
+				player.velocity.Y -= 12 * (0.65f + Projectile.ai[0] * 0.35f);
+			}
+			if (player.manaRegenDelay < 15) player.manaRegenDelay = 15;
+			Projectile.spriteDirection = (SwingFactor > 0 && SwingFactor < 1) ? 1 : 0;
+		}
+		public override bool PreDraw(ref Color lightColor) {
+			SwingDrawer trailDrawer = default(SwingDrawer);
+			trailDrawer.ColorStart = Color.White;
+			trailDrawer.ColorEnd = Color.White * 0.5f;
+			trailDrawer.Length = (Projectile.velocity.Length() / 12f) * Projectile.width * 0.95f * HitboxSteps;
+			trailDrawer.Draw(Projectile);
+			return base.PreDraw(ref lightColor);
+		}
+	}
+	public class Scimitar_Of_The_Rising_Sun_Mortal_Draw : Scimitar_Of_The_Rising_Sun_Slash {
+		public const int trail_length = 20;
+		public override void SetStaticDefaults() {
+			base.SetStaticDefaults();
+			ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+			ProjectileID.Sets.TrailCacheLength[Projectile.type] = trail_length * 2;
+		}
+		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
+		protected override int HitboxSteps => 3 + 2 * (int)Projectile.ai[0];
+		protected override float Startup => 1.25f;
+		protected override float End => 1.25f;
+		protected override float SwingStartVelocity => 0.75f;
+		public override void SetDefaults() {
+			base.SetDefaults();
+			Projectile.MaxUpdates = 3;
+		}
+		public override void AI() {
+			base.AI();
+			Player player = Main.player[Projectile.owner];
+			Projectile.spriteDirection = SwingFactor < 1 ? 1 : 0;
+			if (player.manaRegenDelay < 15) player.manaRegenDelay = 15;
+		}
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			float factor = 0.5f + Projectile.ai[0] * 0.5f;
+			modifiers.SourceDamage *= factor;
+			modifiers.Knockback *= factor;
+		}
+		public override bool PreDraw(ref Color lightColor) {
+			SwingDrawer trailDrawer = default(SwingDrawer);
+			trailDrawer.ColorStart = Color.Black;
+			trailDrawer.ColorEnd = Color.Red * 0.5f;
+			trailDrawer.Length = (Projectile.velocity.Length() / 12f) * Projectile.width * 0.95f * HitboxSteps;
+			trailDrawer.Draw(Projectile);
+			MortalDrawDrawer mortalDrawDrawer = default(MortalDrawDrawer);
+			mortalDrawDrawer.ColorStart = Color.Red * 0.25f;
+			mortalDrawDrawer.ColorEnd = Color.Black * 0.5f;
+			mortalDrawDrawer.Length = (Projectile.velocity.Length() / 12f) * Projectile.width * 0.95f * HitboxSteps;
+			mortalDrawDrawer.Draw(Projectile);
+			return base.PreDraw(ref lightColor);
+		}
+	}
+	public class Mortal_Draw : ModItem {
+		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		public override void SetDefaults() {
+			Item.damage = 100;
+			Item.useStyle = 1;
+			Item.knockBack = 1;
+		}
+	}
+	public struct SwingDrawer {
+		public const int TotalIllusions = 1;
+
+		public const int FramesPerImportantTrail = 60;
+
+		private static VertexStrip _vertexStrip = new VertexStrip();
+
+		public Color ColorStart;
+
+		public Color ColorEnd;
+
+		public float Length;
+
+		int[] spriteDirections;
+		public void Draw(Projectile proj) {
+			MiscShaderData miscShaderData = GameShaders.Misc["EmpressBlade"];
+			int num = 1;//1
+			int num2 = 0;//0
+			int num3 = 0;//0
+			float w = 0.6f;//0.6f
+			miscShaderData.UseShaderSpecificData(new Vector4(num, num2, num3, w));
+			miscShaderData.Apply();
+			float[] oldRot = new float[proj.oldRot.Length];
+			Vector2[] oldPos = new Vector2[proj.oldPos.Length];
+			float baseRot = proj.velocity.ToRotation() + MathHelper.PiOver2;
+			Vector2 move = new Vector2(Length * 0.25f + 26, 0);
+			for (int i = 0; i < oldPos.Length; i ++) {
+				oldRot[i] = proj.oldRot[i] + baseRot;
+				oldPos[i] = proj.oldPos[i] + move.RotatedBy(oldRot[i] - MathHelper.PiOver2);
+			}
+			spriteDirections = proj.oldSpriteDirection;
+			_vertexStrip.PrepareStrip(oldPos, oldRot, StripColors, StripWidth, -Main.screenPosition + proj.Size / 2f, oldPos.Length, includeBacksides: true);
+			_vertexStrip.DrawTrail();
+			Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+		}
+
+		private Color StripColors(float progressOnStrip) {
+			Color result = Color.Lerp(ColorStart, ColorEnd, Utils.GetLerpValue(0f, 0.7f, progressOnStrip, clamped: true)) * (1f - Utils.GetLerpValue(0f, 0.98f, progressOnStrip, clamped: true));
+			result.A /= 2;
+			result *= spriteDirections[Math.Max((int)(progressOnStrip * spriteDirections.Length) - 1, 0)];
+			return result;
+		}
+
+		private float StripWidth(float progressOnStrip) {
+			return Length * 0.75f;
+		}
+	}
+	public struct MortalDrawDrawer {
+		public const int TotalIllusions = 1;
+
+		public const int FramesPerImportantTrail = 60;
+
+		private static VertexStrip _vertexStrip = new VertexStrip();
+
+		public Color ColorStart;
+
+		public Color ColorEnd;
+
+		public float Length;
+
+		int[] spriteDirections;
+		public void Draw(Projectile proj) {
+			MiscShaderData miscShaderData = GameShaders.Misc["FlameLash"];
+			int num = 1;//1
+			int num2 = 0;//0
+			int num3 = 0;//0
+			float w = 0.6f;//0.6f
+			miscShaderData.UseSaturation(-1f);
+			miscShaderData.UseOpacity(4);
+			//miscShaderData.UseShaderSpecificData(new Vector4(num, num2, num3, w));
+			miscShaderData.Apply();
+			float[] oldRot = new float[proj.oldRot.Length];
+			Vector2[] oldPos = new Vector2[proj.oldPos.Length];
+			float baseRot = proj.velocity.ToRotation() + MathHelper.PiOver2 * proj.direction;
+			Vector2 move = new Vector2(Length * 0.5f, 0) * proj.direction;
+			for (int i = 0; i < oldPos.Length; i++) {
+				oldRot[i] = proj.oldRot[i] + baseRot;
+				oldPos[i] = proj.oldPos[i] + move.RotatedBy(oldRot[i] - MathHelper.PiOver2);
+			}
+			spriteDirections = proj.oldSpriteDirection;
+			_vertexStrip.PrepareStrip(oldPos, oldRot, StripColors, StripWidth, -Main.screenPosition + proj.Size / 2f, oldPos.Length, includeBacksides: false);
+			_vertexStrip.DrawTrail();
+			Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+		}
+
+		private Color StripColors(float progressOnStrip) {
+			Color result = Color.Lerp(ColorStart, ColorEnd, Utils.GetLerpValue(0f, 0.7f, progressOnStrip, clamped: true)) * (1f - Utils.GetLerpValue(0f, 0.98f, progressOnStrip, clamped: true));
+			result.A /= 2;
+			result *= spriteDirections[Math.Max((int)(progressOnStrip * spriteDirections.Length) - 1, 0)] * (1 - progressOnStrip);
+			return result;
+		}
+
+		private float StripWidth(float progressOnStrip) {
+			return Length;
+		}
+	}
 	//TODO: add localization & textures
-	public record SotRS_Combat_Art(float damageMult, int projectileType, Vector2 startVelocityMult, Vector2 directionalVelocity = default, Vector2 absoluteVelocity = default, float ai0 = 0, float ai1 = 1, float knockbackMult = 0.85f, Vector2 perpendicularVelocity = default);
+	public record SotRS_Combat_Art(int itemIcon, float damageMult, float useTimeMult, int projectileType, Vector2 startVelocityMult, Vector2 directionalVelocity = default, Vector2 absoluteVelocity = default, int manaCost = 0, float ai1 = 1, float knockbackMult = 0.85f, Vector2 perpendicularVelocity = default);
 }

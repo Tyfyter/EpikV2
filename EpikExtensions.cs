@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using EpikV2.UI;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoMod.Cil;
 using ReLogic.Content;
@@ -17,6 +18,7 @@ using Terraria.Chat;
 using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameContent.NetModules;
+using Terraria.GameInput;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.Localization;
@@ -56,6 +58,44 @@ namespace EpikV2 {
 		int GetSlotContents(int slotIndex);
 		bool ItemSelected(int slotIndex);
 		void SelectItem(int slotIndex);
+		void DrawSlots() {
+			Player player = Main.LocalPlayer;
+			Texture2D backTexture = TextureAssets.InventoryBack4.Value;
+			int posX = 20;
+			for (int i = 0; i < 10; i++) {
+				if (ItemSelected(i)) {
+					if (Main.hotbarScale[i] < 1f) {
+						Main.hotbarScale[i] += 0.05f;
+					}
+				} else if (Main.hotbarScale[i] > 0.75) {
+					Main.hotbarScale[i] -= 0.05f;
+				}
+				float hotbarScale = Main.hotbarScale[i];
+				int posY = (int)(20f + 22f * (1f - hotbarScale));
+				int a = (int)(75f + 150f * hotbarScale);
+				Color lightColor = new Color(255, 255, 255, a);
+				Item potentialItem = new Item(GetSlotContents(i));
+
+				if (!player.hbLocked && !PlayerInput.IgnoreMouseInterface && Main.mouseX >= posX && (float)Main.mouseX <= (float)posX + (float)backTexture.Width * Main.hotbarScale[i] && Main.mouseY >= posY && (float)Main.mouseY <= (float)posY + (float)backTexture.Height * Main.hotbarScale[i] && !player.channel) {
+					player.mouseInterface = true;
+					if (Main.mouseLeft && !player.hbLocked && !Main.blockMouse) {
+						SelectItem(i);
+					}
+					Main.hoverItemName = potentialItem.AffixName();
+				}
+				float oldInventoryScale = Main.inventoryScale;
+				Main.inventoryScale = hotbarScale;
+				ModeSwitchHotbar.DrawColoredItemSlot(
+					Main.spriteBatch,
+					ref potentialItem,
+					new Vector2(posX, posY),
+					backTexture,
+					Color.White,
+					lightColor);
+				Main.inventoryScale = oldInventoryScale;
+				posX += (int)(backTexture.Width * Main.hotbarScale[i]) + 4;
+			}
+		}
 	}
 	public interface IShadedProjectile {
 		int GetShaderID();

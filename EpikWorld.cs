@@ -40,7 +40,7 @@ namespace EpikV2 {
 			if (EpikV2.modeSwitchHotbarActive) {
 				int hotbarIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Hotbar"));
 				if (hotbarIndex != -1) {
-					layers[hotbarIndex] = new LegacyGameInterfaceLayer(
+					GameInterfaceLayer modeSwitchHotbar = new LegacyGameInterfaceLayer(
 						"EpikV2: ModeSwitchHotbar",
 						delegate {
 							ModeSwitchHotbar.Draw();
@@ -48,6 +48,7 @@ namespace EpikV2 {
 						},
 						InterfaceScaleType.UI
 					);
+					layers[hotbarIndex] = modeSwitchHotbar;
 				}
 			}
 		}

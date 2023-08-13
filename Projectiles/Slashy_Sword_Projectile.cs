@@ -18,7 +18,7 @@ namespace EpikV2.Projectiles {
 	public abstract class Slashy_Sword_Projectile : ModProjectile {
 		protected virtual float Rotation => Projectile.rotation + Projectile.velocity.ToRotation() + (MathHelper.PiOver4 * Projectile.ai[1]);
 		protected virtual Vector2 Origin => new Vector2(14, 25 + 11 * Projectile.ai[1]);
-		protected virtual int HitboxPrecision => 1;
+		protected virtual int HitboxSteps => 1;
 		protected Rectangle lastHitHitbox;
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.PiercingStarlight);
@@ -52,7 +52,7 @@ namespace EpikV2.Projectiles {
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
 			Vector2 vel = (Projectile.velocity.RotatedBy(Projectile.rotation) / 12f) * Projectile.width * 0.95f;
-			for (int j = 0; j <= HitboxPrecision; j++) {
+			for (int j = 0; j <= HitboxSteps; j++) {
 				Rectangle hitbox = projHitbox;
 				Vector2 offset = vel * j;
 				hitbox.Offset((int)offset.X, (int)offset.Y);

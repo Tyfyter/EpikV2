@@ -923,6 +923,27 @@ Items: {
 	Scimitar_Of_The_Rising_Sun: {
 		DisplayName: Scimitar Of The Rising Sun
 		Tooltip: ""
+		Combat_Art: Combat Art: {0}
+	}
+
+	Nightjar_Slash: {
+		DisplayName: Nightjar Slash
+		Tooltip: ""
+	}
+
+	Reverse_Nightjar_Slash: {
+		DisplayName: Nightjar Slash Reversal
+		Tooltip: ""
+	}
+
+	Sakura_Dance: {
+		DisplayName: Sakura Dance
+		Tooltip: ""
+	}
+
+	Mortal_Draw: {
+		DisplayName: Mortal Draw
+		Tooltip: ""
 	}
 }
 
@@ -1010,11 +1031,14 @@ Projectiles: {
 	MagShot.DisplayName: Helix Shot
 	Shroom_Shot.DisplayName: Infestation Round
 	Telescope_View_P.DisplayName: Telescope
-	Pentagram_Mango_Hitbox.DisplayName: Pentagram_ Mango_ Hitbox
-	Scimitar_Of_The_Rising_Sun_Slash.DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Slash
-	Scimitar_Of_The_Rising_Sun_Nightjar_Slash.DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Nightjar_ Slash
-	Scimitar_Of_The_Rising_Sun_Block.DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Block
-	Scimitar_Of_The_Rising_Sun_Reverse_Nightjar_Slash.DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Reverse_ Nightjar_ Slash
+	Pentagram_Mango_Hitbox.DisplayName: Pentagram Mango
+	Scimitar_Of_The_Rising_Sun_Slash.DisplayName: Scimitar Of The Rising Sun
+	Scimitar_Of_The_Rising_Sun_Nightjar_Slash.DisplayName: Nightjar_ Slash
+	Scimitar_Of_The_Rising_Sun_Block.DisplayName: Scimitar Of The Rising Sun
+	Scimitar_Of_The_Rising_Sun_Reverse_Nightjar_Slash.DisplayName: Nightjar Slash Reversal
+	Scimitar_Of_The_Rising_Sun_Sakura_Dance_1.DisplayName: Sakura Dance
+	Scimitar_Of_The_Rising_Sun_Sakura_Dance_2.DisplayName: Sakura Dance
+	Scimitar_Of_The_Rising_Sun_Mortal_Draw.DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Mortal_ Draw
 }
 
 DamageClasses: {
@@ -1060,6 +1084,8 @@ Prefixes: {
 		Tooltip1: +{0}% beam damage
 		Tooltip1Alt: +{0}% damage with mana
 	}
+
+	Mortal_Prefix.DisplayName: Mortal
 }
 
 NPCs: {
