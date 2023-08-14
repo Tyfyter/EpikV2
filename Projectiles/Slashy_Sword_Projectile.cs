@@ -30,9 +30,8 @@ namespace EpikV2.Projectiles {
 		public override void OnSpawn(IEntitySource source) {
 			if (source is EntitySource_ItemUse itemUse) {
 				Projectile.scale *= itemUse.Item.scale;
-				if (itemUse.Entity is Player player) {
-					Projectile.ai[1] *= player.direction;
-				}
+				itemUse.Player.ApplyMeleeScale(ref Projectile.scale);
+				Projectile.ai[1] *= itemUse.Player.direction;
 			}
 		}
 		public override void AI() {

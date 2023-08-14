@@ -2,6 +2,7 @@
 using EpikV2.Items.Accessories;
 using EpikV2.Items.Debugging;
 using EpikV2.Items.Other.HairDye;
+using EpikV2.Items.Weapons;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Content;
@@ -115,6 +116,10 @@ namespace EpikV2 {
 				altRainbowTexture2 = mod.Assets.Request<Texture2D>("Textures/Aurora", AssetRequestMode.ImmediateLoad);
 				empressWingsShaderAurora.UseNonVanillaImage(altRainbowTexture2);
 
+				GameShaders.Armor.BindShader(ItemType<Mortal_Draw>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorGel")).UseImage("Images/Misc/noise")
+					.UseColor(2.0f, 0.2f, 0.2f)
+					.UseSecondaryColor(0.2f, -0.4f, -0.4f);
+
 				GameShaders.Armor.BindShader(ItemType<Jade_Dye>(), jadeDyeShader);
 				GameShaders.Armor.BindShader(ItemType<Heatwave_Dye>(), fireDyeShader);
 				GameShaders.Armor.BindShader(ItemType<Starlight_Dye>(), starlightShader);
@@ -207,6 +212,7 @@ namespace EpikV2 {
 			public ArmorShaderData opaqueChimeraShader;
 			public HairShaderData dashingHairDyeShader;
 			public ArmorShaderData dashingDyeShader;
+			public ArmorShaderData glowShader;
 			public HairShaderData lunarHairDyeShader;
 			public ArmorShaderData empressWingsShader;
 			public ArmorShaderData empressWingsShaderAlt;
