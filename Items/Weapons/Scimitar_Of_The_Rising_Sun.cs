@@ -860,13 +860,8 @@ namespace EpikV2.Items.Weapons {
 		int[] spriteDirections;
 		public void Draw(Projectile proj) {
 			MiscShaderData miscShaderData = GameShaders.Misc["FlameLash"];
-			int num = 1;//1
-			int num2 = 0;//0
-			int num3 = 0;//0
-			float w = 0.6f;//0.6f
 			miscShaderData.UseSaturation(-1f);
 			miscShaderData.UseOpacity(4);
-			//miscShaderData.UseShaderSpecificData(new Vector4(num, num2, num3, w));
 			miscShaderData.Apply();
 			float[] oldRot = new float[proj.oldRot.Length];
 			Vector2[] oldPos = new Vector2[proj.oldPos.Length];

@@ -96,7 +96,7 @@ namespace EpikV2.NPCs {
 			validSources = null;
 		}
 		static (Point pos, int itemID)[] validSources;
-		public (Point pos, int itemID)[] GetSourcesForPosition(int spawnTileX, int spawnTileY) {
+		public static (Point pos, int itemID)[] GetSourcesForPosition(int spawnTileX, int spawnTileY) {
 			const int dist = 16;
 			const int distSQ = dist * dist;
 			return ModContent.GetInstance<ShimmerSlimeSystem>().SlimePositions.Where(p => {
