@@ -509,7 +509,7 @@ namespace EpikV2.Items.Weapons {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		public override void SetDefaults() {
 			Item.damage = 100;
-			Item.useStyle = 1;
+			Item.useStyle = ItemUseStyleID.Swing;
 			Item.knockBack = 1;
 		}
 	}
@@ -548,7 +548,7 @@ namespace EpikV2.Items.Weapons {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		public override void SetDefaults() {
 			Item.damage = 100;
-			Item.useStyle = 1;
+			Item.useStyle = ItemUseStyleID.Swing;
 			Item.knockBack = 1;
 		}
 	}
@@ -573,7 +573,7 @@ namespace EpikV2.Items.Weapons {
 		public override void SetDefaults() {
 			Item.dye = GameShaders.Armor.GetShaderIdFromItemId(ItemID.ShiftingPearlSandsDye);
 			Item.damage = 100;
-			Item.useStyle = 1;
+			Item.useStyle = ItemUseStyleID.Swing;
 			Item.knockBack = 1;
 			Item.mana = mana_cost;
 		}
@@ -726,7 +726,7 @@ namespace EpikV2.Items.Weapons {
 		public const int mana_cost = 18;
 		public override void SetDefaults() {
 			Item.damage = 100;
-			Item.useStyle = 1;
+			Item.useStyle = ItemUseStyleID.Swing;
 			Item.knockBack = 1;
 			Item.mana = mana_cost;
 		}
