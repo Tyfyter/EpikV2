@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.UI;
@@ -66,19 +67,19 @@ namespace EpikV2.NPCs {
 				);
 			}
 		}
-		public override void Load() {
-			AddTransmutation(ItemID.CorruptionKey, ItemID.ScourgeoftheCorruptor, Condition.DownedPlantera);
-			AddTransmutation(ItemID.CrimsonKey, ItemID.VampireKnives, Condition.DownedPlantera);
-			AddTransmutation(ItemID.HallowedKey, ItemID.RainbowGun, Condition.DownedPlantera);
-			AddTransmutation(ItemID.JungleKey, ItemID.PiranhaGun, Condition.DownedPlantera);
-			AddTransmutation(ItemID.FrozenKey, ItemID.StaffoftheFrostHydra, Condition.DownedPlantera);
-			AddTransmutation(ItemID.DungeonDesertKey, ItemID.StormTigerStaff, Condition.DownedPlantera);
-		}
 		public static void AddTransmutation(int ingredient, int result, Condition condition = null) {
 			transmutations ??= new();
 			transmutationConditions ??= new();
 			transmutations.Add(ingredient, result);
-			if (condition is not null) transmutationConditions.Add(result, condition);
+			Recipe recipe = Recipe.Create(result);
+			recipe.AddIngredient(ingredient);
+			recipe.AddCondition(Language.GetOrRegister("Mods.EpikV2.Conditions.ShimmerSlimeTransmutation"), () => false);
+			recipe.ApplyConditionsAsDecraftConditions();
+			if (condition is not null) {
+				transmutationConditions.Add(result, condition);
+				recipe.AddCondition(condition);
+			}
+			recipe.Register();
 		}
 		[JITWhenModsEnabled("AltLibrary")]
 		internal static void RegisterAltLibTransmutations() {
@@ -158,7 +159,13 @@ namespace EpikV2.NPCs {
 	public class ShimmerSlimeSystem : ModSystem {
 		List<(Point pos, int itemID)> slimePositions;
 		public List<(Point pos, int itemID)> SlimePositions => slimePositions ??= new();
-		public override void PostAddRecipes() {
+		public override void AddRecipes() {
+			ShimmerSlimeTransmutation.AddTransmutation(ItemID.CorruptionKey, ItemID.ScourgeoftheCorruptor, Condition.DownedPlantera);
+			ShimmerSlimeTransmutation.AddTransmutation(ItemID.CrimsonKey, ItemID.VampireKnives, Condition.DownedPlantera);
+			ShimmerSlimeTransmutation.AddTransmutation(ItemID.HallowedKey, ItemID.RainbowGun, Condition.DownedPlantera);
+			ShimmerSlimeTransmutation.AddTransmutation(ItemID.JungleKey, ItemID.PiranhaGun, Condition.DownedPlantera);
+			ShimmerSlimeTransmutation.AddTransmutation(ItemID.FrozenKey, ItemID.StaffoftheFrostHydra, Condition.DownedPlantera);
+			ShimmerSlimeTransmutation.AddTransmutation(ItemID.DungeonDesertKey, ItemID.StormTigerStaff, Condition.DownedPlantera);
 			if (ModLoader.HasMod("AltLibrary")) ShimmerSlimeTransmutation.RegisterAltLibTransmutations();
 		}
 		public override void LoadWorldData(TagCompound tag) {

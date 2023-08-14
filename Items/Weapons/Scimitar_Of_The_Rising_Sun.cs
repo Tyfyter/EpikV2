@@ -77,7 +77,6 @@ namespace EpikV2.Items.Weapons {
 				manaCost: Sakura_Dance.mana_cost,
 				ai1: -1
 			));
-			ShimmerSlimeTransmutation.AddTransmutation(ItemID.Katana, Type, Condition.DownedMechBossAny);
 		}
 		public override void SetDefaults() {
 			Item.damage = 90;
@@ -148,29 +147,30 @@ namespace EpikV2.Items.Weapons {
 			Item art = new(combatArt.itemIcon);
 			int yoyoLogo = -1; int researchLine = -1; float oldKB = art.knockBack; int numLines = 1; string[] toolTipLine = new string[30]; string[] toolTipNames = new string[30];
 			Main.MouseText_DrawItemTooltip_GetLinesInfo(art, ref yoyoLogo, ref researchLine, oldKB, ref numLines, toolTipLine, new bool[30], new bool[30], toolTipNames, out _);
-			int knockbackIndex = tooltips.FindIndex(l => l.Name == "Knockback") + 1;
+			List<TooltipLine> combatArtTooltips = new();
 			for (int i = 0; i < numLines; i++) {
-				TooltipLine tooltip = new TooltipLine(Mod, toolTipNames[i], toolTipLine[i]);
+				TooltipLine tooltip = new TooltipLine(Mod, "CombatArt" + toolTipNames[i], toolTipLine[i]);
 				switch (tooltip.Name) {
-					case "ItemName":
+					case "CombatArtItemName":
 					tooltip.Text = Language.GetTextValue("Mods.EpikV2.Items.Scimitar_Of_The_Rising_Sun.Combat_Art", tooltip.Text);
 					break;
-					case "Damage":
+					case "CombatArtDamage":
 					tooltip.Text = (int)(combatArt.damageMult * 100) + Language.GetText("LegacyTooltip.39").Value;
 					break;
-					case "CritChance":
+					case "CombatArtCritChance":
 					continue;
-					case "Speed":
+					case "CombatArtSpeed":
 					tooltip.Text = (int)((1 / combatArt.useTimeMult) * 100) + Language.GetText("LegacyTooltip.40").Value;
 					break;
-					case "Knockback":
+					case "CombatArtKnockback":
 					tooltip.Text = (int)(combatArt.knockbackMult * 100) + Language.GetText("LegacyTooltip.45").Value;
 					break;
 				}
 				tooltip.OverrideColor = Main.MouseTextColorReal * 0.85f;
-				tooltips.Insert(knockbackIndex + i, tooltip);
+				combatArtTooltips.Add(tooltip);
 			}
-
+			art.ModItem?.ModifyTooltips(combatArtTooltips);
+			tooltips.InsertRange(tooltips.FindLastIndex(l => l.Name.StartsWith("Tooltip")) + 1, combatArtTooltips);
 		}
 		public override bool MeleePrefix() => true;
 		public int GetSlotContents(int slotIndex) => slotIndex < CombatArts.Count ? CombatArts[slotIndex].itemIcon : 0;
@@ -258,6 +258,9 @@ namespace EpikV2.Items.Weapons {
 				Main.inventoryScale = oldInventoryScale;
 				posX += (int)(backTexture.Width * Main.hotbarScale[i]) + 4;
 			}
+		}
+		public override void AddRecipes() {
+			ShimmerSlimeTransmutation.AddTransmutation(ItemID.Katana, Type, Condition.DownedMechBossAny);
 		}
 	}
 	public class Scimitar_Of_The_Rising_Sun_Slash : Slashy_Sword_Projectile {
@@ -527,9 +530,13 @@ namespace EpikV2.Items.Weapons {
 				for (int i = 0; i < Main.maxNPCs; i++) {
 					NPC npc = Main.npc[i];
 					if (npc.active && (npc.damage > 0 || npc.type == NPCID.TargetDummy)) {
-						if (npc.Hitbox.Intersects(checkBox)) {
+						Rectangle npcCheckBox = npc.Hitbox;
+						offset = npc.velocity * 3;
+						npcCheckBox.Offset((int)offset.X, (int)offset.Y);
+						if (npcCheckBox.Intersects(checkBox)) {
 							player.velocity *= SwingStartVelocity;
 							Projectile.localAI[2] = 1;
+							player.GiveImmuneTimeForCollisionAttack(8);
 							break;
 						}
 					}
@@ -722,6 +729,11 @@ namespace EpikV2.Items.Weapons {
 			Item.useStyle = 1;
 			Item.knockBack = 1;
 			Item.mana = mana_cost;
+		}
+		public override void ModifyTooltips(List<TooltipLine> tooltips) {
+			for (int i = 0; i < tooltips.Count; i++) {
+				tooltips[i].OverrideColor = Main.MouseTextColorReal.MultiplyRGB(new Color(175, 25, 25)) * 0.85f;
+			}
 		}
 		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
 			Main.spriteBatch.RestartWithLiteralNull(SpriteSortMode.Immediate, transformMatrix: Main.UIScaleMatrix);

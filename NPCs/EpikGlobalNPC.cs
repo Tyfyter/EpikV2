@@ -237,7 +237,7 @@ namespace EpikV2.NPCs
 				modifiers.Knockback.Flat += Math.Abs(totalKnockback * (1 - npc.knockBackResist)) * 0.75f;
 				if (NPCID.Sets.ProjectileNPC[npc.type]) {
 					npc.StrikeInstantKill();
-				} else {
+				} else if (npc.knockBackResist != 0) {
 					npc.velocity.X = totalKnockback * npc.knockBackResist * -2 * modifiers.HitDirection;
 				}
 			}
