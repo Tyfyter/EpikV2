@@ -569,7 +569,7 @@ namespace EpikV2.Items.Weapons {
 		}
 	}
 	public class Sakura_Dance : ModItem {
-		public const int mana_cost = 8;
+		public const int mana_cost = 20;
 		public override void SetDefaults() {
 			Item.dye = GameShaders.Armor.GetShaderIdFromItemId(ItemID.ShiftingPearlSandsDye);
 			Item.damage = 100;
@@ -723,7 +723,7 @@ namespace EpikV2.Items.Weapons {
 		}
 	}
 	public class Mortal_Draw : ModItem {
-		public const int mana_cost = 18;
+		public const int mana_cost = 40;
 		public override void SetDefaults() {
 			Item.damage = 100;
 			Item.useStyle = ItemUseStyleID.Swing;
