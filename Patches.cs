@@ -47,6 +47,8 @@ using EpikV2.CrossMod;
 using Terraria.ObjectData;
 using Humanizer;
 using EpikV2.Items.Accessories;
+using Terraria.Chat;
+using Terraria.Localization;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -268,7 +270,128 @@ namespace EpikV2 {
 			On_Item.CanApplyPrefix += (orig, self, prefix) => self.ModItem is Biome_Key || orig(self, prefix);
 			MonoModHooks.Modify(typeof(AccessorySlotLoader).GetMethod("DrawSlot", BindingFlags.NonPublic | BindingFlags.Instance), IL_AccessorySlotLoader_DrawSlot);
 			On_Player.FixLoadedData_EliminiateDuplicateAccessories += (_, _) => { };
+			IL_Main.UpdateTime += IL_Main_UpdateTime;
 		}
+		static bool IsValidSpotForTravelNPCSpawn(int x, int y) {
+			static bool IsEmpty(Tile tile) {
+				return !tile.HasTile || !Main.tileSolid[tile.TileType] || Main.tileSolidTop[tile.TileType];
+			}
+			return (WorldGen.SolidTile(x, y) || Main.tileSolidTop[Main.tile[x, y].TileType])
+				&& IsEmpty(Main.tile[x, y - 1])
+				&& IsEmpty(Main.tile[x, y - 2])
+				&& IsEmpty(Main.tile[x, y - 3]);
+		}
+		static void TrySpawnAngelTravelNPC() {
+			if (NPC.travelNPC) return;
+			if (Main.time >= Main.dayLength * 0.5 || Main.eclipse || !Main.dayTime || (Main.invasionType > 0 && Main.invasionDelay == 0 && Main.invasionSize > 0)) return;
+			if (Main.rand.NextDouble() >= (Main.dayRate * (EpikExtensions.GetLuckiestPlayer().luck + 1)) / (Main.dayLength * 2)) return;
+			for (int i = 0; i < 200; i++) {
+				if (Main.npc[i].active && Main.npc[i].type == NPCID.TravellingMerchant) return;
+			}
+			Chest.SetupTravelShop();
+			NetMessage.SendTravelShop(-1);
+			int[] townNPCs = new int[200];
+			int statueTownNPCs = 0;
+			int totalTownNPCs = 0;
+			for (int i = 0; i < 200; i++) {
+				NPC townNPC = Main.npc[i];
+				if (townNPC.active && townNPC.townNPC && townNPC.type != NPCID.OldMan && !townNPC.homeless) {
+					int homeX = townNPC.homeTileX;
+					int homeY = townNPC.homeTileY - 1;
+					totalTownNPCs++;
+					for (int j = -16; j < 15; j++) {
+						Tile tile = Framing.GetTileSafely(homeX + j, homeY);
+						if (tile.HasTile && tile.TileType == TileID.Statues && (tile.TileFrameY % 162) < 52 && (tile.TileFrameX / 36) == 1) {
+							townNPCs[statueTownNPCs] = i;
+							statueTownNPCs++;
+							break;
+						}
+					}
+				}
+			}
+			if (statueTownNPCs == 0 || totalTownNPCs < 2) {
+				return;
+			}
+			int spawnOn = townNPCs[Main.rand.Next(statueTownNPCs)];
+			WorldGen.bestX = Main.npc[spawnOn].homeTileX;
+			WorldGen.bestY = Main.npc[spawnOn].homeTileY;
+			int spawnX = WorldGen.bestX;
+			int spawnY = WorldGen.bestY;
+			bool foundPos = false;
+			if (!foundPos && !(spawnY > Main.worldSurface)) {
+				for (int i = 20; i < 500 && !foundPos; i++) {
+					for (int j = 0; j < 2 && !foundPos; j++) {
+						spawnX = WorldGen.bestX + (i * 2 * (1 - j * 2));
+						if (spawnX > 10 && spawnX < Main.maxTilesX - 10) {
+							int minCheckY = WorldGen.bestY - i;
+							double maxCheckY = WorldGen.bestY + i;
+							if (minCheckY < 10) {
+								minCheckY = 10;
+							}
+							if (maxCheckY > Main.worldSurface) {
+								maxCheckY = Main.worldSurface;
+							}
+							for (int k = 0; !foundPos; k = k < 0 ? -k : ((-k) - 1)) {
+								spawnY = WorldGen.bestY + k;
+								if (spawnY < minCheckY || spawnY > maxCheckY) break;
+								if (!Main.tile[spawnX, spawnY].HasUnactuatedTile || !Main.tileSolid[Main.tile[spawnX, spawnY].TileType]) {
+									continue;
+								}
+								if (Main.tile[spawnX, spawnY - 3].LiquidAmount != 0 || Main.tile[spawnX, spawnY - 2].LiquidAmount != 0 || Main.tile[spawnX, spawnY - 1].LiquidAmount != 0 || Collision.SolidTiles(spawnX - 1, spawnX + 1, spawnY - 3, spawnY - 1)) {
+									break;
+								}
+								foundPos = true;
+								Rectangle value = new Rectangle(spawnX * 16 + 8 - NPC.sWidth / 2 - NPC.safeRangeX, spawnY * 16 + 8 - NPC.sHeight / 2 - NPC.safeRangeY, NPC.sWidth + NPC.safeRangeX * 2, NPC.sHeight + NPC.safeRangeY * 2);
+								for (int l = 0; l < 255; l++) {
+									if (Main.player[l].active && Main.player[l].Hitbox.Intersects(value)) {
+										foundPos = false;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			NPC travelNPC = NPC.NewNPCDirect(Entity.GetSource_TownSpawn(), spawnX * 16, spawnY * 16, 368, 1);
+			travelNPC.homeTileX = WorldGen.bestX;
+			travelNPC.homeTileY = WorldGen.bestY;
+			travelNPC.homeless = true;
+			travelNPC.direction = Math.Sign(spawnX - WorldGen.bestX);
+			travelNPC.netUpdate = true;
+			if (Main.netMode == NetmodeID.SinglePlayer) {
+				Main.NewText(Language.GetTextValue("Announcement.HasArrived", travelNPC.FullName), 50, 125);
+			} else if (Main.netMode == NetmodeID.Server) {
+				ChatHelper.BroadcastChatMessage(NetworkText.FromKey("Announcement.HasArrived", travelNPC.GetFullNetName()), new Color(50, 125, 255));
+			}
+		}
+		private static void IL_Main_UpdateTime(ILContext il) {
+			ILCursor c = new(il);
+			try {
+				ILLabel initialIf = default;
+				ILLabel newIf = c.DefineLabel();
+				c.GotoNext(MoveType.After,
+					i => i.MatchLdsfld<Main>("dayRate"),
+					i => i.MatchLdcR8(108000),
+					i => i.MatchDiv(),
+					i => i.MatchBgeUn(out initialIf)
+				);
+				c.GotoLabel(initialIf, MoveType.Before);
+				c.Emit(OpCodes.Br, newIf);
+				c.GotoLabel(initialIf, MoveType.AfterLabel);
+				c.EmitDelegate<Action>(TrySpawnAngelTravelNPC);
+				c.MarkLabel(newIf);
+				c.GotoPrev(MoveType.After,
+					i => i.MatchCall<Main>("IsFastForwardingTime"),
+					i => i.MatchBrtrue(out _)
+				);
+				c.Prev.Operand = newIf;
+				MonoModHooks.DumpIL(instance, il);
+			} catch (Exception e) {
+				throw new ILPatchFailureException(instance, il, e);
+			}
+		}
+
 		private static void IL_AccessorySlotLoader_DrawSlot(ILContext il) {
 			ILCursor c = new(il);
 			try {
@@ -293,8 +416,7 @@ namespace EpikV2 {
 					}
 				});
 			} catch (Exception e) {
-				instance.Logger.Error("Error while modifying AccessorySlotLoader.DrawSlot: ", e);
-				MonoModHooks.DumpIL(instance, il);
+				throw new ILPatchFailureException(instance, il, e);
 			}
 		}
 

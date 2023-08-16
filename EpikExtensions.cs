@@ -1052,6 +1052,16 @@ namespace EpikV2 {
 		public static bool IsPowerOfTwo(ulong x) {
 			return x != 0 && (x & (x - 1)) == 0;
 		}
+		public static Player GetLuckiestPlayer() {
+			Player player = null;
+			for (int i = 0; i < 255; i++) {
+				Player player2 = Main.player[i];
+				if (player2.active && (player is null || player.luck < player2.luck)) {
+					player = player2;
+				}
+			}
+			return player ?? Main.player[0];
+		}
 		public static void RemoveInvalidIndices(List<int> indices, Vector2[] vertices) {
 			int i = 0;
 			while (i < indices.Count) {
