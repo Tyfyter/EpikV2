@@ -17,6 +17,7 @@ using Terraria.DataStructures;
 using Terraria.Enums;
 using Terraria.GameContent;
 using Terraria.GameContent.Bestiary;
+using Terraria.GameContent.Drawing;
 using Terraria.GameContent.Events;
 using Terraria.GameContent.ItemDropRules;
 using Terraria.GameContent.NetModules;
@@ -242,7 +243,16 @@ namespace EpikV2.NPCs
 				}
 			}
 		}
-        public override bool CanHitNPC(NPC npc, NPC target)/* tModPorter Suggestion: Return true instead of null */{
+		public override void ModifyIncomingHit(NPC npc, ref NPC.HitModifiers modifiers) {
+			if (npc.HasBuff<Scimitar_Of_The_Rising_Sun_Deflect_Debuff>()) {
+				modifiers.ScalingArmorPenetration += 1;
+				ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.ChlorophyteLeafCrystalShot, new ParticleOrchestraSettings {
+					PositionInWorld = npc.Center,
+					UniqueInfoPiece = -15
+				});
+			}
+		}
+		public override bool CanHitNPC(NPC npc, NPC target)/* tModPorter Suggestion: Return true instead of null */{
             if(jaded || scorpioTime>0)return false;
             return base.CanHitNPC(npc, target);
         }

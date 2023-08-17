@@ -340,7 +340,7 @@ namespace EpikV2.Items.Weapons {
 				ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.ChlorophyteLeafCrystalShot, new ParticleOrchestraSettings {
 					PositionInWorld = Rectangle.Intersect(lastHitHitbox, targetHitbox).Center(),
 					UniqueInfoPiece = -15,
-					MovementVector = Projectile.velocity.SafeNormalize(default)
+					MovementVector = Projectile.velocity.RotatedBy(MathHelper.PiOver2).SafeNormalize(default)
 				}, Projectile.owner);
 				Projectile.localAI[1] = 15;
 			}
@@ -471,19 +471,18 @@ namespace EpikV2.Items.Weapons {
 			return null;
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
-			if (target.damage > 0) {
-				Main.player[Projectile.owner].GiveImmuneTimeForCollisionAttack(14);
-				Rectangle deflectHitbox = Projectile.Hitbox;
-				deflectHitbox.Offset(Projectile.velocity.ToPoint());
-				Vector2 intersectCenter = Rectangle.Intersect(deflectHitbox, target.Hitbox).Center();
-				ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.AshTreeShake, new ParticleOrchestraSettings {
-					PositionInWorld = intersectCenter,
-					UniqueInfoPiece = -15,
-					MovementVector = Projectile.velocity.SafeNormalize(default)
-				}, Projectile.owner);
-				SoundEngine.PlaySound(SoundID.Item37.WithVolume(0.95f).WithPitch(0.41f).WithPitchVarience(0), intersectCenter);
-				SoundEngine.PlaySound(SoundID.Item35.WithVolume(1f).WithPitch(1f), intersectCenter);
-			}
+			target.AddBuff(BuffType<Scimitar_Of_The_Rising_Sun_Deflect_Debuff>(), 60);
+			Main.player[Projectile.owner].GiveImmuneTimeForCollisionAttack(14);
+			Rectangle deflectHitbox = Projectile.Hitbox;
+			deflectHitbox.Offset(Projectile.velocity.ToPoint());
+			Vector2 intersectCenter = Rectangle.Intersect(deflectHitbox, target.Hitbox).Center();
+			ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.AshTreeShake, new ParticleOrchestraSettings {
+				PositionInWorld = intersectCenter,
+				UniqueInfoPiece = -15,
+				MovementVector = Projectile.velocity.SafeNormalize(default)
+			}, Projectile.owner);
+			SoundEngine.PlaySound(SoundID.Item37.WithVolume(0.95f).WithPitch(0.41f).WithPitchVarience(0), intersectCenter);
+			SoundEngine.PlaySound(SoundID.Item35.WithVolume(1f).WithPitch(1f), intersectCenter);
 		}
 		public override bool PreDraw(ref Color lightColor) {
 			float endFactor = Projectile.timeLeft / (float)deflect_threshold;
@@ -503,6 +502,9 @@ namespace EpikV2.Items.Weapons {
 		}
 	}
 	public class Scimitar_Of_The_Rising_Sun_Block_Debuff : ModBuff {
+		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+	}
+	public class Scimitar_Of_The_Rising_Sun_Deflect_Debuff : ModBuff {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 	}
 	public class Nightjar_Slash : ModItem {
