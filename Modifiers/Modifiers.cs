@@ -195,6 +195,9 @@ namespace EpikV2.Modifiers {
 			shootSpeedMult = 1.1f;
 			scaleMult = 1.22f;
 		}
+		public override void Apply(Item item) {
+			item.rare++;
+		}
 		public override float RollChance(Item item) => NPC.downedPlantBoss ? 1f : 0;
 		public override bool CanRoll(Item item) => item.type == ModContent.ItemType<Scimitar_Of_The_Rising_Sun>();
 	}
