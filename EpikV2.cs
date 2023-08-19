@@ -199,6 +199,7 @@ namespace EpikV2 {
 			rarityTiers = null;
 			HellforgeRecipes = null;
 			MiscUtils.Unload();
+			Array.Resize(ref TextureAssets.GlowMask, GlowMaskID.Count);
 			//TextureAssets.Item[ItemID.HighTestFishingLine] = Main.Assets.Request<Texture2D>("Images/Item_" + ItemID.HighTestFishingLine, AssetRequestMode.DoNotLoad);
 			//filterMapQueue.Clear();
 			//filterMapQueue = null;
