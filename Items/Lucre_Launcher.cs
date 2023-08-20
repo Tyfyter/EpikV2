@@ -322,7 +322,7 @@ namespace EpikV2.Items {
 			Rectangle sourceRectangle = new Rectangle(0, startY, texture.Width, frameHeight);
 			Vector2 origin = sourceRectangle.Size() / 2f;
 
-			Main.spriteBatch.Draw(texture,
+			Main.EntitySpriteDraw(texture,
 				Projectile.Center - Main.screenPosition,
 				sourceRectangle, lightColor, Projectile.rotation, origin, Projectile.scale, spriteEffects, 0f);
 

@@ -268,19 +268,38 @@ namespace EpikV2 {
 			};
 			IL_Main.CraftItem += IL_Main_CraftItem;
 			On_Item.CanApplyPrefix += (orig, self, prefix) => self.ModItem is Biome_Key || orig(self, prefix);
+			IL_Item.TryGetPrefixStatMultipliersForItem += IL_Item_TryGetPrefixStatMultipliersForItem;
 			MonoModHooks.Modify(typeof(AccessorySlotLoader).GetMethod("DrawSlot", BindingFlags.NonPublic | BindingFlags.Instance), IL_AccessorySlotLoader_DrawSlot);
 			On_Player.FixLoadedData_EliminiateDuplicateAccessories += (_, _) => { };
 			IL_Main.UpdateTime += IL_Main_UpdateTime;
 		}
-		static bool IsValidSpotForTravelNPCSpawn(int x, int y) {
-			static bool IsEmpty(Tile tile) {
-				return !tile.HasTile || !Main.tileSolid[tile.TileType] || Main.tileSolidTop[tile.TileType];
+
+		private void IL_Item_TryGetPrefixStatMultipliersForItem(ILContext il) {
+			ILCursor c = new(il);
+			c.GotoNext(MoveType.Before,
+				i => i.MatchBrtrue(out _),
+				i => i.MatchLdcI4(0),
+				i => i.MatchRet()
+			);
+			c.Emit(OpCodes.Ldarg_0);
+			c.EmitDelegate<Func<bool, Item, bool>>((v, self) => v || self.ModItem is Biome_Key);
+			ILLabel skipToRet = c.DefineLabel();
+			while (c.TryGotoNext(MoveType.Before,
+				i => i.MatchLdcI4(0),
+				i => i.MatchRet()
+			)) {
+				c.Emit(OpCodes.Ldarg_0);
+				c.EmitDelegate<Func<Item, bool>>(self => self.ModItem is Biome_Key);
+				c.Emit(OpCodes.Brtrue_S, skipToRet);
+				c.Index++;
 			}
-			return (WorldGen.SolidTile(x, y) || Main.tileSolidTop[Main.tile[x, y].TileType])
-				&& IsEmpty(Main.tile[x, y - 1])
-				&& IsEmpty(Main.tile[x, y - 2])
-				&& IsEmpty(Main.tile[x, y - 3]);
+			c.GotoNext(MoveType.Before,
+				i => i.MatchLdcI4(1),
+				i => i.MatchRet()
+			);
+			c.MarkLabel(skipToRet);
 		}
+
 		static void TrySpawnAngelTravelNPC() {
 			if (NPC.travelNPC) return;
 			if (Main.time >= Main.dayLength * 0.5 || Main.eclipse || !Main.dayTime || (Main.invasionType > 0 && Main.invasionDelay == 0 && Main.invasionSize > 0)) return;

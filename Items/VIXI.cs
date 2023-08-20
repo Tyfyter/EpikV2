@@ -191,7 +191,7 @@ namespace EpikV2.Items {
 				itemRotation += MathHelper.PiOver2;
 				spriteEffects |= SpriteEffects.FlipHorizontally;
 			}
-			Main.spriteBatch.Draw(
+			Main.EntitySpriteDraw(
 				itemTexture,
 				basePosition - Main.screenPosition + normalizedDirection * Projectile.ai[0],
 				null,
@@ -227,8 +227,8 @@ namespace EpikV2.Items {
 
 				Vector2 starlightPosition = basePosition + normalizedDirection * starlightOffsetScale + value5 - Main.screenPosition;
 
-				Main.spriteBatch.Draw(starlightTexture, starlightPosition, null, color, rotation, starlightOrigin, starlightScale, SpriteEffects.None, 0f);
-				Main.spriteBatch.Draw(starlightTexture, starlightPosition, null, color2, rotation, starlightOrigin, starlightScale * 0.6f, SpriteEffects.None, 0f);
+				Main.EntitySpriteDraw(starlightTexture, starlightPosition, null, color, rotation, starlightOrigin, starlightScale, SpriteEffects.None, 0f);
+				Main.EntitySpriteDraw(starlightTexture, starlightPosition, null, color2, rotation, starlightOrigin, starlightScale * 0.6f, SpriteEffects.None, 0f);
 			}
 			return false;
 		}
@@ -332,8 +332,8 @@ namespace EpikV2.Items {
 				float starlightRotation = starlightDiff.ToRotation();
 				Vector2 starlightScale = new Vector2(starlightLength, 1);
 
-				Main.spriteBatch.Draw(starlightTexture, starlightCenter, null, new Color(200, 200, 200) * 0.5f, starlightRotation, starlightOrigin, starlightScale, SpriteEffects.None, 0f);
-				Main.spriteBatch.Draw(starlightTexture, starlightCenter, null, new Color(1f, 1f, 1f, 0.5f) * 0.5f, starlightRotation, starlightOrigin, starlightScale * 0.6f, SpriteEffects.None, 0f);
+				Main.EntitySpriteDraw(starlightTexture, starlightCenter, null, new Color(200, 200, 200) * 0.5f, starlightRotation, starlightOrigin, starlightScale, SpriteEffects.None, 0f);
+				Main.EntitySpriteDraw(starlightTexture, starlightCenter, null, new Color(1f, 1f, 1f, 0.5f) * 0.5f, starlightRotation, starlightOrigin, starlightScale * 0.6f, SpriteEffects.None, 0f);
 			}
 			Main.EntitySpriteDraw(
 				TextureAssets.Projectile[Type].Value,

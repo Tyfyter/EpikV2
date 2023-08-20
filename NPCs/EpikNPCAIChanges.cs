@@ -364,7 +364,7 @@ namespace EpikV2.NPCs {
                 Texture2D texture = TextureAssets.Npc[npc.type].Value;
                 Vector2 halfSize = new Vector2(texture.Width / 2, texture.Height / Main.npcFrameCount[npc.type] / 2);
                 float npcAddedHeight = Main.NPCAddHeight(npc);
-                Main.spriteBatch.Draw(
+                Main.EntitySpriteDraw(
                     texture,
                     new Vector2(npc.position.X - screenPos.X + (npc.width / 2) - texture.Width * npc.scale / 2f + halfSize.X * npc.scale, npc.position.Y - screenPos.Y + npc.height - texture.Height * npc.scale / Main.npcFrameCount[npc.type] + 4f + halfSize.Y * npc.scale + npcAddedHeight),
                     npc.frame,
@@ -380,7 +380,7 @@ namespace EpikV2.NPCs {
                     illSlimeColor.G = (byte)(100 * (10 - i) / 15);
                     illSlimeColor.B = (byte)(150 * (10 - i) / 15);
                     illSlimeColor.A = (byte)(50 * (10 - i) / 15);
-                    Main.spriteBatch.Draw(
+                    Main.EntitySpriteDraw(
                         texture,
                         new Vector2(npc.oldPos[i].X - screenPos.X + (npc.width / 2) - texture.Width * npc.scale / 2f + halfSize.X * npc.scale, npc.oldPos[i].Y - screenPos.Y + npc.height - texture.Height * npc.scale / Main.npcFrameCount[npc.type] + 4f + halfSize.Y * npc.scale + npcAddedHeight),
                         npc.frame,

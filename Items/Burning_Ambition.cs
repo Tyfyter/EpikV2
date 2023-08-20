@@ -175,7 +175,7 @@ namespace EpikV2.Items {
 				float zDistAdjusted = (zDist / 64) / (particle.distance / 196);
 				zDistAdjusted /= factor;
 				Vector2 drawPosition = origin + (direction * particle.distance * zMult) + (side * (float)(zDist * cos * zMult));
-				Main.spriteBatch.Draw(
+				Main.EntitySpriteDraw(
 					TextureAssets.Dust.Value,
 					drawPosition,
 					particle.GetFrame(),
@@ -431,7 +431,7 @@ namespace EpikV2.Items {
 						continue;
 					}
 					Vector3 position = particle.GetCartesian(factor);
-					Main.spriteBatch.Draw(
+					Main.EntitySpriteDraw(
 						TextureAssets.Dust.Value,
 						origin + new Vector2(position.X, position.Y),
 						particle.GetFrame(),
@@ -455,7 +455,7 @@ namespace EpikV2.Items {
 					}
 					Vector3 position = particle.GetPosition(factor);
 					float ageFactor = 1 - particle.age / 90;
-					Main.spriteBatch.Draw(
+					Main.EntitySpriteDraw(
 						TextureAssets.Dust.Value,
 						origin + new Vector2(position.X, position.Y),
 						particle.GetFrame(),

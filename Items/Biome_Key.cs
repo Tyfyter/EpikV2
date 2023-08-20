@@ -848,7 +848,7 @@ namespace EpikV2.Items {
 		}
 		public override bool PreDraw(ref Color lightColor) {
 			Texture2D itemTexture = TextureAssets.Projectile[Type].Value;
-			Main.spriteBatch.Draw(
+			Main.EntitySpriteDraw(
 				itemTexture,
 				Projectile.Center + Projectile.velocity * (Math.Abs(4 - Projectile.ai[0]) * 0.25f) - Main.screenPosition,
 				null,
@@ -1289,17 +1289,17 @@ namespace EpikV2.Items {
 				//vineLines.Add(((nodes.Count - 2, Main.rand.NextFloat(0, 1)), ( - 1, Main.rand.NextFloat(0, 1))));
 			}
 			for (int i = 0; i < vineLines.Count; i++){
-				DrawVine(Main.spriteBatch, textures, new Line(
+				DrawVine(textures, new Line(
 					lines[vineLines[i].a.index][vineLines[i].a.pos],
 					lines[vineLines[i].b.index][vineLines[i].b.pos]
 				));
 			}
 			for (int i = 0; i < lines.Count; i++) {
-				DrawVine(Main.spriteBatch, textures, lines[i]);
+				DrawVine(textures, lines[i]);
 			}
 			return false;
 		}
-		public void DrawVine(SpriteBatch spriteBatch, Texture2D[] textures, Line line) {
+		public void DrawVine(Texture2D[] textures, Line line) {
 			Vector2 scale = new Vector2(Projectile.scale);
 			Vector2 origin = line.a;
 			Vector2 diff = (line.b - line.a);
@@ -1330,7 +1330,7 @@ namespace EpikV2.Items {
 					scale,
 					spriteEffects,
 				0);
-				data.Draw(spriteBatch);
+				Main.EntitySpriteDraw(data);
 			}
 			//Dust.NewDustPerfect(origin + (perpUnit * Main.rand.NextFloat(-8, 8)), 6, unit * 5).noGravity = true;
 		}
@@ -1528,7 +1528,7 @@ namespace EpikV2.Items {
 				itemRotation += (float)Math.PI / 2f;
 				spriteEffects |= SpriteEffects.FlipHorizontally;
 			}
-			Main.spriteBatch.Draw(itemTexture, position, null, Projectile.GetAlpha(Lighting.GetColor(Projectile.Center.ToTileCoordinates())) * itemScale, itemRotation, itemOrigin, 1f, spriteEffects, 0f);
+			Main.EntitySpriteDraw(itemTexture, position, null, Projectile.GetAlpha(Lighting.GetColor(Projectile.Center.ToTileCoordinates())) * itemScale, itemRotation, itemOrigin, 1f, spriteEffects, 0f);
 
 			Texture2D starlightTexture = TextureAssets.Projectile[ProjectileID.PiercingStarlight].Value;
 			Vector2 starlightOrigin = starlightTexture.Size() / 2f;
@@ -1554,8 +1554,8 @@ namespace EpikV2.Items {
 
 				Vector2 starlightPosition = basePosition + rotation.ToRotationVector2() * starlightOffsetScale + Main.rand.NextVector2Circular(20f, 20f) + value5 - Main.screenPosition;
 
-				Main.spriteBatch.Draw(starlightTexture, starlightPosition, null, color, rotation, starlightOrigin, starlightScale, SpriteEffects.None, 0f);
-				Main.spriteBatch.Draw(starlightTexture, starlightPosition, null, color2, rotation, starlightOrigin, starlightScale * 0.6f, SpriteEffects.None, 0f);
+				Main.EntitySpriteDraw(starlightTexture, starlightPosition, null, color, rotation, starlightOrigin, starlightScale, SpriteEffects.None, 0f);
+				Main.EntitySpriteDraw(starlightTexture, starlightPosition, null, color2, rotation, starlightOrigin, starlightScale * 0.6f, SpriteEffects.None, 0f);
 			}
 			return false;
 		}
