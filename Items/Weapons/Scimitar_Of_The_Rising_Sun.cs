@@ -279,10 +279,6 @@ namespace EpikV2.Items.Weapons {
 			get => Projectile.ai[2];
 			set => Projectile.ai[2] = value;
 		}
-		public override void SetDefaults() {
-			base.SetDefaults();
-			Projectile.noEnchantmentVisuals = true;
-		}
 		public override void AI() {
 			Player player = Main.player[Projectile.owner];
 			if (!player.active || player.dead) {
@@ -327,6 +323,9 @@ namespace EpikV2.Items.Weapons {
 				player.velocity *= SwingEndVelocity;
 				Projectile.localAI[2] = 20;
 			}
+			EmitEnchantmentVisuals();
+		}
+		public override void EmitEnchantmentVisuals() {
 			Vector2 enchantmentPosition = Projectile.Center + Projectile.velocity;
 			Vector2 enchantmentMovement = Projectile.velocity;
 			enchantmentMovement.Normalize();

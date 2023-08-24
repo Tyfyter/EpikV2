@@ -26,6 +26,7 @@ namespace EpikV2.Projectiles {
 			Projectile.extraUpdates = 0;
 			Projectile.usesLocalNPCImmunity = true;
 			Projectile.localNPCHitCooldown = 600;
+			Projectile.noEnchantmentVisuals = true;
 		}
 		public override void OnSpawn(IEntitySource source) {
 			if (source is EntitySource_ItemUse itemUse) {
@@ -42,6 +43,13 @@ namespace EpikV2.Projectiles {
 			Projectile.timeLeft = player.itemTime * Projectile.MaxUpdates;
 			player.heldProj = Projectile.whoAmI;
 			player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, realRotation - MathHelper.PiOver2);
+			EmitEnchantmentVisuals();
+		}
+		public virtual void EmitEnchantmentVisuals() {
+			Vector2 vel = (Projectile.velocity.RotatedBy(Projectile.rotation) / 12f) * Projectile.width * 0.95f;
+			for (int j = 0; j <= HitboxSteps; j++) {
+				Projectile.EmitEnchantmentVisualsAt(Projectile.position + vel * j, Projectile.width, Projectile.height);
+			}
 		}
 		public override void CutTiles() {
 			DelegateMethods.tilecut_0 = TileCuttingContext.AttackProjectile;
