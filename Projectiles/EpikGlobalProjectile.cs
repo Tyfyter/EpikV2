@@ -135,7 +135,10 @@ namespace EpikV2.Projectiles {
             }
         }
 		public override void ModifyHitPlayer(Projectile projectile, Player target, ref Player.HurtModifiers modifiers) {
-			if (deflectState == 1) modifiers.FinalDamage *= 0.15f;
+			if (deflectState == 1) {
+				modifiers.FinalDamage *= 0.15f;
+				target.GiveSotRSBlockImmunities();
+			}
 			if (projectile.type == ProjectileID.ConfettiGun && !target.noKnockback) {
                 target.GetModPlayer<EpikPlayer>().noKnockbackOnce = true;
             }

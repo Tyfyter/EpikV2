@@ -241,11 +241,13 @@ namespace EpikV2.NPCs
 				} else if (npc.knockBackResist != 0) {
 					npc.velocity.X = totalKnockback * npc.knockBackResist * -2 * modifiers.HitDirection;
 				}
+				target.GiveSotRSBlockImmunities();
 			}
 		}
 		public override void ModifyIncomingHit(NPC npc, ref NPC.HitModifiers modifiers) {
 			if (npc.HasBuff<Scimitar_Of_The_Rising_Sun_Deflect_Debuff>()) {
 				modifiers.ScalingArmorPenetration += 1;
+				modifiers.FinalDamage *= 1.5f;
 				ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.ChlorophyteLeafCrystalShot, new ParticleOrchestraSettings {
 					PositionInWorld = npc.Center,
 					UniqueInfoPiece = -15

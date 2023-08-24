@@ -279,6 +279,10 @@ namespace EpikV2.Items.Weapons {
 			get => Projectile.ai[2];
 			set => Projectile.ai[2] = value;
 		}
+		public override void SetDefaults() {
+			base.SetDefaults();
+			Projectile.noEnchantmentVisuals = true;
+		}
 		public override void AI() {
 			Player player = Main.player[Projectile.owner];
 			if (!player.active || player.dead) {
@@ -323,6 +327,17 @@ namespace EpikV2.Items.Weapons {
 				player.velocity *= SwingEndVelocity;
 				Projectile.localAI[2] = 20;
 			}
+			Vector2 enchantmentPosition = Projectile.Center + Projectile.velocity;
+			Vector2 enchantmentMovement = Projectile.velocity;
+			enchantmentMovement.Normalize();
+			enchantmentMovement = enchantmentMovement.RotatedBy(Projectile.rotation);
+			enchantmentPosition += enchantmentMovement * 8;
+			enchantmentMovement *= 32 * Projectile.scale * HitboxSteps * 0.5f;
+			enchantmentPosition += enchantmentMovement;
+			for (int i = 0; i < 2; i++) {
+				Projectile.EmitEnchantmentVisualsAt(enchantmentPosition - enchantmentMovement * Main.rand.NextFloat(), 4, 4);
+				enchantmentPosition += enchantmentMovement;
+			}
 		}
 		public override bool? CanDamage() {
 			if (SwingFactor > 0 && SwingFactor < 1) return null;
@@ -362,8 +377,21 @@ namespace EpikV2.Items.Weapons {
 			Projectile.usesLocalNPCImmunity = true;
 			Projectile.localNPCHitCooldown = 600;
 			Projectile.timeLeft = min_duration;
+			Projectile.noEnchantmentVisuals = true;
 		}
 		public override void AI() {
+			float endFactor = Projectile.timeLeft / (float)deflect_threshold;
+			endFactor = Math.Min(endFactor * endFactor, 1);
+			Vector2 enchantmentPosition = Projectile.Center;
+			Vector2 enchantmentMovement = Projectile.velocity;
+			enchantmentMovement.Normalize();
+			enchantmentMovement = enchantmentMovement.RotatedBy((Projectile.rotation + Projectile.direction * (2 - endFactor + MathHelper.PiOver4 * 0.7f)));
+			enchantmentMovement *= 28;
+			enchantmentPosition += enchantmentMovement;
+			for (int i = 0; i < 2; i++) {
+				Projectile.EmitEnchantmentVisualsAt(enchantmentPosition - enchantmentMovement * Main.rand.NextFloat(), 4, 4);
+				enchantmentPosition += enchantmentMovement;
+			}
 			if (Projectile.owner != Main.myPlayer) {
 				Projectile.timeLeft = 3600;
 				return;
@@ -377,8 +405,6 @@ namespace EpikV2.Items.Weapons {
 			bool canBlock = true;
 			if (!player.controlUseTile || Projectile.ai[1] == 1) {
 				Projectile.ai[1] = 1;
-				float endFactor = Projectile.timeLeft / (float)deflect_threshold;
-				endFactor = Math.Min(endFactor * endFactor, 1);
 				float realRotation = Projectile.rotation + Projectile.velocity.ToRotation()
 					- (MathHelper.PiOver2 + MathHelper.PiOver4 * Projectile.direction * endFactor);
 				player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, realRotation);
@@ -471,7 +497,7 @@ namespace EpikV2.Items.Weapons {
 			return null;
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
-			target.AddBuff(BuffType<Scimitar_Of_The_Rising_Sun_Deflect_Debuff>(), 60);
+			target.AddBuff(BuffType<Scimitar_Of_The_Rising_Sun_Deflect_Debuff>(), 130);
 			Main.player[Projectile.owner].GiveImmuneTimeForCollisionAttack(14);
 			Rectangle deflectHitbox = Projectile.Hitbox;
 			deflectHitbox.Offset(Projectile.velocity.ToPoint());
@@ -506,6 +532,15 @@ namespace EpikV2.Items.Weapons {
 	}
 	public class Scimitar_Of_The_Rising_Sun_Deflect_Debuff : ModBuff {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		public override void Update(NPC npc, ref int buffIndex) {
+			if (npc.buffTime[buffIndex] % 2 == 0) {
+				Dust.NewDustPerfect(
+					Main.rand.NextVector2FromRectangle(npc.Hitbox),
+					DustID.SpelunkerGlowstickSparkle,
+					npc.velocity
+				);
+			}
+		}
 	}
 	public class Nightjar_Slash : ModItem {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";

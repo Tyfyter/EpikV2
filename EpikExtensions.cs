@@ -906,6 +906,25 @@ namespace EpikV2 {
 			}
 			return Main.rand.Next(range);
 		}
+		public static void GiveSotRSBlockImmunities(this Player player) {
+			for (int i = 0; i < Player.MaxBuffs; i++) {
+				if (player.buffTime[i] > 0) {
+					int buffType = player.buffType[i];
+					if (BuffID.Sets.IsAFlaskBuff[buffType]) {
+						if (EpikV2.ImbueDebuffs.TryGetValue(buffType, out int blockType)) player.buffImmune[blockType] = true;
+						break;
+					}
+				} else break;
+			}
+			if (player.magmaStone) {
+				player.buffImmune[BuffID.OnFire] = true;
+				player.buffImmune[BuffID.OnFire3] = true;
+			}
+			if (player.frostBurn) {
+				player.buffImmune[BuffID.Frostburn] = true;
+				player.buffImmune[BuffID.Frostburn2] = true;
+			}
+		}
 		public static T Pop<T>(this WeightedRandom<T> random) {
 			double _totalWeight = 0.0;
 			foreach (Tuple<T, double> element in random.elements) {

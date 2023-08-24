@@ -80,8 +80,18 @@ namespace EpikV2 {
 		internal static Dictionary<int, int> rarityTiers;
 		internal static List<Func<float>> modRarityChecks;
 		public BidirectionalDictionary<int, int> biomeKeyDropEnemies;
+		public static Dictionary<int, int> ImbueDebuffs;
 		//public static MotionArmorShaderData motionBlurShader;
 		public EpikV2() : base() {
+			ImbueDebuffs = new() {
+				[BuffID.WeaponImbueVenom] = BuffID.Venom,
+				[BuffID.WeaponImbueCursedFlames] = BuffID.CursedInferno,
+				[BuffID.WeaponImbueFire] = BuffID.OnFire,
+				[BuffID.WeaponImbueGold] = BuffID.Midas,
+				[BuffID.WeaponImbueIchor] = BuffID.Ichor,
+				[BuffID.WeaponImbueNanites] = BuffID.Confused,
+				[BuffID.WeaponImbuePoison] = BuffID.Poisoned
+			};
 			biomeKeyDropEnemies = new() {
 				[NPCID.BigMimicCorruption] = ItemID.CorruptionKey,
 				[NPCID.BigMimicCrimson] = ItemID.CrimsonKey,
@@ -199,6 +209,7 @@ namespace EpikV2 {
 			rarityTiers = null;
 			HellforgeRecipes = null;
 			MiscUtils.Unload();
+			ImbueDebuffs = null;
 			Array.Resize(ref TextureAssets.GlowMask, GlowMaskID.Count);
 			//TextureAssets.Item[ItemID.HighTestFishingLine] = Main.Assets.Request<Texture2D>("Images/Item_" + ItemID.HighTestFishingLine, AssetRequestMode.DoNotLoad);
 			//filterMapQueue.Clear();
