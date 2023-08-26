@@ -272,6 +272,21 @@ namespace EpikV2 {
 			MonoModHooks.Modify(typeof(AccessorySlotLoader).GetMethod("DrawSlot", BindingFlags.NonPublic | BindingFlags.Instance), IL_AccessorySlotLoader_DrawSlot);
 			On_Player.FixLoadedData_EliminiateDuplicateAccessories += (_, _) => { };
 			IL_Main.UpdateTime += IL_Main_UpdateTime;
+			Action<Vector2, int, int> v = new Projectile().EmitEnchantmentVisualsAt;
+			On_Projectile.EmitEnchantmentVisualsAt += On_Projectile_EmitEnchantmentVisualsAt;
+		}
+
+		private void On_Projectile_EmitEnchantmentVisualsAt(On_Projectile.orig_EmitEnchantmentVisualsAt orig, Projectile self, Vector2 boxPosition, int boxWidth, int boxHeight) {
+			orig(self, boxPosition, boxWidth, boxHeight);
+			Player player = Main.player[self.owner];
+			if ((self.CountsAsClass(DamageClass.Melee) || ProjectileID.Sets.IsAWhip[self.type]) && player.meleeEnchant <= 0 && !self.noEnchantments) {
+				if (player.GetModPlayer<EpikPlayer>().divineConfetti && Main.rand.NextBool(Math.Clamp(boxWidth + boxHeight, 4, 64), 96)) {
+					Dust dust = Dust.NewDustDirect(boxPosition, boxWidth, boxHeight, DustID.PinkTorch, 0f, 0f, 100);
+					dust.noGravity = true;
+					dust.fadeIn = 1.5f;
+					dust.velocity *= 0.25f;
+				}
+			}
 		}
 
 		private void IL_Item_TryGetPrefixStatMultipliersForItem(ILContext il) {

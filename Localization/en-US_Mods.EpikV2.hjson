@@ -133,6 +133,11 @@ Buffs: {
 		DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Deflect_ Debuff
 		Description: Mods.EpikV2.Buffs.Scimitar_Of_The_Rising_Sun_Deflect_Debuff.Description
 	}
+
+	Divine_Confetti_Buff: {
+		DisplayName: Divine Confetti
+		Description: ""
+	}
 }
 
 Empowerment.SolarRejuvenation: Solar Rejuvenation
@@ -954,6 +959,11 @@ Items: {
 
 	Mortal_Draw: {
 		DisplayName: Mortal Draw
+		Tooltip: ""
+	}
+
+	Divine_Confetti: {
+		DisplayName: Divine Confetti
 		Tooltip: ""
 	}
 }

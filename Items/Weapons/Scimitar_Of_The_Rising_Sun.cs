@@ -337,9 +337,9 @@ namespace EpikV2.Items.Weapons {
 			enchantmentMovement.Normalize();
 			enchantmentMovement = enchantmentMovement.RotatedBy(Projectile.rotation);
 			enchantmentPosition += enchantmentMovement * 8;
-			enchantmentMovement *= 32 * Projectile.scale * HitboxSteps * 0.5f;
+			enchantmentMovement *= 8 * Projectile.scale * HitboxSteps * 0.5f;
 			enchantmentPosition += enchantmentMovement;
-			for (int i = 0; i < 2; i++) {
+			for (int i = 0; i < 8; i++) {
 				Projectile.EmitEnchantmentVisualsAt(enchantmentPosition - enchantmentMovement * Main.rand.NextFloat(), 4, 4);
 				enchantmentPosition += enchantmentMovement;
 			}

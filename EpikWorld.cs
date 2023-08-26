@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
+using Terraria.GameContent.Bestiary;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -73,6 +74,10 @@ namespace EpikV2 {
 					}
 				) > 0
 			));
+
+			for (int i = 0; i < Main.BestiaryDB.Entries.Count; i++) {
+				Divine_Confetti.ProcessBestiaryEntry(i, Main.BestiaryDB.Entries[i]);
+			}
 		}
 		public override void PostUpdateTime() {
 			for (int i = 0; i < Sacrifices.Count; i++) {

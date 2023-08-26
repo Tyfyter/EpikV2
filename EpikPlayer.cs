@@ -26,6 +26,7 @@ using EpikV2.Layers;
 using EpikV2.Items.Accessories;
 using EpikV2.Items.Armor;
 using EpikV2.CrossMod;
+using EpikV2.Items.Other;
 
 namespace EpikV2 {
 	public partial class EpikPlayer : ModPlayer {
@@ -144,6 +145,7 @@ namespace EpikV2 {
 		public bool bobberSnail = false;
 		public bool perfectCellphone = false;
 		public int nextSpikedBoots = 0;
+		public bool divineConfetti = false;
 
 		public static BitsBytes ItemChecking;
 		public static bool nextMouseInterface;
@@ -212,6 +214,7 @@ namespace EpikV2 {
 			imbueShadowflame = false;
 			imbueCursedInferno = false;
 			imbueIchor = false;
+			divineConfetti = false;
 			showLuck = false;
 
 			perfectCellphone = false;
@@ -393,6 +396,27 @@ namespace EpikV2 {
 			}
 			if (marionetteDeathTime > 0) modifiers.FinalDamage *= 0.5f;
 		}
+		public override void ModifyHitNPCWithItem(Item item, NPC target, ref NPC.HitModifiers modifiers) {
+			if (divineConfetti) DivineConfettiDamageBonus(target, ref modifiers);
+		}
+		public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers) {
+			if ((proj.CountsAsClass(DamageClass.Melee) || ProjectileID.Sets.IsAWhip[proj.type]) && !proj.noEnchantments && divineConfetti) DivineConfettiDamageBonus(target, ref modifiers);
+		}
+		static void DivineConfettiDamageBonus(NPC target, ref NPC.HitModifiers modifiers) {
+			modifiers.SourceDamage.Base += 8;
+			if (Divine_Confetti.NPCIDs.Contains(target.type)) {
+				modifiers.SourceDamage.Base += 4;
+				modifiers.SourceDamage *= 1.25f;
+			}
+		}
+		public override void MeleeEffects(Item item, Rectangle hitbox) {
+			if (divineConfetti && Main.rand.NextBool(Math.Clamp(hitbox.Width + hitbox.Height, 4, 96), 192)) {
+				Dust dust = Dust.NewDustDirect(hitbox.TopLeft(), hitbox.Width, hitbox.Height, DustID.PinkTorch, 0f, 0f, 100);
+				dust.noGravity = true;
+				dust.fadeIn = 1.5f;
+				dust.velocity *= 0.25f;
+			}
+		}
 		public override void ModifyShootStats(Item item, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
 			int marionettePullTime = marionetteDeathTime - (marionetteDeathTimeMax - 20);
 			if (marionettePullTime > 0) {
@@ -424,6 +448,23 @@ namespace EpikV2 {
 			}
 			if (imbueIchor) {
 				target.AddBuff(BuffID.Ichor, Main.rand.Next(480, 600));
+			}
+		}
+		public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone) {
+			if (divineConfetti) DivineConfettiOnHit(target);
+		}
+		public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone) {
+			if ((proj.CountsAsClass(DamageClass.Melee) || ProjectileID.Sets.IsAWhip[proj.type]) && !proj.noEnchantments && divineConfetti) DivineConfettiOnHit(target);
+		}
+		static void DivineConfettiOnHit(NPC target) {
+			target.AddBuff(BuffID.Cursed, 600);
+			if (Divine_Confetti.NPCIDs.Contains(target.type)) {
+				for (int i = 0; i < 5; i++) {
+					Dust dust = Dust.NewDustDirect(target.position, target.width, target.height, DustID.PinkTorch, 0f, 0f, 100);
+					dust.noGravity = false;
+					dust.fadeIn = 1.5f;
+					dust.velocity.Y -= 0.25f;
+				}
 			}
 		}
 		void OrionExplosion() {
