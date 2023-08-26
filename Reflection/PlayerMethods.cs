@@ -22,6 +22,7 @@ namespace EpikV2.Reflection {
 		}
 		public void Unload() {
 			_ApplyNPCOnHitEffects = null;
+			_UpdateItemDye = null;
 		}
 		public static void ApplyNPCOnHitEffects(Player player, Item sItem, Rectangle itemRectangle, int damage, float knockBack, int npcIndex, int dmgRandomized, int dmgDone) {
 			_target.SetValue(_ApplyNPCOnHitEffects, player);

@@ -117,8 +117,14 @@ namespace EpikV2.Items.Weapons {
 				}
 				if (player.controlUseTile) {
 					SotRS_Combat_Art combatArt = CombatArts[mode];
-					player.velocity *= combatArt.startVelocityMult;
-					player.velocity += velocity * combatArt.directionalVelocity + new Vector2(velocity.Y, -velocity.X) * combatArt.perpendicularVelocity * player.direction + combatArt.absoluteVelocity;
+					Vector2 velMult = Vector2.One;
+					if (player.wingTimeMax > 0 || player.GetModPlayer<EpikPlayer>().collide.y == 1) {
+						player.velocity *= combatArt.startVelocityMult;
+					} else {
+						player.velocity.X *= combatArt.startVelocityMult.X;
+						velMult.Y = 0;
+					}
+					player.velocity += (velocity * combatArt.directionalVelocity + new Vector2(velocity.Y, -velocity.X) * combatArt.perpendicularVelocity * player.direction + combatArt.absoluteVelocity) * velMult;
 					player.itemAnimationMax = player.itemTimeMax = (int)(player.itemTimeMax * combatArt.useTimeMult);
 					player.itemAnimation = player.itemTime = (int)(player.itemTime * combatArt.useTimeMult);
 					Projectile.NewProjectile(
@@ -433,6 +439,10 @@ namespace EpikV2.Items.Weapons {
 
 			player.heldProj = Projectile.whoAmI;
 			player.direction = Math.Sign(Projectile.velocity.X);
+
+			if (Projectile.velocity.Y < Math.Abs(Projectile.velocity.X) * -1f && player.direction == (player.controlRight ? 1 : 0) - (player.controlLeft ? 1 : 0)) {//
+				player.GetModPlayer<EpikPlayer>().nextSpikedBoots += 1;
+			}
 
 			if (!canBlock) return;
 			Rectangle deflectHitbox = Projectile.Hitbox;

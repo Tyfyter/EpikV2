@@ -1,4 +1,5 @@
-﻿using EpikV2.UI;
+﻿using EpikV2.Reflection;
+using EpikV2.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoMod.Cil;
@@ -911,19 +912,29 @@ namespace EpikV2 {
 				if (player.buffTime[i] > 0) {
 					int buffType = player.buffType[i];
 					if (BuffID.Sets.IsAFlaskBuff[buffType]) {
-						if (EpikV2.ImbueDebuffs.TryGetValue(buffType, out int blockType)) player.buffImmune[blockType] = true;
+						//if (EpikV2.ImbueDebuffs.TryGetValue(buffType, out int blockType)) player.buffImmune[blockType] = true;
+						NPC dummyNPC = Main.npc[Main.maxNPCs];
+						dummyNPC.SetDefaults(NPCID.Frog);
+						player.StatusToNPC(-1, Main.maxNPCs);
+						NPC.HitInfo strike = new NPC.HitInfo() {
+							DamageType = player.HeldItem.DamageType,
+							HideCombatText = true
+						};
+						CombinedHooks.OnPlayerHitNPCWithItem(player, player.HeldItem, dummyNPC, in strike, 0);
+						for (int j = 0; j < dummyNPC.buffType.Length; j++) {
+							if (dummyNPC.buffTime[j] > 0) {
+								player.buffImmune[dummyNPC.buffType[j]] = true;
+							} else break;
+						}
 						break;
 					}
 				} else break;
 			}
-			if (player.magmaStone) {
-				player.buffImmune[BuffID.OnFire] = true;
-				player.buffImmune[BuffID.OnFire3] = true;
-			}
-			if (player.frostBurn) {
-				player.buffImmune[BuffID.Frostburn] = true;
-				player.buffImmune[BuffID.Frostburn2] = true;
-			}
+			player.buffImmune[BuffID.OnFire] |= player.buffImmune[BuffID.OnFire3];
+			player.buffImmune[BuffID.OnFire3] |= player.buffImmune[BuffID.OnFire];
+
+			player.buffImmune[BuffID.Frostburn] |= player.buffImmune[BuffID.Frostburn2];
+			player.buffImmune[BuffID.Frostburn2] |= player.buffImmune[BuffID.Frostburn];
 		}
 		public static T Pop<T>(this WeightedRandom<T> random) {
 			double _totalWeight = 0.0;

@@ -143,6 +143,7 @@ namespace EpikV2 {
 		public bool oldWolfBlood = false;
 		public bool bobberSnail = false;
 		public bool perfectCellphone = false;
+		public int nextSpikedBoots = 0;
 
 		public static BitsBytes ItemChecking;
 		public static bool nextMouseInterface;
@@ -202,6 +203,8 @@ namespace EpikV2 {
 				}
 			}
 			pyrkasivarsCount = 0;
+			Player.spikedBoots += nextSpikedBoots;
+			nextSpikedBoots = 0;
 			manaWithdrawal = false;
 			drugPotion = false;
 			shieldBuff = false;
