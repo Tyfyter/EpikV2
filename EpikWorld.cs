@@ -75,8 +75,8 @@ namespace EpikV2 {
 				) > 0
 			));
 
-			for (int i = 0; i < Main.BestiaryDB.Entries.Count; i++) {
-				Divine_Confetti.ProcessBestiaryEntry(i, Main.BestiaryDB.Entries[i]);
+			for (int i = NPCID.NegativeIDCount; i < NPCLoader.NPCCount; i++) {
+				if (Main.BestiaryDB.FindEntryByNPCID(i) is BestiaryEntry entry) Divine_Confetti.ProcessBestiaryEntry(i, entry);
 			}
 		}
 		public override void PostUpdateTime() {

@@ -908,26 +908,17 @@ namespace EpikV2 {
 			return Main.rand.Next(range);
 		}
 		public static void GiveSotRSBlockImmunities(this Player player) {
-			for (int i = 0; i < Player.MaxBuffs; i++) {
-				if (player.buffTime[i] > 0) {
-					int buffType = player.buffType[i];
-					if (BuffID.Sets.IsAFlaskBuff[buffType]) {
-						//if (EpikV2.ImbueDebuffs.TryGetValue(buffType, out int blockType)) player.buffImmune[blockType] = true;
-						NPC dummyNPC = Main.npc[Main.maxNPCs];
-						dummyNPC.SetDefaults(NPCID.Frog);
-						player.StatusToNPC(-1, Main.maxNPCs);
-						NPC.HitInfo strike = new NPC.HitInfo() {
-							DamageType = player.HeldItem.DamageType,
-							HideCombatText = true
-						};
-						CombinedHooks.OnPlayerHitNPCWithItem(player, player.HeldItem, dummyNPC, in strike, 0);
-						for (int j = 0; j < dummyNPC.buffType.Length; j++) {
-							if (dummyNPC.buffTime[j] > 0) {
-								player.buffImmune[dummyNPC.buffType[j]] = true;
-							} else break;
-						}
-						break;
-					}
+			NPC dummyNPC = Main.npc[Main.maxNPCs];
+			dummyNPC.SetDefaults(NPCID.Frog);
+			player.StatusToNPC(-1, Main.maxNPCs);
+			NPC.HitInfo strike = new() {
+				DamageType = player.HeldItem.DamageType,
+				HideCombatText = true
+			};
+			CombinedHooks.OnPlayerHitNPCWithItem(player, player.HeldItem, dummyNPC, in strike, 0);
+			for (int j = 0; j < dummyNPC.buffType.Length; j++) {
+				if (dummyNPC.buffTime[j] > 0) {
+					player.buffImmune[dummyNPC.buffType[j]] = true;
 				} else break;
 			}
 			player.buffImmune[BuffID.OnFire] |= player.buffImmune[BuffID.OnFire3];
