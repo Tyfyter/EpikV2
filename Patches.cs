@@ -274,6 +274,10 @@ namespace EpikV2 {
 			IL_Main.UpdateTime += IL_Main_UpdateTime;
 			Action<Vector2, int, int> v = new Projectile().EmitEnchantmentVisualsAt;
 			On_Projectile.EmitEnchantmentVisualsAt += On_Projectile_EmitEnchantmentVisualsAt;
+			On_Player.LookForTileInteractions += (orig, self) => {
+				if (self.HeldItem?.ModItem is IDisableTileInteractItem item && item.DisableTileInteract(self)) return;
+				orig(self);
+			};
 		}
 
 		private void On_Projectile_EmitEnchantmentVisualsAt(On_Projectile.orig_EmitEnchantmentVisualsAt orig, Projectile self, Vector2 boxPosition, int boxWidth, int boxHeight) {

@@ -101,6 +101,9 @@ namespace EpikV2 {
 	public interface IShadedProjectile {
 		int GetShaderID();
 	}
+	public interface IDisableTileInteractItem {
+		bool DisableTileInteract(Player player);
+	}
 	public struct BitsBytes {
 		readonly BitsByte[] _bytes;
 		public BitsBytes(ushort bytes) {

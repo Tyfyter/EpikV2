@@ -24,12 +24,13 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.UI.Chat;
 using Terraria.Utilities;
 using Tyfyter.Utils;
 using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items.Weapons {
-	public class Scimitar_Of_The_Rising_Sun : ModItem, IMultiModeItem {
+	public class Scimitar_Of_The_Rising_Sun : ModItem, IMultiModeItem, IDisableTileInteractItem {
 		public static List<SotRS_Combat_Art> BaseCombatArts { get; private set; } = new();
 		public List<SotRS_Combat_Art> CombatArts {
 			get {
@@ -93,8 +94,13 @@ namespace EpikV2.Items.Weapons {
 			Item.value = Item.sellPrice(gold: 5);
 		}
 		public override bool AltFunctionUse(Player player) => true;
-		public override bool CanUseItem(Player player) {
-			return true;
+		public bool DisableTileInteract(Player player) {
+			if (Main.SmartCursorIsUsed) {
+				player.tileInteractionHappened = false;
+				Main.SmartInteractShowingGenuine = false;
+				return true;
+			}
+			return false;
 		}
 		public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
 			if (player.altFunctionUse == 2) {
@@ -193,8 +199,7 @@ namespace EpikV2.Items.Weapons {
 			Player player = Main.LocalPlayer;
 			Texture2D backTexture = TextureAssets.InventoryBack13.Value;
 			List<SotRS_Combat_Art> combatArts = CombatArts;
-			float posX = ((player.Center.X - Main.screenPosition.X) - (combatArts.Count / 2f) * (backTexture.Width + 4)) / Main.UIScale;
-			for (int i = 0; i < combatArts.Count; i++) {
+			float DrawSlot(int i, Vector2 center) {
 				if (ItemSelected(i)) {
 					if (Main.hotbarScale[i] < 1f) {
 						Main.hotbarScale[i] += 0.05f;
@@ -203,18 +208,10 @@ namespace EpikV2.Items.Weapons {
 					Main.hotbarScale[i] -= 0.05f;
 				}
 				float hotbarScale = Main.hotbarScale[i];
-				int posY = (int)((player.Bottom.Y - Main.screenPosition.Y + 8 + 22f * (1f - hotbarScale)) / Main.UIScale);
 				int a = (int)(75f + 150f * hotbarScale);
 				Color lightColor = new Color(255, 255, 255, a);
 				Item potentialItem = new Item(combatArts[i].itemIcon);
 
-				if (!player.hbLocked && !PlayerInput.IgnoreMouseInterface && Main.mouseX >= posX && Main.mouseX <= (float)posX + backTexture.Width * Main.hotbarScale[i] && Main.mouseY >= posY && Main.mouseY <= posY + backTexture.Height * Main.hotbarScale[i] && !player.channel) {
-					player.mouseInterface = true;
-					if (Main.mouseLeft && !player.hbLocked && !Main.blockMouse) {
-						SelectItem(i);
-					}
-					Main.hoverItemName = potentialItem.AffixName();
-				}
 				float oldInventoryScale = Main.inventoryScale;
 				Main.inventoryScale = hotbarScale;
 				string slotNumber = "";
@@ -250,19 +247,70 @@ namespace EpikV2.Items.Weapons {
 					slotNumber = "\u3007";
 					break;
 				}
+				center -= backTexture.Size() * Main.inventoryScale * 0.5f;
 				ModeSwitchHotbar.DrawColoredItemSlot(
 					Main.spriteBatch,
 					ref potentialItem,
-					new Vector2(posX, posY),
+					center,
 					backTexture,
 					new Color(204, 184, 148),
 					lightColor,
 					Color.Black,
 					slotNumber
 				);
-				
+
 				Main.inventoryScale = oldInventoryScale;
-				posX += (int)(backTexture.Width * Main.hotbarScale[i]) + 4;
+				return hotbarScale;
+			}
+			if (PlayerInput.UsingGamepad) {
+				Vector2 center = player.MountedCenter - Main.screenPosition;
+				PolarVec2 offset = new(64, 0);
+				float spin = MathHelper.TwoPi / combatArts.Count;
+				for (int i = 0; i < combatArts.Count; i++) {
+					DrawSlot(i, center + (Vector2)offset);
+					offset.Theta += spin;
+				}
+				DynamicSpriteFont font = FontAssets.CombatText[0].Value;
+				bool shouldSwitch = PlayerInput.GamepadThumbstickRight.LengthSquared() > PlayerInput.CurrentProfile.RightThumbstickDeadzoneX * PlayerInput.CurrentProfile.RightThumbstickDeadzoneY;
+				float stickAngle = PlayerInput.GamepadThumbstickRight.ToRotation();
+				for (int i = 0; i < combatArts.Count; i++) {
+					Vector2 slotPos = center + (Vector2)offset;
+					string name = Lang.GetItemNameValue(combatArts[i].itemIcon);
+					Vector2 nameSize = font.MeasureString(name);
+					ChatManager.DrawColorCodedStringWithShadow(
+						Main.spriteBatch,
+						font,
+						name,
+						slotPos + new Vector2(0, backTexture.Height * Main.hotbarScale[i] * 0.5f),
+						Color.Wheat,
+						0,
+						nameSize * new Vector2(0.5f, 0),
+						new Vector2(Main.hotbarScale[i])
+					);
+					if (shouldSwitch && GeometryUtils.AngleDif(offset.Theta, stickAngle, out _) < spin * 0.5f) {
+						SelectItem(i);
+					}
+					offset.Theta += spin;
+				}
+			} else {
+				float posX = ((player.Center.X - Main.screenPosition.X) - (combatArts.Count / 2f) * (backTexture.Width + 4) * 0.65f) / Main.UIScale;
+				int posY = (int)((player.Bottom.Y - Main.screenPosition.Y + 24) / Main.UIScale);
+				for (int i = 0; i < combatArts.Count; i++) {
+
+					DrawSlot(i, new Vector2(posX, posY));
+					Vector2 textureSize = new Vector2(backTexture.Width * Main.hotbarScale[i], backTexture.Height * Main.hotbarScale[i]) * 0.5f;
+					if (!player.hbLocked && !PlayerInput.IgnoreMouseInterface
+					&& Main.mouseX >= posX - textureSize.X && Main.mouseX <= posX + textureSize.X
+					&& Main.mouseY >= posY - textureSize.Y && Main.mouseY <= posY + textureSize.Y
+					&& !player.channel) {
+						player.mouseInterface = true;
+						if (Main.mouseLeft && !player.hbLocked && !Main.blockMouse) {
+							SelectItem(i);
+						}
+						Main.hoverItemName = Lang.GetItemNameValue(combatArts[i].itemIcon);
+					}
+					posX += (int)(backTexture.Width * Main.hotbarScale[i]) + 4;
+				}
 			}
 		}
 		public override void AddRecipes() {
@@ -376,6 +424,8 @@ namespace EpikV2.Items.Weapons {
 		protected int HitboxPrecision => 2;
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.PiercingStarlight);
+			Projectile.width = Projectile.height = 48;
+			Projectile.penetrate = 3;
 			Projectile.friendly = true;
 			Projectile.aiStyle = 0;
 			Projectile.extraUpdates = 0;
@@ -415,6 +465,19 @@ namespace EpikV2.Items.Weapons {
 				player.SetCompositeArmFront(true, Player.CompositeArmStretchAmount.Full, realRotation);
 				Projectile.Center = player.GetFrontHandPosition(Player.CompositeArmStretchAmount.Full, realRotation) - Projectile.velocity;// player.MountedCenter - Projectile.velocity + (Vector2)new PolarVec2(32, realRotation);
 				if (endFactor < 1) canBlock = false;
+				if (Projectile.penetrate != 3) {
+					if (PlayerInput.Triggers.JustPressed.MouseLeft) {
+						Projectile.Kill();
+						return;
+					}
+					if (player.controlUseTile) {
+						Projectile.penetrate = 3;
+						Projectile.friendly = true;
+						Projectile.timeLeft = min_duration;
+						Projectile.ResetLocalNPCHitImmunity();
+						Projectile.ai[1] = 0;
+					}
+				}
 			} else {
 				if (PlayerInput.Triggers.JustPressed.MouseLeft) {
 					Projectile.Kill();
@@ -471,6 +534,7 @@ namespace EpikV2.Items.Weapons {
 								SoundEngine.PlaySound(SoundID.Item37.WithVolume(0.95f).WithPitch(0.41f).WithPitchVarience(0), intersectCenter);
 								SoundEngine.PlaySound(SoundID.Item35.WithVolume(1f).WithPitch(1f), intersectCenter);
 								player.velocity += other.velocity * 0.25f;
+								Projectile.penetrate = 2;
 							} else {
 								deflectState = 1;
 								SoundEngine.PlaySound(SoundID.Item37.WithVolume(0.95f).WithPitch(0.41f).WithPitchVarience(0), intersectCenter);
@@ -502,10 +566,11 @@ namespace EpikV2.Items.Weapons {
 			player.velocity.X += totalKnockback * (1 - target.knockBackResist);
 		}
 		public override bool? CanHitNPC(NPC target) {
-			if (target.damage <= 0) return false;
+			//if (target.damage <= 0) return false;
 			return null;
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
+			Projectile.penetrate = 2;
 			target.AddBuff(BuffType<Scimitar_Of_The_Rising_Sun_Deflect_Debuff>(), 130);
 			Main.player[Projectile.owner].GiveImmuneTimeForCollisionAttack(14);
 			Rectangle deflectHitbox = Projectile.Hitbox;
