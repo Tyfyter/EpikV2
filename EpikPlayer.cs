@@ -27,6 +27,7 @@ using EpikV2.Items.Accessories;
 using EpikV2.Items.Armor;
 using EpikV2.CrossMod;
 using EpikV2.Items.Other;
+using System.Linq;
 
 namespace EpikV2 {
 	public partial class EpikPlayer : ModPlayer {
@@ -967,6 +968,23 @@ namespace EpikV2 {
 			}
 			return true;
 		}
+		public override IEnumerable<Item> AddMaterialsForCrafting(out ItemConsumedCallback itemConsumedCallback) {
+			base.AddMaterialsForCrafting(out itemConsumedCallback);
+			List<Item> items = new();
+			IEnumerator<Item> inventories = Player.inventory
+			.Concat(Player.bank.item)
+			.Concat(Player.bank2.item)
+			.Concat(Player.bank3.item)
+			.Concat(Player.bank4.item)
+			.GetEnumerator();
+			while (inventories.MoveNext()) {
+				Item item = inventories.Current;
+				if (item.ammo > 0 && !item.consumable && item.maxStack == 1) {
+					items.Add(new(item.ammo, Item.CommonMaxStack));
+				}
+			}
+			return items;
+		}
 		public override bool PreItemCheck() {
 			if (EpikConfig.Instance.NoFishingBreak) {
 				if (Player.accFishingLine) {
@@ -1173,38 +1191,5 @@ namespace EpikV2 {
 			tag.TryGet("nameColorOverride", out nameColorOverride);
 		}
 		#endregion IO
-
-		/*internal static PlayerLayer MarionetteStringLayer(int marionetteDeathTime) => new PlayerLayer("EpikV2", "MarionetteStringLayer", null, delegate (PlayerDrawInfo drawInfo) {
-            Vector2 size = drawInfo.drawPlayer.Size;
-            Vector2 position = drawInfo.position;
-            Vector2 handPos = GetOnHandPos(drawInfo.drawPlayer.bodyFrame);
-            float baseX = (position.X+size.X*0.5f) - Main.screenPosition.X;
-            float baseY = (position.Y+size.Y*0.5f) - Main.screenPosition.Y;
-
-            int marionettePullTime = marionetteDeathTime-(marionetteDeathTimeMax-20);
-            float fadeTime = Math.Min((marionetteDeathTime * 10f)/510, 0.5f);
-            Color fadeColor = new Color(fadeTime*0.75f,fadeTime*0.75f,fadeTime*0.75f,fadeTime*0.5f);
-            int shaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveSilverDye);
-            if((drawInfo.spriteEffects&SpriteEffects.FlipHorizontally)!=SpriteEffects.None) {
-                handPos.X = -handPos.X;
-            }
-
-            float stringLength = 1024;
-            if(marionettePullTime>0) {
-                stringLength -= (float)Math.Pow(2, marionettePullTime-10);
-                stringLength += marionettePullTime;
-            }
-            int X = (int)(baseX+handPos.X);
-            int Y = (int)(baseY+handPos.Y);
-
-            DrawData data = new DrawData(Textures.pixelTexture, new Rectangle(X, Y, 2, (int)stringLength), null, fadeColor, -drawInfo.drawPlayer.fullRotation, new Vector2(0.5f, 1f), SpriteEffects.None, 0);
-            data.shader = shaderID;
-            Main.playerDrawData.Add(data);
-
-            X = (int)(baseX-handPos.X);
-            data = new DrawData(Textures.pixelTexture, new Rectangle(X, Y, 2, (int)stringLength), null, fadeColor, -drawInfo.drawPlayer.fullRotation, new Vector2(0.5f, 1f), SpriteEffects.None, 0);
-            data.shader = shaderID;
-            Main.playerDrawData.Insert(0, data);
-        });*/
 	}
 }
