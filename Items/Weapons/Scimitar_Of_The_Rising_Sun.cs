@@ -396,7 +396,7 @@ namespace EpikV2.Items.Weapons {
 			if (SwingFactor > 0 && SwingFactor < 1) return null;
 			return false;
 		}
-		public override void Kill(int timeLeft) {
+		public override void OnKill(int timeLeft) {
 			Main.player[Projectile.owner].velocity *= TimeoutVelocity;
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
@@ -754,7 +754,7 @@ namespace EpikV2.Items.Weapons {
 			if (player.manaRegenDelay < 15) player.manaRegenDelay = 15;
 			Projectile.spriteDirection = (SwingFactor > 0 && SwingFactor < 1) ? 1 : 0;
 		}
-		public override void Kill(int timeLeft) {
+		public override void OnKill(int timeLeft) {
 			Player player = Main.player[Projectile.owner];
 			player.itemTime = player.itemTimeMax;
 			Projectile.NewProjectile(

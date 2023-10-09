@@ -19,7 +19,7 @@ namespace EpikV2.Items.Accessories {
 		public override bool Active() {
 			return Main.LocalPlayer.GetModPlayer<EpikPlayer>().showLuck;
 		}
-		public override string DisplayValue(ref Color displayColor)/* tModPorter Suggestion: Set displayColor to InactiveInfoTextColor if your display value is "zero"/shows no valuable information */ {
+		public override string DisplayValue(ref Color displayColor, ref Color displayShadowColor)/* tModPorter Suggestion: Set displayColor to InactiveInfoTextColor if your display value is "zero"/shows no valuable information */ {
 			float luck = Main.LocalPlayer.luck;
 			if (luck > 0) {
 				displayColor = Color.ForestGreen;

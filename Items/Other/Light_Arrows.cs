@@ -82,7 +82,7 @@ namespace EpikV2.Items.Other {
 		public override Color? GetAlpha(Color lightColor) {
 			return Color.Lerp(lightColor, new Color(250, 250, 210, 0), 0.5f);
 		}
-		public override void Kill(int timeLeft) {
+		public override void OnKill(int timeLeft) {
 			Collision.HitTiles(Projectile.position, Projectile.velocity, Projectile.width, Projectile.height);
 			SoundEngine.PlaySound(SoundID.Dig, Projectile.position);
 			for (int i = 0; i < 10; i++) {

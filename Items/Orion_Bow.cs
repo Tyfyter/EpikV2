@@ -296,8 +296,8 @@ namespace EpikV2.Items {
             }
             return true;
         }
-        public override void Kill(int timeLeft) {
-            other?.Kill(timeLeft);
+        public override void OnKill(int timeLeft) {
+            other?.OnKill(timeLeft);
         }
         public override bool? CanHitNPC(NPC target) {
             return Fired?base.CanHitNPC(target):false;
@@ -414,8 +414,8 @@ namespace EpikV2.Items {
             }
             return true;
         }
-        public override void Kill(int timeLeft) {
-            other?.Kill(timeLeft);
+        public override void OnKill(int timeLeft) {
+            other?.OnKill(timeLeft);
         }
         public override bool PreDraw(ref Color lightColor) {
             Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.starlightShader.Shader);

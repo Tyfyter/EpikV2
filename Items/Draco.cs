@@ -202,7 +202,7 @@ namespace EpikV2.Items {
                 Main.player[projectile.owner].heldProj = projectile.whoAmI;
             }*/
         }
-        public override void Kill(int timeLeft) {
+        public override void OnKill(int timeLeft) {
             Dust d;
             float rot = TwoPi / 27f;
             for(int i = 0; i < 27; i++) {

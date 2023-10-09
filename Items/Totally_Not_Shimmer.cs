@@ -30,7 +30,7 @@ namespace EpikV2.Items {
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.UnholyWater);
 		}
-		public override void Kill(int timeLeft) {
+		public override void OnKill(int timeLeft) {
 			SoundEngine.PlaySound(SoundID.Shatter, Projectile.position);
 			for (int i = 0; i < 5; i++) {
 				Dust.NewDust(Projectile.position, Projectile.width, Projectile.height, DustID.Glass);

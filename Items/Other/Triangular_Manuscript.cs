@@ -777,7 +777,7 @@ namespace EpikV2.Items.Other {
 			Projectile.hide = true;
 			Projectile.timeLeft = 50;
 		}
-		public override void Kill(int timeLeft) {
+		public override void OnKill(int timeLeft) {
 			if (Main.myPlayer == Projectile.owner) {
 				Projectile.NewProjectile(
 					Projectile.GetSource_FromThis(),

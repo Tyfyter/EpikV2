@@ -137,7 +137,7 @@ namespace EpikV2.Items {
 				modifiers.DisableCrit();
             }
         }
-        public override void Kill(int timeLeft) {
+        public override void OnKill(int timeLeft) {
             Player player = Main.player[Projectile.owner];
             if(player.ownedProjectileCounts[Projectile.type]>1)return;
             NPC npc;

@@ -1564,7 +1564,7 @@ namespace EpikV2.Items {
 		public override string Texture => "Terraria/Images/Buff_160";
 		public static int ID { get; private set; } = -1;
 		public override void SetStaticDefaults() {
-			BuffID.Sets.IsAnNPCWhipDebuff[Type] = true;
+			BuffID.Sets.IsATagBuff[Type] = true;
 			ID = Type;
 		}
 	}
@@ -1736,7 +1736,7 @@ namespace EpikV2.Items {
 		public override string Texture => "Terraria/Images/Buff_160";
 		public static int ID { get; private set; } = -1;
 		public override void SetStaticDefaults() {
-			BuffID.Sets.IsAnNPCWhipDebuff[Type] = true;
+			BuffID.Sets.IsATagBuff[Type] = true;
 			ID = Type;
 		}
 	}

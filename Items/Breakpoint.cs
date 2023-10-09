@@ -143,7 +143,7 @@ namespace EpikV2.Items {
             Lighting.AddLight(Projectile.Center + lightOffset, 1f, 0.85f * embedGlowMultiplier, 0f);
             //Dust.NewDustPerfect(lightPos, 226, Vector2.Zero, 100, new Color(0, 255, 191), 0.5f).noGravity = true;
 		}
-        public override void Kill(int timeLeft) {
+        public override void OnKill(int timeLeft) {
             Projectile.localNPCImmunity = new int[200];
             EmbedTime = -1;
             Vector2 lightPos = Projectile.Center - (Vector2)new PolarVec2(19, Projectile.rotation-MathHelper.PiOver2);

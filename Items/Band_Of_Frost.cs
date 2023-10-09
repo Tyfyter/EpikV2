@@ -101,7 +101,7 @@ namespace EpikV2.Items {
             Dust.NewDustPerfect(Vector2.Lerp(Projectile.Center, oldPos, 0.5f)+new Vector2(0,12), 135, Vector2.Zero);
             oldPos = Projectile.Center;
         }
-        public override void Kill(int timeLeft) {
+        public override void OnKill(int timeLeft) {
             if(Projectile.localAI[0] == -1) {
                 for(int i = 4; i > -4; i--) {
 			        Projectile.NewProjectile(Projectile.GetSource_FromThis(), Projectile.Center, new Vector2(0, 12.5f).RotatedBy(0.1f*i), Frost_Shard.ID, Projectile.damage, Projectile.knockBack, Projectile.owner);

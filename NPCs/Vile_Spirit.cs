@@ -73,7 +73,7 @@ namespace EpikV2.NPCs {
 		public override Color? GetAlpha(Color lightColor) {
 			return base.GetAlpha(lightColor);
 		}
-		public override void Kill(int timeLeft) {
+		public override void OnKill(int timeLeft) {
 			if (Main.myPlayer == Projectile.owner) {
 				Point point = Projectile.position.ToPoint();
 				NPC.NewNPC(Projectile.GetSource_FromThis(), point.X, point.Y, ModContent.NPCType<Vile_Spirit>());
