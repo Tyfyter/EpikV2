@@ -49,7 +49,6 @@ namespace EpikV2.Items.Other.HairDye {
 					ShaderData
 				);
 			}
-			Item.ResearchUnlockCount = 3;
 		}
 
 		public override void SetDefaults() {

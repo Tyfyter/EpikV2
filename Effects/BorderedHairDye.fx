@@ -32,6 +32,7 @@ float4 DashingDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLO
 	float4 color = float4(0.149, 0.616, 0.808, 1);
 
 	if (baseColor.r > 0.36 || !EmptyAdj(coords, float2(2, 2) / uImageSize0)) {
+		coords.x = (coords.x - uSourceRect.x / uImageSize0.x) * (uImageSize0.x / uSourceRect.z);
 		float adjX = (1 - ((coords.x - 0.05) / 0.7)) * 7;
 		if (adjX < 1) {
 			color = float4(0.859, 0.176, 0.263, 1);
