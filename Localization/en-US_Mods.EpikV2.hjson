@@ -125,12 +125,12 @@ Buffs: {
 	}
 
 	Scimitar_Of_The_Rising_Sun_Block_Debuff: {
-		DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Block_ Debuff
+		DisplayName: Scimitar Of The Rising Sun Block Debuff
 		Description: Mods.EpikV2.Buffs.Scimitar_Of_The_Rising_Sun_Block_Debuff.Description
 	}
 
 	Scimitar_Of_The_Rising_Sun_Deflect_Debuff: {
-		DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Deflect_ Debuff
+		DisplayName: Scimitar Of The Rising Sun Deflect Debuff
 		Description: Mods.EpikV2.Buffs.Scimitar_Of_The_Rising_Sun_Deflect_Debuff.Description
 	}
 
@@ -283,7 +283,7 @@ Items: {
 	}
 
 	Attack_Grapple: {
-		DisplayName: Attack_ Grapple
+		DisplayName: Attack Grapple
 		Tooltip: ""
 	}
 
@@ -877,17 +877,17 @@ Items: {
 	}
 
 	Buried_Chest_Item: {
-		DisplayName: Buried_ Chest_ Item
+		DisplayName: Buried Chest Item
 		Tooltip: ""
 	}
 
 	Buried_Chest_Sand_Item: {
-		DisplayName: Buried_ Chest_ Sand_ Item
+		DisplayName: Buried Chest Sand Item
 		Tooltip: ""
 	}
 
 	Full_Buried_Chest_Sand_Item: {
-		DisplayName: Full_ Buried_ Chest_ Sand_ Item
+		DisplayName: Full Buried Chest Sand Item
 		Tooltip: ""
 	}
 
@@ -966,6 +966,26 @@ Items: {
 		DisplayName: Divine Confetti
 		Tooltip: ""
 	}
+
+	High_Life_Hair_Dye: {
+		DisplayName: High Life Hair Dye
+		Tooltip: ""
+	}
+
+	High_Mana_Hair_Dye: {
+		DisplayName: High Mana Hair Dye
+		Tooltip: ""
+	}
+
+	Low_Life_Hair_Dye: {
+		DisplayName: Low Life Hair Dye
+		Tooltip: ""
+	}
+
+	Low_Mana_Hair_Dye: {
+		DisplayName: Low Mana Hair Dye
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck
@@ -1029,7 +1049,7 @@ Projectiles: {
 	Platinum_Shot.DisplayName: Platinum Coin
 	Pyrkasivar_P.DisplayName: Pyrkasivar
 	Pyrkasivar_Shot.DisplayName: Pyrkasivar
-	Rope_Hook_Projectile.DisplayName: Rope_ Hook_ Projectile
+	Rope_Hook_Projectile.DisplayName: Rope Hook
 	Sanguis_Royale_Grab.DisplayName: Sanguis Royale
 	Sanguis_Royale_P.DisplayName: Sanguis Royale
 	Scorpio_Claw.DisplayName: Scorpio
@@ -1038,9 +1058,9 @@ Projectiles: {
 	Silver_Shot.DisplayName: Silver Coin
 	Solweaver_Beam.DisplayName: Solweaver
 	Solweaver_Blast.DisplayName: Solweaver
-	Spike_Hook_Projectile.DisplayName: Spike_ Hook_ Projectile
-	Spike_Hook_Spawn_Projectile.DisplayName: Spike_ Hook_ Spawn_ Projectile
-	Spring_Boots_Projectile.DisplayName: Spring_ Boots_ Projectile
+	Spike_Hook_Projectile.DisplayName: Spike Hook
+	Spike_Hook_Spawn_Projectile.DisplayName: Spike Hook Spawn Projectile
+	Spring_Boots_Projectile.DisplayName: Spring Boots
 	Straylight_Drifter_P.DisplayName: Straylight Drifter
 	SuppressorShot.DisplayName: Suppressor
 	Teleport_Prism_P.DisplayName: Teleport_Prism_P
@@ -1054,12 +1074,12 @@ Projectiles: {
 	Telescope_View_P.DisplayName: Telescope
 	Pentagram_Mango_Hitbox.DisplayName: Pentagram Mango
 	Scimitar_Of_The_Rising_Sun_Slash.DisplayName: Scimitar Of The Rising Sun
-	Scimitar_Of_The_Rising_Sun_Nightjar_Slash.DisplayName: Nightjar_ Slash
+	Scimitar_Of_The_Rising_Sun_Nightjar_Slash.DisplayName: Nightjar Slash
 	Scimitar_Of_The_Rising_Sun_Block.DisplayName: Scimitar Of The Rising Sun
 	Scimitar_Of_The_Rising_Sun_Reverse_Nightjar_Slash.DisplayName: Nightjar Slash Reversal
 	Scimitar_Of_The_Rising_Sun_Sakura_Dance_1.DisplayName: Sakura Dance
 	Scimitar_Of_The_Rising_Sun_Sakura_Dance_2.DisplayName: Sakura Dance
-	Scimitar_Of_The_Rising_Sun_Mortal_Draw.DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Mortal_ Draw
+	Scimitar_Of_The_Rising_Sun_Mortal_Draw.DisplayName: Mortal Draw
 }
 
 DamageClasses: {
