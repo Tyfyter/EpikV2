@@ -77,17 +77,8 @@ namespace EpikV2.Tiles {
 		public override bool ValidTeleportCheck_BiomeRequirements(TeleportPylonInfo pylonInfo, SceneMetrics sceneData) {
 			return BirthdayParty.PartyIsUp;
 		}
-		float partyProgress = 0;
+		internal static float partyProgress = 0;
 		public override void SpecialDraw(int i, int j, SpriteBatch spriteBatch) {
-			if (BirthdayParty.PartyIsUp) {
-				if (partyProgress < 1f) {
-					partyProgress += 0.05f;
-				}
-			} else {
-				if (partyProgress > 0f) {
-					partyProgress -= 0.05f;
-				}
-			}
 			partyProgress = MathHelper.Clamp(partyProgress, 0, 1);
 			DrawPylonCrystal(spriteBatch, i, j, crystalTexture, Color.Lerp(Color.Transparent, Main.DiscoColor, partyProgress), CrystalFrameHeight, CrystalHorizontalFrameCount, CrystalVerticalFrameCount);
 			Tile tile = Main.tile[i, j];

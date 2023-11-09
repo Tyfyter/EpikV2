@@ -56,7 +56,7 @@ namespace EpikV2.Items.Other {
 		}
 		public override void AddRecipes() {
 			ShimmerSlimeTransmutation.AddTransmutation(ItemID.EndlessQuiver, Type, Condition.DownedMechBossAny);
-			ShimmerSlimeTransmutation.AddTransmutation(ItemID.MagicQuiver, Type, Condition.DownedMechBossAny);
+			ShimmerSlimeTransmutation.AddTransmutation(ItemID.MagicQuiver, Type);
 		}
 		public static string RarityName => "Golden";
 		public static IEnumerable<(TextSnippet[] snippets, Vector2 offset, Color color)> GetCustomRarityDraw(string lineText) {

@@ -90,19 +90,23 @@ namespace EpikV2.NPCs {
 							}
 						}
 					} else if (npc.ai[0] == 1) {
-						npc.hide = true;
+						//npc.hide = true;
+						npc.alpha = 255;
+						npc.color = new Color(25, 25, 100, 100);
 						npc.chaseable = false;
 						if (++npc.ai[3] >= 200) {
 							npc.ai[3] = 0;
 							npc.ai[0] = 0;
-							npc.hide = false;
+							//npc.hide = false;
+							npc.alpha = 0;
+							npc.color = Color.Transparent;
 							npc.chaseable = true;
 							npc.netUpdate = true;
 						}
 					} else if (npc.ai[0] == -1) {
 						NPC parent = Main.npc[(int)npc.ai[3]];
-						if (npc.realLife == -1) npc.netUpdate = true;
-						npc.realLife = (int)npc.ai[3];
+						if (npc.lifeMax != 20) npc.netUpdate = true;
+						//npc.realLife = (int)npc.ai[3];
 						npc.scale = 0.75f;
 						npc.lifeMax = 20;
 						npc.life = npc.lifeMax;
@@ -291,7 +295,8 @@ namespace EpikV2.NPCs {
 				}
             }
         }
-		public override void OnHitNPC(NPC npc, NPC target, NPC.HitInfo hit) {
+
+		public void OnIncomingHit(NPC npc, NPC.HitInfo hit) {
 			if (!ShouldApply(npc)) return;
 			switch (npc.type) {
 				case NPCID.BloodNautilus: {
@@ -307,12 +312,12 @@ namespace EpikV2.NPCs {
 				}
 				case NPCID.IlluminantBat: {
 					if (npc.ai[0] == -1) {
-						NPC parent = Main.npc[npc.realLife];
+						NPC parent = Main.npc[(int)npc.ai[3]];
 						if (hit.Damage < 10 && npc.life > hit.Damage) {
 							parent.life -= hit.Damage;
 						} else {
-							hit.Damage = npc.lifeMax;
-							parent.life -= npc.lifeMax;
+							hit.Damage = 20;
+							parent.life -= 20;
 							parent.checkDead();
 							npc.life = 0;
 							npc.realLife = -1;
@@ -340,6 +345,12 @@ namespace EpikV2.NPCs {
 					break;
 				}
 			}
+		}
+		public override void OnHitByItem(NPC npc, Player player, Item item, NPC.HitInfo hit, int damageDone) {
+			OnIncomingHit(npc, hit);
+		}
+		public override void OnHitByProjectile(NPC npc, Projectile projectile, NPC.HitInfo hit, int damageDone) {
+			OnIncomingHit(npc, hit);
 		}
 		public override bool CanHitNPC(NPC npc, NPC target){
 			if (!ShouldApply(target)) return true;

@@ -1,6 +1,7 @@
 ﻿using EpikV2.CrossMod;
 using EpikV2.Items;
 using EpikV2.Items.Other;
+using EpikV2.Tiles;
 using EpikV2.UI;
 using Microsoft.Xna.Framework;
 using System;
@@ -11,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.GameContent.Bestiary;
+using Terraria.GameContent.Events;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
@@ -154,6 +156,15 @@ namespace EpikV2 {
 			if (Main.netMode != NetmodeID.MultiplayerClient && EpikV2.tileCountState <= 0) {
 				EpikV2.tileCountState = 1;
 				for (; WorldGen.totalX < Main.maxTilesX; WorldGen.totalX++) WorldGen.CountTiles(WorldGen.totalX);
+			}
+			if (BirthdayParty.PartyIsUp) {
+				if (Party_Pylon_Tile.partyProgress < 1f) {
+					Party_Pylon_Tile.partyProgress += 0.05f;
+				}
+			} else {
+				if (Party_Pylon_Tile.partyProgress > 0f) {
+					Party_Pylon_Tile.partyProgress -= 0.05f;
+				}
 			}
 		}
 		public override void OnWorldLoad() {
