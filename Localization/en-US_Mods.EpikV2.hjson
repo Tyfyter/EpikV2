@@ -936,12 +936,7 @@ Items: {
 
 	Loadout_Share: {
 		DisplayName: Loadout Share
-		Tooltip: ""
-	}
-
-	Loadout_Share_Left: {
-		DisplayName: Loadout Share
-		Tooltip: ""
+		Tooltip: Right click to switch which loadout the accessory is taken from
 	}
 
 	Scimitar_Of_The_Rising_Sun: {

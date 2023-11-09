@@ -11,6 +11,7 @@ using Terraria;
 using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
 
@@ -34,7 +35,7 @@ namespace EpikV2.Items.Accessories {
 		public virtual int Offset => 1;
 		public virtual Texture2D OverlayTexture => TextureAssets.ScrollRightButton.Value;
 		public override void SetDefaults() {
-			Item.DefaultToAccessory(36, 36);
+			Item.DefaultToAccessory(32, 24);
 		}
 		public static EquipmentLoadout GetOtherLoadout(Player player, int offset) {
 			return player.Loadouts[(player.CurrentLoadoutIndex + player.Loadouts.Length + offset) % player.Loadouts.Length];
@@ -169,6 +170,8 @@ namespace EpikV2.Items.Accessories {
 		public override int SwapType => ModContent.ItemType<Loadout_Share>();
 		public override int Offset => -1;
 		public override Texture2D OverlayTexture => TextureAssets.ScrollLeftButton.Value;
+		public override LocalizedText DisplayName => Language.GetOrRegister($"Mods.EpikV2.{LocalizationCategory}.{nameof(Loadout_Share)}.DisplayName", PrettyPrintName);
+		public override LocalizedText Tooltip => Language.GetOrRegister($"Mods.EpikV2.{LocalizationCategory}.{nameof(Loadout_Share)}.Tooltip", () => "");
 		public override bool CanRightClick() {
 			if (Main.mouseRightRelease) {
 				Item.ChangeItemType(ModContent.ItemType<Loadout_Share>());
