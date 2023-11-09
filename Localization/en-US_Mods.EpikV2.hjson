@@ -8,6 +8,14 @@ Conditions: {
 	PartyTime: A few decades ago
 	SlimeRain: During {$Bestiary_Events.SlimeRain}
 	ShimmerSlimeTransmutation: Shimmer Slime Transmutation
+	NpcIsNearby: When the {0} is nearby
+	And: "{0} and {1}"
+	Or: "{0} or {1}"
+	CommaAnd: "{0}, and {1}"
+	CommaOr: "{0}, or {1}"
+	Not: Not {0}
+	Comma: "{0}, {1}"
+	A: a {0}
 }
 
 DropConditions: {
@@ -989,6 +997,11 @@ Items: {
 
 	Bloodstained_Hair_Dye: {
 		DisplayName: Bloodstained Hair Dye
+		Tooltip: ""
+	}
+
+	Solar_Hair_Dye: {
+		DisplayName: Solar Hair Dye
 		Tooltip: ""
 	}
 }

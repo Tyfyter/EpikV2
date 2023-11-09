@@ -18,11 +18,13 @@ namespace EpikV2.Items.Other.HairDye {
 		public override HairShaderData ShaderData => Resources.Shaders.dashingHairDyeShader;
 	}
 	public class Lunar_Hair_Dye : HairDye {
-		public override string Texture => "Terraria/Images/Item_" + ItemID.TwilightHairDye;
 		public override HairShaderData ShaderData => Resources.Shaders.lunarHairDyeShader;
 	}
+	public class Solar_Hair_Dye : HairDye {
+		public override HairShaderData ShaderData => GetShaderWithPass("BorderedHairDye", "SolarDye");
+	}
 	public class Bloodstained_Hair_Dye : HairDye {
-		public override HairShaderData ShaderData => new BloodstainedHairShaderData(GetShader("Effects/BloodstainedHairDye"), "BloodstainedHairDye")
+		public override HairShaderData ShaderData => new BloodstainedHairShaderData(GetShader("BloodstainedHairDye"), "BloodstainedHairDye")
 		.UseImage("Images/Misc/noise");
 		public class BloodstainedHairShaderData : HairShaderData {
 			public BloodstainedHairShaderData(Ref<Effect> shader, string passName) : base(shader, passName) { }
@@ -81,7 +83,7 @@ namespace EpikV2.Items.Other.HairDye {
 			return new HairShaderData(GetShader(shader), pass);
 		}
 		protected Ref<Effect> GetShader(string shader) {
-			return new Ref<Effect>(Mod.Assets.Request<Effect>(shader, AssetRequestMode.ImmediateLoad).Value);
+			return new Ref<Effect>(Mod.Assets.Request<Effect>("Effects/" + shader, AssetRequestMode.ImmediateLoad).Value);
 		}
 	}
 }

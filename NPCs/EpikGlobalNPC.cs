@@ -6,6 +6,7 @@ using EpikV2.Items;
 using EpikV2.Items.Accessories;
 using EpikV2.Items.Armor;
 using EpikV2.Items.Other;
+using EpikV2.Items.Other.HairDye;
 using EpikV2.Items.Weapons;
 using EpikV2.Projectiles;
 using EpikV2.Tiles;
@@ -504,6 +505,51 @@ namespace EpikV2.NPCs
 
 				case NPCID.WitchDoctor:
 				shop.Add<Loadout_Share>();
+				break;
+
+				case NPCID.Stylist:
+				shop.InsertAfter(ItemID.LifeHairDye, ModContent.ItemType<High_Life_Hair_Dye>());
+				shop.InsertAfter(ItemID.LifeHairDye, ModContent.ItemType<Low_Life_Hair_Dye>());
+				shop.InsertAfter(ItemID.ManaHairDye, ModContent.ItemType<High_Mana_Hair_Dye>());
+				shop.InsertAfter(ItemID.ManaHairDye, ModContent.ItemType<Low_Mana_Hair_Dye>());
+				shop.InsertBefore(ItemID.WilsonBeardShort, ModContent.ItemType<Bloodstained_Hair_Dye>(), Condition.BloodMoon);
+				shop.InsertBefore(ItemID.WilsonBeardShort, ModContent.ItemType<Bloodstained_Hair_Dye>(), Condition.DownedGoblinArmy, Condition.NotBloodMoon);
+				Condition specialHairDyeCondition = new Condition(
+					Language.GetOrRegister("Mods.EpikV2.Conditions.NpcIsNearby").WithFormatArgs(CombineWithOr(
+						Language.GetText("NPCName.PartyGirl"),
+						Language.GetText("NPCName.Princess"),
+						Language.GetText("DryadNames.Celestia"),
+						Language.GetOrRegister("Mods.EpikV2.Conditions.A").WithFormatArgs(Language.GetText("BuffName.PetTurtle"))
+					)),
+					() => {
+						if (Main.LocalPlayer.turtle) return true;
+						Point16 centerPoint = Main.LocalPlayer.Center.ToTileCoordinates16();
+						Rectangle rectangle = new(centerPoint.X - Main.buffScanAreaWidth / 2, centerPoint.Y - Main.buffScanAreaHeight / 2, Main.buffScanAreaWidth, Main.buffScanAreaHeight);
+						for (int i = 0; i < Main.maxNPCs; i++) {
+							NPC npc = Main.npc[i];
+							if (!npc.active || npc.homeless || !rectangle.Contains(npc.homeTileX, npc.homeTileY)) {
+								continue;
+							}
+							switch (npc.type) {
+								case NPCID.Dryad:
+								if (npc.GivenName == Language.GetText("DryadNames.Celestia").Value) goto case NPCID.Princess;
+								break;
+
+								case NPCID.PartyGirl:
+								case NPCID.Princess: {
+									if (Vector2.DistanceSquared(new Vector2(npc.homeTileX, npc.homeTileY), new Vector2(npc.Center.X / 16f, npc.Center.Y / 16f)) < 100f * 100f) {
+										return true;
+									}
+									break;
+								}
+							}
+						}
+						return false;
+					}
+				);
+				shop.InsertBefore(ItemID.WilsonBeardShort, ModContent.ItemType<Dashing_Hair_Dye>(), specialHairDyeCondition);
+				shop.InsertBefore(ItemID.WilsonBeardShort, ModContent.ItemType<Lunar_Hair_Dye>(), specialHairDyeCondition, Condition.TimeNight);
+				shop.InsertBefore(ItemID.WilsonBeardShort, ModContent.ItemType<Solar_Hair_Dye>(), specialHairDyeCondition, Condition.TimeDay);
 				break;
 			}
 		}

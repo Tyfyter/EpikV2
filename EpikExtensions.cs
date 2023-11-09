@@ -1130,35 +1130,43 @@ namespace EpikV2 {
 			}
 			return false;
 		}
+		public static LocalizedText CombineWithOr(params LocalizedText[] values) {
+			if (values.Length == 1) return values[0];
+			if (values.Length == 2) return Language.GetText("Mods.EpikV2.Conditions.Or").WithFormatArgs(values.ToArray<object>());
+			return Language.GetText("Mods.EpikV2.Conditions.CommaOr").WithFormatArgs(CommaRecurse(values, values.Length - 2), values[^1]);
+		}
+		static LocalizedText CommaRecurse(LocalizedText[] values, int index) {
+			return Language.GetText("Mods.EpikV2.Conditions.Comma").WithFormatArgs(index == 1 ? values[0] : CommaRecurse(values, index - 1), values[index]);
+		}
 	}
 	public static class ConditionExtensions {
 		public static Condition CommaAnd(this Condition a, Condition b) {
 			return new Condition(
-				Language.GetOrRegister("Mods.Origins.Conditions.Comma").WithFormatArgs(a.Description, b.Description),
+				Language.GetOrRegister("Mods.EpikV2.Conditions.Comma").WithFormatArgs(a.Description, b.Description),
 				() => a.Predicate() && b.Predicate()
 			);
 		}
 		public static Condition And(this Condition a, Condition b) {
 			return new Condition(
-				Language.GetOrRegister("Mods.Origins.Conditions.And").WithFormatArgs(a.Description, b.Description),
+				Language.GetOrRegister("Mods.EpikV2.Conditions.And").WithFormatArgs(a.Description, b.Description),
 				() => a.Predicate() && b.Predicate()
 			);
 		}
 		public static Condition CommaOr(this Condition a, Condition b) {
 			return new Condition(
-				Language.GetOrRegister("Mods.Origins.Conditions.Comma").WithFormatArgs(a.Description, b.Description),
+				Language.GetOrRegister("Mods.EpikV2.Conditions.Comma").WithFormatArgs(a.Description, b.Description),
 				() => a.Predicate() || b.Predicate()
 			);
 		}
 		public static Condition Or(this Condition a, Condition b) {
 			return new Condition(
-				Language.GetOrRegister("Mods.Origins.Conditions.Or").WithFormatArgs(a.Description, b.Description),
+				Language.GetOrRegister("Mods.EpikV2.Conditions.Or").WithFormatArgs(a.Description, b.Description),
 				() => a.Predicate() || b.Predicate()
 			);
 		}
 		public static Condition Not(this Condition value) {
 			return new Condition(
-				Language.GetOrRegister("Mods.Origins.Conditions.Not").WithFormatArgs(value.Description),
+				Language.GetOrRegister("Mods.EpikV2.Conditions.Not").WithFormatArgs(value.Description),
 				() => !value.Predicate()
 			);
 		}

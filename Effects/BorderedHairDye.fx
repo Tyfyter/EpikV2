@@ -58,7 +58,7 @@ float4 DashingDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLO
 }
 
 float4 LunarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
-	float2 baseCoords = float2(0.5, (uSourceRect.y + 16) / uImageSize0.y);
+	/*float2 baseCoords = float2(0.5, (uSourceRect.y + 16) / uImageSize0.y);
 	float2 offsetCoords = (coords - baseCoords) * uImageSize0;
 	float len = length(offsetCoords) / 32;
 	float angle = atan2(offsetCoords.y, offsetCoords.x);
@@ -67,7 +67,7 @@ float4 LunarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 	//offsetCoords += float2(offsetCoords.x * cosine - offsetCoords.y * sine, offsetCoords.x * sine + offsetCoords.y * cosine) * len * 0.5 * sin(uTime + len);
 	//offsetCoords += float2(sin(uTime + offsetCoords.x * 0.25) * max(abs(offsetCoords.x) - 8, 0) * 0.25, cos(-uTime + offsetCoords.y * 0.25) * max(abs(offsetCoords.y) - 8, 0) * 0.25);
 	
-	coords = (offsetCoords / uImageSize0) + baseCoords;
+	coords = (offsetCoords / uImageSize0) + baseCoords;*/
 	float4 baseColor = tex2D(uImage0, coords);
 	float4 color = float4(0.557 * 0.5, 0.541 * 0.5, 0.769 * 0.5, 0.769) * 0.5;
 
@@ -100,6 +100,48 @@ float4 LunarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 	//
 	return color * baseColor + float4(star * 0.64, star * 0.7, star, 0) * baseColor.a; // * baseColor
 }
+float4 SolarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
+	float4 baseColor = tex2D(uImage0, coords);
+	float4 color = float4(0.969, 0.607, 0.100, 0.369);
+	if (baseColor.a > 0) {
+		if (baseColor.r > 0.36 || !EmptyAdj(coords, float2(2, 2) / uImageSize0)) {
+			color = float4(0.945, 0.891, 0.786, 0.5);
+		}
+		baseColor.r = pow(baseColor.r, 0.5);
+		baseColor.g = pow(baseColor.g, 0.5);
+		baseColor.b = pow(baseColor.b, 0.5);
+		baseColor *= 1.5;
+		if (baseColor.r > 1)
+			baseColor.r = 1;
+		if (baseColor.g > 1)
+			baseColor.g = 1;
+		if (baseColor.b > 1)
+			baseColor.b = 1;
+		color *= baseColor;
+	} else {
+		color = float4(0, 0, 0, 0);
+		float pixeledX = coords.x * uImageSize0.x / 2;
+		float pixeledY = coords.y * uImageSize0.y / 2;
+		float pixelY = 2 / uImageSize0.y;
+		float offsetAmount = (((((floor(pixeledX) * 7) % 5) + uTime * 0.66) * 7) % 3.3);
+		if (offsetAmount > 2 || coords.y * uImageSize0.y + offsetAmount > uSourceRect.y + uSourceRect.w) {
+			return float4(0, 0, 0, 0);
+		}
+		baseColor = tex2D(uImage0, coords + float2(0, pixelY * offsetAmount));
+		if (baseColor.a <= 0) {
+			return float4(0, 0, 0, 0);
+		} else {
+			color = float4(0.969, 0.507, 0.100, 0.369);
+			if (tex2D(uImage0, coords + float2(0, pixelY * (offsetAmount - 1))).a <= 0) {
+				float dist = max(min(abs(pixeledX - (floor(pixeledX) + 0.5)) * 2.5, abs(pixeledY - ceil(pixeledY))) - 0.1, 0);
+				//color.r = 0;
+				color *= pow(1 - dist, 2);
+			}
+		}
+	}
+	
+	return color;
+}
 
 float4 Base(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
 	float4 baseColor = tex2D(uImage0, coords);
@@ -117,5 +159,8 @@ technique Technique1 {
 	}
 	pass LunarDye {
 		PixelShader = compile ps_3_0 LunarDye();
+	}
+	pass SolarDye {
+		PixelShader = compile ps_3_0 SolarDye();
 	}
 }

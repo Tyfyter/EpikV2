@@ -9,6 +9,7 @@ using Terraria.UI.Chat;
 using System.Linq;
 using Terraria.Audio;
 using System.Collections.Generic;
+using EpikV2.NPCs;
 
 namespace EpikV2.Items.Other {
 
@@ -52,6 +53,10 @@ namespace EpikV2.Items.Other {
 				return false;
 			}
 			return true;
+		}
+		public override void AddRecipes() {
+			ShimmerSlimeTransmutation.AddTransmutation(ItemID.EndlessQuiver, Type, Condition.DownedMechBossAny);
+			ShimmerSlimeTransmutation.AddTransmutation(ItemID.MagicQuiver, Type, Condition.DownedMechBossAny);
 		}
 		public static string RarityName => "Golden";
 		public static IEnumerable<(TextSnippet[] snippets, Vector2 offset, Color color)> GetCustomRarityDraw(string lineText) {
