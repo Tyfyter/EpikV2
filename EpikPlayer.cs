@@ -147,6 +147,7 @@ namespace EpikV2 {
 		public bool perfectCellphone = false;
 		public int nextSpikedBoots = 0;
 		public bool divineConfetti = false;
+		public float recentKillFactor = 0f;
 
 		public static BitsBytes ItemChecking;
 		public static bool nextMouseInterface;
@@ -219,6 +220,10 @@ namespace EpikV2 {
 			showLuck = false;
 
 			perfectCellphone = false;
+
+			if (recentKillFactor > 0) {
+				recentKillFactor -= 0.2f + recentKillFactor * 0.001f;
+			}
 
 			meleeSize = 1;
 			nearbyNameDist = 0;
@@ -449,6 +454,9 @@ namespace EpikV2 {
 			}
 			if (imbueIchor) {
 				target.AddBuff(BuffID.Ichor, Main.rand.Next(480, 600));
+			}
+			if (target.life <= 0) {
+				recentKillFactor += target.lifeMax * 0.5f;
 			}
 		}
 		public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone) {

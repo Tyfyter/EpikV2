@@ -7,11 +7,6 @@ using Terraria.ModLoader;
 namespace EpikV2.Items {
 	[AutoloadEquip(EquipType.Neck)]
 	public class Worm_Tooth_Torc : ModItem {
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Worm Tooth Torc");
-			// Tooltip.SetDefault("Increases armor penetration by 7\nAttacks may inflict Cursed Inferno");
-			Item.ResearchUnlockCount = 1;
-		}
 		public override void SetDefaults() {
 			int n = Item.neckSlot;
 			Item.CloneDefaults(ItemID.SharkToothNecklace);
@@ -30,10 +25,11 @@ namespace EpikV2.Items {
             recipe.AddTile(TileID.MythrilAnvil);
             recipe.Register();
 		}
-		public override void UpdateEquip(Player player) {
+		public override void UpdateAccessory(Player player, bool hideVisual) {
 			player.GetArmorPenetration(DamageClass.Default) += 7;
 			player.GetArmorPenetration(DamageClass.Generic) += 7;
 			player.GetModPlayer<EpikPlayer>().wormToothNecklace = true;
+			if (!hideVisual) UpdateVanity(player);
 		}
         public override void UpdateVanity(Player player) {
             player.GetModPlayer<EpikPlayer>().extraNeckTexture = 0;

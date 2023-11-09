@@ -986,6 +986,11 @@ Items: {
 		DisplayName: Low Mana Hair Dye
 		Tooltip: ""
 	}
+
+	Bloodstained_Hair_Dye: {
+		DisplayName: Bloodstained Hair Dye
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck

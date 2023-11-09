@@ -32,10 +32,11 @@ namespace EpikV2.Items {
             recipe.AddTile(TileID.MythrilAnvil);
             recipe.Register();
 		}
-		public override void UpdateEquip(Player player) {
+		public override void UpdateAccessory(Player player, bool hideVisual) {
 			player.GetArmorPenetration(DamageClass.Default) += 4;
 			player.GetArmorPenetration(DamageClass.Generic) += 4;
 			player.GetModPlayer<EpikPlayer>().ichorNecklace = true;
+			if (!hideVisual) UpdateVanity(player);
 		}
         public override void UpdateVanity(Player player) {
             player.GetModPlayer<EpikPlayer>().extraNeckTexture = 1;

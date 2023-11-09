@@ -1,5 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,17 @@ namespace EpikV2.Items.Other.HairDye {
 	public class Lunar_Hair_Dye : HairDye {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.TwilightHairDye;
 		public override HairShaderData ShaderData => Resources.Shaders.lunarHairDyeShader;
+	}
+	public class Bloodstained_Hair_Dye : HairDye {
+		public override HairShaderData ShaderData => new BloodstainedHairShaderData(GetShader("Effects/BloodstainedHairDye"), "BloodstainedHairDye")
+		.UseImage("Images/Misc/noise");
+		public class BloodstainedHairShaderData : HairShaderData {
+			public BloodstainedHairShaderData(Ref<Effect> shader, string passName) : base(shader, passName) { }
+			public override void Apply(Player player, DrawData? drawData = null) {
+				_uOpacity = player.GetModPlayer<EpikPlayer>().recentKillFactor * 0.001f;
+				base.Apply(player, drawData);
+			}
+		}
 	}
 	public class High_Life_Hair_Dye : HairDye {
 		public override HairShaderData ShaderData => new LegacyHairShaderData().UseLegacyMethod(delegate (Player player, Color newColor, ref bool lighting) {
@@ -64,6 +76,12 @@ namespace EpikV2.Items.Other.HairDye {
 			Item.useTime = 17;
 			Item.consumable = true;
 			//Item.dye = PlayerDrawHelper.PackShader(Item.hairDye, PlayerDrawHelper.ShaderConfiguration.HairShader);
+		}
+		protected HairShaderData GetShaderWithPass(string shader, string pass) {
+			return new HairShaderData(GetShader(shader), pass);
+		}
+		protected Ref<Effect> GetShader(string shader) {
+			return new Ref<Effect>(Mod.Assets.Request<Effect>(shader, AssetRequestMode.ImmediateLoad).Value);
 		}
 	}
 }

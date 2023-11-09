@@ -34,19 +34,20 @@ namespace EpikV2 {
 				distTestTexture0 = Request<Texture2D>("EpikV2/Textures/40x40");
 				distTestTexture1 = Request<Texture2D>("EpikV2/Textures/40x40Dist");
 				ExtraHeadTextures = new List<ExtraTexture> {
-					new ExtraTexture(Request<Texture2D>("EpikV2/Items/Armor/Machiavellian_Masquerade_Head_Overlay").Value,
-						GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveGoldDye)),
-
-					new ExtraTexture(Request<Texture2D>("EpikV2/Items/Armor/Machiavellian_Masquerade_Head").Value)
+					new ExtraTexture(Request<Texture2D>("EpikV2/Items/Armor/Machiavellian_Masquerade_Head_Overlay"),
+						GameShaders.Armor.GetShaderIdFromItemId(ItemID.ReflectiveGoldDye)
+					),
+					new ExtraTexture(Request<Texture2D>("EpikV2/Items/Armor/Machiavellian_Masquerade_Head"))
 				};
 				ExtraNeckTextures = new List<ExtraTexture> {
-					new ExtraTexture(Request<Texture2D>("EpikV2/Items/Worm_Tooth_Torc_Neck_Flame").Value,
+					new ExtraTexture(Request<Texture2D>("EpikV2/Items/Worm_Tooth_Torc_Neck_Flame"),
 						GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Cursed_Hades_Dye>()),
-						TextureFlags.FullBright),
-
-					new ExtraTexture(Request<Texture2D>("EpikV2/Items/Ichor_Riviere_Neck").Value,
+						TextureFlags.FullBright
+					),
+					new ExtraTexture(Request<Texture2D>("EpikV2/Items/Ichor_Riviere_Neck"),
 						GameShaders.Armor.GetShaderIdFromItemId(ModContent.ItemType<Ichor_Dye>()),
-						TextureFlags.FullBright | TextureFlags.CancelIfShaded)
+						TextureFlags.FullBright | TextureFlags.CancelIfShaded
+					)
 				};
 			}
 			public List<ExtraTexture> ExtraHeadTextures { get; private set; }
@@ -264,10 +265,10 @@ namespace EpikV2 {
 			}
 		}
 		public struct ExtraTexture {
-			public readonly Texture2D texture;
+			public readonly Asset<Texture2D> texture;
 			public readonly int shader;
 			public readonly TextureFlags textureFlags;
-			public ExtraTexture(Texture2D texture, int shader = 0, TextureFlags textureFlags = TextureFlags.None) {
+			public ExtraTexture(Asset<Texture2D> texture, int shader = 0, TextureFlags textureFlags = TextureFlags.None) {
 				this.texture = texture;
 				this.shader = shader;
 				this.textureFlags = textureFlags;

@@ -28,7 +28,7 @@ namespace EpikV2.Layers {
 				return;
 			}
 			DrawData data = new DrawData(
-				texture.texture, new Vector2((int)(drawInfo.Position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.Position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.headPosition + drawInfo.headVect,
+				texture.texture.Value, new Vector2((int)(drawInfo.Position.X - Main.screenPosition.X - (drawPlayer.bodyFrame.Width / 2) + (drawPlayer.width / 2)), (int)(drawInfo.Position.Y - Main.screenPosition.Y + drawPlayer.height - drawPlayer.bodyFrame.Height + 4f)) + drawPlayer.headPosition + drawInfo.headVect,
 				drawPlayer.bodyFrame,
 				(texture.textureFlags & TextureFlags.FullBright) != 0 ? Color.White : drawInfo.colorArmorHead,
 				drawPlayer.headRotation,
