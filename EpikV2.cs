@@ -337,20 +337,7 @@ namespace EpikV2 {
 		[DefaultValue(true)]
 		public bool NoFishingBreak {
 			get => noFishingBreak;
-			set {
-				noFishingBreak = value;
-				if (value) {
-					ItemTooltip.AddGlobalProcessor(NoBreakTooltipProcessor);
-				} else {
-					ItemTooltip.RemoveGlobalProcessor(NoBreakTooltipProcessor);
-				}
-			}
-		}
-		static string NoBreakTooltipProcessor(string tooltipLine) {
-			if (tooltipLine == Language.GetTextValue("ItemTooltip.HighTestFishingLine")) {
-				return Language.GetOrRegister("Mods.EpikV2.Items.LuckyFishingLine.Tooltip").Value;
-			}
-			return tooltipLine;
+			set => noFishingBreak = value;
 		}
 		bool noFishingBreak = true;
 
@@ -393,12 +380,20 @@ namespace EpikV2 {
 			}
 		}
 		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
-			UpdateName(item);
+			for (int i = 0; i < tooltips.Count; i++) {
+				if (tooltips[i].Name == "Tooltip0") {
+					tooltips[i].Text = Language.GetOrRegister("Mods.EpikV2.Items.LuckyFishingLine.Tooltip").Value;
+					break;
+				}
+			}
 		}
 		public override void UpdateInventory(Item item, Player player) {
 			UpdateName(item);
 		}
 		public override void Update(Item item, ref float gravity, ref float maxFallSpeed) {
+			UpdateName(item);
+		}
+		public override void UpdateEquip(Item item, Player player) {
 			UpdateName(item);
 		}
 	}
