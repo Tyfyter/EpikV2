@@ -262,7 +262,7 @@ namespace EpikV2 {
 			IL_TeleportPylonsSystem.HandleTeleportRequest += IL_TeleportPylonsSystem_HandleTeleportRequest;
 			On_TeleportPylonsSystem.IsPlayerNearAPylon += (orig, player) => {
 				if (EpikConfig.Instance.PerfectCellPylon && player.GetModPlayer<EpikPlayer>().perfectCellphone) {
-					return true;
+					return true;//if (!NPC.AnyDanger(quickBossNPCCheck: false, ignorePillarsAndMoonlordCountdown: true)) 
 				}
 				return orig(player);
 			};
@@ -486,6 +486,7 @@ namespace EpikV2 {
 			ILCursor c = new(il);
 			int playerLocal = -1;
 			int nearbyValidLocal = -1;
+			int key = -1;
 			c.GotoNext(
 				ins => ins.MatchLdsfld<Main>("player"),
 				ins => ins.MatchLdarg(2),
@@ -497,20 +498,30 @@ namespace EpikV2 {
 				ins => ins.MatchLdloc(out _),
 				ins => ins.MatchLdloca(out _),
 				ins => ins.MatchLdloca(out nearbyValidLocal),
-				ins => ins.MatchLdloca(out _),
+				ins => ins.MatchLdloca(out key),
 				ins => ins.MatchCall(typeof(PylonLoader), "PostValidTeleportCheck")
 			);
+			c.Emit(OpCodes.Ldarg_1);
 			c.Emit(OpCodes.Ldloc_S, (byte)playerLocal);
 			c.Emit(OpCodes.Ldloca_S, (byte)nearbyValidLocal);
+			c.Emit(OpCodes.Ldloca_S, (byte)key);
 			c.EmitDelegate<_CheckPlayerCellphone>(CheckPlayerCellphone);
 		}
-		delegate void _CheckPlayerCellphone(Player player, ref bool validNearbyPylonFound);
-		static void CheckPlayerCellphone(Player player, ref bool validNearbyPylonFound) {
+		delegate void _CheckPlayerCellphone(TeleportPylonInfo info, Player player, ref bool validNearbyPylonFound, ref string key);
+		static void CheckPlayerCellphone(TeleportPylonInfo info, Player player, ref bool validNearbyPylonFound, ref string key) {
 			if (EpikConfig.Instance.PerfectCellPylon && player.GetModPlayer<EpikPlayer>().perfectCellphone) {
-				validNearbyPylonFound = true;
+				if (!IsAnyPylonDanger(info)) {
+					validNearbyPylonFound = true;
+				} else {
+					key = "Net.CannotTeleportToPylonBecauseThereIsDanger";
+				}
 			}
 		}
-
+		static bool IsAnyPylonDanger(TeleportPylonInfo info) {
+			return PylonLoader.ValidTeleportCheck_PreAnyDanger(info)
+					?? info.ModPylon?.ValidTeleportCheck_AnyDanger(info)
+					?? NPC.AnyDanger(quickBossNPCCheck: false, ignorePillarsAndMoonlordCountdown: true);
+		}
 		internal static int tileCountState = 0;
 		public static MergingListDictionary<int, Point> orePositions;
 		internal static MergingListDictionary<int, Point> newOrePositions;

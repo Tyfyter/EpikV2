@@ -146,6 +146,11 @@ Buffs: {
 		DisplayName: Divine Confetti
 		Description: ""
 	}
+
+	Scimitar_Of_The_Rising_Sun_Deathblow_Debuff: {
+		DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Deathblow_ Debuff
+		Description: Mods.EpikV2.Buffs.Scimitar_Of_The_Rising_Sun_Deathblow_Debuff.Description
+	}
 }
 
 Empowerment.SolarRejuvenation: Solar Rejuvenation
@@ -999,6 +1004,11 @@ Items: {
 		DisplayName: Solar Hair Dye
 		Tooltip: ""
 	}
+
+	Deathblow: {
+		DisplayName: Deathblow
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck
@@ -1093,6 +1103,7 @@ Projectiles: {
 	Scimitar_Of_The_Rising_Sun_Sakura_Dance_1.DisplayName: Sakura Dance
 	Scimitar_Of_The_Rising_Sun_Sakura_Dance_2.DisplayName: Sakura Dance
 	Scimitar_Of_The_Rising_Sun_Mortal_Draw.DisplayName: Mortal Draw
+	Scimitar_Of_The_Rising_Sun_Deathblow.DisplayName: Scimitar Of The Rising Sun
 }
 
 DamageClasses: {

@@ -78,6 +78,15 @@ namespace EpikV2.Items.Weapons {
 				manaCost: Sakura_Dance.mana_cost,
 				ai1: -1
 			));
+			BaseCombatArts.Add(new(
+				ItemType<Deathblow>(),
+				1f,
+				1.65f,
+				ProjectileType<Scimitar_Of_The_Rising_Sun_Deathblow>(),
+				startVelocityMult: new(0.85f),
+				directionalVelocity: new(0f),
+				ai1: 1
+			));
 		}
 		public override void SetDefaults() {
 			Item.damage = 90;
@@ -603,9 +612,15 @@ namespace EpikV2.Items.Weapons {
 	}
 	public class Scimitar_Of_The_Rising_Sun_Block_Debuff : ModBuff {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		public override void SetStaticDefaults() {
+			BuffID.Sets.IsATagBuff[Type] = true;
+		}
 	}
 	public class Scimitar_Of_The_Rising_Sun_Deflect_Debuff : ModBuff {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		public override void SetStaticDefaults() {
+			BuffID.Sets.IsATagBuff[Type] = true;
+		}
 		public override void Update(NPC npc, ref int buffIndex) {
 			if (npc.buffTime[buffIndex] % 2 == 0) {
 				Dust.NewDustPerfect(
@@ -906,6 +921,105 @@ namespace EpikV2.Items.Weapons {
 			mortalDrawDrawer.Length = (Projectile.velocity.Length() / 12f) * Projectile.width * 0.95f * HitboxSteps;
 			mortalDrawDrawer.Draw(Projectile);
 			return base.PreDraw(ref lightColor);
+		}
+	}
+	public class Deathblow : ModItem {
+		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		public override void SetDefaults() {
+			Item.damage = 100;
+			Item.useStyle = ItemUseStyleID.Swing;
+			Item.knockBack = 1;
+		}
+	}
+	public class Scimitar_Of_The_Rising_Sun_Deathblow : Scimitar_Of_The_Rising_Sun_Slash {
+		public const int trail_length = 20;
+		public override void SetStaticDefaults() {
+			base.SetStaticDefaults();
+		}
+		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
+		protected override int HitboxSteps => 3;
+		protected override float Startup => 0f;
+		protected override float End => 1.25f;
+		protected override float SwingStartVelocity => 0.75f;
+		protected override float MinAngle => 0;
+		protected override float MaxAngle => 0;
+		protected override bool ChangeAngle => true;
+		public override void SetDefaults() {
+			base.SetDefaults();
+			//Projectile.MaxUpdates = 4;
+		}
+		public override void AI() {
+			base.AI();
+			Projectile.spriteDirection = SwingFactor < 1 ? 1 : 0;
+			int targetNPCID = (int)Projectile.ai[0] - 2;
+			if (targetNPCID >= 0) {
+				NPC target = Main.npc[targetNPCID];
+				Player player = Main.player[Projectile.owner];
+				player.velocity *= 0.9f;
+				player.immuneNoBlink = true;
+				player.immuneTime++;
+				for (int i = 0; i < player.hurtCooldowns.Length; i++) player.hurtCooldowns[i]++;
+				player.immune = true;
+				int frame = (int)++Projectile.localAI[0];
+				if (frame < 20) {
+					target.Center = Projectile.Center + target.velocity * 10;
+				} else if (frame < 25) {
+					target.Center = Projectile.Center + target.velocity * 10;
+					target.velocity -= Projectile.velocity * 0.25f;
+					player.velocity += Projectile.velocity * 0.25f;
+				} else if (frame == 25) {
+					player.velocity = Projectile.velocity;
+					Projectile.velocity = -Projectile.velocity;
+					target.velocity = Projectile.velocity;
+					player.wingTime = player.wingTimeMax;
+				} else {
+					Projectile.velocity *= 0.95f;
+					//player.velocity *= 0.98f;
+				}
+			}
+		}
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			if (target.life < Projectile.damage * (target.HasBuff<Scimitar_Of_The_Rising_Sun_Deflect_Debuff>() ? 2 : 1)) {
+				modifiers.ModifyHitInfo += (ref NPC.HitInfo info) => {
+					info.Damage = target.life - 1;
+					info.HideCombatText = true;
+				};
+			} else {
+				modifiers.SourceDamage *= 0.5f;
+			}
+			modifiers.Knockback *= 0;
+		}
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
+			if (hit.HideCombatText) {
+				target.AddBuff(BuffType<Scimitar_Of_The_Rising_Sun_Deathblow_Debuff>(), 35);
+				//target.AddBuff(BuffType<Scimitar_Of_The_Rising_Sun_Deathblow_Debuff>(), 30);
+				Projectile.ai[0] = target.whoAmI + 2;
+				target.velocity = (target.Center - Projectile.Center) * 0.1f;
+				Projectile.timeLeft = 70;
+				Main.player[Projectile.owner].SetDummyItemTime(35);
+				Projectile.friendly = false;
+			}
+		}
+	}
+	public class Scimitar_Of_The_Rising_Sun_Deathblow_Debuff : ModBuff {
+		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
+		public override void SetStaticDefaults() {
+			BuffID.Sets.IsATagBuff[Type] = true;
+		}
+		public override void Update(NPC npc, ref int buffIndex) {
+			if (npc.life > 1) {
+				npc.DelBuff(buffIndex--);
+			} else {
+				npc.life = 1;
+				npc.damage = 0;
+				npc.dontTakeDamage = true;
+				npc.chaseable = false;
+				npc.noGravity = true;
+				if (npc.buffTime[buffIndex] <= 1) {
+					npc.StrikeInstantKill();
+				}
+			}
 		}
 	}
 	public struct SwingDrawer {

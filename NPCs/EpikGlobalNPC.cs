@@ -66,6 +66,7 @@ namespace EpikV2.NPCs
         public int jadeWhipDamage;
         public int jadeWhipCrit;
 		public float sotrsBlockKnockback = 0;
+		public bool sotrsDeathblow;
 		public override void SetStaticDefaults() {
             NPCHappiness.Get(NPCID.PartyGirl).SetBiomeAffection<PartyBiome>(AffectionLevel.Love);
         }
@@ -149,6 +150,9 @@ namespace EpikV2.NPCs
                 scorpioTime--;
                 return false;
             }
+			if (npc.HasBuff<Scimitar_Of_The_Rising_Sun_Deathblow_Debuff>()) {
+				return false;
+			}
             return true;
         }
 		public override void AI(NPC npc){
@@ -389,6 +393,21 @@ namespace EpikV2.NPCs
 					}
 				}
 			}
+			if (npc.HasBuff(ModContent.BuffType<Scimitar_Of_The_Rising_Sun_Deathblow_Debuff>())) {
+				for (int i = 0; i < Math.Min(npc.lifeMax / 75, 5); i++) {
+					Projectile.NewProjectile(
+						npc.GetSource_Death($"Deathblow,{npc.lastInteraction}"),
+						npc.Center,
+						new Vector2(0, 8).RotatedByRandom(MathHelper.Pi),
+						ProjectileID.VampireHeal,
+						0,
+						0,
+						Main.myPlayer,
+						npc.lastInteraction,
+						20
+					);
+				}
+			}
 		}
 		public override void EditSpawnRate(Player player, ref int spawnRate, ref int maxSpawns) {
             const int maxStrength = 86400 * 2;
@@ -428,6 +447,24 @@ namespace EpikV2.NPCs
             if(jaded) {
                 spriteBatch.Restart();
             }
+			if (!Main.dedServ && npc.life < npc.lifeMax && !npc.HasBuff<Scimitar_Of_The_Rising_Sun_Deathblow_Debuff>()) {
+				Item heldItem = Main.LocalPlayer.HeldItem;
+				if (heldItem.ModItem is Scimitar_Of_The_Rising_Sun && npc.life < Main.LocalPlayer.GetWeaponDamage(heldItem) * (npc.HasBuff<Scimitar_Of_The_Rising_Sun_Deflect_Debuff>() ? 2 : 1)) {
+					Main.instance.LoadProjectile(ProjectileID.ChlorophyteOrb);
+					Texture2D deathblowIndicator = TextureAssets.Projectile[ProjectileID.ChlorophyteOrb].Value;
+					Rectangle frame = deathblowIndicator.Frame(verticalFrames: 4, frameY: ((int)Main.timeForVisualEffects / 7) % 4);
+					spriteBatch.Draw(
+						deathblowIndicator,
+						npc.Center - screenPos,
+						frame,
+						new Color(150, 0, 0, 100),
+						0,
+						frame.Size() * 0.5f,
+						1,
+						SpriteEffects.None,
+					0);
+				}
+			}
 		}
 		public override void GetChat(NPC npc, ref string chat) {
 			WeightedRandom<string> chatValues = new WeightedRandom<string>();
