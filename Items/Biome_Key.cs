@@ -200,7 +200,7 @@ namespace EpikV2.Items {
 			Main.LocalPlayer.GetModPlayer<EpikPlayer>().switchBackSlot = Main.LocalPlayer.selectedItem;
 		}
 		public static float GetLifeDamageMult(NPC target, float mult = (5f / 3)) {
-			return MathHelper.Lerp(Math.Clamp(target.GetLifePercent(), 0, 1), mult * 0.1f, mult);
+			return MathHelper.Lerp(mult, mult * 0.1f, Math.Clamp(target.GetLifePercent(), 0, 1));
 		}
 		public static void ApplyLifeDamageMult(NPC target, ref NPC.HitModifiers modifiers, float mult = (5f / 3)) {
 			modifiers.SourceDamage *= 1 + GetLifeDamageMult(target, mult);

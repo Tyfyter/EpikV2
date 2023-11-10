@@ -3,6 +3,30 @@ Icon coming as soon as I figure out a design, have a potato for now
 "The only terraria mod with a telescope except for any other mods which happen to have one"
 
 Changelog:
+0.4.0.1:
+bugfixes
+updated description
+
+0.4:
+Added some Sekiro references
+Added 2 weapons
+Added 4.5 accessories
+Added an arrow type
+Added 6 miscellaneous items
+Added 3 unique platforms
+*Added 4 vanilla NPC ai changes
+Added 1.75 prefixes
+Added a new way to craft
+Added some easter eggs
+Buffed Confetti Gun and Confetti Cannon
+Umbrella Hat works
+*Added Chromatic Cloak upgrade that allows shimmering anywhere and moving while shimmered
+*Certain rare enemies (mainly biome mimics) have a heightened chance to drop their respective biome keys
+*Fishing lines will no longer break, high-test fishing line replaced with lucky fishing line
+Added cross-mod support for the following mods: CharLoader, AltLibrary
+Added 8 hair dyes
+Haligbrand no longer needs an external library for its trail visuals
+bugfixes
 
 0.3.5.1:
 Updated to tML for 1.4
@@ -52,6 +76,8 @@ Removed debugging code that was accidentally left in 0.2
 0.2:
 Added Shattered Fate
 Added Jade Dye
+
+*Can be toggled with config
 
 Credits:
 Tyfyter2002 (you know, the dev of the mod)
