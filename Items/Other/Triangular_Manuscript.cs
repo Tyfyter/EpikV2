@@ -791,7 +791,7 @@ namespace EpikV2.Items.Other {
 			}
 		}
 	}
-	[ExtendsFromMod("Origins")]
+	/*[ExtendsFromMod("Origins")]
 	public class Triangular_Manuscript_Quest : Origins.Questing.Quest {
 		public override bool SaveToWorld => false;
 		public override void SetStaticDefaults() {
@@ -812,5 +812,5 @@ namespace EpikV2.Items.Other {
 		internal static void GiveQuestNotification() {
 			ModContent.GetInstance<Triangular_Manuscript_Quest>().HasNotification = true;
 		}
-	}
+	}*/
 }

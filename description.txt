@@ -3,7 +3,8 @@ Icon coming as soon as I figure out a design, have a potato for now
 "The only terraria mod with a telescope except for any other mods which happen to have one"
 
 Changelog:
-0.4.*:
+0.4.0.2:
+Hotfixed Triangular Manuscript
 Improved Sekiro reference
 
 0.4.0.1:
