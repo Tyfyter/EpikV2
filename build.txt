@@ -2,7 +2,7 @@ author = Tyfyter (Tyfyter2002 on steam)
 
 version = 0.4.0.2
 
-homepage = https://tyfyter.github.io/
+homepage = https://tyfyter.github.io/?EpikV2
 displayName = EpikV2
 buildIgnore = Unused\*
 includeSource = true
