@@ -16,6 +16,8 @@ using System.IO;
 using Terraria.GameInput;
 using Terraria.Localization;
 using Terraria.GameContent;
+using EpikV2.CrossMod;
+using System.Reflection;
 
 namespace EpikV2.Items {
     public partial class EpikGlobalItem : GlobalItem {
@@ -227,13 +229,29 @@ namespace EpikV2.Items {
 		public override void ModifyItemLoot(Item item, ItemLoot itemLoot) {
 			switch (item.type) {
 				case ItemID.GoodieBag: {
-					SequentialRulesNotScalingWithLuckRule rule = (SequentialRulesNotScalingWithLuckRule)itemLoot.Get(false).First(rule => rule is SequentialRulesNotScalingWithLuckRule);
-					var rules = rule.rules.ToList();
-					rules.Insert(
-						rules.FindIndex(r => r is OneFromRulesRule),
-						ItemDropRule.NotScalingWithLuck(ModContent.ItemType<Chocolate_Bar>(), 8)
-					);
-					rule.rules = rules.ToArray();
+					if (EpikIntegration.EnabledMods.BountifulGoodieBags) {
+						try {
+							var loot = itemLoot.Get(false);
+							static bool IsFoodRule(IItemDropRule rule) => rule is OneFromOptionsNotScaledWithLuckDropRule oneRule && oneRule.dropIds.Any(i => ItemID.Sets.IsFood[i]);
+							OneFromOptionsNotScaledWithLuckDropRule rule = (OneFromOptionsNotScaledWithLuckDropRule)itemLoot.Get(false)
+								.Select(r => r.GetType().GetField("rules") is FieldInfo rules && rules.FieldType == typeof(IItemDropRule[]) && ((IItemDropRule[])rules.GetValue(r)).Any(IsFoodRule) ? (IItemDropRule[])rules.GetValue(r) : null)
+								.First(r => r is not null)
+								.First(IsFoodRule);
+							var drops = rule.dropIds.ToList();
+							drops.Add(ModContent.ItemType<Chocolate_Bar>());
+							rule.dropIds = drops.ToArray();
+						} catch (Exception e) {
+							Mod.Logger.Error("BountifulGoodieBags has changed how it does things so drastically that EpikV2 can't find its \"food\" drop rule", e);
+						}
+					} else {
+						SequentialRulesNotScalingWithLuckRule rule = (SequentialRulesNotScalingWithLuckRule)itemLoot.Get(false).First(rule => rule is SequentialRulesNotScalingWithLuckRule);
+						var rules = rule.rules.ToList();
+						rules.Insert(
+							rules.FindIndex(r => r is OneFromRulesRule),
+							ItemDropRule.NotScalingWithLuck(ModContent.ItemType<Chocolate_Bar>(), 8)
+						);
+						rule.rules = rules.ToArray();
+					}
 				}
 				break;
 

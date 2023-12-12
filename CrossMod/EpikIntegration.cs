@@ -23,6 +23,7 @@ namespace EpikV2.CrossMod {
 			public static bool GraphicsLib { get; private set; } = false;
 			public static bool AltLibrary { get; private set; }
 			public static bool CharLoader { get; private set; }
+			public static bool BountifulGoodieBags { get; private set; }
 			internal static void ResetEnabled() {
 				RecipeBrowser = false;
 				Origins = null;
@@ -30,6 +31,7 @@ namespace EpikV2.CrossMod {
 				AltLibrary = false;
 				CharLoader = false;
 				Chars = null;
+				BountifulGoodieBags = false;
 			}
 			internal static void CheckEnabled() {
 				RecipeBrowser = ModLoader.TryGetMod("RecipeBrowser", out Mod recipeBrowser) && recipeBrowser.Version >= new Version(0, 5);
@@ -71,6 +73,7 @@ namespace EpikV2.CrossMod {
 						"BothBuffing"
 					);
 				}
+				BountifulGoodieBags = ModLoader.TryGetMod("BountifulGoodieBags", out _);
 				if (Origins is not null) {
 					ExplosiveDamageClasses = (IDictionary<DamageClass, DamageClass>)origins.Call("GetExplosiveClassesDict");
 				} else {
