@@ -144,7 +144,7 @@ Buffs: {
 
 	Divine_Confetti_Buff: {
 		DisplayName: Divine Confetti
-		Description: ""
+		Description: Strengthens your melee attacks against all manners of evil and undead
 	}
 
 	Scimitar_Of_The_Rising_Sun_Deathblow_Debuff: {
@@ -972,7 +972,7 @@ Items: {
 
 	Divine_Confetti: {
 		DisplayName: Divine Confetti
-		Tooltip: ""
+		Tooltip: "Confetti imbued with a divine blessing made for driving away apparitions."
 	}
 
 	High_Life_Hair_Dye: {
