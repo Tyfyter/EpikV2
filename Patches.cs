@@ -215,7 +215,7 @@ namespace EpikV2 {
 					)) {
 					c.Emit(OpCodes.Ldarg_0);
 					c.EmitDelegate<Action<Player>>((player) => {
-						if (player.wolfAcc && !player.HasBuff(BuffID.Werewolf) && player.GetModPlayer<EpikPlayer>().oldWolfBlood) {
+						if (player.wolfAcc && !player.HasBuff(BuffID.Werewolf) && player.GetModPlayer<EpikPlayer>().oldWolfHeart) {
 							player.AddBuff(BuffID.Werewolf, 60);
 						}
 					});
@@ -245,7 +245,7 @@ namespace EpikV2 {
 
 							c.Emit(OpCodes.Ldarg_0);
 							c.EmitDelegate<Func<Player, bool>>((player) => {
-								return player.GetModPlayer<EpikPlayer>().oldWolfBlood;
+								return player.GetModPlayer<EpikPlayer>().oldWolfHeart;
 							});
 							c.Emit(OpCodes.Brtrue, wolfLabel);
 						}

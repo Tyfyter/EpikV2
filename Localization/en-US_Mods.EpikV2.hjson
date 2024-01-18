@@ -2,7 +2,7 @@ Conditions: {
 	InRain: In rain
 	QueenBeeActive: With active queen bee
 	OrionBoots: With Orion Boots
-	WolfBlood: To powerful werewolves under a full or blood-soaked moon
+	WolfHeart: To powerful werewolves under a full or blood-soaked moon
 	KillsGuide: This kills the [strike:crab] Guide
 	Retro: A few decades ago
 	PartyTime: A few decades ago
@@ -662,8 +662,8 @@ Items: {
 		Tooltip: ""
 	}
 
-	Old_Wolf_Blood: {
-		DisplayName: Great Old Wolf Blood
+	Old_Wolf_Heart: {
+		DisplayName: Great Old Wolf Heart
 		Tooltip: ""
 	}
 

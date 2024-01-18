@@ -142,12 +142,14 @@ namespace EpikV2 {
 		public int triangleManuscriptIndex = -1;
 		public bool usedTriangleManuscript = false;
 		public bool triedTriangleManuscript = false;
-		public bool oldWolfBlood = false;
+		public bool oldWolfHeart = false;
 		public bool bobberSnail = false;
 		public bool perfectCellphone = false;
 		public int nextSpikedBoots = 0;
 		public bool divineConfetti = false;
 		public float recentKillFactor = 0f;
+		public int wolfBlood = 0;
+		public int wolfBloodLevel = 0;
 
 		public static BitsBytes ItemChecking;
 		public static bool nextMouseInterface;
@@ -738,6 +740,105 @@ namespace EpikV2 {
 				}
 				Player.dripping = false;
 			}
+			if (oldWolfHeart && Player.wereWolf) {
+				switch (wolfBlood) {
+					case 0:// pureblood
+					if (wolfBloodLevel > 0) {// apex
+						Player.lifeRegen += 2;
+						Player.GetCritChance(DamageClass.Generic) += 3f;
+						Player.GetDamage(DamageClass.Generic) += 0.074f;
+						Player.GetAttackSpeed(DamageClass.Generic) += 0.074f;
+						Player.statDefense += 4;
+						Player.moveSpeed += 0.075f;
+					}
+					break;
+
+					case 1:// savage
+					Player.lifeRegenTime -= 0.25f;
+					Player.statDefense -= 3;
+					Player.lifeRegen -= 1;
+
+					Player.GetCritChance(DamageClass.Generic) += 3f;
+					Player.GetAttackSpeed(DamageClass.Generic) += 0.034f;
+					if (wolfBloodLevel > 0) {// hellhound
+						Player.magmaStone = true;
+						Player.moveSpeed += 0.1f;
+						Player.jumpSpeedBoost += 1f;
+						Player.GetAttackSpeed(DamageClass.Melee) += 0.075f;
+						if (Player.onFire || Player.onFire2 || Player.onFire3) {
+							Player.onFire = false;
+							Player.onFire2 = false;
+							Player.onFire3 = false;
+							Player.lifeRegen += 6;
+							Player.GetDamage(DamageClass.Melee) += 0.10f;
+						}
+					}
+					break;
+
+					case 2:// brute
+					Player.endurance += 0.03f;
+					Player.lifeRegenTime += 2;
+					Player.moveSpeed -= 0.05f;
+					Player.GetAttackSpeed(DamageClass.Melee) -= 0.051f;
+					if (wolfBloodLevel > 0) {// revenant
+						Player.endurance += 0.03f;
+						Player.statDefense += 3;
+						Player.lifeRegen += 2;
+						Player.lifeRegenTime += 2;
+						//TODO: extra life
+					}
+					break;
+
+					case 3:// hunter
+					Player.moveSpeed += 0.05f;
+					Player.GetCritChance(DamageClass.Melee) -= 2f;
+					Player.GetDamage(DamageClass.Melee) -= 0.051f;
+					Player.GetAttackSpeed(DamageClass.Melee) -= 0.051f;
+					Player.statDefense -= 1;
+
+					Player.GetCritChance(DamageClass.Ranged) += 4f;
+					Player.GetAttackSpeed(DamageClass.Ranged) += 0.051f;
+					if (wolfBloodLevel > 0) {// scion of Luna
+						Player.GetDamage(DamageClass.Ranged) += 0.051f;
+						Player.GetAttackSpeed(DamageClass.Ranged) += 0.051f;
+						//TODO: piercing shot
+					}
+					break;
+
+					case 4:// vulpine teachings
+					Player.lifeRegen--;
+					Player.GetCritChance(DamageClass.Melee) -= 2f;
+					Player.GetDamage(DamageClass.Melee) -= 0.051f;
+					Player.GetAttackSpeed(DamageClass.Melee) -= 0.051f;
+					Player.statDefense -= 5;
+
+					Player.GetDamage(DamageClass.Magic) += 0.051f;
+					Player.GetAttackSpeed(DamageClass.Magic) += 0.051f;
+					if (wolfBloodLevel > 0) {// Hecate's chosen
+						Player.GetDamage(DamageClass.Magic) += 0.08f;
+						Player.manaCost -= 0.06f;
+						//TODO: moonblast
+					}
+					break;
+
+					case 5:// pack leader
+					Player.lifeRegen -= 2;
+					Player.GetCritChance(DamageClass.Melee) -= 2f;
+					Player.GetDamage(DamageClass.Melee) -= 0.051f;
+					Player.GetAttackSpeed(DamageClass.Melee) -= 0.051f;
+					Player.statDefense -= 2;
+
+					Player.maxMinions++;
+					Player.GetDamage(DamageClass.Summon) += 0.051f;
+					Player.GetAttackSpeed(DamageClass.Summon) += 0.15f;
+					if (wolfBloodLevel > 0) {// alpha
+						Player.maxMinions++;
+						Player.GetDamage(DamageClass.Summon) += 0.075f;
+						//TODO: pack tactics
+					}
+					break;
+				}
+			}
 		}
 		//public static const rope_deb_412 = 0.1f;
 		public override void PreUpdateMovement() {
@@ -1188,14 +1289,14 @@ namespace EpikV2 {
 			tag["altNameColors"] = (byte)altNameColors;
 			tag["usedTriangleManuscript"] = usedTriangleManuscript;
 			tag["triedTriangleManuscript"] = triedTriangleManuscript;
-			tag["oldWolfBlood"] = oldWolfBlood;
+			tag["oldWolfBlood"] = oldWolfHeart;
 			tag["nameColorOverride"] = nameColorOverride;
 		}
 		public override void LoadData(TagCompound tag) {
 			if (tag.TryGet("altNameColors", out byte altNameColors)) this.altNameColors = (AltNameColorTypes)altNameColors;
 			tag.TryGet("usedTriangleManuscript", out usedTriangleManuscript);
 			tag.TryGet("triedTriangleManuscript", out triedTriangleManuscript);
-			tag.TryGet("oldWolfBlood", out oldWolfBlood);
+			tag.TryGet("oldWolfBlood", out oldWolfHeart);
 			tag.TryGet("nameColorOverride", out nameColorOverride);
 		}
 		#endregion IO

@@ -32,8 +32,18 @@ namespace EpikV2.Items.Debugging {
             Item.rare = ItemRarityID.LightPurple;
             Item.UseSound = null;
         }
+		public override bool AltFunctionUse(Player player) => true;
 		public override bool? UseItem(Player player) {
-			player.chatOverhead.NewMessage($"{player.GetModPlayer<EpikPlayer>().oldWolfBlood ^= true}", 60);
+			if (player.altFunctionUse == 2) {
+				EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+				if (player.controlSmart) {
+					player.chatOverhead.NewMessage($"level {epikPlayer.wolfBloodLevel = (epikPlayer.wolfBloodLevel + 1) % 2}", 60);
+				} else {
+					player.chatOverhead.NewMessage($"type {epikPlayer.wolfBlood = (epikPlayer.wolfBlood + 1) % 6}", 60);
+				}
+			} else {
+				player.chatOverhead.NewMessage($"{player.GetModPlayer<EpikPlayer>().oldWolfHeart ^= true}", 60);
+			}
 			return true;
 		}
 	}

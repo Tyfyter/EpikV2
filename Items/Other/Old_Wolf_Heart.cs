@@ -17,11 +17,8 @@ using Terraria.Graphics.Shaders;
 using System.Linq;
 
 namespace EpikV2.Items.Other {
-
-    public class Old_Wolf_Blood : ModItem {
-        public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Great Old Wolf Blood");
-		}
+	[LegacyName("Old_Wolf_Blood")]
+    public class Old_Wolf_Heart : ModItem {
         public override void SetDefaults() {
 			Item.DefaultToHealingPotion(20, 24, 0, 24);
 			Item.potion = false;
@@ -32,10 +29,10 @@ namespace EpikV2.Items.Other {
 			Item.consumable = true;
         }
 		public override bool CanUseItem(Player player) {
-			return !player.GetModPlayer<EpikPlayer>().oldWolfBlood;
+			return !player.GetModPlayer<EpikPlayer>().oldWolfHeart;
 		}
 		public override bool? UseItem(Player player) {
-			player.GetModPlayer<EpikPlayer>().oldWolfBlood = true;
+			player.GetModPlayer<EpikPlayer>().oldWolfHeart = true;
 			return true;
 		}
 		public override bool PreDrawTooltipLine(DrawableTooltipLine line, ref int yOffset) {

@@ -257,22 +257,22 @@ namespace EpikV2 {
 			packet.Write(EpikV2.PacketType.playerSync);
 			packet.Write((byte)Player.whoAmI);
 			packet.Write((byte)altNameColors);
-			packet.Write(oldWolfBlood);
+			packet.Write(oldWolfHeart);
 			packet.Send(toWho, fromWho);
 		}
 		public void ReceivePlayerSync(BinaryReader reader) {
 			altNameColors = (AltNameColorTypes)reader.ReadByte();
-			oldWolfBlood = reader.ReadBoolean();
+			oldWolfHeart = reader.ReadBoolean();
 		}
 		public override void CopyClientState(ModPlayer clientClone)/* tModPorter Suggestion: Replace Item.Clone usages with Item.CopyNetStateTo */ {
 			EpikPlayer clone = clientClone as EpikPlayer;
 			clone.altNameColors = altNameColors;
-			clone.oldWolfBlood = oldWolfBlood;
+			clone.oldWolfHeart = oldWolfHeart;
 		}
 		public override void SendClientChanges(ModPlayer clientPlayer) {
 			EpikPlayer clone = clientPlayer as EpikPlayer;
 
-			if (altNameColors != clone.altNameColors || oldWolfBlood != clone.oldWolfBlood)
+			if (altNameColors != clone.altNameColors || oldWolfHeart != clone.oldWolfHeart)
 				SyncPlayer(toWho: -1, fromWho: Main.myPlayer, newPlayer: false);
 		}
 	}

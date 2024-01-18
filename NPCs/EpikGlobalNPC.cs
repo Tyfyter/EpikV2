@@ -421,8 +421,8 @@ namespace EpikV2.NPCs
 			}
 		}
         public override void EditSpawnPool(IDictionary<int, float> pool, NPCSpawnInfo spawnInfo) {
-            if(NPC.downedGolemBoss&&!spawnInfo.Sky&&!spawnInfo.SafeRangeX&&!spawnInfo.PlayerSafe&&!pool.ContainsKey(NPCID.CultistArcherWhite)) {
-                pool.Add(NPCID.CultistArcherWhite,0.002f);
+            if(NPC.downedGolemBoss && !spawnInfo.Sky && !spawnInfo.SafeRangeX && !spawnInfo.PlayerSafe && !pool.ContainsKey(NPCID.CultistArcherWhite)) {
+                pool.Add(NPCID.CultistArcherWhite, 0.002f);
             }
 			if ((spawnInfo.Player.ZoneCorrupt || spawnInfo.Player.ZoneCrimson || spawnInfo.Sky) && spawnInfo.Player.GetModPlayer<EpikPlayer>().drugPotion) {
                 pool.Add(ModContent.NPCType<Wrong_Spawn_NPC>(), 4);
@@ -517,7 +517,7 @@ namespace EpikV2.NPCs
 				break;
 
 				case NPCID.BestiaryGirl:
-				shop.Add<Old_Wolf_Blood>(new Condition(Language.GetText("Mods.EpikV2.Conditions.WolfBlood"),
+				shop.Add<Old_Wolf_Heart>(new Condition(Language.GetText("Mods.EpikV2.Conditions.WolfHeart"),
 					() => NPC.downedMechBossAny && Main.LocalPlayer.HasBuff(BuffID.Werewolf) && (Main.GetMoonPhase() == MoonPhase.Full || Main.bloodMoon))
 				);
 				break;
