@@ -278,7 +278,39 @@ namespace EpikV2 {
 				if (self.HeldItem?.ModItem is IDisableTileInteractItem item && item.DisableTileInteract(self)) return;
 				orig(self);
 			};
+			if (EpikConfig.Instance.shroomiteBonusFix) {
+				IL_Player.GetWeaponDamage += (il) => {
+					ILCursor c = new(il);
+					int loc = -1;
+					c.GotoNext(MoveType.AfterLabel,
+						i => i.MatchLdarg0(),
+						i => i.MatchLdarg1(),
+						i => i.MatchLdloca(out loc),
+						i => i.MatchCall(typeof(CombinedHooks), "ModifyWeaponDamage")
+					);
+					ILLabel label = c.DefineLabel();
+					c.Emit(OpCodes.Ldarg_2);
+					c.Emit(OpCodes.Brfalse, label);
+					static void FixDisplayedDamage(Player player, Item item, ref StatModifier modifier) {
+						if (AmmoID.Sets.IsArrow[item.ammo]) {
+							modifier = modifier.CombineWith(player.arrowDamage);
+						}
+						if (AmmoID.Sets.IsBullet[item.ammo]) {
+							modifier = modifier.CombineWith(player.bulletDamage);
+						}
+						if (AmmoID.Sets.IsSpecialist[item.ammo]) {
+							modifier = modifier.CombineWith(player.specialistDamage);
+						}
+					}
+					c.Emit(OpCodes.Ldarg_0);
+					c.Emit(OpCodes.Ldarg_1);
+					c.Emit(OpCodes.Ldloca_S, (byte)loc);
+					c.EmitDelegate<_FixDisplayedDamage>(FixDisplayedDamage);
+					c.MarkLabel(label);
+				};
+			}
 		}
+		delegate void _FixDisplayedDamage(Player player, Item item, ref StatModifier modifier);
 
 		private void On_Projectile_EmitEnchantmentVisualsAt(On_Projectile.orig_EmitEnchantmentVisualsAt orig, Projectile self, Vector2 boxPosition, int boxWidth, int boxHeight) {
 			orig(self, boxPosition, boxWidth, boxHeight);

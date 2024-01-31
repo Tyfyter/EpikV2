@@ -367,6 +367,12 @@ namespace EpikV2 {
 			[DefaultValue(true)]
 			public bool ShimmerCloak = true;
 		}
+
+		[Header("BugFixes")]
+
+		[DefaultValue(true)]
+		[ReloadRequired]
+		public bool ShroomiteBonusFix = true;
 	}
 	public class HighTestFishingLine : GlobalItem {
 		public override bool AppliesToEntity(Item entity, bool lateInstantiation) {

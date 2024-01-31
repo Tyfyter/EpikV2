@@ -211,12 +211,12 @@ Items: {
 		DisplayName: Apollo's Laurels
 		Tooltip:
 			'''
-			15% increased arrow
+			15% increased arrow damage
 			12% symphonic damage
 			20% radiant damage
 			Greatly increases arrow speed and reduces arrow consumption chance by 20%
 			+5% symphonic playing speed
-			+2 max inspiration and 17% increased inspiration
+			+2 max inspiration and 17% increased inspiration regeneration
 			10% increased healing and +2 bonus healing
 			+40 max mana and increased mana regeneration
 			Hitting enemies with arrows restores the duration of bardic empowerments
@@ -972,7 +972,7 @@ Items: {
 
 	Divine_Confetti: {
 		DisplayName: Divine Confetti
-		Tooltip: "Confetti imbued with a divine blessing made for driving away apparitions."
+		Tooltip: Confetti imbued with a divine blessing made for driving away apparitions.
 	}
 
 	High_Life_Hair_Dye: {
@@ -1221,7 +1221,11 @@ Configs: {
 
 	EpikConfig: {
 		DisplayName: Settings
-		Headers.Misc: Misc Header
+
+		Headers: {
+			Misc: Misc Header
+			BugFixes: Vanilla Bug Fixes
+		}
 
 		AncientPresents: {
 			Label: Ancient Presents
@@ -1287,6 +1291,16 @@ Configs: {
 			Label: Rare biome enemies drop Biome keys
 			Tooltip: Gives Biome Mimics, Sand Elementals, and Ice Golems a heightened drop chance for their respective biome keys
 		}
+
+		ShroomiteBonusFix: {
+			Label: Ammo damage bonuses in tooltips
+			Tooltip:
+			'''
+			In vanilla ammo-specific damage bonuses like those from Shroomite armor don't apply to ammo,
+			tModLoader fixes this, but does not show the correct damage for ammo in tooltips,
+			this config option fixes that
+			'''
+		}
 	}
 
 	NPCChangesConfig: {
@@ -1324,5 +1338,12 @@ Configs: {
 			Label: Shimmer Cloak
 			Tooltip: ""
 		}
+	}
+}
+
+Empowerments: {
+	SolarRejuvenation: {
+		DisplayName: Solar Rejuvenation
+		Tooltip: The power of the sun mends your wounds
 	}
 }

@@ -8,7 +8,7 @@ using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
-#if false //TODO: remove when Thorium updates
+//*
 using ThoriumMod;
 using ThoriumMod.Empowerments;
 using ThoriumMod.Items;
@@ -20,40 +20,27 @@ namespace EpikV2.Items.Armor {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.GarlandHat;
 		public static Dictionary<int, StatModifier> healerArmorDamageCompensation;
 		public override void SetStaticDefaults() {
-			DisplayName.SetDefault("Apollo's Laurels");
-			Tooltip.SetDefault("15% increased arrow\n" +
-							   "12% symphonic damage\n" +
-							   "20% radiant damage\n" +
-							   "Greatly increases arrow speed and reduces arrow consumption chance by 20%\n" +
-							   "+5% symphonic playing speed\n" +
-							   "+2 max inspiration and 17% increased inspiration\n" +
-							   "10% increased healing and +2 bonus healing\n" +
-							   "+40 max mana and increased mana regeneration\n" +
-							   "Hitting enemies with arrows restores the duration of bardic empowerments\n" +
-							   "Bard weapons provide life regeneration to nearby allies\n" +
-							   "+1 bonus healing and +3 radiant damage for each bardic empowerment active\n" +
-							   "Radiant damage is applied to arrows based on healing streak\n" +
-							   "Healer armor no longer reduces arrow or bard damage\n" +
-							   "'Do you think I can pass that wall of text off as a poem?'");
 			ArmorIDs.Head.Sets.DrawHatHair[Item.headSlot] = true;
-			SacrificeTotal = 1;
 		}
 		public override void Load() {
 			healerArmorDamageCompensation = new() {
 				[ModContent.ItemType<ThoriumMod.Items.Coral.CoralChestGuard>()] = new StatModifier(1.11f, 1),
 				[ModContent.ItemType<ThoriumMod.Items.Coral.CoralGreaves>()] = new StatModifier(1.11f, 1),
 
-				[ModContent.ItemType<ThoriumMod.Items.HealerItems.EbonCloak>()] = new StatModifier(1.1f, 1),
-				[ModContent.ItemType<ThoriumMod.Items.HealerItems.EbonLeggings>()] = new StatModifier(1.1f, 1),
+				[ModContent.ItemType<ThoriumMod.Items.HealerItems.EbonCloak>()] = new StatModifier(1.10f, 1),
+				[ModContent.ItemType<ThoriumMod.Items.HealerItems.EbonLeggings>()] = new StatModifier(1.10f, 1),
 
-				[ModContent.ItemType<ThoriumMod.Items.HealerItems.NoviceClericTabard>()] = new StatModifier(1.1f, 1),
-				[ModContent.ItemType<ThoriumMod.Items.HealerItems.NoviceClericPants>()] = new StatModifier(1.1f, 1),
+				[ModContent.ItemType<ThoriumMod.Items.HealerItems.BloomingTabard>()] = new StatModifier(1.10f, 1),
+				[ModContent.ItemType<ThoriumMod.Items.HealerItems.BloomingLeggings>()] = new StatModifier(1.10f, 1),
 
-				[ModContent.ItemType<ThoriumMod.Items.HealerItems.BloomingTabard>()] = new StatModifier(1.1f, 1),
-				[ModContent.ItemType<ThoriumMod.Items.HealerItems.BloomingLeggings>()] = new StatModifier(1.1f, 1),
+				[ModContent.ItemType<ThoriumMod.Items.HealerItems.NoviceClericTabard>()] = new StatModifier(1.10f, 1),
+				[ModContent.ItemType<ThoriumMod.Items.HealerItems.NoviceClericPants>()] = new StatModifier(1.10f, 1),
+
+				[ModContent.ItemType<ThoriumMod.Items.HealerItems.BloomingTabard>()] = new StatModifier(1.10f, 1),
+				[ModContent.ItemType<ThoriumMod.Items.HealerItems.BloomingLeggings>()] = new StatModifier(1.10f, 1),
 
 				[ModContent.ItemType<ThoriumMod.Items.HealerItems.TemplarsTabard>()] = new StatModifier(1.15f, 1),
-				[ModContent.ItemType<ThoriumMod.Items.HealerItems.TemplarsLeggings>()] = new StatModifier(1.1f, 1),
+				[ModContent.ItemType<ThoriumMod.Items.HealerItems.TemplarsLeggings>()] = new StatModifier(1.10f, 1),
 
 				[ModContent.ItemType<ThoriumMod.Items.HealerItems.WarlockGarb>()] = new StatModifier(1.25f, 1),
 				[ModContent.ItemType<ThoriumMod.Items.HealerItems.WarlockLeggings>()] = new StatModifier(1.12f, 1),
@@ -70,14 +57,14 @@ namespace EpikV2.Items.Armor {
 				[ModContent.ItemType<ThoriumMod.Items.HealerItems.FallenPaladinCuirass>()] = new StatModifier(1.30f, 1),
 				[ModContent.ItemType<ThoriumMod.Items.HealerItems.FallenPaladinGreaves>()] = new StatModifier(1.25f, 1),
 
-				[ModContent.ItemType<ThoriumMod.Items.Abyssion.WhisperingTabard>()] = new StatModifier(1.35f, 1),
-				[ModContent.ItemType<ThoriumMod.Items.Abyssion.WhisperingLeggings>()] = new StatModifier(1.25f, 1),
+				[ModContent.ItemType<ThoriumMod.Items.BossForgottenOne.WhisperingTabard>()] = new StatModifier(1.35f, 1),
+				[ModContent.ItemType<ThoriumMod.Items.BossForgottenOne.WhisperingLeggings>()] = new StatModifier(1.25f, 1),
 
 				[ModContent.ItemType<ThoriumMod.Items.HealerItems.CelestialVestment>()] = new StatModifier(1.20f, 1),
 				[ModContent.ItemType<ThoriumMod.Items.HealerItems.CelestialLeggings>()] = new StatModifier(1.20f, 1),
 
-				[ModContent.ItemType<ThoriumMod.Items.EndofDays.Dream.DreamWeaversTabard>()] = new StatModifier(1.25f, 1),
-				[ModContent.ItemType<ThoriumMod.Items.EndofDays.Dream.DreamWeaversTreads>()] = new StatModifier(1.20f, 1)
+				[ModContent.ItemType<ThoriumMod.Items.BossThePrimordials.Dream.DreamWeaversTabard>()] = new StatModifier(1.25f, 1),
+				[ModContent.ItemType<ThoriumMod.Items.BossThePrimordials.Dream.DreamWeaversTreads>()] = new StatModifier(1.20f, 1)
 			};
 		}
 		public override void Unload() {
@@ -112,7 +99,7 @@ namespace EpikV2.Items.Armor {
 			int empowermentCount = (EpikThoriumPlayer.Empowerments.GetValue(thoriumPlayer)).ActiveEmpowerments.Count;
 			thoriumPlayer.healBonus += 2 + empowermentCount;
 			player.GetDamage<HealerDamage>().Flat += empowermentCount * 3;
-			thoriumPlayer.inspirationRegenBonus += 0.15f;
+			//thoriumPlayer.inspirationRegenBonus += 0.15f;
 			StatModifier damageCompensation = StatModifier.Default;
 			if (healerArmorDamageCompensation.TryGetValue(player.armor[1].type, out StatModifier bodyArmorComp)) {
 				damageCompensation = damageCompensation.CombineWith(bodyArmorComp);
@@ -122,16 +109,6 @@ namespace EpikV2.Items.Armor {
 			}
 			player.arrowDamage = player.arrowDamage.CombineWith(damageCompensation);
 			player.GetDamage<BardDamage>() = player.GetDamage<BardDamage>().CombineWith(damageCompensation);
-
-			if (thoriumPlayer.healStreak > 0) {
-				float streakPercent = thoriumPlayer.healStreak / 100f;
-				if (streakPercent < 1f) {
-					player.arrowDamage = player.arrowDamage.CombineWith(player.GetDamage<HealerDamage>());
-					epikThoriumPlayer.radiantArrows = true;
-				} else {
-					player.arrowDamage = player.arrowDamage.CombineWith(player.GetDamage<HealerDamage>().Scale(1f));
-				}
-			}
 		}
 		public override void AddRecipes() {
 			Recipe recipe = Recipe.Create(Type);
@@ -144,11 +121,11 @@ namespace EpikV2.Items.Armor {
 		}
 	}
 }
-#else
+/*/
 
 namespace EpikV2.Items {
 	public class Apollos_Laurels : ModItem {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.GarlandHat;
 	}
 }
-#endif
+//*/

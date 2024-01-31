@@ -1,4 +1,4 @@
-﻿#if false //TODO: remove when Thorium updates
+﻿//*
 using Microsoft.Xna.Framework;
 using MonoMod.RuntimeDetour.HookGen;
 using System;
@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.Graphics;
+using Terraria.Graphics.Renderers;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
@@ -42,23 +43,23 @@ namespace EpikV2.CrossMod {
 				})
 				.CreateDelegate<ApplyEmpowerment_Delegate>();
 			Empowerments = new("Empowerments", BindingFlags.NonPublic);
-			On.Terraria.Player.ApplyItemTime += Player_ApplyItemTime;
-			HookEndpointManager.Add(
+			On_Player.ApplyItemTime += Player_ApplyItemTime;
+			MonoModHooks.Add(
 				typeof(BardItem).GetMethod("ModifyEmpowermentPool", BindingFlags.Public | BindingFlags.Instance),
 				(ModifyEmpowermentPool_hook)BardItem_ModifyEmpowermentPool
 			);
-			HookEndpointManager.Add(
+			MonoModHooks.Add(
 				typeof(TerrariumAutoharp).GetMethod("ModifyEmpowermentPool", BindingFlags.Public | BindingFlags.Instance),
 				(ModifyEmpowermentPool_hook)BardItem_ModifyEmpowermentPool
 			);
-			On.Terraria.Graphics.Renderers.LegacyPlayerRenderer.DrawPlayerInternal += LegacyPlayerRenderer_DrawPlayerInternal;
+			On_LegacyPlayerRenderer.DrawPlayerInternal += LegacyPlayerRenderer_DrawPlayerInternal;
 		}
 
 		public override void Unload() {
 			ApplyEmpowerment = null;
 			Empowerments = null;
-			On.Terraria.Player.ApplyItemTime -= Player_ApplyItemTime;
-			On.Terraria.Graphics.Renderers.LegacyPlayerRenderer.DrawPlayerInternal -= LegacyPlayerRenderer_DrawPlayerInternal;
+			On_Player.ApplyItemTime -= Player_ApplyItemTime;
+			On_LegacyPlayerRenderer.DrawPlayerInternal -= LegacyPlayerRenderer_DrawPlayerInternal;
 		}
 		public override void ResetEffects() {
 			apollosLaurels = false;
@@ -76,7 +77,21 @@ namespace EpikV2.CrossMod {
 				apollosLaurelsGlowTime--;
 			}
 		}
-		public override void OnHitNPCWithProj(Projectile proj, NPC target, int damage, float knockback, bool crit) {
+		public override void PostUpdateMiscEffects() {
+			if (apollosLaurels) {
+				ThoriumPlayer thoriumPlayer = ThoriumPlayer;
+				if (thoriumPlayer.healStreak > 0) {
+					float streakPercent = thoriumPlayer.healStreak / 100f;
+					if (streakPercent < 1f) {
+						Player.arrowDamage = Player.arrowDamage.CombineWith(Player.GetDamage<HealerDamage>());
+						radiantArrows = true;
+					} else {
+						Player.arrowDamage = Player.arrowDamage.CombineWith(Player.GetDamage<HealerDamage>().Scale(1f));
+					}
+				}
+			}
+		}
+		public override void OnHitNPCWithProj(Projectile proj, NPC target, NPC.HitInfo hit, int damageDone) {
 			if (apollosLaurels && Sets.IsArrow[proj.type]) {// && target.type != NPCID.TargetDummy
 				ThoriumPlayer thoriumPlayer = ThoriumPlayer;
 				float range = 500 + thoriumPlayer.bardRangeBoost;
@@ -102,7 +117,7 @@ namespace EpikV2.CrossMod {
 				}
 			}
 		}
-		private static void Player_ApplyItemTime(On.Terraria.Player.orig_ApplyItemTime orig, Player self, Item sItem, float multiplier, bool? callUseItem) {
+		private static void Player_ApplyItemTime(On_Player.orig_ApplyItemTime orig, Player self, Item sItem, float multiplier, bool? callUseItem) {
 			orig(self, sItem, multiplier, callUseItem);
 			if (callUseItem == false && sItem.ModItem is BardItem bardItem && bardItem.EmpowerOnUse) {
 				ThoriumPlayer bard = self.GetModPlayer<ThoriumPlayer>();
@@ -124,7 +139,7 @@ namespace EpikV2.CrossMod {
 				apollosLaurelsHealTime = duration;
 			}
 		}
-		private void LegacyPlayerRenderer_DrawPlayerInternal(On.Terraria.Graphics.Renderers.LegacyPlayerRenderer.orig_DrawPlayerInternal orig, Terraria.Graphics.Renderers.LegacyPlayerRenderer self, Camera camera, Player drawPlayer, Vector2 position, float rotation, Vector2 rotationOrigin, float shadow, float alpha, float scale, bool headOnly) {
+		private void LegacyPlayerRenderer_DrawPlayerInternal(On_LegacyPlayerRenderer.orig_DrawPlayerInternal orig, LegacyPlayerRenderer self, Camera camera, Player drawPlayer, Vector2 position, float rotation, Vector2 rotationOrigin, float shadow, float alpha, float scale, bool headOnly) {
 			try {
 				EpikThoriumPlayer epikThoriumPlayer = drawPlayer.GetModPlayer<EpikThoriumPlayer>();
 				if (epikThoriumPlayer.apollosLaurelsGlowTime > 0) {
@@ -170,4 +185,4 @@ namespace EpikV2.CrossMod {
 		}
 	}
 }
-#endif
+//*/
