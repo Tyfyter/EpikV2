@@ -25,10 +25,11 @@ namespace EpikV2.Items {
 		protected override bool CloneNewInstances => true;
 		bool? nOwO = null;
 		bool strengthened = false;
+		HashSet<Type> loggedContexts = new();
 		public override void OnCreated(Item item, ItemCreationContext context) {
-			if (context is RecipeItemCreationContext) {
+			if (context is RecipeItemCreationContext or BuyItemCreationContext or JourneyDuplicationItemCreationContext) {
 				InitCatgirlMeme(item);
-			} else if(context is not InitializationItemCreationContext) {
+			} else if(context is not InitializationItemCreationContext && item.type == ItemID.CatEars && (loggedContexts ??= new()).Add(context.GetType())) {
 				EpikV2.instance.Logger.Info("cat ears created in unknown context: " + context);
 			}
 		}
@@ -134,9 +135,15 @@ namespace EpikV2.Items {
 					OverrideColor = new Color(0, 0, 0, 1f)
 				});
 			}
+			bool hasTooltips = true;
+			int lastTooltipIndex = tooltips.FindLastIndex(line => line.Name.StartsWith("Tooltip"));
+			if (lastTooltipIndex == -1) {
+				hasTooltips = false;
+			} else {
+				lastTooltipIndex += 1;
+			}
 			if (strengthened) {
-				int lastTooltipIndex = tooltips.FindLastIndex(line => line.Name.StartsWith("Tooltip")) + 1;
-				switch (item.type) {
+				switch (hasTooltips ? item.type : -1) {
 					case ItemID.ShimmerCloak:
 					if (!EpikConfig.Instance.itemUpgradesConfig.ShimmerCloak) {
 						tooltips.Add(new TooltipLine(Mod, "DisabledUpgrade", Language.GetTextValue("Mods.EpikV2.Items.Generic.DisabledUpgrade")));
@@ -158,7 +165,7 @@ namespace EpikV2.Items {
 					break;
 				}
 			}
-			if (PrefixLoader.GetPrefix(item.prefix) is IModifyTooltipsPrefix modifyTooltipsPrefix) {
+			if (hasTooltips && PrefixLoader.GetPrefix(item.prefix) is IModifyTooltipsPrefix modifyTooltipsPrefix) {
 				modifyTooltipsPrefix.ModifyTooltips(item, tooltips);
 			}
 		}

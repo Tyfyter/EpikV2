@@ -1295,11 +1295,11 @@ Configs: {
 		ShroomiteBonusFix: {
 			Label: Ammo damage bonuses in tooltips
 			Tooltip:
-			'''
-			In vanilla ammo-specific damage bonuses like those from Shroomite armor don't apply to ammo,
-			tModLoader fixes this, but does not show the correct damage for ammo in tooltips,
-			this config option fixes that
-			'''
+				'''
+				In vanilla ammo-specific damage bonuses like those from Shroomite armor don't apply to ammo,
+				tModLoader fixes this, but does not show the correct damage for ammo in tooltips,
+				this config option fixes that
+				'''
 		}
 	}
 

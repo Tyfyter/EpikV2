@@ -278,7 +278,7 @@ namespace EpikV2 {
 				if (self.HeldItem?.ModItem is IDisableTileInteractItem item && item.DisableTileInteract(self)) return;
 				orig(self);
 			};
-			if (EpikConfig.Instance.shroomiteBonusFix) {
+			if (EpikConfig.Instance.ShroomiteBonusFix) {
 				IL_Player.GetWeaponDamage += (il) => {
 					ILCursor c = new(il);
 					int loc = -1;
