@@ -56,13 +56,20 @@ namespace EpikV2 {
 			}
 		}
 		public override void AddRecipes() {
-			Recipe recipe = Recipe.Create(ItemID.BottledWater);
-			recipe.AddIngredient(ItemID.Bottle);
-			recipe.AddCondition(new Condition(
+			Condition rainCondition = new Condition(
 				Language.GetText("Mods.EpikV2.Conditions.InRain"),
 				() => Main.LocalPlayer.GetModPlayer<EpikPlayer>().wetTime > 0
-			));
-			recipe.Register();
+			);
+
+			Recipe.Create(ItemID.BottledWater)
+			.AddIngredient(ItemID.Bottle)
+			.AddCondition(rainCondition)
+			.Register();
+
+			Recipe.Create(ItemID.Cloud)
+			.AddCondition(Condition.NearWater.Or(rainCondition))
+			.AddTile(TileID.SkyMill)
+			.Register();
 		}
 		public override void PostAddRecipes() {
 			EpikV2.HellforgeRecipes = new HashSet<Recipe>(Main.recipe.Where(
