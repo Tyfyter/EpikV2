@@ -607,7 +607,10 @@ namespace EpikV2.Items {
 							}
 							NPCLoader.blockLoot.Clear();
 							Item createItem = craft.recipe.createItem;
-							Item.NewItem(Projectile.GetSource_DropAsItem(), Projectile.Center, createItem.type, createItem.stack, prefixGiven: -1);
+							int item = Item.NewItem(Projectile.GetSource_DropAsItem(), Projectile.Center, createItem.type, createItem.stack, prefixGiven: -1);
+							if (Main.netMode == NetmodeID.MultiplayerClient) {
+								NetMessage.SendData(MessageID.SyncItem, -1, -1, null, item, 1f);
+							}
 						}
 					} catch (Exception) {}
 					Projectile.Kill();
