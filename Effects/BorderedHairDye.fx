@@ -69,7 +69,7 @@ float4 LunarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 	
 	coords = (offsetCoords / uImageSize0) + baseCoords;*/
 	float4 baseColor = tex2D(uImage0, coords);
-	float4 color = float4(0.557 * 0.5, 0.541 * 0.5, 0.769 * 0.5, 0.769) * 0.5;
+	float4 color = float4(0.557 * 0.6, 0.541 * 0.5, 0.769 * 0.8, 0.769) * 0.5;
 
 	if (baseColor.r > 0.36 || !EmptyAdj(coords, float2(2, 2) / uImageSize0)) {
 		color = float4(0.141, 0.286, 0.745, 1);
@@ -90,15 +90,16 @@ float4 LunarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 	} else {
 		frameX = uImageSize0.x * coords.x;
 	}
-	float2 absoluteCoords = (float2(frameX, frameY)) + float2(uTime, -uTime) * 3 + uTargetPosition * 0.05;
+    float2 absoluteCoords = (float2(frameX, frameY) * 2.5) + float2(uTime, -uTime) * 3 + uTargetPosition * 0.075;
+    //absoluteCoords *= 1.75;
 	float4 starColor = tex2D(uImage1, fmod((absoluteCoords % uImageSize1) / uImageSize1, float2(1, 1)));
-	float star = (pow(max(starColor.b, 0), 4) - 0.1) * 4;
+	float star = (pow(max(starColor.b, 0), 3.5) - 0.1) * 5;
 	if (star < 0) star = 0;
-	if (star > 0.7) star = 0.7;
+	//if (star > 0.7) star = 0.7;
 	//return float4(star * 0.64, star * 0.7, star, 1) * color.a * baseColor.a;
 	
 	//
-	return color * baseColor + float4(star * 0.64, star * 0.7, star, 0) * baseColor.a; // * baseColor
+    return color * baseColor + float4(star * 0.64, star * 0.7, star, 0) * baseColor.a * color.a * color.a; // * baseColor
 }
 float4 SolarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
 	float4 baseColor = tex2D(uImage0, coords);

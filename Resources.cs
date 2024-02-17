@@ -102,8 +102,8 @@ namespace EpikV2 {
 				dashingDyeShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/BorderedHairDye", AssetRequestMode.ImmediateLoad).Value), "DashingDye");
 				GameShaders.Armor.BindShader(ItemType<Dashing_Hair_Dye>(), dashingDyeShader);
 				lunarHairDyeShader = new LunarHairShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/BorderedHairDye", AssetRequestMode.ImmediateLoad).Value), "LunarDye");
-				lunarHairDyeShader.UseImage("Images/Misc/noise");
-				//lunarHairDyeShader.UseNonVanillaImage(nebulaDistortionTexture);
+				//lunarHairDyeShader.UseImage("Images/Misc/noise");
+				lunarHairDyeShader.UseImage(mod.Assets.Request<Texture2D>("Textures/Starry_Starry_Stars"));
 
 				empressWingsShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Mask", AssetRequestMode.ImmediateLoad).Value), "EmpressWings");
 				normalRainbowTexture = Request<Texture2D>("Terraria/Images/Extra_156");
