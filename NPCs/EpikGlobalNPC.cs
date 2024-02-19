@@ -514,6 +514,7 @@ namespace EpikV2.NPCs
 					() => ModContent.GetInstance<EpikWorld>().timeManipMode == 4);
 				shop.Add<Retro_Dye>(retroCondition);
 				shop.Add<Red_Retro_Dye>(retroCondition);
+				shop.Add<Nyx_Dye>(Condition.NightOrEclipse);
 				break;
 
 				case NPCID.BestiaryGirl:

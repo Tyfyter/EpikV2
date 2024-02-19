@@ -16,53 +16,37 @@ using static EpikV2.Resources;
 
 namespace EpikV2.Items {
     public class Jade_Dye : Dye_Item {
-        public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("Jade Dye");
-            Item.ResearchUnlockCount = 3;
-        }
         public override void AddRecipes() {
-            Recipe recipe = Recipe.Create(Type, 9);
-            recipe.AddIngredient(AquamarineMaterial.id);
-            recipe.AddTile(TileID.DyeVat);
-            recipe.Register();
+            Recipe.Create(Type, 9)
+            .AddIngredient(AquamarineMaterial.id)
+            .AddTile(TileID.DyeVat)
+            .Register();
         }
     }
 
     public class Heatwave_Dye : Dye_Item {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Non-Chromatic_Dye";
-        public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("Heatwave Dye");
-            Item.ResearchUnlockCount = 3;
-        }
         public override void AddRecipes() {
-            Recipe recipe = Recipe.Create(Type, 9);
-            recipe.AddIngredient(SunstoneMaterial.id);
-            recipe.AddTile(TileID.DyeVat);
-            recipe.Register();
+            Recipe.Create(Type, 9)
+            .AddIngredient(SunstoneMaterial.id)
+            .AddTile(TileID.DyeVat)
+            .Register();
         }
     }
 
     public class Starlight_Dye : Dye_Item {
-        public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("Starlight Dye");
-            Item.ResearchUnlockCount = 3;
-        }
         public override void AddRecipes() {
-            Recipe recipe = Recipe.Create(Type, 9);
-            recipe.AddIngredient(ItemID.FragmentStardust, 5);
-            recipe.AddIngredient(ItemID.FragmentSolar, 5);
-            recipe.AddTile(TileID.DyeVat);
-            recipe.Register();
+            Recipe.Create(Type, 9)
+            .AddIngredient(ItemID.FragmentStardust, 5)
+            .AddIngredient(ItemID.FragmentSolar, 5)
+            .AddTile(TileID.DyeVat)
+            .Register();
         }
     }
 
     public class Dim_Starlight_Dye : Dye_Item {
         public override string Texture => "EpikV2/Items/Starlight_Dye";
-        public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("Dim Starlight Dye");
-            Item.ResearchUnlockCount = 3;
-        }
 		public override void SetDefaults() {
 			int dye = Item.dye;
 			Item.CloneDefaults(ItemID.RedandBlackDye);
@@ -70,20 +54,16 @@ namespace EpikV2.Items {
             Item.color = Colors.CoinSilver;
 		}
         public override void AddRecipes() {
-            Recipe recipe = Recipe.Create(Type, 9);
-            recipe.AddIngredient(ItemID.FragmentStardust, 5);
-            recipe.AddIngredient(ItemID.FragmentSolar, 5);
-            recipe.AddTile(TileID.DyeVat);
-            recipe.Register();
+            Recipe.Create(Type, 9)
+            .AddIngredient(ItemID.FragmentStardust, 5)
+            .AddIngredient(ItemID.FragmentSolar, 5)
+            .AddTile(TileID.DyeVat)
+            .Register();
         }
     }
 
     public class Bright_Starlight_Dye : Dye_Item {
         public override string Texture => "EpikV2/Items/Starlight_Dye";
-        public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("Bright Starlight Dye");
-            Item.ResearchUnlockCount = 3;
-        }
 		public override void SetDefaults() {
 			int dye = Item.dye;
 			Item.CloneDefaults(ItemID.RedandBlackDye);
@@ -91,34 +71,21 @@ namespace EpikV2.Items {
             Item.color = new Color(255, 255, 255, 100);
 		}
         public override void AddRecipes() {
-            Recipe recipe = Recipe.Create(Type, 9);
-            recipe.AddIngredient(ItemID.FragmentStardust, 5);
-            recipe.AddIngredient(ItemID.FragmentSolar, 5);
-            recipe.AddTile(TileID.DyeVat);
-            recipe.Register();
+            Recipe.Create(Type, 9)
+            .AddIngredient(ItemID.FragmentStardust, 5)
+            .AddIngredient(ItemID.FragmentSolar, 5)
+            .AddTile(TileID.DyeVat)
+            .Register();
         }
     }
 
-    public class Retro_Dye : Dye_Item {
-        public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("Retro Dye");
-            Item.ResearchUnlockCount = 3;
-        }
-    }
+    public class Retro_Dye : Dye_Item { }
 
-    public class Red_Retro_Dye : Dye_Item {
-        public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("Retro Dye (Red)");
-            Item.ResearchUnlockCount = 3;
-        }
-    }
+	public class Red_Retro_Dye : Dye_Item { }
 
     public class GPS_Dye : Dye_Item {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
-        public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("GPS Dye");
-        }
 		public override void SetDefaults() {
 			int dye = Item.dye;
 			Item.CloneDefaults(ItemID.RedandBlackDye);
@@ -141,9 +108,6 @@ namespace EpikV2.Items {
     public class Chroma_Dummy_Dye : Dye_Item {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
-        public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("Chroma_Dummy_Dye");
-        }
 		public override void SetDefaults() {
 			int dye = Item.dye;
 			Item.CloneDefaults(ItemID.RedandBlackDye);
@@ -171,81 +135,66 @@ namespace EpikV2.Items {
         }
     }*/
     public class Cursed_Hades_Dye : Dye_Item {
-        public override void SetStaticDefaults(){
-            // DisplayName.SetDefault("Cursed Hades Dye");
-            Item.ResearchUnlockCount = 3;
-        }
         public override void AddRecipes() {
-            Recipe recipe = Recipe.Create(Type, 3);
-            recipe.AddIngredient(ItemID.HadesDye, 3);
-            recipe.AddIngredient(ItemID.CursedFlame);
-            recipe.AddTile(TileID.DyeVat);
-            recipe.Register();
+            Recipe.Create(Type, 3)
+            .AddIngredient(ItemID.HadesDye, 3)
+            .AddIngredient(ItemID.CursedFlame)
+            .AddTile(TileID.DyeVat)
+            .Register();
         }
     }
     public class Ichor_Dye : Dye_Item {
-        public override void SetStaticDefaults(){
-            // DisplayName.SetDefault("Ichor Dye");
-            Item.ResearchUnlockCount = 3;
-        }
         public override void AddRecipes() {
-            Recipe recipe = Recipe.Create(Type, 3);
-            recipe.AddIngredient(ItemID.PurpleOozeDye, 3);
-            recipe.AddIngredient(ItemID.Ichor);
-            recipe.AddTile(TileID.DyeVat);
-            recipe.Register();
+            Recipe.Create(Type, 3)
+            .AddIngredient(ItemID.PurpleOozeDye, 3)
+            .AddIngredient(ItemID.Ichor)
+            .AddTile(TileID.DyeVat)
+            .Register();
         }
     }
     public class Golden_Flame_Dye : Dye_Item {
-        public override void SetStaticDefaults(){
-            // DisplayName.SetDefault("Golden Flame Dye");
-            Item.ResearchUnlockCount = 3;
-        }
         public override void AddRecipes() {
-            Recipe recipe = Recipe.Create(Type, 3);
-            recipe.AddIngredient(ItemID.HadesDye, 3);
-            recipe.AddIngredient(ItemID.GoldDust);
-            recipe.AddTile(TileID.DyeVat);
-            recipe.Register();
+            Recipe.Create(Type, 3)
+            .AddIngredient(ItemID.HadesDye, 3)
+            .AddIngredient(ItemID.GoldDust)
+            .AddTile(TileID.DyeVat)
+            .Register();
         }
     }
     public class Chimera_Dye : Dye_Item {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
-        public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("Chimera's Blood");
-            Item.ResearchUnlockCount = 3;
-        }
         public override void AddRecipes() {
-            Recipe recipe = Recipe.Create(Type, 9);
-            recipe.AddIngredient(ItemID.FragmentVortex, 5);
-            recipe.AddIngredient(ItemID.FragmentNebula, 5);
-            recipe.AddTile(TileID.DyeVat);
-            recipe.Register();
+            Recipe.Create(Type, 9)
+            .AddIngredient(ItemID.FragmentVortex, 5)
+            .AddIngredient(ItemID.FragmentNebula, 5)
+            .AddTile(TileID.DyeVat)
+            .Register();
         }
     }
     public class Opaque_Chimera_Dye : Dye_Item {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("Blackened Chimera's Blood");
             Item.ResearchUnlockCount = 2;
         }
         public override void AddRecipes() {
-            Recipe recipe = Recipe.Create(Type, 2);
-            recipe.AddIngredient(ItemType<Chimera_Dye>(), 1);
-            recipe.AddIngredient(ItemID.BlackInk, 1);
-            recipe.AddTile(TileID.DyeVat);
-            recipe.Register();
+            Recipe.Create(Type, 2)
+            .AddIngredient(ItemType<Chimera_Dye>(), 1)
+            .AddIngredient(ItemID.BlackInk, 1)
+            .AddTile(TileID.DyeVat)
+            .Register();
+
+            Recipe.Create(Type, 2)
+            .AddIngredient(ItemType<Chimera_Dye>(), 1)
+            .AddIngredient(ItemType<Nyx_Dye>(), 1)
+            .AddTile(TileID.DyeVat)
+            .Register();
         }
     }
     public class Inverted_Chimera_Dye : Dye_Item {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
-        public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("Chimera's Blood (Inverted)");
-            Item.ResearchUnlockCount = 3;
-        }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type);
             recipe.AddIngredient(ItemType<Chimera_Dye>());
@@ -260,7 +209,6 @@ namespace EpikV2.Items {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
         public override void SetStaticDefaults() {
-            // DisplayName.SetDefault("Blackened Chimera's Blood (Inverted)");
             Item.ResearchUnlockCount = 2;
         }
         public override void AddRecipes() {
@@ -272,8 +220,10 @@ namespace EpikV2.Items {
             recipe.AddIngredient(this, 1);
             recipe.Register();
         }
-    }
-    public class MotionArmorShaderData : ArmorShaderData {
+	}
+
+	public class Nyx_Dye : Dye_Item { }
+	public class MotionArmorShaderData : ArmorShaderData {
         public MotionArmorShaderData(Ref<Effect> shader, string passName) : base(shader, passName) {}
         public override void Apply(Entity entity, DrawData? drawData = null) {
             //null check
@@ -287,7 +237,10 @@ namespace EpikV2.Items {
     }
     public abstract class Dye_Item : ModItem {
         public virtual bool UseShaderOnSelf => false;
-        public override void SetDefaults() {
+		public override void SetStaticDefaults() {
+			Item.ResearchUnlockCount = 3;
+		}
+		public override void SetDefaults() {
             int dye = Item.dye;
             Item.CloneDefaults(ItemID.RedandBlackDye);
             Item.dye = dye;

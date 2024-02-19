@@ -1009,6 +1009,11 @@ Items: {
 		DisplayName: Deathblow
 		Tooltip: ""
 	}
+
+	Nyx_Dye: {
+		DisplayName: Midnight Dye
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck
