@@ -54,6 +54,9 @@ namespace EpikV2.Items.Other.HairDye {
 			return Color.Lerp(new Color(250, 255, 255), newColor, player.statMana / (float)player.statManaMax2);
 		});
 	}
+	public class Starry_Hair_Dye : HairDye {
+		public override HairShaderData ShaderData => Resources.Shaders.starryHairDyeShader;
+	}
 	public abstract class HairDye : ModItem {
 		public abstract HairShaderData ShaderData { get; }
 		public override void SetStaticDefaults() {

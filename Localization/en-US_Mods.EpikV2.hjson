@@ -148,7 +148,7 @@ Buffs: {
 	}
 
 	Scimitar_Of_The_Rising_Sun_Deathblow_Debuff: {
-		DisplayName: Scimitar_ Of_ The_ Rising_ Sun_ Deathblow_ Debuff
+		DisplayName: Scimitar Of The Rising Sun Deathblow
 		Description: Mods.EpikV2.Buffs.Scimitar_Of_The_Rising_Sun_Deathblow_Debuff.Description
 	}
 }
@@ -1012,6 +1012,11 @@ Items: {
 
 	Nyx_Dye: {
 		DisplayName: Midnight Dye
+		Tooltip: ""
+	}
+
+	Starry_Hair_Dye: {
+		DisplayName: Starry_ Hair_ Dye
 		Tooltip: ""
 	}
 }

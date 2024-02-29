@@ -104,6 +104,9 @@ namespace EpikV2 {
 				lunarHairDyeShader = new LunarHairShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/BorderedHairDye", AssetRequestMode.ImmediateLoad).Value), "LunarDye");
 				//lunarHairDyeShader.UseImage("Images/Misc/noise");
 				lunarHairDyeShader.UseImage(mod.Assets.Request<Texture2D>("Textures/Starry_Starry_Stars"));
+				starryHairDyeShader = new StarryHairShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/BorderedHairDye", AssetRequestMode.ImmediateLoad).Value), "StarryStarryDye");
+				//lunarHairDyeShader.UseImage("Images/Misc/noise");
+				starryHairDyeShader.UseImage(mod.Assets.Request<Texture2D>("Textures/Starry_Starry_Stars"));
 
 				empressWingsShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Mask", AssetRequestMode.ImmediateLoad).Value), "EmpressWings");
 				normalRainbowTexture = Request<Texture2D>("Terraria/Images/Extra_156");
@@ -217,6 +220,7 @@ namespace EpikV2 {
 			public ArmorShaderData dashingDyeShader;
 			public ArmorShaderData glowShader;
 			public HairShaderData lunarHairDyeShader;
+			public HairShaderData starryHairDyeShader;
 			public ArmorShaderData empressWingsShader;
 			public ArmorShaderData empressWingsShaderAlt;
 			public ArmorShaderData empressWingsShaderAurora;
@@ -239,6 +243,13 @@ namespace EpikV2 {
 					}
 					Shader.Parameters["zoom"].SetValue(Main.GameViewMatrix.TransformationMatrix);
 					base.Apply(player, drawData);
+				}
+			}
+			public class StarryHairShaderData : LunarHairShaderData {
+				public StarryHairShaderData(Ref<Effect> shader, string passName) : base(shader, passName) { }
+				public override void Apply(Player player, DrawData? drawData = null) {
+					base.Apply(player, drawData);
+					Shader.Parameters["hairColor"].SetValue(player.hairColor.ToVector3());
 				}
 			}
 		}

@@ -18,8 +18,62 @@ float2 uTargetPosition;
 float4 uLegacyArmorSourceRect;
 float2 uLegacyArmorSheetSize;
 float4x4 zoom;
+float3 hairColor;
 /*float2 uMin;
 float2 uMax;*/
+float3 RGBToHSV(float3 rgb) {
+    float Cmax = max(max(rgb.r, rgb.g), rgb.b);
+    float Cmin = min(min(rgb.r, rgb.g), rgb.b);
+    float delta = Cmax - Cmin;
+	float3 hsv = float3(0, 0, Cmax);
+	if (delta <= 0) {
+		hsv.x = 0;
+	} else if (Cmax <= rgb.r) {
+		hsv.x = ((rgb.g - rgb.b) / delta) % 6;
+		//if (hsv.x >= 6) hsv.x -= 6;
+	} else if (Cmax <= rgb.g) {
+		hsv.x = ((rgb.b - rgb.r) / delta + 2);
+	} else {
+		hsv.x = ((rgb.r - rgb.g) / delta + 4);
+	}
+	if (Cmax <= 0) {
+		hsv.y = 0;
+	} else {
+		hsv.y = delta / Cmax;
+	}
+	return hsv;
+}
+float Abs(float value) {
+	return sqrt(value * value);
+}
+
+float3 HSVToRGB(float3 hsv) {
+	float C = hsv[2] * hsv[1];
+	float X = C * (1 - Abs((hsv[0] % 2) - 1));
+	float m = hsv[2] - C;
+	float3 rgbOff = float3(0, 0, 0);
+	float s = hsv[0];
+	if (s < 1) {
+		rgbOff.r = C;
+		rgbOff.g = X;
+	} else if (s < 2) {
+		rgbOff.g = C;
+		rgbOff.r = X;
+	} else if (s < 3) {
+		rgbOff.g = C;
+		rgbOff.b = X;
+	} else if (s < 4) {
+		rgbOff.b = C;
+		rgbOff.g = X;
+	} else if (s < 5) {
+		rgbOff.b = C;
+		rgbOff.r = X;
+	} else {
+		rgbOff.r = C;
+		rgbOff.b = X;
+	}
+	return rgbOff + float3(m, m, m);
+}
 bool EmptyAdj(float2 coords, float2 unit) {
 	return tex2D(uImage0, coords - unit * float2(1, 0)).a == 0 
 	|| tex2D(uImage0, coords - unit * float2(0, 1)).a == 0
@@ -90,8 +144,8 @@ float4 LunarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 	} else {
 		frameX = uImageSize0.x * coords.x;
 	}
-    float2 absoluteCoords = (float2(frameX, frameY) * 2.5) + float2(uTime, -uTime) * 3 + uTargetPosition * 0.075;
-    //absoluteCoords *= 1.75;
+	float2 absoluteCoords = (float2(frameX, frameY) * 2.5) + float2(uTime, -uTime) * 3 + uTargetPosition * 0.075;
+	//absoluteCoords *= 1.75;
 	float4 starColor = tex2D(uImage1, fmod((absoluteCoords % uImageSize1) / uImageSize1, float2(1, 1)));
 	float star = (pow(max(starColor.b, 0), 3.5) - 0.1) * 5;
 	if (star < 0) star = 0;
@@ -99,7 +153,7 @@ float4 LunarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 	//return float4(star * 0.64, star * 0.7, star, 1) * color.a * baseColor.a;
 	
 	//
-    return color * baseColor + float4(star * 0.64, star * 0.7, star, 0) * baseColor.a * color.a * color.a; // * baseColor
+	return color * baseColor + float4(star * 0.64, star * 0.7, star, 0) * baseColor.a * color.a * color.a; // * baseColor
 }
 float4 SolarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
 	float4 baseColor = tex2D(uImage0, coords);
@@ -143,6 +197,54 @@ float4 SolarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 	
 	return color;
 }
+float4 StarryStarryDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
+{
+	/*float2 baseCoords = float2(0.5, (uSourceRect.y + 16) / uImageSize0.y);
+	float2 offsetCoords = (coords - baseCoords) * uImageSize0;
+	float len = length(offsetCoords) / 32;
+	float angle = atan2(offsetCoords.y, offsetCoords.x);
+	float cosine = cos(angle);
+	float sine = sin(angle);
+	//offsetCoords += float2(offsetCoords.x * cosine - offsetCoords.y * sine, offsetCoords.x * sine + offsetCoords.y * cosine) * len * 0.5 * sin(uTime + len);
+	//offsetCoords += float2(sin(uTime + offsetCoords.x * 0.25) * max(abs(offsetCoords.x) - 8, 0) * 0.25, cos(-uTime + offsetCoords.y * 0.25) * max(abs(offsetCoords.y) - 8, 0) * 0.25);
+	
+	coords = (offsetCoords / uImageSize0) + baseCoords;*/
+	float4 baseColor = tex2D(uImage0, coords);
+	float4 color = float4(hairColor, 1.0);
+	
+    if (baseColor.r <= 0.36 && EmptyAdj(coords, float2(2, 2) / uImageSize0)) {
+		color.rgb = HSVToRGB(RGBToHSV(color.rgb) * float3(1, 0.691, 0.827));
+		color *= 0.5;
+	}
+	
+    baseColor.r = pow(baseColor.r, 0.5);
+    baseColor.g = pow(baseColor.g, 0.5);
+    baseColor.b = pow(baseColor.b, 0.5);
+    baseColor = ((baseColor * 1.5) + (baseColor * sampleColor * 1.5)) * 0.5;
+    if (baseColor.r > 1)
+        baseColor.r = 1;
+    if (baseColor.g > 1)
+        baseColor.g = 1;
+    if (baseColor.b > 1)
+        baseColor.b = 1;
+	
+    float frameY = (coords.y * uImageSize0.y - uSourceRect.y);
+    float frameX = 0;
+    if (uDirection < 0) {
+        frameX = uImageSize0.x * (1 - coords.x);
+    } else {
+        frameX = uImageSize0.x * coords.x;
+    }
+    float2 absoluteCoords = (float2(frameX, frameY) * 2.5) + float2(uTime, -uTime) * 3 + uTargetPosition * 0.075;
+	//absoluteCoords *= 1.75;
+    float4 starColor = tex2D(uImage1, fmod((absoluteCoords % uImageSize1) / uImageSize1, float2(1, 1)));
+    float star = (pow(max(starColor.b, 0), 3.5) - 0.1) * 5;
+    if (star < 0) star = 0;
+	//if (star > 0.7) star = 0.7;
+	
+	//
+	return color * baseColor + float4(star * 0.64, star * 0.7, star, 0) * baseColor.a * color.a * color.a; // * baseColor
+}
 
 float4 Base(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
 	float4 baseColor = tex2D(uImage0, coords);
@@ -153,7 +255,6 @@ float4 Base(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
 	}
 	return color * baseColor;
 }
-
 technique Technique1 {
 	pass DashingDye {
 		PixelShader = compile ps_2_0 DashingDye();
@@ -163,5 +264,8 @@ technique Technique1 {
 	}
 	pass SolarDye {
 		PixelShader = compile ps_3_0 SolarDye();
-	}
+    }
+    pass StarryStarryDye {
+        PixelShader = compile ps_3_0 StarryStarryDye();
+    }
 }
