@@ -586,8 +586,9 @@ namespace EpikV2.NPCs
 					}
 				);
 				shop.InsertBefore(ItemID.WilsonBeardShort, ModContent.ItemType<Dashing_Hair_Dye>(), specialHairDyeCondition);
-				shop.InsertBefore(ItemID.WilsonBeardShort, ModContent.ItemType<Lunar_Hair_Dye>(), specialHairDyeCondition, Condition.TimeNight);
 				shop.InsertBefore(ItemID.WilsonBeardShort, ModContent.ItemType<Solar_Hair_Dye>(), specialHairDyeCondition, Condition.TimeDay);
+				shop.InsertBefore(ItemID.WilsonBeardShort, ModContent.ItemType<Lunar_Hair_Dye>(), specialHairDyeCondition, Condition.TimeNight);
+				shop.InsertAfter(ModContent.ItemType<Lunar_Hair_Dye>(), ModContent.ItemType<Starry_Hair_Dye>(), Condition.TimeNight);
 				break;
 			}
 		}

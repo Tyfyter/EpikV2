@@ -74,11 +74,11 @@ namespace EpikV2.NPCs {
 			Recipe recipe = Recipe.Create(result);
 			recipe.AddIngredient(ingredient);
 			recipe.AddCondition(Language.GetOrRegister("Mods.EpikV2.Conditions.ShimmerSlimeTransmutation"), () => false);
-			recipe.ApplyConditionsAsDecraftConditions();
 			if (condition is not null) {
 				transmutationConditions.Add(result, condition);
 				recipe.AddCondition(condition);
 			}
+			recipe.DisableDecraft();
 			recipe.Register();
 		}
 		[JITWhenModsEnabled("AltLibrary")]

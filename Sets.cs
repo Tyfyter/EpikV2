@@ -10,9 +10,13 @@ namespace EpikV2 {
 	public static class Sets {
 		public static bool[] IsArrow { get; private set; }
 		public static bool[] IsValidForAltManaPoweredPrefix { get; private set; }
+		public static bool[] BodyDrawsClothes { get; private set; }
+		public static bool[] LegsDrawsClothes { get; private set; }
 		internal static void ResizeArrays() {
 			IsArrow = ProjectileID.Sets.Factory.CreateBoolSet();
 			IsValidForAltManaPoweredPrefix = ItemID.Sets.Factory.CreateBoolSet(true, ItemID.Hammush, ItemID.Bladetongue);
+			BodyDrawsClothes = ArmorIDs.Body.Sets.Factory.CreateBoolSet();
+			LegsDrawsClothes = ArmorIDs.Legs.Sets.Factory.CreateBoolSet();
 		}
 		internal static void SetupPostContentSampleSets() {
 			foreach (var item in ContentSamples.ItemsByType.Values) {

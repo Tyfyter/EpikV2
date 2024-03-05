@@ -1019,6 +1019,21 @@ Items: {
 		DisplayName: Starry, Starry Hair Dye
 		Tooltip: ""
 	}
+
+	Nightmare_Helmet: {
+		DisplayName: Nightmarish Helmet
+		Tooltip: ""
+	}
+
+	Nightmare_Pauldrons: {
+		DisplayName: Nightmarish Spaulders
+		Tooltip: ""
+	}
+
+	Nightmare_Tassets: {
+		DisplayName: Nightmare_ Tassets
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck

@@ -156,62 +156,76 @@ namespace EpikV2 {
 		public static implicit operator AutoCastingAsset<T>(Asset<T> asset) => new(asset);
 		public static implicit operator T(AutoCastingAsset<T> asset) => asset.Value;
 	}
+	public interface IUnloadable {
+		void Unload();
+	}
+	public struct AutoLoadingAsset<T> : IUnloadable where T : class {
+		public bool IsLoaded => asset?.IsLoaded ?? false;
+		public T Value {
+			get {
+				LoadAsset();
+				return asset?.Value;
+			}
+		}
+		public bool Exists {
+			get {
+				LoadAsset();
+				return exists;
+			}
+		}
+		bool exists;
+		bool triedLoading;
+		string assetPath;
+		Asset<T> asset;
+		AutoLoadingAsset(Asset<T> asset) {
+			triedLoading = false;
+			assetPath = "";
+			this.asset = asset;
+			exists = false;
+			this.RegisterForUnload();
+		}
+		AutoLoadingAsset(string asset) {
+			triedLoading = false;
+			assetPath = asset;
+			this.asset = null;
+			exists = false;
+			this.RegisterForUnload();
+		}
+		public void Unload() {
+			assetPath = null;
+			asset = null;
+		}
+		public void LoadAsset() {
+			if (!triedLoading) {
+				triedLoading = true;
+				if (assetPath is null) {
+					asset = Asset<T>.Empty;
+				} else {
+					if (!Main.dedServ) {
+						exists = ModContent.RequestIfExists(assetPath, out Asset<T> foundAsset);
+						asset = exists ? foundAsset : Asset<T>.Empty;
+					} else {
+						asset = Asset<T>.Empty;
+					}
+				}
+			}
+		}
+		public static implicit operator AutoLoadingAsset<T>(Asset<T> asset) => new(asset);
+		public static implicit operator AutoLoadingAsset<T>(string asset) => new(asset);
+		public static implicit operator T(AutoLoadingAsset<T> asset) => asset.Value;
+		public static implicit operator AutoCastingAsset<T>(AutoLoadingAsset<T> asset) {
+			asset.LoadAsset();
+			return asset.asset;
+		}
+	}
 	public class AdvancedPopupText : PopupText {
 		public virtual bool PreUpdate(int whoAmI) => true;
 		public virtual void PostUpdate(int whoAmI) { }
 	}
-	public class FastFieldInfo<TParent, T> {
-		public readonly FieldInfo field;
-		Func<TParent, T> getter;
-		Action<TParent, T> setter;
-		public FastFieldInfo(string name, BindingFlags bindingFlags, bool init = false) {
-			field = typeof(TParent).GetField(name, bindingFlags | BindingFlags.Instance);
-			if (field is null) throw new ArgumentException($"could not find {name} in type {typeof(TParent)} with flags {bindingFlags.ToString()}");
-			if (init) {
-				getter = CreateGetter();
-				setter = CreateSetter();
-			}
-		}
-		public FastFieldInfo(FieldInfo field, bool init = false) {
-			this.field = field;
-			if (init) {
-				getter = CreateGetter();
-				setter = CreateSetter();
-			}
-		}
-		public T GetValue(TParent parent) {
-			return (getter ??= CreateGetter())(parent);
-		}
-		public void SetValue(TParent parent, T value) {
-			(setter ??= CreateSetter())(parent, value);
-		}
-		private Func<TParent, T> CreateGetter() {
-			if (field.FieldType != typeof(T)) throw new InvalidOperationException($"type of {field.Name} does not match provided type {typeof(T)}");
-			string methodName = field.ReflectedType.FullName + ".get_" + field.Name;
-			DynamicMethod getterMethod = new DynamicMethod(methodName, typeof(T), new Type[] { typeof(TParent) }, true);
-			ILGenerator gen = getterMethod.GetILGenerator();
-
-			gen.Emit(OpCodes.Ldarg_0);
-			gen.Emit(OpCodes.Ldfld, field);
-			gen.Emit(OpCodes.Ret);
-
-			return (Func<TParent, T>)getterMethod.CreateDelegate(typeof(Func<TParent, T>));
-		}
-		private Action<TParent, T> CreateSetter() {
-			if (field.FieldType != typeof(T)) throw new InvalidOperationException($"type of {field.Name} does not match provided type {typeof(T)}");
-			string methodName = field.ReflectedType.FullName + ".set_" + field.Name;
-			DynamicMethod setterMethod = new DynamicMethod(methodName, null, new Type[] { typeof(TParent), typeof(T) }, true);
-			ILGenerator gen = setterMethod.GetILGenerator();
-
-			gen.Emit(OpCodes.Ldarg_0);
-			gen.Emit(OpCodes.Ldarg_1);
-			gen.Emit(OpCodes.Stfld, field);
-			gen.Emit(OpCodes.Ret);
-
-			return (Action<TParent, T>)setterMethod.CreateDelegate(typeof(Action<TParent, T>));
-		}
-	}
 	public static class EpikExtensions {
+		public static void RegisterForUnload(this IUnloadable unloadable) {
+			EpikV2.unloadables.Add(unloadable);
+		}
 		public static AutoCastingAsset<Texture2D> RequestTexture(this Mod mod, string name) => mod.Assets.Request<Texture2D>(name);
 		#region sound
 		public static SoundStyle WithPitch(this SoundStyle soundStyle, float pitch) {

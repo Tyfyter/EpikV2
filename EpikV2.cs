@@ -81,6 +81,7 @@ namespace EpikV2 {
 		internal static List<Func<float>> modRarityChecks;
 		public BidirectionalDictionary<int, int> biomeKeyDropEnemies;
 		public static Dictionary<int, int> ImbueDebuffs;
+		public static List<IUnloadable> unloadables = new();
 		//public static MotionArmorShaderData motionBlurShader;
 		public EpikV2() : base() {
 			ImbueDebuffs = new() {
@@ -211,6 +212,10 @@ namespace EpikV2 {
 			MiscUtils.Unload();
 			ImbueDebuffs = null;
 			Array.Resize(ref TextureAssets.GlowMask, GlowMaskID.Count);
+			foreach (IUnloadable unloadable in unloadables) {
+				unloadable.Unload();
+			}
+			unloadables.Clear();
 			//TextureAssets.Item[ItemID.HighTestFishingLine] = Main.Assets.Request<Texture2D>("Images/Item_" + ItemID.HighTestFishingLine, AssetRequestMode.DoNotLoad);
 			//filterMapQueue.Clear();
 			//filterMapQueue = null;
