@@ -20,10 +20,6 @@ namespace EpikV2.Items.Armor {
 			yield return new AdditiveDamageStat(0.12f, DamageClass.Magic);
 			yield return new CritStat(12, DamageClass.Magic);
 		}
-		public override void SetStaticDefaults() {
-			//ArmorIDs.Head.Sets.DrawHatHair[Item.headSlot] = true;
-			Item.ResearchUnlockCount = 1;
-        }
 		public override void SetDefaults() {
 			Item.width = 20;
 			Item.height = 16;
@@ -32,12 +28,31 @@ namespace EpikV2.Items.Armor {
 			Item.maxStack = 1;
             Item.defense = 7;
 		}
+		public override bool IsArmorSet(Item head, Item body, Item legs) {
+			return body.ModItem is Nightmare_Pauldrons && legs.ModItem is Nightmare_Tassets;
+		}
 		public override void EquipFrameEffects(Player player, EquipType type) {
 			player.backpack = Item.backSlot;
 			player.cBackpack = player.cHead;
 		}
 		public override void AddRecipes() {
 			ShimmerSlimeTransmutation.AddTransmutation(ItemID.HallowedHeadgear, Type);
+		}
+	}
+	[AutoloadEquip(EquipType.Head, EquipType.Back)]
+	public class Nightmare_Helmet_Hair : Nightmare_Helmet {
+		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
+		public override void SetStaticDefaults() {
+			ArmorIDs.Head.Sets.DrawHatHair[Item.headSlot] = true;
+		}
+		public override void AddRecipes() {
+			Recipe.Create(Type)
+			.AddIngredient<Nightmare_Helmet>()
+			.Register();
+
+			Recipe.Create(ModContent.ItemType<Nightmare_Helmet>())
+			.AddIngredient(Type)
+			.Register();
 		}
 	}
 	[AutoloadEquip(EquipType.Body)]
@@ -48,7 +63,6 @@ namespace EpikV2.Items.Armor {
 		}
 		public override void SetStaticDefaults() {
 			Sets.BodyDrawsClothes[Item.bodySlot] = true;
-			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			Item.width = 20;
@@ -57,6 +71,9 @@ namespace EpikV2.Items.Armor {
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
 			Item.defense = 7;
+		}
+		public override void UpdateEquip(Player player) {
+			player.spikedBoots += 1;
 		}
 		public override void AddRecipes() {
 			ShimmerSlimeTransmutation.AddTransmutation(ItemID.HallowedPlateMail, Type);
@@ -65,14 +82,13 @@ namespace EpikV2.Items.Armor {
 	[AutoloadEquip(EquipType.Legs, EquipType.Waist)]
 	public class Nightmare_Tassets : ModItem, IDeclarativeEquipStats {
 		public IEnumerable<IEquipStat> GetStats() {
-			yield return new AdditiveDamageStat(0.12f, DamageClass.Magic);
-			yield return new CritStat(12, DamageClass.Magic);
+			yield return new SpeedStat(0.12f);
+			yield return new JumpSpeedStat(2f);
 		}
 		public static int LegsID { get; private set; }
 		public override void SetStaticDefaults() {
 			LegsID = Item.legSlot;
 			ArmorIDs.Legs.Sets.OverridesLegs[LegsID] = true;
-			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			Item.width = 20;
@@ -81,6 +97,9 @@ namespace EpikV2.Items.Armor {
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
 			Item.defense = 7;
+		}
+		public override void UpdateEquip(Player player) {
+			player.spikedBoots += 1;
 		}
 		public override void EquipFrameEffects(Player player, EquipType type) {
 			player.waist = Item.waistSlot;
@@ -125,19 +144,6 @@ namespace EpikV2.Items.Armor {
 				legData.texture = TextureAssets.Players[pantsSkin, 11].Value;
 				legData.color = drawInfo.colorPants;
 				drawInfo.DrawDataCache.Add(legData);
-				/*DrawData item = new(
-					TextureAssets.AccWaist[drawInfo.drawPlayer.waist].Value,
-					new Vector2((int)(drawInfo.Position.X - Main.screenPosition.X - (float)(drawInfo.drawPlayer.legFrame.Width / 2) + (float)(drawInfo.drawPlayer.width / 2)),
-					(int)(drawInfo.Position.Y - Main.screenPosition.Y + (float)drawInfo.drawPlayer.height - (float)drawInfo.drawPlayer.legFrame.Height + 4f)) + drawInfo.drawPlayer.legPosition + drawInfo.legVect,
-					drawInfo.drawPlayer.legFrame,
-					drawInfo.colorArmorLegs,
-					drawInfo.drawPlayer.legRotation,
-					drawInfo.legVect,
-					1f,
-					drawInfo.playerEffect
-				);
-				item.shader = drawInfo.cWaist;
-				drawInfo.DrawDataCache.Add(item);*/
 			}
 		}
 	}

@@ -78,14 +78,16 @@ namespace EpikV2.NPCs {
 								npc.ai[0] = 1;
 								npc.netUpdate = true;
 								for (int i = (int)Math.Ceiling(npc.life / 20f); i-- > 0;) {
-									NPC.NewNPCDirect(
+									NPC child = NPC.NewNPCDirect(
 										npc.GetSource_FromAI(),
 										(int)npc.Center.X,
 										(int)npc.Center.Y,
 										NPCID.IlluminantBat,
 										ai0: -1,
 										ai3: npc.whoAmI
-									).velocity += new Vector2(6, 0).RotatedBy(Main.rand.NextFloat(TwoPi));
+									);
+									child.velocity += new Vector2(6, 0).RotatedBy(Main.rand.NextFloat(TwoPi));
+									child.netUpdate = true;
 								}
 							}
 						}
@@ -315,6 +317,7 @@ namespace EpikV2.NPCs {
 						NPC parent = Main.npc[(int)npc.ai[3]];
 						if (hit.Damage < 10 && npc.life > hit.Damage) {
 							parent.life -= hit.Damage;
+							parent.netUpdate = true;
 						} else {
 							hit.Damage = 20;
 							parent.life -= 20;
@@ -322,6 +325,7 @@ namespace EpikV2.NPCs {
 							npc.life = 0;
 							npc.realLife = -1;
 							npc.checkDead();
+							parent.netUpdate = true;
 						}
 						CombatText.NewText(
 							new Rectangle((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height),

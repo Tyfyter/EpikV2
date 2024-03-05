@@ -278,6 +278,7 @@ namespace EpikV2 {
 				if (self.HeldItem?.ModItem is IDisableTileInteractItem item && item.DisableTileInteract(self)) return;
 				orig(self);
 			};
+			On_Player.WallslideMovement += On_Player_WallslideMovement;
 			if (EpikConfig.Instance.ShroomiteBonusFix) {
 				IL_Player.GetWeaponDamage += (il) => {
 					ILCursor c = new(il);
@@ -310,6 +311,16 @@ namespace EpikV2 {
 				};
 			}
 		}
+
+		private void On_Player_WallslideMovement(On_Player.orig_WallslideMovement orig, Player self) {
+			orig(self);
+			if (self.sliding && self.spikedBoots >= 3 && self.controlUp) {
+				self.position += Collision.AnyCollision(self.position, new Vector2(0, -1.2f * self.gravDir), self.width, self.height);
+				//self.bodyFrame.Y = (int)((Main.timeForVisualEffects / 9) % 2) * 56;
+				//TODO: animate
+			}
+		}
+
 		delegate void _FixDisplayedDamage(Player player, Item item, ref StatModifier modifier);
 
 		private void On_Projectile_EmitEnchantmentVisualsAt(On_Projectile.orig_EmitEnchantmentVisualsAt orig, Projectile self, Vector2 boxPosition, int boxWidth, int boxHeight) {

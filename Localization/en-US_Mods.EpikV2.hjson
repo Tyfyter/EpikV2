@@ -29,6 +29,8 @@ Effects: {
 	CritChance: "{0}% increased critical strike chance"
 	ManaCost: "{0}% reduced mana cost"
 	ManaMax: Increases maximum mana by {0}
+	Speed: "{0:P0} increased movement speed"
+	JumpSpeed: "{0:P0} increased jump speed"
 }
 
 DropConditions: {
@@ -1035,6 +1037,11 @@ Items: {
 
 	Nightmare_Helmet: {
 		DisplayName: Nightmarish Helmet
+		Tooltip: ""
+	}
+
+	Nightmare_Helmet_Hair: {
+		DisplayName: "{$EpikV2.Items.Nightmare_Helmet.DisplayName} (Alt)"
 		Tooltip: ""
 	}
 

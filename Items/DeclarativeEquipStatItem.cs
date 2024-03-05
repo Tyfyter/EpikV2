@@ -69,4 +69,18 @@ namespace EpikV2.Items {
 			player.GetDamage(Class) += Value;
 		}
 	}
+	public record SpeedStat(float Value) : IEquipStat {
+		public string Name => "JumpSpeed";
+		public LocalizedText Text => EpikExtensions.GetText("Mods.EpikV2.Effects.Speed", Value);
+		public void Apply(Player player) {
+			player.moveSpeed += Value;
+		}
+	}
+	public record JumpSpeedStat(float Value) : IEquipStat {
+		public string Name => "JumpSpeed";
+		public LocalizedText Text => EpikExtensions.GetText("Mods.EpikV2.Effects.JumpSpeed", Value / 5.01f);
+		public void Apply(Player player) {
+			player.jumpSpeedBoost += Value;
+		}
+	}
 }

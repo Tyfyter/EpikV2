@@ -10,10 +10,6 @@ using Terraria.ModLoader;
 namespace EpikV2.Items {
 	[AutoloadEquip(EquipType.Shoes)]
 	public class Shoestopper : ModItem {
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Shoestoppers");
-			// Tooltip.SetDefault("");
-		}
 		public override void SetDefaults() {
 			int shoeSlot = Item.shoeSlot;
             Item.CloneDefaults(ItemID.TerrasparkBoots);
