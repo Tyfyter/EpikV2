@@ -9,12 +9,17 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 
 namespace EpikV2.Items.Armor {
-    [AutoloadEquip(EquipType.Head, EquipType.Back)]
-	public class Nightmare_Helmet : ModItem {
+	[AutoloadEquip(EquipType.Head, EquipType.Back)]
+	public class Nightmare_Helmet : ModItem, IDeclarativeEquipStats {
+		public IEnumerable<IEquipStat> GetStats() {
+			yield return new AdditiveDamageStat(0.12f, DamageClass.Magic);
+			yield return new CritStat(12, DamageClass.Magic);
+		}
 		public override void SetStaticDefaults() {
 			//ArmorIDs.Head.Sets.DrawHatHair[Item.headSlot] = true;
 			Item.ResearchUnlockCount = 1;
@@ -25,7 +30,7 @@ namespace EpikV2.Items.Armor {
 			Item.value = 5000000;
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
-            Item.defense = 12;
+            Item.defense = 7;
 		}
 		public override void EquipFrameEffects(Player player, EquipType type) {
 			player.backpack = Item.backSlot;
@@ -36,7 +41,11 @@ namespace EpikV2.Items.Armor {
 		}
 	}
 	[AutoloadEquip(EquipType.Body)]
-	public class Nightmare_Pauldrons : ModItem {
+	public class Nightmare_Pauldrons : ModItem, IDeclarativeEquipStats {
+		public IEnumerable<IEquipStat> GetStats() {
+			yield return new AdditiveDamageStat(0.12f, DamageClass.Magic);
+			yield return new CritStat(12, DamageClass.Magic);
+		}
 		public override void SetStaticDefaults() {
 			Sets.BodyDrawsClothes[Item.bodySlot] = true;
 			Item.ResearchUnlockCount = 1;
@@ -47,14 +56,18 @@ namespace EpikV2.Items.Armor {
 			Item.value = 5000000;
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
-			Item.defense = 12;
+			Item.defense = 7;
 		}
 		public override void AddRecipes() {
 			ShimmerSlimeTransmutation.AddTransmutation(ItemID.HallowedPlateMail, Type);
 		}
 	}
 	[AutoloadEquip(EquipType.Legs, EquipType.Waist)]
-	public class Nightmare_Tassets : ModItem {
+	public class Nightmare_Tassets : ModItem, IDeclarativeEquipStats {
+		public IEnumerable<IEquipStat> GetStats() {
+			yield return new AdditiveDamageStat(0.12f, DamageClass.Magic);
+			yield return new CritStat(12, DamageClass.Magic);
+		}
 		public static int LegsID { get; private set; }
 		public override void SetStaticDefaults() {
 			LegsID = Item.legSlot;
@@ -67,7 +80,7 @@ namespace EpikV2.Items.Armor {
 			Item.value = 5000000;
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
-			Item.defense = 12;
+			Item.defense = 7;
 		}
 		public override void EquipFrameEffects(Player player, EquipType type) {
 			player.waist = Item.waistSlot;

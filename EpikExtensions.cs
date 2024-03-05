@@ -1147,10 +1147,15 @@ namespace EpikV2 {
 		public static LocalizedText CombineWithOr(params LocalizedText[] values) {
 			if (values.Length == 1) return values[0];
 			if (values.Length == 2) return Language.GetText("Mods.EpikV2.Conditions.Or").WithFormatArgs(values.ToArray<object>());
-			return Language.GetText("Mods.EpikV2.Conditions.CommaOr").WithFormatArgs(CommaRecurse(values, values.Length - 2), values[^1]);
+			return Language.GetText("Mods.EpikV2.Conditions.CommaOr").WithFormatArgs(SubstitutionRecurse(Language.GetText("Mods.EpikV2.Conditions.Comma"), values, values.Length - 2), values[^1]);
 		}
-		static LocalizedText CommaRecurse(LocalizedText[] values, int index) {
-			return Language.GetText("Mods.EpikV2.Conditions.Comma").WithFormatArgs(index == 1 ? values[0] : CommaRecurse(values, index - 1), values[index]);
+		public static LocalizedText GetText(string key, params object[] substitutions) => Language.GetText(key).WithFormatArgs(substitutions);
+		public static LocalizedText BuildLines(params LocalizedText[] values) {
+			return SubstitutionRecurse(Language.GetText("Mods.EpikV2.Effects.Lines"), values, values.Length - 1);
+		}
+		static LocalizedText SubstitutionRecurse(LocalizedText baseLocalization, LocalizedText[] values, int index) {
+			if (index == 0) return values[0];
+			return baseLocalization.WithFormatArgs(SubstitutionRecurse(baseLocalization, values, index - 1), values[index]);
 		}
 	}
 	public static class ConditionExtensions {
