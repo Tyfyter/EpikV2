@@ -150,11 +150,16 @@ namespace EpikV2 {
 		public float recentKillFactor = 0f;
 		public int wolfBlood = 0;
 		public int wolfBloodLevel = 0;
+		public bool nightmareSet = false;
+		public IMultiModeItem airMultimodeItem;
+		public HeldProjectile nightmareShield;
 
 		public static BitsBytes ItemChecking;
 		public static bool nextMouseInterface;
+		public static EpikPlayer LocalEpikPlayer { get; private set; }
 
 		public override void ResetEffects() {
+			if (Main.myPlayer == Player.whoAmI) LocalEpikPlayer = this;
 			//majesticWings = false;
 			chargedEmerald = false;
 			chargedAmber = false;
@@ -196,6 +201,7 @@ namespace EpikV2 {
 					pyrkasivars[i] = -1;
 				}
 			}
+			nightmareShield.Update();
 			if (telescopeID >= 0) {
 				Projectile telescopeProj = Main.projectile[telescopeID];
 				bool cancel = !telescopeProj.active || telescopeProj.type != Telescope_View_P.ID;
@@ -219,6 +225,8 @@ namespace EpikV2 {
 			imbueCursedInferno = false;
 			imbueIchor = false;
 			divineConfetti = false;
+			nightmareSet = false;
+			airMultimodeItem = null;
 			showLuck = false;
 
 			perfectCellphone = false;
@@ -588,13 +596,22 @@ namespace EpikV2 {
 			if (item.value != 0) vendor.GetGlobalNPC<EpikGlobalNPC>().itemPurchasedFrom = true;
 		}
 		public override void ProcessTriggers(TriggersSet triggersSet) {
-			if (Player.HeldItem.ModItem is IMultiModeItem multiModeItem && EpikV2.ModeSwitchHotkey.Current) {
-				EpikV2.modeSwitchHotbarActive = true;
-				for (int i = 0; i < 10; i++) {
-					if (triggersSet.KeyStatus["Hotbar" + (i + 1)] && !multiModeItem.ItemSelected(i)) {
-						multiModeItem.SelectItem(i);
+			if (EpikV2.ModeSwitchHotkey.Current) {
+				IMultiModeItem multiModeItem = Player.HeldItem.ModItem as IMultiModeItem;
+				if (multiModeItem?.CanSelectInHand == false) multiModeItem = null;
+				if (multiModeItem is null && Main.LocalPlayer.HeldItem.IsAir) {
+					multiModeItem = Main.LocalPlayer.GetModPlayer<EpikPlayer>().airMultimodeItem;
+				}
+				if (multiModeItem is not null) {
+					EpikV2.modeSwitchHotbarActive = true;
+					for (int i = 0; i < 10; i++) {
+						if (triggersSet.KeyStatus["Hotbar" + (i + 1)] && !multiModeItem.ItemSelected(i)) {
+							multiModeItem.SelectItem(i);
+						}
+						triggersSet.KeyStatus["Hotbar" + (i + 1)] = false;
 					}
-					triggersSet.KeyStatus["Hotbar" + (i + 1)] = false;
+				} else {
+					EpikV2.modeSwitchHotbarActive = false;
 				}
 			} else {
 				EpikV2.modeSwitchHotbarActive = false;
@@ -987,6 +1004,12 @@ namespace EpikV2 {
 			if (intManaCost > 0) {
 				return Player.CheckMana(item, intManaCost, true, blockQuickMana);
 			}
+			if (Player.statMana <= 0 && !blockQuickMana) {
+				CombinedHooks.OnMissingMana(Player, item, 1);
+				if (Player.statMana < amount && Player.manaFlower) {
+					Player.QuickMana();
+				}
+			}
 			return Player.statMana > 0;
 		}
 		public bool CheckFloatMana(float amount, bool blockQuickMana = false) {
@@ -1300,5 +1323,30 @@ namespace EpikV2 {
 			tag.TryGet("nameColorOverride", out nameColorOverride);
 		}
 		#endregion IO
+	}
+	public struct HeldProjectile {
+		public bool active;
+		public int index;
+		public int type;
+		public HeldProjectile(int index) {
+			active = true;
+			this.index = index;
+			type = Main.projectile[index].type;
+		}
+		public void Set(int index) {
+			active = true;
+			this.index = index;
+			type = Main.projectile[index].type;
+		}
+		public bool CheckActive(out Projectile projectile) {
+			Update();
+			projectile = active ? Main.projectile[index] : null;
+			return active;
+		}
+		public void Update() {
+			if (!active) return;
+			Projectile projectile = Main.projectile[index];
+			if (!projectile.active || projectile.type != type) active = false;
+		}
 	}
 }

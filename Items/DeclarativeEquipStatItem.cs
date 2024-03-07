@@ -60,13 +60,9 @@ namespace EpikV2.Items {
 	}
 	public record CritStat(float Value, DamageClass Class) : IEquipStat {
 		public string Name => "CritStat";
-		public LocalizedText Text => EpikExtensions.GetText(
-			(Class == DamageClass.Default || Class == DamageClass.Generic) ? "Mods.EpikV2.Effects.ClassCritChance" : "Mods.EpikV2.Effects.ClassCritChance",
-			Value,
-			Language.GetText(Class.DisplayName.Key + ".NoDamage")
-		);
+		public LocalizedText Text => EpikExtensions.GetText("Mods.EpikV2.Effects.ClassCritChance", Value, Language.GetText(Class.DisplayName.Key + ".NoDamage"));
 		public void Apply(Player player) {
-			player.GetDamage(Class) += Value;
+			player.GetCritChance(Class) += Value;
 		}
 	}
 	public record SpeedStat(float Value) : IEquipStat {
@@ -74,6 +70,27 @@ namespace EpikV2.Items {
 		public LocalizedText Text => EpikExtensions.GetText("Mods.EpikV2.Effects.Speed", Value);
 		public void Apply(Player player) {
 			player.moveSpeed += Value;
+		}
+	}
+	public record ManaCostStat(float Value) : IEquipStat {
+		public string Name => "ManaCost";
+		public LocalizedText Text => EpikExtensions.GetText("Mods.EpikV2.Effects.ManaCost", Value);
+		public void Apply(Player player) {
+			player.manaCost *= 1 - Value;
+		}
+	}
+	public record ManaMaxStat(int Value) : IEquipStat {
+		public string Name => "ManaMax";
+		public LocalizedText Text => EpikExtensions.GetText("Mods.EpikV2.Effects.ManaMax", Value);
+		public void Apply(Player player) {
+			player.statManaMax2 += Value;
+		}
+	}
+	public record DamageReductionStat(float Value) : IEquipStat {
+		public string Name => "DamageReduction";
+		public LocalizedText Text => EpikExtensions.GetText("Mods.EpikV2.Effects.DamageReduction", Value);
+		public void Apply(Player player) {
+			player.endurance += Value * (1 - player.endurance);
 		}
 	}
 	public record JumpSpeedStat(float Value) : IEquipStat {

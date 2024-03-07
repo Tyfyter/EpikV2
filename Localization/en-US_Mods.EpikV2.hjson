@@ -25,10 +25,11 @@ Effects: {
 		{1}
 		'''
 	Damage: "{0:P0} increased{1}"
-	ClassCritChance: "{0}% increased {1} critical strike chance"
+	ClassCritChance: "{0}% increased{1} critical strike chance"
 	CritChance: "{0}% increased critical strike chance"
-	ManaCost: "{0}% reduced mana cost"
+	ManaCost: "{0:P0} reduced mana cost"
 	ManaMax: Increases maximum mana by {0}
+	DamageReduction: Reduces damage taken by {0:P0}
 	Speed: "{0:P0} increased movement speed"
 	JumpSpeed: "{0:P0} increased jump speed"
 }
@@ -1041,7 +1042,12 @@ Items: {
 	}
 
 	Nightmare_Helmet_Hair: {
-		DisplayName: "{$EpikV2.Items.Nightmare_Helmet.DisplayName} (Alt)"
+		DisplayName: "{$EpikV2.Items.Nightmare_Helmet.DisplayName} (Open Back)"
+		Tooltip: ""
+	}
+
+	Nightmare_Helmet_Full_Hair: {
+		DisplayName: "{$EpikV2.Items.Nightmare_Helmet.DisplayName} (Open)"
 		Tooltip: ""
 	}
 
@@ -1052,6 +1058,11 @@ Items: {
 
 	Nightmare_Tassets: {
 		DisplayName: Nightmarish Tassets
+		Tooltip: ""
+	}
+
+	Nightmare_Sword: {
+		DisplayName: Nightmare_ Sword
 		Tooltip: ""
 	}
 }
@@ -1149,6 +1160,7 @@ Projectiles: {
 	Scimitar_Of_The_Rising_Sun_Sakura_Dance_2.DisplayName: Sakura Dance
 	Scimitar_Of_The_Rising_Sun_Mortal_Draw.DisplayName: Mortal Draw
 	Scimitar_Of_The_Rising_Sun_Deathblow.DisplayName: Scimitar Of The Rising Sun
+	Nightmare_Shield_P.DisplayName: Nightmare_ Shield_ P
 }
 
 DamageClasses: {

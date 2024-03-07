@@ -56,6 +56,7 @@ namespace EpikV2 {
 		void Scroll(int direction);
 	}
 	public interface IMultiModeItem {
+		bool CanSelectInHand => true;
 		int GetSlotContents(int slotIndex);
 		bool ItemSelected(int slotIndex);
 		void SelectItem(int slotIndex);
@@ -74,8 +75,8 @@ namespace EpikV2 {
 				float hotbarScale = Main.hotbarScale[i];
 				int posY = (int)(20f + 22f * (1f - hotbarScale));
 				int a = (int)(75f + 150f * hotbarScale);
-				Color lightColor = new Color(255, 255, 255, a);
-				Item potentialItem = new Item(GetSlotContents(i));
+				Color lightColor = new(255, 255, 255, a);
+				Item potentialItem = new(GetSlotContents(i));
 
 				if (!player.hbLocked && !PlayerInput.IgnoreMouseInterface && Main.mouseX >= posX && (float)Main.mouseX <= (float)posX + (float)backTexture.Width * Main.hotbarScale[i] && Main.mouseY >= posY && (float)Main.mouseY <= (float)posY + (float)backTexture.Height * Main.hotbarScale[i] && !player.channel) {
 					player.mouseInterface = true;
