@@ -1161,6 +1161,7 @@ Projectiles: {
 	Scimitar_Of_The_Rising_Sun_Mortal_Draw.DisplayName: Mortal Draw
 	Scimitar_Of_The_Rising_Sun_Deathblow.DisplayName: Scimitar Of The Rising Sun
 	Nightmare_Shield_P.DisplayName: Nightmare_ Shield_ P
+	Nightmare_Sword_P.DisplayName: Nightmare_ Sword_ P
 }
 
 DamageClasses: {

@@ -153,6 +153,8 @@ namespace EpikV2 {
 		public bool nightmareSet = false;
 		public IMultiModeItem airMultimodeItem;
 		public HeldProjectile nightmareShield;
+		public HeldProjectile nightmareSword;
+		public bool releaseUseItem;
 
 		public static BitsBytes ItemChecking;
 		public static bool nextMouseInterface;
@@ -1132,6 +1134,7 @@ namespace EpikV2 {
 					Player.accFishingLine = true;
 				}
 			}
+			releaseUseItem = Player.releaseUseItem;
 			ItemChecking[Player.whoAmI] = true;
 			return true;
 		}

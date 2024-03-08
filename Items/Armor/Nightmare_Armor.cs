@@ -8,6 +8,7 @@ using EpikV2.Reflection;
 using EpikV2.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using ReLogic.Content;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
@@ -67,6 +68,7 @@ namespace EpikV2.Items.Armor {
 		public override void SetStaticDefaults() {
 			ArmorIDs.Head.Sets.DrawHatHair[Item.headSlot] = true;
 		}
+		public override void ArmorSetShadows(Player player) { }
 		public override void AddRecipes() {
 			Recipe.Create(Type)
 			.AddIngredient<Nightmare_Helmet>()
@@ -83,6 +85,7 @@ namespace EpikV2.Items.Armor {
 		public override void SetStaticDefaults() {
 			ArmorIDs.Head.Sets.DrawFullHair[Item.headSlot] = true;
 		}
+		public override void ArmorSetShadows(Player player) { }
 		public override void AddRecipes() {
 			Recipe.Create(Type)
 			.AddIngredient<Nightmare_Helmet>()
@@ -253,7 +256,6 @@ namespace EpikV2.Items.Armor {
 		}
 	}
 	public class Nightmare_Sword : ModItem, IMultiModeItem {
-		public override string Texture => "Terraria/Images/Item_" + ItemID.PiercingStarlight;
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			ID = Type;
@@ -325,6 +327,19 @@ namespace EpikV2.Items.Armor {
 						ai1: CombinedHooks.TotalAnimationTime(Item.useAnimation, player, Item)
 					);
 					player.direction = Math.Sign(diff.X);
+				}
+				if (!epikPlayer.nightmareSword.CheckActive(out Projectile sword)) {
+					Projectile.NewProjectile(
+						player.GetSource_ItemUse(Item),
+						player.MountedCenter,
+						default,
+						ModContent.ProjectileType<Nightmare_Sword_P>(),
+						player.GetWeaponDamage(Item),
+						player.GetWeaponKnockback(Item),
+						player.whoAmI
+					);
+				} else if (player.controlUseItem && epikPlayer.releaseUseItem) {
+					Nightmare_Sword_P.SetAIMode(sword, 1, CombinedHooks.TotalAnimationTime(Item.useAnimation, player, Item));
 				}
 			}
 			player.SetCompositeArm(false, rightArm.stretch, rightArm.rotation, rightArm.enabled);
@@ -483,6 +498,67 @@ namespace EpikV2.Items.Armor {
 			epikPlayer.nightmareShield.Set(Projectile.whoAmI);
 		}
 		public override bool PreDraw(ref Color lightColor) {
+			return false;
+		}
+	}
+	public class Nightmare_Sword_P : ModProjectile {
+		public override string Texture => "EpikV2/Items/Armor/Nightmare_Sword";
+		public static void SetAIMode(Projectile proj, int mode, int useTime, bool fromBuffer = false) {
+			if (proj.owner != Main.myPlayer) return;
+			if (proj.ai[0] == 0 || fromBuffer) {
+				proj.ai[0] = mode;
+				proj.ai[1] = useTime;
+				proj.ai[2] = useTime;
+				proj.netUpdate = true;
+				proj.velocity = Main.MouseWorld - Main.player[proj.owner].MountedCenter;
+				proj.velocity.Normalize();
+			} else {
+				proj.localAI[0] = mode;
+				proj.localAI[1] = useTime;
+				proj.localAI[2] = 6;
+			}
+		}
+		int AIMode {
+			get => (int)Projectile.ai[0];
+			set => Projectile.ai[0] = value;
+		}
+		public override void AI() {
+			Player player = Main.player[Projectile.owner];
+			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			switch (AIMode) {
+				case 0:
+				Vector2 restPoint = player.MountedCenter + new Vector2(-48 * player.direction, 24 * player.gravDir);
+				Projectile.velocity = (restPoint - Projectile.position).WithMaxLength(16);
+				break;
+
+				case 1:
+
+				goto default;
+
+				default:
+				if (--Projectile.ai[1] <= 0) SetAIMode(Projectile, (int)Projectile.localAI[0], (int)Projectile.localAI[1], true);
+				break;
+			}
+			if (Projectile.localAI[2] > 0) {
+				if (--Projectile.localAI[2] <= 0) {
+					Projectile.localAI[0] = 0;
+					Projectile.localAI[1] = 0;
+				}
+			}
+
+			epikPlayer.nightmareSword.Set(Projectile.whoAmI);
+		}
+		public override bool PreDraw(ref Color lightColor) {
+			Main.EntitySpriteDraw(
+				TextureAssets.Projectile[Type].Value,
+				Projectile.Center - Main.screenPosition,
+				null,
+				lightColor,
+				Projectile.rotation,
+				new Vector2(Projectile.spriteDirection == 1 ? 14 : (64 - 14), 51),
+				Projectile.scale,
+				Projectile.spriteDirection == 1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally
+			);
 			return false;
 		}
 	}

@@ -26,8 +26,17 @@ float4 MagicWave(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR
 	return tex2D(uImage0, coords) * sampleColor;
 }
 
+float4 MagicWave2(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
+	float4 color = tex2D(uImage0, coords);
+	coords += sin(color.b + (uTime * 4)) * (color.rg / uImageSize0);
+	return tex2D(uImage0, coords).a * sampleColor;
+}
+
 technique Technique1{
 	pass MagicWave {
 		PixelShader = compile ps_2_0 MagicWave();
+	}
+	pass MagicWave2 {
+		PixelShader = compile ps_2_0 MagicWave2();
 	}
 }
