@@ -1158,6 +1158,21 @@ namespace EpikV2 {
 			if (index == 0) return values[0];
 			return baseLocalization.WithFormatArgs(SubstitutionRecurse(baseLocalization, values, index - 1), values[index]);
 		}
+		public static void SetCompositeArm(this Player player, bool leftSide, Player.CompositeArmStretchAmount stretch, float rotation, bool enabled) {
+			if ((player.direction == 1) ^ leftSide) {
+				player.SetCompositeArmBack(enabled, stretch, rotation);
+			} else {
+				player.SetCompositeArmFront(enabled, stretch, rotation);
+			}
+		}
+		public static Vector2? GetCompositeArmPosition(this Player player, bool leftSide) {
+			if ((player.direction == 1) ^ leftSide) {
+				if (player.compositeBackArm.enabled) return player.GetBackHandPosition(player.compositeBackArm.stretch, player.compositeBackArm.rotation);
+			} else {
+				if (player.compositeFrontArm.enabled) return player.GetFrontHandPosition(player.compositeFrontArm.stretch, player.compositeFrontArm.rotation);
+			}
+			return null;
+		}
 	}
 	public static class ConditionExtensions {
 		public static Condition CommaAnd(this Condition a, Condition b) {

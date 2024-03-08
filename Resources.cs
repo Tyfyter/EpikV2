@@ -1,5 +1,6 @@
 ﻿using EpikV2.Items;
 using EpikV2.Items.Accessories;
+using EpikV2.Items.Armor;
 using EpikV2.Items.Debugging;
 using EpikV2.Items.Other.HairDye;
 using EpikV2.Items.Weapons;
@@ -73,6 +74,9 @@ namespace EpikV2 {
 				starlightShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Starlight", AssetRequestMode.ImmediateLoad).Value), "Starlight");
 				dimStarlightShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", AssetRequestMode.ImmediateLoad).Value), "Starlight");
 				brightStarlightShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Armor", AssetRequestMode.ImmediateLoad).Value), "BrightStarlight");
+
+				GameShaders.Armor.BindShader(ItemType<Nightmare_Sword>(), new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/MagicWave", AssetRequestMode.ImmediateLoad).Value), "MagicWave"));
+				EpikV2.magicWaveShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Nightmare_Sword>());
 
 				nebulaShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Nebula", AssetRequestMode.ImmediateLoad).Value), "Nebula");
 				nebulaDistortionTexture = mod.Assets.Request<Texture2D>("Textures/Starry_Noise", AssetRequestMode.ImmediateLoad);

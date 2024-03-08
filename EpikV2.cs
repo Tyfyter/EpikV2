@@ -67,6 +67,7 @@ namespace EpikV2 {
 		public static int empressWingsShaderID;
 		public static int empressWingsShaderAltID;
 		public static int empressWingsShaderAuroraID;
+		public static int magicWaveShaderID;
 		public static ModKeybind ModeSwitchHotkey { get; private set; }
 		public static bool modeSwitchHotbarActive;
 		public static ModKeybind DashHotkey { get; private set; }

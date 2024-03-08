@@ -259,7 +259,7 @@ namespace EpikV2.Items.Armor {
 			ID = Type;
 		}
 		public override void SetDefaults() {
-			Item.DefaultToMagicWeapon(ProjectileID.Spear, 20, 5);
+			Item.DefaultToMagicWeapon(ProjectileID.None, 20, 5);
 			Item.useStyle = ItemUseStyleID.RaiseLamp;
 			Item.damage = 70;
 			Item.noUseGraphic = true;
@@ -279,16 +279,16 @@ namespace EpikV2.Items.Armor {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			Player.CompositeArmStretchAmount stretchAmount;
 			float armRotation;
-			float progress = 20 - (player.itemAnimation * 20f) / player.itemAnimationMax;
 			if (epikPlayer.nightmareShield.CheckActive(out Projectile shield)) {
 				stretchAmount = Player.CompositeArmStretchAmount.None;
 				armRotation = 0;
+				float progress = (shield.ai[0] / shield.ai[1]) * 20;
 				if (progress > 5f) {
 					stretchAmount = Player.CompositeArmStretchAmount.Full;
-					armRotation = 0.6f;
+					armRotation = 1f;
 				} else if (progress > 2f) {
 					stretchAmount = Player.CompositeArmStretchAmount.ThreeQuarters;
-					armRotation = 0.4f;
+					armRotation = 0.6f;
 				} else if (progress > 1f) {
 					stretchAmount = Player.CompositeArmStretchAmount.Quarter;
 					armRotation = 0.2f;
@@ -296,39 +296,41 @@ namespace EpikV2.Items.Armor {
 				armRotation = (player.direction == 1) ? (-armRotation - MathHelper.PiOver2) : (armRotation - MathHelper.PiOver2);
 				armRotation += shield.velocity.ToRotation();
 				leftArm = (true, stretchAmount, armRotation);
+				/*Vector2 handPos = player.direction == 1 ? player.GetFrontHandPosition(leftArm.stretch, leftArm.rotation) : player.GetBackHandPosition(leftArm.stretch, leftArm.rotation);
+				
+				Dust dust = Dust.NewDustPerfect(
+					handPos + Main.rand.NextVector2Square(-1, 1),
+					112,
+					Vector2.Zero
+				);
+				dust.noGravity = true;
+				dust.noLight = true;
+				dust.velocity = default;
+				dust.shader = GameShaders.Armor.GetSecondaryShader(player.cHead, player);
+				dust.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+				dust.scale = 0.5f;*/
+				player.itemAnimation = 2;
 			}
-			if (player.direction == 1) {
-				player.SetCompositeArmBack(rightArm.enabled, rightArm.stretch, rightArm.rotation);
-				player.SetCompositeArmFront(leftArm.enabled, leftArm.stretch, leftArm.rotation);
-			} else {
-				player.SetCompositeArmFront(rightArm.enabled, rightArm.stretch, rightArm.rotation);
-				player.SetCompositeArmBack(leftArm.enabled, leftArm.stretch, leftArm.rotation);
-			}
-		}
-		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
-			switch (player.altFunctionUse) {
-				default: {
-
-				}
-				break;
-
-				case 2: {
+			if (player.whoAmI == Main.myPlayer && !player.CCed) {
+				if (!epikPlayer.nightmareShield.active && player.controlUseTile && player.releaseUseTile) {
+					Vector2 diff = Main.MouseWorld - player.MountedCenter;
 					Projectile.NewProjectile(
-						source,
-						position,
-						velocity.SafeNormalize(velocity),
+						player.GetSource_ItemUse(Item),
+						player.MountedCenter,
+						diff.SafeNormalize(Vector2.UnitX),
 						ModContent.ProjectileType<Nightmare_Shield_P>(),
-						damage / 2,
-						knockback,
+						player.GetWeaponDamage(Item) / 2,
+						player.GetWeaponKnockback(Item),
 						player.whoAmI,
-						ai1: player.itemAnimationMax - (20 - 8)
+						ai1: CombinedHooks.TotalAnimationTime(Item.useAnimation, player, Item)
 					);
+					player.direction = Math.Sign(diff.X);
 				}
-				break;
 			}
-			return false;
+			player.SetCompositeArm(false, rightArm.stretch, rightArm.rotation, rightArm.enabled);
+			player.SetCompositeArm(true, leftArm.stretch, leftArm.rotation, leftArm.enabled);
 		}
-		public override bool AltFunctionUse(Player player) => true;
+		public override bool CanUseItem(Player player) => false;
 		public int GetSlotContents(int slotIndex) => Nightmare_Weapons.SlotContents(slotIndex);
 		public bool ItemSelected(int slotIndex) => false;
 		public void SelectItem(int slotIndex) {
@@ -349,7 +351,7 @@ namespace EpikV2.Items.Armor {
 			Projectile.friendly = true;
 			Projectile.ContinuouslyUpdateDamageStats = true;
 		}
-		public float Progress => (Projectile.ai[0] / Projectile.ai[1]) * 10;
+		public float Progress => (Projectile.ai[0] / (Projectile.ai[1] - 12)) * 10;
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			Vector2 targetPos = targetHitbox.TopLeft();
 			Vector2 targetSize = targetHitbox.Size();
@@ -372,8 +374,8 @@ namespace EpikV2.Items.Armor {
 			for (int i = 0; i < frame * smoothness; i++) {
 				float rot = baseRot + ((i - (size / 2)) / size) * -2.5f * Projectile.direction;
 				Vector2 dir = new Vector2(LengthFactor(i / size), 0).RotatedBy(rot - MathHelper.PiOver2);
-				Vector2 pos = Projectile.position + dir * 32;
 				float factor = LengthFactor(i / size) - 1.25f;
+				Vector2 pos = Projectile.position + dir * 32;
 				float thickness = 256 * MathF.Pow(Math.Abs(factor) + 0.05f, 2.5f);
 				yield return (pos, dir, thickness);
 			}
@@ -381,9 +383,10 @@ namespace EpikV2.Items.Armor {
 		public override void OnSpawn(IEntitySource source) {
 			Projectile.ai[2] = 0;
 		}
+		List<int> dusts = new();
 		public override void AI() {
-			if (Projectile.ai[0] < Projectile.ai[1]) {
-				Projectile.ai[2] += Projectile.damage / Projectile.ai[1];
+			if (Projectile.ai[0] < (Projectile.ai[1] - 12)) {
+				Projectile.ai[2] += Projectile.damage / (Projectile.ai[1] - 12);
 			} else {
 				EpikExtensions.LinearSmoothing(ref Projectile.ai[2], Projectile.damage, Projectile.damage * 0.002f);
 			}
@@ -393,8 +396,14 @@ namespace EpikV2.Items.Armor {
 			Projectile.position = owner.MountedCenter + Projectile.velocity * new Vector2(8, 12);
 			ArmorShaderData shaderData = GameShaders.Armor.GetSecondaryShader(owner.cHead, owner);
 			Vector2 nextVelocity = owner.velocity;//Collision.TileCollision(owner.position, owner.velocity, owner.width, owner.height, owner.controlDown, owner.controlDown, Math.Sign(owner.gravDir));
-			owner.chatOverhead.NewMessage(Projectile.ai[2]+"", 5);
+
 			bool broken = false;
+			for (int i = 0; i < dusts.Count; i++) {
+				Dust dust = Main.dust[dusts[i]];
+				dust.scale *= 0.9f;
+				dust.velocity = nextVelocity;
+			}
+			dusts.Clear();
 			foreach ((Vector2 pos, Vector2 dir, float thickness) in GetPoints()) {
 				Vector2 normalizedDir = dir.SafeNormalize(dir);
 				if (!broken) {
@@ -408,13 +417,16 @@ namespace EpikV2.Items.Armor {
 								if (other.Colliding(other.Hitbox, hitBox)) {
 									Projectile.ai[2] -= other.damage * 1f;
 									if (Projectile.ai[2] <= 0) {
+										other.damage = (int)-Projectile.ai[2];
 										Projectile.Kill();
 										owner.itemAnimation = 0;
-										SoundEngine.PlaySound(SoundID.Shatter, hitBox.Center.ToVector2());
+										SoundEngine.PlaySound(SoundID.Item27.WithPitchOffset(-0.1f), hitBox.Center.ToVector2());
+										SoundEngine.PlaySound(SoundID.Item167, hitBox.Center.ToVector2());
 										broken = true;
 										break;
 									} else {
-
+										SoundEngine.PlaySound(SoundID.Dig.WithVolumeScale(0.25f), hitBox.Center.ToVector2());
+										SoundEngine.PlaySound(SoundID.DD2_DarkMageHealImpact.WithPitchRange(0.8f, 1f), hitBox.Center.ToVector2());
 									}
 									deflectState = 2;
 									if (other.penetrate == 1) {
@@ -435,10 +447,11 @@ namespace EpikV2.Items.Armor {
 					);
 					dust.noGravity = !broken;
 					dust.noLight = true;
-					dust.velocity = broken ? Main.rand.NextVector2Circular(4, 4) : nextVelocity;
+					dust.velocity = broken ? Main.rand.NextVector2Circular(4, 4) : default;
 					dust.shader = shaderData;
 					dust.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
 					dust.scale = 0.5f;
+					dusts.Add(dust.dustIndex);
 					//dust.alpha = (int)((j - count / 2) * count * 50);
 				}
 			}
