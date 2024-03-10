@@ -154,6 +154,8 @@ namespace EpikV2 {
 		public IMultiModeItem airMultimodeItem;
 		public HeldProjectile nightmareShield;
 		public HeldProjectile nightmareSword;
+		public int forceRightHandMagic;
+		public int forceLeftHandMagic;
 		public bool releaseUseItem;
 
 		public static BitsBytes ItemChecking;
@@ -204,6 +206,9 @@ namespace EpikV2 {
 				}
 			}
 			nightmareShield.Update();
+			nightmareSword.Update();
+			if (forceRightHandMagic > 0) forceRightHandMagic--;
+			if (forceLeftHandMagic > 0) forceLeftHandMagic--;
 			if (telescopeID >= 0) {
 				Projectile telescopeProj = Main.projectile[telescopeID];
 				bool cancel = !telescopeProj.active || telescopeProj.type != Telescope_View_P.ID;

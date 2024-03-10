@@ -1062,7 +1062,7 @@ Items: {
 	}
 
 	Nightmare_Sword: {
-		DisplayName: Nightmare_ Sword
+		DisplayName: Nightmarish Sword
 		Tooltip: ""
 	}
 }
@@ -1160,8 +1160,9 @@ Projectiles: {
 	Scimitar_Of_The_Rising_Sun_Sakura_Dance_2.DisplayName: Sakura Dance
 	Scimitar_Of_The_Rising_Sun_Mortal_Draw.DisplayName: Mortal Draw
 	Scimitar_Of_The_Rising_Sun_Deathblow.DisplayName: Scimitar Of The Rising Sun
-	Nightmare_Shield_P.DisplayName: Nightmare_ Shield_ P
-	Nightmare_Sword_P.DisplayName: Nightmare_ Sword_ P
+	Nightmare_Shield_P.DisplayName: Nightmarish Shield
+	Nightmare_Sword_P.DisplayName: Nightmarish Sword
+	Temporary_Nightmare_Sword_P.DisplayName: Nightmarish Sword
 }
 
 DamageClasses: {

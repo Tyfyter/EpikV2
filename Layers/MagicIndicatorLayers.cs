@@ -14,7 +14,7 @@ namespace EpikV2.Layers {
 		public static AutoLoadingAsset<Texture2D> texture = "EpikV2/Layers/Magic_Hands";
 		public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) {
 			EpikPlayer epikPlayer = drawInfo.drawPlayer.GetModPlayer<EpikPlayer>();
-			return epikPlayer.nightmareShield.active && drawInfo.shadow == 0;
+			return drawInfo.shadow == 0 && (epikPlayer.nightmareShield.active || epikPlayer.forceLeftHandMagic > 0);
 		}
 		public override Position GetDefaultPosition() => new Multiple() {
 			{ new Between(PlayerDrawLayers.Skin, PlayerDrawLayers.Leggings), drawInfo => !drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) },
@@ -68,7 +68,7 @@ namespace EpikV2.Layers {
 	public class Right_Hand_Magic_Layer : PlayerDrawLayer {
 		public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) {
 			EpikPlayer epikPlayer = drawInfo.drawPlayer.GetModPlayer<EpikPlayer>();
-			return epikPlayer.nightmareSword.active && drawInfo.shadow == 0;
+			return drawInfo.shadow == 0 && (epikPlayer.nightmareSword.active || epikPlayer.forceRightHandMagic > 0);
 		}
 		public override Position GetDefaultPosition() => new Multiple() {
 			{ new Between(PlayerDrawLayers.Skin, PlayerDrawLayers.Leggings), drawInfo => drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) },
