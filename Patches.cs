@@ -315,7 +315,9 @@ namespace EpikV2 {
 		private void On_Player_WallslideMovement(On_Player.orig_WallslideMovement orig, Player self) {
 			orig(self);
 			if (self.sliding && self.spikedBoots >= 3 && self.controlUp) {
-				self.position += Collision.AnyCollision(self.position, new Vector2(0, -1.2f * self.gravDir), self.width, self.height);
+				self.velocity.X -= 2 * self.direction;
+				self.velocity.Y -= 6;
+				//self.position += Collision.AnyCollision(self.position, new Vector2(0, -1.2f * self.gravDir), self.width, self.height);
 				//self.bodyFrame.Y = (int)((Main.timeForVisualEffects / 9) % 2) * 56;
 				//TODO: animate
 			}

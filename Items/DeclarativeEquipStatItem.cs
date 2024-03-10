@@ -60,7 +60,7 @@ namespace EpikV2.Items {
 	}
 	public record CritStat(float Value, DamageClass Class) : IEquipStat {
 		public string Name => "CritStat";
-		public LocalizedText Text => EpikExtensions.GetText("Mods.EpikV2.Effects.ClassCritChance", Value, Language.GetText(Class.DisplayName.Key + ".NoDamage"));
+		public LocalizedText Text => EpikExtensions.GetText("Mods.EpikV2.Effects.ClassCritChance", Value, Language.GetText("NoDamage." + Class.DisplayName.Key));
 		public void Apply(Player player) {
 			player.GetCritChance(Class) += Value;
 		}

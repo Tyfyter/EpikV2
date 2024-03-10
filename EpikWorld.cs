@@ -96,7 +96,7 @@ namespace EpikV2 {
 			ConstructorInfo ctor = typeof(LocalizedText).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, new Type[] { typeof(string), typeof(string) });
 			for (int i = 0; i < DamageClassLoader.DamageClassCount; i++) {
 				DamageClass dc = DamageClassLoader.GetDamageClass(i);
-				string key = dc.DisplayName.Key + ".NoDamage";
+				string key = "NoDamage." + dc.DisplayName.Key;
 				_moddedKeys.Add(key);
 				_localizedTexts[key] = (LocalizedText)ctor.Invoke(new object[] { key, dc.DisplayName.Value.Replace(baseText, "") });
 			}
