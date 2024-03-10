@@ -15,7 +15,7 @@ namespace EpikV2.Layers {
 		public override Position GetDefaultPosition() => new Between(PlayerDrawLayers.ArmorLongCoat, PlayerDrawLayers.Torso);
 		protected override void Draw(ref PlayerDrawSet drawInfo) {
 			int body = drawInfo.drawPlayer.body;
-			drawInfo.hidesTopSkin = ArmorIDs.Body.Sets.HidesBottomSkin[body];
+			drawInfo.hidesTopSkin = ArmorIDs.Body.Sets.HidesTopSkin[body];
 			drawInfo.drawPlayer.body = 0;
 			PlayerDrawLayers.DrawPlayer_17_Torso(ref drawInfo);
 			PlayerDrawLayers.DrawPlayer_28_ArmOverItem(ref drawInfo);

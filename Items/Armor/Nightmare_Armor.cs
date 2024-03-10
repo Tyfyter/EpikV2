@@ -313,6 +313,9 @@ namespace EpikV2.Items.Armor {
 				dust.scale = 0.5f;*/
 				player.itemAnimation = 2;
 			}
+			if (epikPlayer.nightmareSword.CheckActive(out Projectile sword)) {
+				///TODO: animate 6 different attacks
+			}
 			if (player.whoAmI == Main.myPlayer && !player.CCed) {
 				if (!epikPlayer.nightmareShield.active && player.controlUseTile && player.releaseUseTile) {
 					Vector2 diff = Main.MouseWorld - player.MountedCenter;
@@ -328,7 +331,7 @@ namespace EpikV2.Items.Armor {
 					);
 					player.direction = Math.Sign(diff.X);
 				}
-				if (!epikPlayer.nightmareSword.CheckActive(out Projectile sword)) {
+				if (sword is null) {
 					Projectile.NewProjectile(
 						player.GetSource_ItemUse(Item),
 						player.MountedCenter,
@@ -339,7 +342,17 @@ namespace EpikV2.Items.Armor {
 						player.whoAmI
 					);
 				} else if (player.controlUseItem && epikPlayer.releaseUseItem) {
-					Nightmare_Sword_P.SetAIMode(sword, 1, CombinedHooks.TotalAnimationTime(Item.useAnimation, player, Item));
+					float oldMode = sword.localAI[2] < 0 ? sword.localAI[0] : sword.ai[0];
+					int mode = (int)oldMode % 3 + 1;
+					if (mode == 4) mode = 1;
+					if (epikPlayer.nightmareShield.active || sword.ai[0] >= 4) {
+						mode += 3;
+					}
+					if (mode == 6) {
+
+					}
+					Nightmare_Sword_P.SetAIMode(sword, mode, CombinedHooks.TotalAnimationTime(Item.useAnimation, player, Item));
+					player.direction = Math.Sign((Main.MouseWorld - player.MountedCenter).X);
 				}
 			}
 			player.SetCompositeArm(false, rightArm.stretch, rightArm.rotation, rightArm.enabled);
@@ -365,6 +378,7 @@ namespace EpikV2.Items.Armor {
 			Projectile.penetrate = -1;
 			Projectile.friendly = true;
 			Projectile.ContinuouslyUpdateDamageStats = true;
+			Projectile.tileCollide = false;
 		}
 		public float Progress => (Projectile.ai[0] / (Projectile.ai[1] - 12)) * 10;
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
@@ -503,6 +517,18 @@ namespace EpikV2.Items.Armor {
 	}
 	public class Nightmare_Sword_P : ModProjectile {
 		public override string Texture => "EpikV2/Items/Armor/Nightmare_Sword";
+		public override void SetStaticDefaults() {
+			ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
+			ProjectileID.Sets.TrailCacheLength[Projectile.type] = 20;
+		}
+		public override void SetDefaults() {
+			Projectile.width = Projectile.height = 0;
+			Projectile.DamageType = DamageClass.Magic;
+			Projectile.penetrate = -1;
+			Projectile.friendly = true;
+			Projectile.ContinuouslyUpdateDamageStats = true;
+			Projectile.tileCollide = false;
+		}
 		public static void SetAIMode(Projectile proj, int mode, int useTime, bool fromBuffer = false) {
 			if (proj.owner != Main.myPlayer) return;
 			if (proj.ai[0] == 0 || fromBuffer) {
@@ -515,7 +541,7 @@ namespace EpikV2.Items.Armor {
 			} else {
 				proj.localAI[0] = mode;
 				proj.localAI[1] = useTime;
-				proj.localAI[2] = 6;
+				proj.localAI[2] = 12;
 			}
 		}
 		int AIMode {
@@ -524,42 +550,129 @@ namespace EpikV2.Items.Armor {
 		}
 		public override void AI() {
 			Player player = Main.player[Projectile.owner];
+			if (player.HeldItem.ModItem is not Nightmare_Sword) {
+				Projectile.Kill();
+				return;
+			}
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			(Vector2 pos, float rot) old = (Projectile.position, Projectile.rotation);
 			switch (AIMode) {
 				case 0:
-				Vector2 restPoint = player.MountedCenter + new Vector2(-48 * player.direction, 24 * player.gravDir);
+				Vector2 restPoint = player.MountedCenter + new Vector2(-24 * player.direction, 24 * player.gravDir);
 				Projectile.velocity = (restPoint - Projectile.position).WithMaxLength(16);
+				EpikExtensions.AngularSmoothing(ref Projectile.rotation, MathHelper.PiOver4 * 3 + player.direction * MathHelper.PiOver4 * 1.5f, 0.3f);
 				break;
 
-				case 1:
+				case 4: {
+					float progress = MathHelper.Clamp((Projectile.ai[1] / Projectile.ai[2] - 0.36f) * 1.5625f, 0, 1);
+					progress = MathF.Pow(progress, 0.4f) * player.direction;
+					float rot = Projectile.velocity.ToRotation();
+					Vector2 offset = new Vector2(MathF.Cos(progress * MathHelper.Pi) * 48, MathF.Sin(progress * MathHelper.Pi) * 16).RotatedBy(rot) + Projectile.velocity * 16;
+					Projectile.position = player.MountedCenter + offset;
+					Projectile.rotation = offset.ToRotation() + MathHelper.PiOver4 - 0.35f * player.direction;
+					goto default;
+				}
 
-				goto default;
+				case 5: {
+					float progress = MathHelper.Clamp((Projectile.ai[1] / Projectile.ai[2] - 0.36f) * 1.5625f, 0, 1);
+					progress = MathF.Pow(progress, 0.4f) * -player.direction;
+					float rot = Projectile.velocity.ToRotation();
+					Vector2 offset = new Vector2(MathF.Cos(progress * MathHelper.Pi) * 48, MathF.Sin(progress * MathHelper.Pi) * 16).RotatedBy(rot) + Projectile.velocity * 16;
+					Projectile.position = player.MountedCenter + offset;
+					Projectile.rotation = offset.ToRotation() + MathHelper.PiOver4 + 0.35f * player.direction;
+					goto default;
+				}
 
 				default:
-				if (--Projectile.ai[1] <= 0) SetAIMode(Projectile, (int)Projectile.localAI[0], (int)Projectile.localAI[1], true);
+				if (--Projectile.ai[1] <= 0) {
+					int mode = AIMode;
+					SetAIMode(Projectile, (int)Projectile.localAI[0], (int)Projectile.localAI[1], true);
+					Projectile.localAI[0] = mode;
+					Projectile.localAI[1] = 0;
+					Projectile.localAI[2] = -8;
+				}
 				break;
+			}
+			if (Projectile.DistanceSQ(old.pos) > 8 * 8 || Tyfyter.Utils.GeometryUtils.AngleDif(Projectile.rotation, old.rot) > 2f) {
+
 			}
 			if (Projectile.localAI[2] > 0) {
 				if (--Projectile.localAI[2] <= 0) {
 					Projectile.localAI[0] = 0;
 					Projectile.localAI[1] = 0;
 				}
+			} else if (Projectile.localAI[2] < 0) {
+				if (++Projectile.localAI[2] >= 0) {
+					Projectile.localAI[0] = 0;
+					Projectile.localAI[1] = 0;
+				}
 			}
-
 			epikPlayer.nightmareSword.Set(Projectile.whoAmI);
 		}
 		public override bool PreDraw(ref Color lightColor) {
+			NightmareSwingDrawer trailDrawer = default;
+			trailDrawer.ColorStart = Color.CornflowerBlue;
+			trailDrawer.ColorEnd = Color.DeepSkyBlue * 0.5f;
+			trailDrawer.Length = 65 * Projectile.scale;
+			trailDrawer.Draw(Projectile);
 			Main.EntitySpriteDraw(
 				TextureAssets.Projectile[Type].Value,
 				Projectile.Center - Main.screenPosition,
 				null,
 				lightColor,
-				Projectile.rotation,
+				Projectile.rotation + (Projectile.spriteDirection == 1 ? 0 : MathHelper.PiOver2),
 				new Vector2(Projectile.spriteDirection == 1 ? 14 : (64 - 14), 51),
 				Projectile.scale,
 				Projectile.spriteDirection == 1 ? SpriteEffects.None : SpriteEffects.FlipHorizontally
 			);
 			return false;
+		}
+	}
+	public struct NightmareSwingDrawer {
+		public const int TotalIllusions = 1;
+
+		public const int FramesPerImportantTrail = 60;
+
+		private static VertexStrip _vertexStrip = new VertexStrip();
+
+		public Color ColorStart;
+
+		public Color ColorEnd;
+
+		public float Length;
+		public void Draw(Projectile proj) {
+			if (proj.ai[0] == 0) return;
+			int length = (int)Math.Min(proj.ai[2] - proj.ai[1], proj.oldRot.Length);
+			if (length <= 1) return;
+			MiscShaderData miscShaderData = GameShaders.Misc["EmpressBlade"];
+			int num = 1;//1
+			int num2 = 0;//0
+			int num3 = 0;//0
+			float w = 0.6f;//0.6f
+			miscShaderData.UseShaderSpecificData(new Vector4(num, num2, num3, w));
+			miscShaderData.Apply();
+			float[] oldRot = new float[length];
+			Vector2[] oldPos = new Vector2[length];
+			Vector2 move = new(Length * 0.375f, 0);
+			for (int i = 0; i < length; i++) {
+				oldRot[i] = proj.oldRot[i] + MathHelper.PiOver2 - MathHelper.PiOver4 * proj.oldSpriteDirection[i];
+				oldPos[i] = proj.oldPos[i] + move.RotatedBy(oldRot[i] - MathHelper.PiOver2);
+			}
+			//spriteDirections = proj.oldSpriteDirection;
+			_vertexStrip.PrepareStrip(oldPos, oldRot, StripColors, StripWidth, -Main.screenPosition + proj.Size / 2f, length, includeBacksides: true);
+			_vertexStrip.DrawTrail();
+			Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+		}
+
+		private Color StripColors(float progressOnStrip) {
+			Color result = Color.Lerp(ColorStart, ColorEnd, Utils.GetLerpValue(0f, 0.7f, progressOnStrip, clamped: true)) * (1f - Utils.GetLerpValue(0f, 0.98f, progressOnStrip, clamped: true));
+			result.A /= 2;
+			//result *= spriteDirections[Math.Max((int)(progressOnStrip * spriteDirections.Length) - 1, 0)];
+			return result;
+		}
+
+		private float StripWidth(float progressOnStrip) {
+			return Length * 0.75f;
 		}
 	}
 }

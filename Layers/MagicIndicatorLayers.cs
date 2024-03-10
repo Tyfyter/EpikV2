@@ -17,8 +17,8 @@ namespace EpikV2.Layers {
 			return epikPlayer.nightmareShield.active && drawInfo.shadow == 0;
 		}
 		public override Position GetDefaultPosition() => new Multiple() {
-			{ new Between(PlayerDrawLayers.OffhandAcc, PlayerDrawLayers.WaistAcc), drawInfo => drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) },
-			{ new Between(PlayerDrawLayers.HandOnAcc, PlayerDrawLayers.BladedGlove), drawInfo => !drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) },
+			{ new Between(PlayerDrawLayers.Skin, PlayerDrawLayers.Leggings), drawInfo => !drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) },
+			{ new Between(PlayerDrawLayers.HandOnAcc, PlayerDrawLayers.BladedGlove), drawInfo => drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) },
 		};
 
 		protected override void Draw(ref PlayerDrawSet drawInfo) {
@@ -39,16 +39,16 @@ namespace EpikV2.Layers {
 			Vector2 origin = drawInfo.bodyVect;
 			Vector2 compositeOffset;
 			if (drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally)) {
-				compositeOffset = new Vector2(-6, -2 * playerEffect.HasFlag(SpriteEffects.FlipVertically).ToDirectionInt());
-				rotation += drawInfo.compositeBackArmRotation;
-				sourceRect = drawInfo.compBackArmFrame;
-			} else {
-				compositeOffset = new Vector2(-5, 0);
+				compositeOffset = new Vector2(5, 0);
 				rotation += drawInfo.compositeFrontArmRotation;
 				sourceRect = drawInfo.compFrontArmFrame;
 				if (drawInfo.compFrontArmFrame.X / drawInfo.compFrontArmFrame.Width >= 7) {
 					position += new Vector2(1, -playerEffect.HasFlag(SpriteEffects.FlipVertically).ToDirectionInt());
 				}
+			} else {
+				compositeOffset = new Vector2(6, -2 * playerEffect.HasFlag(SpriteEffects.FlipVertically).ToDirectionInt());
+				rotation += drawInfo.compositeBackArmRotation;
+				sourceRect = drawInfo.compBackArmFrame;
 			}
 			origin += compositeOffset;
 			position += compositeOffset;
@@ -71,8 +71,8 @@ namespace EpikV2.Layers {
 			return epikPlayer.nightmareSword.active && drawInfo.shadow == 0;
 		}
 		public override Position GetDefaultPosition() => new Multiple() {
-			{ new Between(PlayerDrawLayers.OffhandAcc, PlayerDrawLayers.WaistAcc), drawInfo => !drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) },
-			{ new Between(PlayerDrawLayers.HandOnAcc, PlayerDrawLayers.BladedGlove), drawInfo => drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) },
+			{ new Between(PlayerDrawLayers.Skin, PlayerDrawLayers.Leggings), drawInfo => drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) },
+			{ new Between(PlayerDrawLayers.HandOnAcc, PlayerDrawLayers.BladedGlove), drawInfo => !drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) },
 		};
 
 		protected override void Draw(ref PlayerDrawSet drawInfo) {
@@ -93,16 +93,16 @@ namespace EpikV2.Layers {
 			Vector2 origin = drawInfo.bodyVect;
 			Vector2 compositeOffset;
 			if (playerEffect.HasFlag(SpriteEffects.FlipHorizontally)) {
-				compositeOffset = new Vector2(5, 0);
+				compositeOffset = new Vector2(-6, -2 * playerEffect.HasFlag(SpriteEffects.FlipVertically).ToDirectionInt());
+				rotation += drawInfo.compositeBackArmRotation;
+				sourceRect = drawInfo.compBackArmFrame;
+			} else {
+				compositeOffset = new Vector2(-5, 0);
 				rotation += drawInfo.compositeFrontArmRotation;
 				sourceRect = drawInfo.compFrontArmFrame;
 				if (drawInfo.compFrontArmFrame.X / drawInfo.compFrontArmFrame.Width >= 7) {
-					position += new Vector2(-1, -playerEffect.HasFlag(SpriteEffects.FlipVertically).ToDirectionInt());
+					position += new Vector2(1, -playerEffect.HasFlag(SpriteEffects.FlipVertically).ToDirectionInt());
 				}
-			} else {
-				compositeOffset = new Vector2(6, -2 * playerEffect.HasFlag(SpriteEffects.FlipVertically).ToDirectionInt());
-				rotation += drawInfo.compositeBackArmRotation;
-				sourceRect = drawInfo.compBackArmFrame;
 			}
 			origin += compositeOffset;
 			position += compositeOffset;

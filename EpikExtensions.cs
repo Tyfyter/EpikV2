@@ -1160,9 +1160,9 @@ namespace EpikV2 {
 		}
 		public static void SetCompositeArm(this Player player, bool leftSide, Player.CompositeArmStretchAmount stretch, float rotation, bool enabled) {
 			if ((player.direction == 1) ^ leftSide) {
-				player.SetCompositeArmBack(enabled, stretch, rotation);
-			} else {
 				player.SetCompositeArmFront(enabled, stretch, rotation);
+			} else {
+				player.SetCompositeArmBack(enabled, stretch, rotation);
 			}
 		}
 		public static Vector2? GetCompositeArmPosition(this Player player, bool leftSide) {

@@ -279,6 +279,7 @@ namespace EpikV2 {
 				orig(self);
 			};
 			On_Player.WallslideMovement += On_Player_WallslideMovement;
+			IL_Player.UpdateManaRegen += IL_Player_UpdateManaRegen;
 			if (EpikConfig.Instance.ShroomiteBonusFix) {
 				IL_Player.GetWeaponDamage += (il) => {
 					ILCursor c = new(il);
@@ -310,6 +311,35 @@ namespace EpikV2 {
 					c.MarkLabel(label);
 				};
 			}
+		}
+
+		private void IL_Player_UpdateManaRegen(ILContext il) {
+			ILCursor c = new(il);
+			ILLabel skip = null;
+			c.GotoNext(MoveType.After,
+				i => i.MatchLdarg0(),
+				i => i.MatchLdfld<Player>(nameof(Player.manaRegenBuff)),
+				i => i.MatchBrfalse(out skip)
+			);
+			c.GotoPrev(MoveType.AfterLabel,
+				i => i.MatchLdarg0(),
+				i => i.MatchCall<Player>("get_" + nameof(Player.IsStandingStillForSpecialEffects)),
+				i => i.MatchBrtrue(out _)
+			);
+			c.EmitLdarg0();
+			c.EmitDelegate<Func<Player, bool>>(player => player.GetModPlayer<EpikPlayer>().nightmareSword.active);
+			c.EmitBrtrue(skip);
+			c.GotoNext(MoveType.After,
+				i => i.MatchLdfld<Player>(nameof(Player.manaRegenCount)),
+				i => i.MatchLdarg0(),
+				i => i.MatchLdfld<Player>(nameof(Player.manaRegen)),
+				i => i.MatchAdd(),
+				i => i.MatchStfld<Player>(nameof(Player.manaRegenCount))
+			);
+			c.Index -= 2;
+			c.EmitDelegate<Func<int, int>>(value => {
+				return value;
+			});
 		}
 
 		private void On_Player_WallslideMovement(On_Player.orig_WallslideMovement orig, Player self) {
