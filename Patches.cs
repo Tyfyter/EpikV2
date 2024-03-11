@@ -280,6 +280,7 @@ namespace EpikV2 {
 			};
 			On_Player.WallslideMovement += On_Player_WallslideMovement;
 			IL_Player.UpdateManaRegen += IL_Player_UpdateManaRegen;
+			On_Player.UpdateItemDye += On_Player_UpdateItemDye;
 			if (EpikConfig.Instance.ShroomiteBonusFix) {
 				IL_Player.GetWeaponDamage += (il) => {
 					ILCursor c = new(il);
@@ -310,6 +311,14 @@ namespace EpikV2 {
 					c.EmitDelegate<_FixDisplayedDamage>(FixDisplayedDamage);
 					c.MarkLabel(label);
 				};
+			}
+		}
+
+		private void On_Player_UpdateItemDye(On_Player.orig_UpdateItemDye orig, Player self, bool isNotInVanitySlot, bool isSetToHidden, Item armorItem, Item dyeItem) {
+			orig(self, isNotInVanitySlot, isSetToHidden, armorItem, dyeItem);
+			if (armorItem.IsAir || (isNotInVanitySlot && isSetToHidden)) return;
+			if (armorItem.type == ModContent.ItemType<Real_Unicorn_Horn>()) {
+				self.GetModPlayer<EpikPlayer>().cUnicornHorn = dyeItem.dye;
 			}
 		}
 

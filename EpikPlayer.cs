@@ -137,6 +137,8 @@ namespace EpikV2 {
 		private bool oldWet = false;
 		public AltNameColorTypes altNameColors = AltNameColorTypes.None;
 		public string nameColorOverride = null;
+		public Color? magicColor = null;
+		public Color MagicColor => magicColor ?? Player.eyeColor;
 		public bool noKnockbackOnce = false;
 		public bool consumeShieldBuff = false;
 		public int triangleManuscriptIndex = -1;
@@ -157,6 +159,8 @@ namespace EpikV2 {
 		public int forceRightHandMagic;
 		public int forceLeftHandMagic;
 		public bool releaseUseItem;
+		public bool realUnicornHorn;
+		public int cUnicornHorn;
 
 		public static BitsBytes ItemChecking;
 		public static bool nextMouseInterface;
@@ -209,6 +213,8 @@ namespace EpikV2 {
 			nightmareSword.Update();
 			if (forceRightHandMagic > 0) forceRightHandMagic--;
 			if (forceLeftHandMagic > 0) forceLeftHandMagic--;
+			realUnicornHorn = false;
+			cUnicornHorn = 0;
 			if (telescopeID >= 0) {
 				Projectile telescopeProj = Main.projectile[telescopeID];
 				bool cancel = !telescopeProj.active || telescopeProj.type != Telescope_View_P.ID;
@@ -1322,6 +1328,7 @@ namespace EpikV2 {
 			tag["triedTriangleManuscript"] = triedTriangleManuscript;
 			tag["oldWolfBlood"] = oldWolfHeart;
 			tag["nameColorOverride"] = nameColorOverride;
+			if (magicColor.HasValue) tag["magicColor"] = magicColor.Value.PackedValue;
 		}
 		public override void LoadData(TagCompound tag) {
 			if (tag.TryGet("altNameColors", out byte altNameColors)) this.altNameColors = (AltNameColorTypes)altNameColors;
@@ -1329,6 +1336,9 @@ namespace EpikV2 {
 			tag.TryGet("triedTriangleManuscript", out triedTriangleManuscript);
 			tag.TryGet("oldWolfBlood", out oldWolfHeart);
 			tag.TryGet("nameColorOverride", out nameColorOverride);
+			if(tag.TryGet("magicColor", out uint magicColorPacked)) magicColor = new Color() {
+				PackedValue = magicColorPacked
+			};
 		}
 		#endregion IO
 	}

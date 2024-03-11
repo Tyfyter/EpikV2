@@ -27,6 +27,8 @@ Effects: {
 	Damage: "{0:P0} increased{1}"
 	ClassCritChance: "{0}% increased{1} critical strike chance"
 	CritChance: "{0}% increased critical strike chance"
+	ClassAttackSpeed: "{0:P0} increased{1} speed"
+	AttackSpeed: "{0:P0} increased attack speed"
 	ManaCost: "{0:P0} reduced mana cost"
 	ManaMax: Increases maximum mana by {0}
 	DamageReduction: Reduces damage taken by {0:P0}
@@ -1065,6 +1067,11 @@ Items: {
 		DisplayName: Nightmarish Sword
 		Tooltip: ""
 	}
+
+	Real_Unicorn_Horn: {
+		DisplayName: Real Unicorn Horn
+		Tooltip: Definitely a different thing than a regular unicorn horn
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck
@@ -1322,6 +1329,16 @@ Configs: {
 		NameColorOverride: {
 			Label: Name Color Override
 			Tooltip: ""
+		}
+
+		MagicColor: {
+			Label: Custom Magic Color
+			Tooltip: ""
+		}
+
+		CustomMagicColor: {
+			Label: Use Custom Magic Color
+			Tooltip: "If this is not checked your eye color will be used"
 		}
 	}
 

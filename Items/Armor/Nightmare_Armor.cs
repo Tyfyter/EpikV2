@@ -235,7 +235,7 @@ namespace EpikV2.Items.Armor {
 				Color lightColor = new(255, 255, 255, a);
 				Item potentialItem = new(contents);
 
-				if (!player.hbLocked && !PlayerInput.IgnoreMouseInterface && Main.mouseX >= posX && (float)Main.mouseX <= (float)posX + (float)backTexture.Width * Main.hotbarScale[i] && Main.mouseY >= posY && (float)Main.mouseY <= (float)posY + (float)backTexture.Height * Main.hotbarScale[i] && !player.channel) {
+				if (!player.hbLocked && !PlayerInput.IgnoreMouseInterface && Main.mouseX >= posX && Main.mouseX <= posX + backTexture.Width * Main.hotbarScale[i] && Main.mouseY >= posY && Main.mouseY <= posY + backTexture.Height * Main.hotbarScale[i] && !player.channel) {
 					player.mouseInterface = true;
 					if (Main.mouseLeft && !player.hbLocked && !Main.blockMouse) {
 						multiModeItem.SelectItem(i);
@@ -253,6 +253,21 @@ namespace EpikV2.Items.Armor {
 					lightColor);
 				Main.inventoryScale = oldInventoryScale;
 				posX += (int)(backTexture.Width * Main.hotbarScale[i]) + 4;
+			}
+		}
+		public static void GetDustInfo(Player player, bool forShield, out int type, out bool noLight, out Color color, out float scale) {
+			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			if (epikPlayer.realUnicornHorn) {
+				type = ModContent.DustType<Dusts.Chimerebos_Dust>();
+				noLight = false;
+				color = epikPlayer.MagicColor * 0.4f;
+				color.A /= 2;
+				scale = 1f;
+			} else {
+				type = DustID.Clentaminator_Purple;
+				noLight = true;
+				color = default;
+				scale = forShield ? 0.75f : 0.5f;
 			}
 		}
 	}
@@ -489,11 +504,12 @@ namespace EpikV2.Items.Armor {
 				EpikExtensions.LinearSmoothing(ref Projectile.ai[2], Projectile.damage, Projectile.damage * 0.002f);
 			}
 			Projectile.ai[0]++;
-			Player owner = Main.player[Projectile.owner];
-			EpikPlayer epikPlayer = owner.GetModPlayer<EpikPlayer>();
-			Projectile.position = owner.MountedCenter + Projectile.velocity * new Vector2(8, 12);
-			ArmorShaderData shaderData = GameShaders.Armor.GetSecondaryShader(owner.cHead, owner);
-			Vector2 nextVelocity = owner.velocity;//Collision.TileCollision(owner.position, owner.velocity, owner.width, owner.height, owner.controlDown, owner.controlDown, Math.Sign(owner.gravDir));
+			Player player = Main.player[Projectile.owner];
+			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			Projectile.position = player.MountedCenter + Projectile.velocity * new Vector2(8, 12);
+			Vector2 nextVelocity = player.velocity;//Collision.TileCollision(owner.position, owner.velocity, owner.width, owner.height, owner.controlDown, owner.controlDown, Math.Sign(owner.gravDir));
+
+			Nightmare_Weapons.GetDustInfo(player, true, out int dustType, out bool noLight, out Color dustColor, out float dustScale);
 
 			bool broken = false;
 			for (int i = 0; i < dusts.Count; i++) {
@@ -517,7 +533,7 @@ namespace EpikV2.Items.Armor {
 									if (Projectile.ai[2] <= 0) {
 										other.damage = (int)-Projectile.ai[2];
 										Projectile.Kill();
-										owner.itemAnimation = 0;
+										player.itemAnimation = 0;
 										SoundEngine.PlaySound(SoundID.Item27.WithPitchOffset(-0.1f), hitBox.Center.ToVector2());
 										SoundEngine.PlaySound(SoundID.Item167, hitBox.Center.ToVector2());
 										broken = true;
@@ -540,39 +556,39 @@ namespace EpikV2.Items.Armor {
 				for (int i = 0; i < thickness; i++) {
 					Dust dust = Dust.NewDustPerfect(
 						pos - dir * i + Main.rand.NextVector2Square(-1, 1),
-						112,
-						Vector2.Zero
+						dustType,
+						Vector2.Zero,
+						newColor: dustColor
 					);
 					dust.noGravity = !broken;
-					dust.noLight = true;
+					dust.noLight = noLight;
 					dust.velocity = broken ? Main.rand.NextVector2Circular(4, 4) : default;
-					dust.shader = shaderData;
 					dust.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
-					dust.scale = 0.5f;
+					dust.scale = dustScale;
 					dusts.Add(dust.dustIndex);
 					//dust.alpha = (int)((j - count / 2) * count * 50);
 				}
 			}
 			if (Projectile.owner == Main.myPlayer) {
-				if (owner.controlUseTile) {
-					Vector2 newVelocity = Main.MouseWorld - owner.MountedCenter;
+				if (player.controlUseTile) {
+					Vector2 newVelocity = Main.MouseWorld - player.MountedCenter;
 					newVelocity.Normalize();
 					if (newVelocity != Projectile.velocity) {
 						Projectile.velocity = newVelocity;
 						Projectile.direction = Math.Sign(Projectile.velocity.X);
-						owner.direction = Projectile.direction;
+						player.direction = Projectile.direction;
 						Projectile.netUpdate = true;
 					}
 
-					if (owner.itemAnimation < 2) {
-						owner.itemAnimation = 2;
-						owner.itemTime = 2;
+					if (player.itemAnimation < 2) {
+						player.itemAnimation = 2;
+						player.itemTime = 2;
 					}
 					if (Projectile.ai[0] > 20) {
 						Projectile.ai[0] = 21;
-						if (owner.HeldItem.type != Nightmare_Sword.ID || !epikPlayer.CheckFloatMana(owner.HeldItem, mult: 0.02f)) {
+						if (player.HeldItem.type != Nightmare_Sword.ID || !epikPlayer.CheckFloatMana(player.HeldItem, mult: 0.02f)) {
 							Projectile.Kill();
-							owner.itemAnimation = 0;
+							player.itemAnimation = 0;
 						}
 					}
 				} else if (Projectile.ai[0] > 20) Projectile.Kill();
@@ -700,20 +716,22 @@ namespace EpikV2.Items.Armor {
 			if (Projectile.ai[1] == Projectile.ai[2] - 1) {
 				Projectile.ResetLocalNPCHitImmunity();
 				if (Projectile.DistanceSQ(old.pos) > 8 * 8 || GeometryUtils.AngleDif(Projectile.rotation, old.rot) > 0.8f) {
+					Nightmare_Weapons.GetDustInfo(player, false, out int dustType, out bool noLight, out Color dustColor, out float dustScale);
 					const int steps = 30;
 					Vector2 vel = new Vector2(1, 0).RotatedBy(old.rot - MathHelper.PiOver4) * (65f / steps) * Projectile.scale;
 					Vector2 pos = old.pos;
 					for (int j = 0; j <= steps; j++) {
 						Dust dust = Dust.NewDustPerfect(
 							pos + Main.rand.NextVector2Square(-1, 1),
-							112,
-							Vector2.Zero
+							dustType,
+							Vector2.Zero,
+							newColor: dustColor
 						);
 						dust.noGravity = true;
-						dust.noLight = true;
+						dust.noLight = noLight;
 						dust.velocity = Main.rand.NextVector2Circular(1, 1);
 						dust.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
-						dust.scale = 0.75f;
+						dust.scale = dustScale;
 						pos += vel;
 					}
 				}
@@ -785,17 +803,19 @@ namespace EpikV2.Items.Armor {
 					const int steps = 30;
 					Vector2 vel = new Vector2(1, 0).RotatedBy(Projectile.rotation - MathHelper.PiOver4) * (65f / steps) * Projectile.scale;
 					Vector2 pos = Projectile.position;
+					Nightmare_Weapons.GetDustInfo(player, false, out int dustType, out bool noLight, out Color dustColor, out float dustScale);
 					for (int j = 0; j <= steps; j++) {
 						Dust dust = Dust.NewDustPerfect(
 							pos + Main.rand.NextVector2Square(-1, 1),
-							112,
-							Vector2.Zero
+							dustType,
+							Vector2.Zero,
+							newColor: dustColor
 						);
 						dust.noGravity = true;
-						dust.noLight = true;
+						dust.noLight = noLight;
 						dust.velocity = Main.rand.NextVector2Circular(1, 1);
 						dust.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
-						dust.scale = 0.75f;
+						dust.scale = dustScale;
 						pos += vel;
 					}
 					Projectile.Kill();
@@ -807,17 +827,19 @@ namespace EpikV2.Items.Armor {
 				const int steps = 30;
 				Vector2 vel = new Vector2(1, 0).RotatedBy(Projectile.rotation - MathHelper.PiOver4) * (65f / steps) * Projectile.scale;
 				Vector2 pos = Projectile.position;
+				Nightmare_Weapons.GetDustInfo(player, false, out int dustType, out bool noLight, out Color dustColor, out float dustScale);
 				for (int j = 0; j <= steps; j++) {
 					Dust dust = Dust.NewDustPerfect(
 						pos + Main.rand.NextVector2Square(-1, 1),
-						112,
-						Vector2.Zero
+						dustType,
+						Vector2.Zero,
+						newColor: dustColor
 					);
 					dust.noGravity = true;
-					dust.noLight = true;
+					dust.noLight = noLight;
 					dust.velocity = Main.rand.NextVector2Circular(1, 1);
 					dust.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
-					dust.scale = 0.75f;
+					dust.scale = dustScale;
 					pos += vel;
 				}
 			}

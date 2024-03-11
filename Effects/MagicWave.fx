@@ -27,9 +27,10 @@ float4 MagicWave(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR
 }
 
 float4 MagicWave2(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
-	float4 color = tex2D(uImage0, coords);
-	coords += sin(color.b + (uTime * 4)) * (color.rg / uImageSize0);
-	return tex2D(uImage0, coords).a * sampleColor;
+	float2 pixel = float2(1, 1) / uImageSize0;
+	float4 color = (tex2D(uImage0, coords) + tex2D(uImage0, coords + pixel * float2(1, 0)) + tex2D(uImage0, coords + pixel * float2(-1, 0)) + tex2D(uImage0, coords + pixel * float2(0, 1)) + tex2D(uImage0, coords + pixel * float2(0, -1))) / 5;
+	coords += sin(color.b * 32 + uTime * 4) * 0.5f * (color.rg / uImageSize0);
+	return (tex2D(uImage0, coords).a + color.a) * 0.5f * sampleColor;
 }
 
 technique Technique1{

@@ -77,6 +77,8 @@ namespace EpikV2 {
 
 				GameShaders.Armor.BindShader(ItemType<Nightmare_Sword>(), new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/MagicWave", AssetRequestMode.ImmediateLoad).Value), "MagicWave"));
 				EpikV2.magicWaveShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Nightmare_Sword>());
+				GameShaders.Armor.BindShader(ItemType<Nightmare_Sword>(), new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/MagicWave", AssetRequestMode.ImmediateLoad).Value), "MagicWave2"));
+				EpikV2.magicWaveShader2ID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Nightmare_Sword>());
 
 				nebulaShader = new ArmorShaderData(new Ref<Effect>(mod.Assets.Request<Effect>("Effects/Nebula", AssetRequestMode.ImmediateLoad).Value), "Nebula");
 				nebulaDistortionTexture = mod.Assets.Request<Texture2D>("Textures/Starry_Noise", AssetRequestMode.ImmediateLoad);

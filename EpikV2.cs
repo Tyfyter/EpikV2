@@ -68,6 +68,7 @@ namespace EpikV2 {
 		public static int empressWingsShaderAltID;
 		public static int empressWingsShaderAuroraID;
 		public static int magicWaveShaderID;
+		public static int magicWaveShader2ID;
 		public static ModKeybind ModeSwitchHotkey { get; private set; }
 		public static bool modeSwitchHotbarActive;
 		public static ModKeybind DashHotkey { get; private set; }
@@ -447,6 +448,38 @@ namespace EpikV2 {
 			set {
 				if (Main.LocalPlayer.active && Main.LocalPlayer.GetModPlayer<EpikPlayer>() is EpikPlayer epikPlayer) {
 					epikPlayer.nameColorOverride = (value == "" ? null : value);
+				}
+			}
+		}
+		[JsonIgnore]
+		[ShowDespiteJsonIgnore]
+		[DefaultValue(null)]
+		public bool CustomMagicColor {
+			get {
+				if (Main.LocalPlayer.active && Main.LocalPlayer.GetModPlayer<EpikPlayer>() is EpikPlayer epikPlayer) {
+					return epikPlayer.magicColor.HasValue;
+				}
+				return false;
+			}
+			set {
+				if (Main.LocalPlayer.active && Main.LocalPlayer.GetModPlayer<EpikPlayer>() is EpikPlayer epikPlayer) {
+					epikPlayer.magicColor = value ? Main.LocalPlayer.eyeColor : null;
+				}
+			}
+		}
+		[JsonIgnore]
+		[ShowDespiteJsonIgnore]
+		[DefaultValue(null)]
+		public Color MagicColor {
+			get {
+				if (Main.LocalPlayer.active && Main.LocalPlayer.GetModPlayer<EpikPlayer>() is EpikPlayer epikPlayer) {
+					return epikPlayer.magicColor ?? Main.LocalPlayer.eyeColor;
+				}
+				return Color.Transparent;
+			}
+			set {
+				if (Main.LocalPlayer.active && Main.LocalPlayer.GetModPlayer<EpikPlayer>() is EpikPlayer epikPlayer) {
+					epikPlayer.magicColor = value;
 				}
 			}
 		}

@@ -24,6 +24,7 @@ namespace EpikV2.Items {
 			return false;
 		}
 		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
+			if (item.social) return;
 			int tooltipIndex = tooltips.FindIndex(l => l.Name.StartsWith("Tooltip"));
 			if (tooltipIndex == -1) tooltipIndex = 1;
 			IEquipStat[] stats = EquipStats[item.type];
@@ -63,6 +64,17 @@ namespace EpikV2.Items {
 		public LocalizedText Text => EpikExtensions.GetText("Mods.EpikV2.Effects.ClassCritChance", Value, Language.GetText("NoDamage." + Class.DisplayName.Key));
 		public void Apply(Player player) {
 			player.GetCritChance(Class) += Value;
+		}
+	}
+	public record AttackSpeedStat(float Value, DamageClass Class) : IEquipStat {
+		public string Name => "AttackSpeedStat";
+		public LocalizedText Text => EpikExtensions.GetText(
+			Class == DamageClass.Generic ? "Mods.EpikV2.Effects.AttackSpeed" : "Mods.EpikV2.Effects.ClassAttackSpeed",
+			Value,
+			Language.GetText("NoDamage." + Class.DisplayName.Key)
+		);
+		public void Apply(Player player) {
+			player.GetAttackSpeed(Class) += Value;
 		}
 	}
 	public record SpeedStat(float Value) : IEquipStat {
