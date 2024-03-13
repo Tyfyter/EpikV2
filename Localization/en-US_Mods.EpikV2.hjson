@@ -1338,7 +1338,7 @@ Configs: {
 
 		CustomMagicColor: {
 			Label: Use Custom Magic Color
-			Tooltip: "If this is not checked your eye color will be used"
+			Tooltip: If this is not checked your eye color will be used
 		}
 	}
 

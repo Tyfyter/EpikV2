@@ -299,7 +299,7 @@ namespace EpikV2.Items.Armor {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			Player.CompositeArmStretchAmount stretchAmount;
 			float armRotation;
-			if (epikPlayer.nightmareShield.CheckActive(out Projectile shield)) {
+			if (epikPlayer.nightmareShield.CheckActive(out Projectile shield) && shield.ai[0] != -1) {
 				stretchAmount = Player.CompositeArmStretchAmount.None;
 				armRotation = 0;
 				float progress = (shield.ai[0] / shield.ai[1]) * 20;
@@ -498,18 +498,23 @@ namespace EpikV2.Items.Armor {
 		}
 		List<int> dusts = new();
 		public override void AI() {
+			Player player = Main.player[Projectile.owner];
+			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			if (Projectile.ai[0] < 0) {
+				epikPlayer.nightmareShield.Set(Projectile.whoAmI);
+				return;
+			}
 			if (Projectile.ai[0] < (Projectile.ai[1] - 12)) {
 				Projectile.ai[2] += Projectile.damage / (Projectile.ai[1] - 12);
 			} else {
 				EpikExtensions.LinearSmoothing(ref Projectile.ai[2], Projectile.damage, Projectile.damage * 0.002f);
 			}
 			Projectile.ai[0]++;
-			Player player = Main.player[Projectile.owner];
-			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			Projectile.position = player.MountedCenter + Projectile.velocity * new Vector2(8, 12);
 			Vector2 nextVelocity = player.velocity;//Collision.TileCollision(owner.position, owner.velocity, owner.width, owner.height, owner.controlDown, owner.controlDown, Math.Sign(owner.gravDir));
 
 			Nightmare_Weapons.GetDustInfo(player, true, out int dustType, out bool noLight, out Color dustColor, out float dustScale);
+			Color breakColor = dustColor * 0.0f;
 
 			bool broken = false;
 			for (int i = 0; i < dusts.Count; i++) {
@@ -532,11 +537,13 @@ namespace EpikV2.Items.Armor {
 									Projectile.ai[2] -= other.damage * 1f;
 									if (Projectile.ai[2] <= 0) {
 										other.damage = (int)-Projectile.ai[2];
+										Projectile.ai[0] = -1;
 										Projectile.Kill();
 										player.itemAnimation = 0;
 										SoundEngine.PlaySound(SoundID.Item27.WithPitchOffset(-0.1f), hitBox.Center.ToVector2());
 										SoundEngine.PlaySound(SoundID.Item167, hitBox.Center.ToVector2());
 										broken = true;
+										Projectile.timeLeft = 20;
 										break;
 									} else {
 										SoundEngine.PlaySound(SoundID.Dig.WithVolumeScale(0.25f), hitBox.Center.ToVector2());
@@ -554,6 +561,7 @@ namespace EpikV2.Items.Armor {
 					}
 				}
 				for (int i = 0; i < thickness; i++) {
+					if (!broken && Projectile.ai[0] >= (Projectile.ai[1] - 12) && !Main.rand.NextBool((int)Math.Min(Projectile.ai[2], Projectile.damage), Projectile.damage)) continue;
 					Dust dust = Dust.NewDustPerfect(
 						pos - dir * i + Main.rand.NextVector2Square(-1, 1),
 						dustType,
@@ -569,7 +577,7 @@ namespace EpikV2.Items.Armor {
 					//dust.alpha = (int)((j - count / 2) * count * 50);
 				}
 			}
-			if (Projectile.owner == Main.myPlayer) {
+			if (!broken && Projectile.owner == Main.myPlayer) {
 				if (player.controlUseTile) {
 					Vector2 newVelocity = Main.MouseWorld - player.MountedCenter;
 					newVelocity.Normalize();

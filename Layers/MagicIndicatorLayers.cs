@@ -17,7 +17,7 @@ namespace EpikV2.Layers {
 		public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) {
 			EpikPlayer epikPlayer = drawInfo.drawPlayer.GetModPlayer<EpikPlayer>();
 			if (epikPlayer.realUnicornHorn) return false;
-			return drawInfo.shadow == 0 && (epikPlayer.nightmareShield.active || epikPlayer.forceLeftHandMagic > 0);
+			return drawInfo.shadow == 0 && ((epikPlayer.nightmareShield.CheckActive(out Projectile shield) && shield.ai[0] != -1) || epikPlayer.forceLeftHandMagic > 0);
 		}
 		public override Position GetDefaultPosition() => new Multiple() {
 			{ new Between(PlayerDrawLayers.Skin, PlayerDrawLayers.Leggings), drawInfo => !drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) },
@@ -128,7 +128,7 @@ namespace EpikV2.Layers {
 		public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) {
 			EpikPlayer epikPlayer = drawInfo.drawPlayer.GetModPlayer<EpikPlayer>();
 			if (!epikPlayer.realUnicornHorn) return false;
-			return (epikPlayer.nightmareShield.active || epikPlayer.forceLeftHandMagic > 0) || (epikPlayer.nightmareSword.active || epikPlayer.forceRightHandMagic > 0);
+			return ((epikPlayer.nightmareShield.CheckActive(out Projectile shield) && shield.ai[0] != -1) || epikPlayer.forceLeftHandMagic > 0) || (epikPlayer.nightmareSword.active || epikPlayer.forceRightHandMagic > 0);
 		}
 		public override Position GetDefaultPosition() => new AfterParent(PlayerDrawLayers.FaceAcc);
 		protected override void Draw(ref PlayerDrawSet drawInfo) {
@@ -136,10 +136,15 @@ namespace EpikV2.Layers {
 			if (drawInfo.drawPlayer.mount.Active && drawInfo.drawPlayer.mount.Type == MountID.Wolf) {
 				vector = new Vector2(28f, -2f);
 			}
-			float intensity = 0.4f;
+			float intensity = 0.2f;
 			EpikPlayer epikPlayer = drawInfo.drawPlayer.GetModPlayer<EpikPlayer>();
-			if (epikPlayer.nightmareShield.active || epikPlayer.forceLeftHandMagic > 0) intensity += 0.2f;
-			if (epikPlayer.nightmareSword.active || epikPlayer.forceRightHandMagic > 0) intensity += 0.2f;
+			if (epikPlayer.nightmareSword.active) {
+				intensity += 0.2f;
+				if (Main.projectile[epikPlayer.nightmareSword.index].ai[0] != 0 || epikPlayer.forceRightHandMagic > 0) intensity += 0.2f;
+			} else if (epikPlayer.forceRightHandMagic > 0) {
+				intensity += 0.2f;
+			}
+			if ((epikPlayer.nightmareShield.CheckActive(out Projectile shield) && shield.ai[0] != -1) || epikPlayer.forceLeftHandMagic > 0) intensity += intensity < 0.6f ? 0.4f : 0.2f;
 			Color color = epikPlayer.MagicColor * intensity;
 			color.A /= 2;
 			vector *= drawInfo.drawPlayer.Directions;
