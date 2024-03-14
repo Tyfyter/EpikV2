@@ -71,12 +71,13 @@ namespace EpikV2.NPCs {
 
                 case NPCID.IlluminantBat: {
 					if (npc.ai[0] == 0) {
-						if (npc.ai[1] >= 200) {
+						if (npc.ai[1] >= 240) {
+							npc.ai[1] = 0;
 							npc.ai[3]++;
+							npc.netUpdate = true;
 							if (Main.rand.Next(1, 5) < npc.ai[3]) {
 								npc.ai[3] = 0;
 								npc.ai[0] = 1;
-								npc.netUpdate = true;
 								for (int i = (int)Math.Ceiling(npc.life / 20f); i-- > 0;) {
 									NPC child = NPC.NewNPCDirect(
 										npc.GetSource_FromAI(),
@@ -91,6 +92,9 @@ namespace EpikV2.NPCs {
 								}
 							}
 						}
+						npc.alpha = 0;
+						npc.color = Color.Transparent;
+						npc.chaseable = true;
 					} else if (npc.ai[0] == 1) {
 						//npc.hide = true;
 						npc.alpha = 255;
@@ -99,10 +103,6 @@ namespace EpikV2.NPCs {
 						if (++npc.ai[3] >= 200) {
 							npc.ai[3] = 0;
 							npc.ai[0] = 0;
-							//npc.hide = false;
-							npc.alpha = 0;
-							npc.color = Color.Transparent;
-							npc.chaseable = true;
 							npc.netUpdate = true;
 						}
 					} else if (npc.ai[0] == -1) {
@@ -120,6 +120,7 @@ namespace EpikV2.NPCs {
 						}
 						if (parent.ai[0] != 1 || !parent.active) {
 							npc.active = false;
+							npc.netUpdate = true;
 						}
 					}
 					//if (npc.HasPlayerTarget) Main.player[npc.target].chatOverhead.NewMessage($"{npc.ai[0]}\n{npc.ai[1]}\n{npc.ai[2]}\n{npc.ai[3]}\n{npc.aiAction}\n                           ", 5);
@@ -173,7 +174,7 @@ namespace EpikV2.NPCs {
                 npc.ai[2] -= 1f;
             }
             if (npc.wet) {
-                if (npc.collideY) {
+                if (npc.collideY || npc.velocity.Y == 0) {
                     npc.velocity.Y = 2f;
                 }
                 if (npc.velocity.Y > 0f && npc.ai[3] == npc.position.X) {
@@ -201,7 +202,7 @@ namespace EpikV2.NPCs {
                 npc.TargetClosest();
             }
             if (npc.velocity.Y == 0f || npc.velocity.Y == 0.01f) {
-                if (npc.collideY && npc.oldVelocity.Y != 0f && Collision.SolidCollision(npc.position, npc.width, npc.height)) {
+                if ((npc.collideY || npc.velocity.Y == 0) && npc.oldVelocity.Y != 0f && Collision.SolidCollision(npc.position, npc.width, npc.height)) {
                     npc.position.X -= npc.velocity.X + npc.direction;
                 }
                 if (npc.ai[3] == npc.position.X) {
@@ -252,7 +253,7 @@ namespace EpikV2.NPCs {
                 if (npc.collideX && Math.Abs(npc.velocity.X) == 0.2f) {
                     npc.position.X -= 1.4f * npc.direction;
                 }
-                if (npc.collideY && npc.oldVelocity.Y != 0f && Collision.SolidCollision(npc.position, npc.width, npc.height)) {
+                if ((npc.collideY || npc.velocity.Y == 0) && npc.oldVelocity.Y != 0f && Collision.SolidCollision(npc.position, npc.width, npc.height)) {
                     npc.position.X -= npc.velocity.X + npc.direction;
                 }
                 if ((npc.direction == -1 && npc.velocity.X < 0.01) || (npc.direction == 1 && npc.velocity.X > -0.01)) {
@@ -318,14 +319,24 @@ namespace EpikV2.NPCs {
 						if (hit.Damage < 10 && npc.life > hit.Damage) {
 							parent.life -= hit.Damage;
 							parent.netUpdate = true;
+							NetMessage.SendStrikeNPC(npc, hit with {
+								HideCombatText = true,
+								Knockback = 0
+							});
 						} else {
 							hit.Damage = 20;
 							parent.life -= 20;
 							parent.checkDead();
+							NetMessage.SendStrikeNPC(npc, new NPC.HitInfo() {
+								Damage = 20,
+								Knockback = 0,
+								HideCombatText = true
+							});
 							npc.life = 0;
 							npc.realLife = -1;
 							npc.checkDead();
 							parent.netUpdate = true;
+							npc.netUpdate = true;
 						}
 						CombatText.NewText(
 							new Rectangle((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height),
@@ -336,11 +347,11 @@ namespace EpikV2.NPCs {
 
 						if (Main.netMode != NetmodeID.Server) {
 							if (npc.life > 0) {
-								for (int num336 = 0; num336 < hit.Damage / npc.lifeMax * 50.0; num336++) {
+								for (int i = 0; i < hit.Damage / npc.lifeMax * 50.0; i++) {
 									Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.UndergroundHallowedEnemies, 0f, 0f, 200).velocity *= 1.5f;
 								}
 							} else {
-								for (int num338 = 0; num338 < 50; num338++) {
+								for (int i = 0; i < 50; i++) {
 									Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.UndergroundHallowedEnemies, hit.HitDirection, 0f, 200).velocity *= 1.5f;
 								}
 							}
