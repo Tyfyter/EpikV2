@@ -20,6 +20,7 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.Utilities;
 using Tyfyter.Utils;
 
 namespace EpikV2.Items.Armor {
@@ -203,7 +204,7 @@ namespace EpikV2.Items.Armor {
 				case 0:
 				return ModContent.ItemType<Nightmare_Sword>();
 				case 1:
-				return ItemID.AshWoodSword;
+				return ModContent.ItemType<Nightmare_Sorcery>();
 			}
 			return 0;
 		}
@@ -429,6 +430,7 @@ namespace EpikV2.Items.Armor {
 					if ((oldMode == 0 && epikPlayer.nightmareShield.active) || oldMode >= 4) {
 						mode += 3;
 					}
+					if (mode == 3) mode = 1; // 3 is disabled until I can think of something better
 					int time = CombinedHooks.TotalAnimationTime(Item.useAnimation, player, Item);
 					if (mode == 6) {
 						if (shield is not null) {
@@ -453,6 +455,9 @@ namespace EpikV2.Items.Armor {
 			}
 		}
 		public void DrawSlots() => Nightmare_Weapons.DrawSlots(Item);
+		public override void UpdateInventory(Player player) {
+			//if (!player.GetModPlayer<EpikPlayer>().nightmareSet) Item.TurnToAir();
+		}
 	}
 	public class Nightmare_Shield_P : ModProjectile {
 		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.TerraBlade2;
@@ -633,21 +638,22 @@ namespace EpikV2.Items.Armor {
 				proj.netUpdate = true;
 				proj.velocity = Main.MouseWorld - Main.player[proj.owner].MountedCenter;
 				proj.velocity.Normalize();
-				if (mode != 0) SoundEngine.PlaySound(SoundID.Item71, proj.position);
-				int temp = ModContent.ProjectileType<Temporary_Nightmare_Sword_P>();
-				if (mode == 6 && proj.type != temp) {
-					Player player = Main.LocalPlayer;
-					Item item = player.HeldItem;
-					Projectile second = Projectile.NewProjectileDirect(
-						player.GetSource_ItemUse(item),
-						player.MountedCenter,
-						default,
-						temp,
-						player.GetWeaponDamage(item),
-						player.GetWeaponKnockback(item),
-						player.whoAmI
-					);
-					SetAIMode(second, mode, useTime);
+				int temp = Temporary_Nightmare_Sword_P.ID;
+				if (proj.type != temp) {
+					if (mode == 6) {
+						Player player = Main.LocalPlayer;
+						Item item = player.HeldItem;
+						Projectile second = Projectile.NewProjectileDirect(
+							player.GetSource_ItemUse(item),
+							player.MountedCenter,
+							default,
+							temp,
+							player.GetWeaponDamage(item),
+							player.GetWeaponKnockback(item),
+							player.whoAmI
+						);
+						SetAIMode(second, mode, useTime);
+					}
 				}
 			} else {
 				proj.localAI[0] = mode;
@@ -681,6 +687,53 @@ namespace EpikV2.Items.Armor {
 				Projectile.friendly = false;
 				break;
 
+				case 1: {
+					float progress = MathHelper.Clamp((Projectile.ai[1] / Projectile.ai[2]), 0, 1);
+					progress = MathF.Pow(progress * 2, 1.1f) * player.direction;
+					float rot = Projectile.velocity.ToRotation();
+					Vector2 offset = new Vector2(MathF.Cos(progress * MathHelper.Pi) * -96, MathF.Sin(progress * MathHelper.Pi) * 32).RotatedBy(rot) + Projectile.velocity * 16;
+					Projectile.position = player.MountedCenter + offset;
+					Projectile.rotation = offset.ToRotation() + MathHelper.PiOver4 - 0.35f * player.direction;
+					goto default;
+				}
+
+				case 2: {
+					float progress = MathHelper.Clamp((Projectile.ai[1] / Projectile.ai[2]), 0, 1);
+					progress = MathF.Pow(progress * 2, 1.1f) * -player.direction;
+					float rot = Projectile.velocity.ToRotation();
+					Vector2 offset = new Vector2(MathF.Cos(progress * MathHelper.Pi) * -144, MathF.Sin(progress * MathHelper.Pi) * 48).RotatedBy(rot) + Projectile.velocity * 16;
+					Projectile.position = player.MountedCenter + offset;
+					Projectile.rotation = offset.ToRotation() + MathHelper.PiOver4 - 0.35f * player.direction;
+					goto default;
+				}
+
+				case 3: {
+					float progress = MathHelper.Clamp((Projectile.ai[1] / Projectile.ai[2]), 0, 1);
+					progress = MathF.Pow(progress * 2, 1.1f) * player.direction;
+					float rot = Projectile.velocity.ToRotation();
+					Vector2 offset = new Vector2(MathF.Cos(progress * MathHelper.Pi) * -96, MathF.Sin(progress * MathHelper.Pi) * 32).RotatedBy(rot) + Projectile.velocity * 16;
+					Projectile.position = player.MountedCenter + offset;
+					Projectile.rotation = offset.ToRotation() + MathHelper.PiOver4 - 0.35f * player.direction;
+					float realProgress = Projectile.ai[1] / Projectile.ai[2];
+					if (realProgress > 0.3f && realProgress < 0.75f) {
+						Projectile wave = Projectile.NewProjectileDirect(
+							Projectile.GetSource_FromAI(),
+							Projectile.position,
+							Projectile.velocity * 8,
+							Temporary_Nightmare_Sword_P.ID,
+							Projectile.damage,
+							Projectile.knockBack,
+							Projectile.owner
+						);
+						wave.ai[0] = 3;
+						wave.ai[1] = 32;
+						wave.ai[2] = Projectile.rotation;
+						EpikExtensions.AngularSmoothing(ref wave.ai[2], rot, 0.5f);
+						wave.netUpdate = true;
+					}
+					goto default;
+				}
+
 				case 4: {
 					float progress = MathHelper.Clamp((Projectile.ai[1] / Projectile.ai[2] - 0.36f) * 1.5625f, 0, 1);
 					progress = MathF.Pow(progress, 0.4f) * player.direction;
@@ -712,6 +765,7 @@ namespace EpikV2.Items.Armor {
 				}
 
 				default:
+				if (Projectile.ai[1] == Projectile.ai[2]) SoundEngine.PlaySound(SoundID.Item71, Projectile.position);
 				if (--Projectile.ai[1] <= 0) {
 					int mode = AIMode;
 					SetAIMode(Projectile, (int)Projectile.localAI[0], (int)Projectile.localAI[1], true);
@@ -791,11 +845,47 @@ namespace EpikV2.Items.Armor {
 		}
 	}
 	public class Temporary_Nightmare_Sword_P : Nightmare_Sword_P {
+		public static int ID { get; private set; }
+		public override void SetStaticDefaults() {
+			ID = Type;
+		}
+		public override void SetDefaults() {
+			base.SetDefaults();
+			Projectile.ContinuouslyUpdateDamageStats = false;
+		}
 		public override void AI() {
 			Player player = Main.player[Projectile.owner];
 			Projectile.spriteDirection = -Math.Sign(Projectile.velocity.X);
 			Projectile.friendly = true;
 			switch (AIMode) {
+				case 3: {
+					Projectile.hide = true;
+					Projectile.rotation = Projectile.ai[2];
+					Projectile.extraUpdates = 3;
+					const int steps = 30;
+					Vector2 vel = new Vector2(1, 0).RotatedBy(Projectile.rotation - MathHelper.PiOver4) * (65f / steps) * Projectile.scale;
+					Vector2 pos = Projectile.position;
+					Nightmare_Weapons.GetDustInfo(player, false, out int dustType, out bool noLight, out Color dustColor, out float dustScale);
+					for (int j = 0; j <= steps; j++) {
+						Dust dust = Dust.NewDustPerfect(
+							pos + Main.rand.NextVector2Square(-1, 1),
+							dustType,
+							Vector2.Zero,
+							newColor: dustColor
+						);
+						dust.noGravity = true;
+						dust.noLight = noLight;
+						dust.velocity = Main.rand.NextVector2Circular(1, 1);
+						dust.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
+						dust.scale = dustScale;
+						pos += vel;
+					}
+					if (--Projectile.ai[1] <= 0) {
+						Projectile.Kill();
+					}
+					return;
+				}
+
 				case 6: {
 					float progress = 1 - Math.Max(Projectile.ai[1] / Projectile.ai[2], 0.2f);
 					progress = 1 - (MathF.Pow(progress * 2, 2) - progress * 2);
@@ -853,6 +943,19 @@ namespace EpikV2.Items.Armor {
 			}
 			player.GetModPlayer<EpikPlayer>().forceLeftHandMagic = 1;
 		}
+		public override bool? CanHitNPC(NPC target) {
+			if (AIMode == 3) {
+				if (Projectile.perIDStaticNPCImmunity[Type][target.whoAmI] > Main.GameUpdateCount) {
+					return false;
+				}
+			}
+			return null;
+		}
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
+			if (AIMode == 3) {
+				Projectile.perIDStaticNPCImmunity[Type][target.whoAmI] = Main.GameUpdateCount + 10;
+			}
+		}
 	}
 	public struct NightmareSwingDrawer {
 		public const int TotalIllusions = 1;
@@ -899,6 +1002,186 @@ namespace EpikV2.Items.Armor {
 
 		private float StripWidth(float progressOnStrip) {
 			return Length * 0.75f;
+		}
+	}
+	public class Nightmare_Sorcery : ModItem, IMultiModeItem {
+		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
+		public static int ID { get; private set; }
+		public override void SetStaticDefaults() {
+			ID = Type;
+		}
+		public override void SetDefaults() {
+			Item.DefaultToMagicWeapon(ProjectileID.None, 20, 5);
+			Item.useStyle = ItemUseStyleID.RaiseLamp;
+			Item.damage = 80;
+			Item.ArmorPenetration = 15;
+			Item.knockBack = 4;
+			Item.noUseGraphic = true;
+			Item.mana = 17;
+			Item.shoot = 12;
+			Item.shootSpeed = 12;
+			Item.width = 20;
+			Item.height = 16;
+			Item.value = 5000000;
+			Item.rare = CursedRarity.ID;
+			Item.maxStack = 1;
+		}
+		public override bool AltFunctionUse(Player player) => true;
+		public int GetSlotContents(int slotIndex) => Nightmare_Weapons.SlotContents(slotIndex);
+		public bool ItemSelected(int slotIndex) => false;
+		public void SelectItem(int slotIndex) {
+			if (Nightmare_Weapons.SlotContents(slotIndex) == Type) {
+				Item.TurnToAir();
+			} else {
+				Nightmare_Weapons.TransformHeldItem(slotIndex);
+			}
+		}
+		public void DrawSlots() => Nightmare_Weapons.DrawSlots(Item);
+		public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
+			type = Nightmare_Lightning_P.ID;
+		}
+		public override void UpdateInventory(Player player) {
+			//if (!player.GetModPlayer<EpikPlayer>().nightmareSet) Item.TurnToAir();
+		}
+	}
+	public class Nightmare_Lightning_P : ModProjectile {
+		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
+		public static int ID { get; private set; }
+		public override void SetStaticDefaults() {
+			ProjectileID.Sets.TrailingMode[Projectile.type] = 0;
+			ProjectileID.Sets.TrailCacheLength[Projectile.type] = 30;
+			ID = Type;
+		}
+		public override void SetDefaults() {
+			Projectile.width = 14;
+			Projectile.height = 14;
+			Projectile.friendly = true;
+			Projectile.alpha = 255;
+			Projectile.ignoreWater = true;
+			Projectile.tileCollide = true;
+			Projectile.extraUpdates = 4;
+			Projectile.timeLeft = 600;
+			Projectile.penetrate = -1;
+		}
+		public override void OnSpawn(IEntitySource source) {
+			Projectile.ai[2] = Main.rand.Next(100);
+			float parentScale = 1f;
+			float range = 1000;
+			if (source is EntitySource_Parent ps && ps.Entity is Projectile projParent) {
+				if (projParent.type == Type) {
+					parentScale = projParent.localAI[2];
+					Projectile.extraUpdates = (int)(4 * parentScale);
+					range = 6;
+				}
+			} else {
+				Projectile.localAI[0] = Main.MouseWorld.X;
+				Projectile.localAI[1] = Main.MouseWorld.Y;
+			}
+			Projectile.localAI[2] = parentScale - 0.25f;
+
+			Vector2 target = Projectile.Center + Projectile.velocity * range;
+			Projectile.ai[0] = target.X;
+			Projectile.ai[1] = target.Y;
+		}
+		public override void AI() {
+			if (Projectile.numUpdates == 0) {
+				UnifiedRandom rand = new((int)Projectile.ai[2]);
+				Projectile.ai[2] = rand.Next(100);
+				float speed = Projectile.velocity.Length();
+				Vector2 target = new(Projectile.ai[0], Projectile.ai[1]);
+				if (Projectile.localAI[0] != 0) {
+					target = new(Projectile.localAI[0], Projectile.localAI[1]);
+				}
+				Vector2 direction = (target - Projectile.Center).SafeNormalize(Projectile.velocity / speed);
+				if (rand.NextBool(2, 3) && Projectile.localAI[2] > 0.25f && Main.myPlayer == Projectile.owner) {
+					Projectile.NewProjectile(
+						Projectile.GetSource_FromAI(),
+						Projectile.Center - Projectile.velocity,
+						Projectile.velocity,
+						Type,
+						Projectile.damage,
+						Projectile.knockBack
+					);
+				}
+				Projectile.velocity = direction.RotatedBy(rand.NextFloat(-0.75f, 0.75f)) * speed;
+				if (Projectile.localAI[0] != 0) {
+					float dot = Vector2.Dot((target - (Projectile.Center + Projectile.velocity * 4)).SafeNormalize(default), direction);
+					if (dot <= 0) {
+						Projectile.localAI[0] = 0;
+						Projectile.localAI[1] = 0;
+					}
+				} else if (Projectile.localAI[2] < 0.75f && Projectile.velocity != Vector2.Zero) {
+					if (Vector2.Dot((target - (Projectile.Center + Projectile.velocity * 4)).SafeNormalize(default), direction) <= 0) {
+						Projectile.velocity = Vector2.Zero;
+					}
+				}
+				if (Projectile.oldPos[^1] == Projectile.position) Projectile.Kill();
+			}
+		}
+		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
+			for (int n = 0; n < Projectile.oldPos.Length && Projectile.oldPos[n] != default; n++) {
+				projHitbox.Location = Projectile.oldPos[n].ToPoint();
+				if (projHitbox.Intersects(targetHitbox)) return true;
+			}
+			return false;
+		}
+		public override bool OnTileCollide(Vector2 oldVelocity) {
+			Projectile.position += Projectile.velocity;
+			Projectile.velocity = Vector2.Zero;
+			return false;
+		}
+		public override bool PreDraw(ref Color lightColor) {
+			if (Projectile.localAI[2] <= 0) {
+				Projectile.Kill();
+				return false;
+			}
+			Texture2D texture = TextureAssets.Extra[33].Value;
+			Vector2 scale = default;
+			for (int i = 0; i < 3; i++) {
+				switch (i) {
+					case 0:
+					scale = new Vector2(Projectile.localAI[2] * 0.6f);
+					DelegateMethods.c_1 = new Color(113, 111, 219, 50);
+					break;
+					case 1:
+					scale = new Vector2(Projectile.localAI[2] * 0.4f);
+					DelegateMethods.c_1 = new Color(77, 149, 255, 50);
+					break;
+					default:
+					scale = new Vector2(Projectile.localAI[2] * 0.2f);
+					DelegateMethods.c_1 = new Color(160, 219, 255, 50);
+					break;
+				}
+
+				DelegateMethods.f_1 = 0.5f;
+				for (int j = Projectile.oldPos.Length - 1; j > 1; j--) {
+					if (Projectile.oldPos[j] == Vector2.Zero) continue;
+					Vector2 start = Projectile.oldPos[j] + new Vector2(Projectile.width, Projectile.height) / 2f + Vector2.UnitY * Projectile.gfxOffY;
+					Vector2 end2 = Projectile.oldPos[j - 1] + new Vector2(Projectile.width, Projectile.height) / 2f + Vector2.UnitY * Projectile.gfxOffY;
+					Utils.DrawLaser(
+						Main.spriteBatch,
+						texture,
+						start - Main.screenPosition,
+						end2 - Main.screenPosition,
+						scale,
+						DelegateMethods.LightningLaserDraw
+					);
+				}
+
+				if (Projectile.oldPos[0] != Vector2.Zero) {
+					Vector2 start2 = Projectile.oldPos[0] + new Vector2(Projectile.width, Projectile.height) / 2f + Vector2.UnitY * Projectile.gfxOffY;
+					Vector2 end = Projectile.Center + Vector2.UnitY * Projectile.gfxOffY;
+					Utils.DrawLaser(
+						Main.spriteBatch,
+						texture,
+						start2,
+						end,
+						scale,
+						DelegateMethods.LightningLaserDraw
+					);
+				}
+			}
+			return base.PreDraw(ref lightColor);
 		}
 	}
 }

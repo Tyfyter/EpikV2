@@ -1072,6 +1072,11 @@ Items: {
 		DisplayName: Real Unicorn Horn
 		Tooltip: Definitely a different thing than a regular unicorn horn
 	}
+
+	Nightmare_Sorcery: {
+		DisplayName: Nightmare_ Sorcery
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck
@@ -1170,6 +1175,7 @@ Projectiles: {
 	Nightmare_Shield_P.DisplayName: Nightmarish Shield
 	Nightmare_Sword_P.DisplayName: Nightmarish Sword
 	Temporary_Nightmare_Sword_P.DisplayName: Nightmarish Sword
+	Nightmare_Lightning_P.DisplayName: Nightmare_ Lightning_ P
 }
 
 DamageClasses: {
