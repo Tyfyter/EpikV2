@@ -346,6 +346,19 @@ namespace EpikV2 {
 			Vector2 dimensions = max + buffer - position;
 			return new Rectangle((int)position.X, (int)position.Y, (int)dimensions.X, (int)dimensions.Y);
 		}
+		public static void OutlineRectangle(this Rectangle rectangle) {
+			for (int i = 0; i <= rectangle.Width; i++) {
+				for (int j = 0; j <= rectangle.Height; j++) {
+					if (j == 0 || i == 0 || i == rectangle.Width || j == rectangle.Height) {
+						Dust.NewDustPerfect(
+							rectangle.TopLeft() + new Vector2(i, j),
+							6,
+							Vector2.Zero
+						);
+					}
+				}
+			}
+		}
 		public static bool CanBeHitBy(this NPC npc, Player player, Item item, bool checkImmortal = true) {
 			if (!npc.active || (checkImmortal && npc.immortal) || npc.dontTakeDamage) {
 				return false;
@@ -1173,6 +1186,7 @@ namespace EpikV2 {
 			}
 			return null;
 		}
+
 	}
 	public static class ConditionExtensions {
 		public static Condition CommaAnd(this Condition a, Condition b) {

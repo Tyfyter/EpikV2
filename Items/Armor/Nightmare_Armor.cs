@@ -1005,7 +1005,6 @@ namespace EpikV2.Items.Armor {
 		}
 	}
 	public class Nightmare_Sorcery : ModItem, IMultiModeItem {
-		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			ID = Type;
@@ -1018,8 +1017,8 @@ namespace EpikV2.Items.Armor {
 			Item.knockBack = 4;
 			Item.noUseGraphic = true;
 			Item.mana = 17;
-			Item.shoot = 12;
-			Item.shootSpeed = 12;
+			Item.shoot = Nightmare_Orb_P.ID;
+			Item.shootSpeed = 7;
 			Item.width = 20;
 			Item.height = 16;
 			Item.value = 5000000;
@@ -1038,10 +1037,121 @@ namespace EpikV2.Items.Armor {
 		}
 		public void DrawSlots() => Nightmare_Weapons.DrawSlots(Item);
 		public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
-			type = Nightmare_Lightning_P.ID;
+			if (player.altFunctionUse == 2) {
+				type = Nightmare_Lightning_P.ID;
+				velocity *= 1.5f;
+				if (player.ownedProjectileCounts[Nightmare_Orb_P.ID] > 0) {
+					Rectangle kickHitbox = new(0, 0, 96, 96);
+					kickHitbox.Offset((player.MountedCenter - new Vector2(48, 48) + velocity * 3).ToPoint());
+					
+					for (int i = 0; i < Main.maxProjectiles; i++) {
+						Projectile orb = Main.projectile[i];
+						if (orb.active && orb.type == Nightmare_Orb_P.ID && orb.owner == player.whoAmI && orb.Hitbox.Intersects(kickHitbox)) {
+							position = orb.Center + orb.velocity;
+							Vector2 aim = Main.MouseWorld - position;
+							if (aim != default) {
+								aim.Normalize();
+								velocity = aim * velocity.Length();
+							}
+							break;
+						}
+					}
+				}
+			}
 		}
 		public override void UpdateInventory(Player player) {
 			//if (!player.GetModPlayer<EpikPlayer>().nightmareSet) Item.TurnToAir();
+		}
+	}
+	public class Nightmare_Orb_P : ModProjectile {
+		public override string Texture => "EpikV2/Items/Armor/Nightmare_Sorcery";
+		public static int ID { get; private set; }
+		public override void SetStaticDefaults() {
+			ID = Type;
+		}
+		public override void SetDefaults() {
+			Projectile.width = 24;
+			Projectile.height = 24;
+			Projectile.friendly = true;
+			Projectile.alpha = 0;
+			Projectile.ignoreWater = true;
+			Projectile.tileCollide = true;
+			Projectile.extraUpdates = 1;
+			Projectile.timeLeft = 600;
+			Projectile.penetrate = -1;
+			Projectile.scale = 0.65f;
+		}
+		public override void AI() {
+			Projectile.velocity.Y += 0.04f;
+			for (int i = 0; i < Main.maxProjectiles; i++) {
+				if (i == Projectile.whoAmI) continue;
+				Projectile other = Main.projectile[i];
+				if (other.active && other.type == Nightmare_Lightning_P.ID && other.owner == Projectile.owner && other.Colliding(other.Hitbox, Projectile.Hitbox)) {
+					if (other.velocity == default || other.localAI[2] < 0) continue;
+					Projectile.ai[2] += other.localAI[2];
+					other.Kill();
+					if (other.localAI[2] < 0.75f) continue;
+					float speed = other.velocity.Length();
+					Vector2 direction = (new Vector2(other.ai[0], other.ai[1]) - other.Center).SafeNormalize(other.velocity / speed);
+					Projectile.velocity = direction * 8;
+					continue;
+				}
+				if (other.active && other.hostile && other.damage > 0) {
+					ref byte deflectState = ref other.GetGlobalProjectile<EpikGlobalProjectile>().deflectState;
+					if (deflectState < 2) {
+						Rectangle hitBox = Projectile.Hitbox;
+						if (other.Colliding(other.Hitbox, hitBox)) {
+							Vector2 normalizedDir = (Rectangle.Intersect(other.Hitbox, hitBox).Center.ToVector2() - Projectile.Center).SafeNormalize(default);
+							Projectile.localAI[2] -= other.damage * 1f;
+							if (Projectile.localAI[2] <= 0) {
+								SoundEngine.PlaySound(SoundID.Item27.WithPitchOffset(-0.1f), hitBox.Center.ToVector2());
+								SoundEngine.PlaySound(SoundID.Item167, hitBox.Center.ToVector2());
+							} else {
+								SoundEngine.PlaySound(SoundID.Dig.WithVolumeScale(0.25f), hitBox.Center.ToVector2());
+								SoundEngine.PlaySound(SoundID.DD2_DarkMageHealImpact.WithPitchRange(0.8f, 1f), hitBox.Center.ToVector2());
+							}
+							deflectState = 2;
+							if (other.penetrate == 1) {
+								other.Kill();
+							} else {
+								other.velocity -= 2 * Vector2.Dot(other.velocity, normalizedDir) * normalizedDir;
+							}
+						}
+					}
+				}
+			}
+			if (Projectile.ai[2] > 0) {
+				Projectile.timeLeft -= Main.rand.RandomRound(Projectile.ai[2] * 3);
+			}
+		}
+		public override void OnKill(int timeLeft) {
+			if (Main.myPlayer == Projectile.owner && Projectile.ai[2] > 0) {
+				for (int i = Math.Min(Main.rand.RandomRound(Projectile.ai[2] * 4), 8) + 2; i-- > 0;) {
+					Projectile.NewProjectile(
+						Projectile.GetSource_FromAI(),
+						Projectile.Center,
+						Main.rand.NextVector2CircularEdge(8, 8),
+						Nightmare_Lightning_P.ID,
+						Projectile.damage,
+						Projectile.knockBack
+					);
+				}
+			}
+		}
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
+			if (Projectile.ai[2] > 0) {
+				Projectile.timeLeft -= Main.rand.RandomRound(Projectile.ai[2] * 300);
+			}
+			Vector2 normalizedDir = (Rectangle.Intersect(target.Hitbox, Projectile.Hitbox).Center.ToVector2() - Projectile.Center).SafeNormalize(default);
+			Projectile.velocity -= 1.9f * Vector2.Dot(Projectile.velocity, normalizedDir) * normalizedDir + new Vector2(0, 2);
+		}
+		public override bool OnTileCollide(Vector2 oldVelocity) {
+			if (Projectile.ai[2] > 0) {
+				Projectile.timeLeft -= Main.rand.RandomRound(Projectile.ai[2] * 300);
+			}
+			Vector2 normalizedDir = new Vector2(Math.Sign(oldVelocity.X - Projectile.velocity.X), Math.Sign(oldVelocity.Y - Projectile.velocity.Y)).SafeNormalize(Vector2.Zero);
+			Projectile.velocity = oldVelocity - 1.9f * Vector2.Dot(oldVelocity, normalizedDir) * normalizedDir;
+			return false;
 		}
 	}
 	public class Nightmare_Lightning_P : ModProjectile {
@@ -1071,6 +1181,10 @@ namespace EpikV2.Items.Armor {
 				if (projParent.type == Type) {
 					parentScale = projParent.localAI[2];
 					Projectile.extraUpdates = (int)(4 * parentScale);
+					range = 6;
+				} else if (projParent.type == Nightmare_Orb_P.ID) {
+					parentScale = 0f;
+					Projectile.extraUpdates = 1;
 					range = 6;
 				}
 			} else {
@@ -1131,24 +1245,25 @@ namespace EpikV2.Items.Armor {
 			return false;
 		}
 		public override bool PreDraw(ref Color lightColor) {
-			if (Projectile.localAI[2] <= 0) {
+			if (Projectile.localAI[2] == 0) {
 				Projectile.Kill();
 				return false;
 			}
+			float scaleFactor = Math.Abs(Projectile.localAI[2]);
 			Texture2D texture = TextureAssets.Extra[33].Value;
 			Vector2 scale = default;
 			for (int i = 0; i < 3; i++) {
 				switch (i) {
 					case 0:
-					scale = new Vector2(Projectile.localAI[2] * 0.6f);
+					scale = new Vector2(scaleFactor * 0.6f);
 					DelegateMethods.c_1 = new Color(113, 111, 219, 50);
 					break;
 					case 1:
-					scale = new Vector2(Projectile.localAI[2] * 0.4f);
+					scale = new Vector2(scaleFactor * 0.4f);
 					DelegateMethods.c_1 = new Color(77, 149, 255, 50);
 					break;
 					default:
-					scale = new Vector2(Projectile.localAI[2] * 0.2f);
+					scale = new Vector2(scaleFactor * 0.2f);
 					DelegateMethods.c_1 = new Color(160, 219, 255, 50);
 					break;
 				}

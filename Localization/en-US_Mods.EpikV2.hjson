@@ -1176,6 +1176,7 @@ Projectiles: {
 	Nightmare_Sword_P.DisplayName: Nightmarish Sword
 	Temporary_Nightmare_Sword_P.DisplayName: Nightmarish Sword
 	Nightmare_Lightning_P.DisplayName: Nightmare_ Lightning_ P
+	Nightmare_Orb_P.DisplayName: Nightmare_ Orb_ P
 }
 
 DamageClasses: {
