@@ -101,7 +101,6 @@ namespace EpikV2.Items {
         public override bool? CanDamage() {
             Player player = Main.player[Projectile.owner];
             NPC npc;
-            bool ret = false;
             float crit = player.GetTotalCritChance(DamageClass.Melee);
             for(int i = 0; i < 200; i++) {
                 npc = Main.npc[i];

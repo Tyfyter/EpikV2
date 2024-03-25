@@ -333,7 +333,7 @@ namespace EpikV2.Items.Armor {
 				player.itemAnimation = 2;
 			}
 			if (epikPlayer.nightmareSword.CheckActive(out Projectile sword)) {
-				///TODO: animate 6 different attacks
+				///TODO: animate 2 more attacks
 				switch ((int)sword.ai[0]) {
 					case 4: {
 						stretchAmount = Player.CompositeArmStretchAmount.None;
@@ -1154,6 +1154,7 @@ namespace EpikV2.Items.Armor {
 			return false;
 		}
 	}
+	///TODO: needs to spawn less or be replaced, shooting like 3 bolts reaches the projectile cap
 	public class Nightmare_Lightning_P : ModProjectile {
 		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
 		public static int ID { get; private set; }

@@ -276,7 +276,6 @@ namespace EpikV2.Items {
         bool red = false;
         public void IdleDance() {
             float dist;
-            float dist2;
             switch(quirk) {
                 case Quirk.Circle:
                 if(idleVelocity == Vector2.Zero) {
