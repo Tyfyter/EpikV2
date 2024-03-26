@@ -334,7 +334,66 @@ namespace EpikV2.Items.Armor {
 			}
 			if (epikPlayer.nightmareSword.CheckActive(out Projectile sword)) {
 				///TODO: animate 2 more attacks
+				if (sword.ai[0] != 0) player.direction = sword.direction;
 				switch ((int)sword.ai[0]) {
+					case 1: {
+						float progress = (1 - sword.ai[1] / sword.ai[2]) * 20;
+						if (progress > 13f) {
+							stretchAmount = Player.CompositeArmStretchAmount.Quarter;
+							armRotation = -MathHelper.PiOver2;
+						} else if (progress > 11f) {
+							stretchAmount = Player.CompositeArmStretchAmount.Quarter;
+							armRotation = -1f;
+						} else if (progress > 9f) {
+							stretchAmount = Player.CompositeArmStretchAmount.ThreeQuarters;
+							armRotation = -0.5f;
+						} else if (progress > 7f) {
+							stretchAmount = Player.CompositeArmStretchAmount.Full;
+							armRotation = 0f;
+						} else if (progress > 5f) {
+							stretchAmount = Player.CompositeArmStretchAmount.ThreeQuarters;
+							armRotation = 0.5f;
+						} else if (progress > 3f) {
+							stretchAmount = Player.CompositeArmStretchAmount.Quarter;
+							armRotation = 1f;
+						} else {
+							stretchAmount = Player.CompositeArmStretchAmount.Quarter;
+							armRotation = MathHelper.PiOver2;
+						}
+						armRotation = (player.direction == 1) ? (-armRotation - MathHelper.PiOver2) : (armRotation - MathHelper.PiOver2);
+						armRotation += sword.velocity.ToRotation();
+						rightArm = (true, stretchAmount, armRotation);
+						break;
+					}
+					case 2: {
+						float progress = (1 - sword.ai[1] / sword.ai[2]) * 20;
+						if (progress > 13f) {
+							stretchAmount = Player.CompositeArmStretchAmount.Quarter;
+							armRotation = MathHelper.PiOver2;
+						} else if (progress > 11f) {
+							stretchAmount = Player.CompositeArmStretchAmount.Quarter;
+							armRotation = 1f;
+						} else if (progress > 9f) {
+							stretchAmount = Player.CompositeArmStretchAmount.ThreeQuarters;
+							armRotation = 0.5f;
+						} else if (progress > 7f) {
+							stretchAmount = Player.CompositeArmStretchAmount.Full;
+							armRotation = 0f;
+						} else if (progress > 5f) {
+							stretchAmount = Player.CompositeArmStretchAmount.ThreeQuarters;
+							armRotation = -0.5f;
+						} else if (progress > 3f) {
+							stretchAmount = Player.CompositeArmStretchAmount.Quarter;
+							armRotation = -1f;
+						} else {
+							stretchAmount = Player.CompositeArmStretchAmount.Quarter;
+							armRotation = -MathHelper.PiOver2;
+						}
+						armRotation = (player.direction == 1) ? (-armRotation - MathHelper.PiOver2) : (armRotation - MathHelper.PiOver2);
+						armRotation += sword.velocity.ToRotation();
+						rightArm = (true, stretchAmount, armRotation);
+						break;
+					}
 					case 4: {
 						stretchAmount = Player.CompositeArmStretchAmount.None;
 						armRotation = 0;
@@ -455,6 +514,7 @@ namespace EpikV2.Items.Armor {
 			}
 		}
 		public void DrawSlots() => Nightmare_Weapons.DrawSlots(Item);
+		public override bool CanReforge() => false;
 		public override void UpdateInventory(Player player) {
 			//if (!player.GetModPlayer<EpikPlayer>().nightmareSet) Item.TurnToAir();
 		}
@@ -555,6 +615,7 @@ namespace EpikV2.Items.Armor {
 										SoundEngine.PlaySound(SoundID.DD2_DarkMageHealImpact.WithPitchRange(0.8f, 1f), hitBox.Center.ToVector2());
 									}
 									deflectState = 2;
+									other.netUpdate = true;
 									if (other.penetrate == 1) {
 										other.Kill();
 									} else {

@@ -191,10 +191,12 @@ namespace EpikV2.Projectiles {
 		public override void SendExtraAI(Projectile projectile, BitWriter bitWriter, BinaryWriter binaryWriter) {
             binaryWriter.Write(prefix?.Type ?? 0);
             binaryWriter.Write(partyCannonEffect); 
+            binaryWriter.Write((byte)deflectState); 
 		}
 		public override void ReceiveExtraAI(Projectile projectile, BitReader bitReader, BinaryReader binaryReader) {
             prefix = PrefixLoader.GetPrefix(binaryReader.ReadInt32());
             ApplyPartyCannonEffect(projectile, partyCannonEffect = binaryReader.ReadByte());
+			deflectState = binaryReader.ReadByte();
         }
 	}
 }
