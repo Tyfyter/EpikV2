@@ -323,6 +323,7 @@ namespace EpikV2.NPCs {
 								HideCombatText = true,
 								Knockback = 0
 							});
+							Mod.Logger.Info("variable: " + parent.life);
 						} else {
 							hit.Damage = 20;
 							parent.life -= 20;
@@ -337,6 +338,7 @@ namespace EpikV2.NPCs {
 							npc.checkDead();
 							parent.netUpdate = true;
 							npc.netUpdate = true;
+							Mod.Logger.Info("20: " + parent.life);
 						}
 						CombatText.NewText(
 							new Rectangle((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height),

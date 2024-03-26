@@ -423,7 +423,7 @@ namespace EpikV2.Items.Armor {
 						player.GetWeaponKnockback(Item),
 						player.whoAmI
 					);
-				} else if (sword.ai[1] < 12 && player.controlUseItem && (epikPlayer.releaseUseItem || (player.CanAutoReuseItem(Item) && sword.localAI[2] < 0))) {
+				} else if (player.controlUseItem && (epikPlayer.releaseUseItem || (player.CanAutoReuseItem(Item) && sword.localAI[2] < 0))) {
 					float oldMode = sword.localAI[2] < 0 ? sword.localAI[0] : sword.ai[0];
 					int mode = (int)oldMode % 3 + 1;
 					if (mode == 4) mode = 1;
@@ -635,6 +635,7 @@ namespace EpikV2.Items.Armor {
 				proj.ai[0] = mode;
 				proj.ai[1] = useTime;
 				proj.ai[2] = useTime;
+				proj.localAI[2] = 0;
 				proj.netUpdate = true;
 				proj.velocity = Main.MouseWorld - Main.player[proj.owner].MountedCenter;
 				proj.velocity.Normalize();
@@ -768,6 +769,10 @@ namespace EpikV2.Items.Armor {
 				if (Projectile.ai[1] == Projectile.ai[2]) SoundEngine.PlaySound(SoundID.Item71, Projectile.position);
 				if (--Projectile.ai[1] <= 0) {
 					int mode = AIMode;
+					if (Projectile.localAI[0] == 0 || Projectile.localAI[1] == 0) {
+						Projectile.localAI[0] = 0;
+						Projectile.localAI[1] = 0;
+					}
 					SetAIMode(Projectile, (int)Projectile.localAI[0], (int)Projectile.localAI[1], true);
 					Projectile.localAI[0] = mode;
 					Projectile.localAI[1] = 0;

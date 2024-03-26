@@ -116,12 +116,12 @@ namespace EpikV2.NPCs {
 			if (source is EntitySource_SpawnNPC) {
 				if ((validSources?.Length ?? 0) <= 0) validSources = GetSourcesForPosition((int)(npc.position.X / 16), (int)(npc.position.Y / 16));
 				if (validSources.Length > 0) {
-					var transmutation = Main.rand.Next(validSources);
-					npc.ai[1] = Item.NewItem(source, npc.Center, transmutation.itemID) + 1;
-					Mod.Logger.Info($"Shimmer slime spawned holding {transmutation.itemID}");
+					var (pos, itemID) = Main.rand.Next(validSources);
+					npc.ai[1] = Item.NewItem(source, npc.Center, itemID) + 1;
+					Mod.Logger.Info($"Shimmer slime spawned holding {itemID}");
 					var slimePositions = ModContent.GetInstance<ShimmerSlimeSystem>().SlimePositions;
 					for (int i = 0; i < slimePositions.Count; i++) {
-						if (slimePositions[i].pos == transmutation.pos && slimePositions[i].itemID == transmutation.itemID) {
+						if (slimePositions[i].pos == pos && slimePositions[i].itemID == itemID) {
 							slimePositions.RemoveAt(i);
 							break;
 						}
@@ -158,6 +158,7 @@ namespace EpikV2.NPCs {
 	}
 	public class ShimmerSlimeSystem : ModSystem {
 		List<(Point pos, int itemID)> slimePositions;
+		List<(Point pos, string itemName)> unloadedSlimePositions;
 		public List<(Point pos, int itemID)> SlimePositions => slimePositions ??= new();
 		public override void AddRecipes() {
 			ShimmerSlimeTransmutation.AddTransmutation(ItemID.CorruptionKey, ItemID.ScourgeoftheCorruptor, Condition.DownedPlantera);
@@ -170,20 +171,38 @@ namespace EpikV2.NPCs {
 		}
 		public override void LoadWorldData(TagCompound tag) {
 			slimePositions = new();
+			unloadedSlimePositions = new();
 			if (tag.TryGet("positions", out List<TagCompound> positions)) {
 				foreach (var position in positions) {
-					slimePositions.Add((position.Get<Vector2>("pos").ToPoint(), position.Get<int>("itemID")));
+					try {
+						string name = position.Get<string>("itemID");
+						if (ItemID.Search.TryGetId(name, out int id)) {
+							slimePositions.Add((position.Get<Vector2>("pos").ToPoint(), id));
+						} else {
+							unloadedSlimePositions.Add((position.Get<Vector2>("pos").ToPoint(), name));
+						}
+					} catch (InvalidCastException) {
+						try {
+							slimePositions.Add((position.Get<Vector2>("pos").ToPoint(), position.Get<int>("itemID")));
+						} catch (Exception) { }
+					}
 				}
 			}
 		}
 		public override void SaveWorldData(TagCompound tag) {
 			if (slimePositions is not null) tag["positions"] = slimePositions.Select(p => new TagCompound() {
 				["pos"] = p.pos.ToVector2(),
-				["itemID"] = p.itemID
-			}).ToList();
+				["itemID"] = ItemID.Search.GetName(p.itemID)
+			}).Concat(
+				unloadedSlimePositions.Select(p => new TagCompound() {
+					["pos"] = p.pos.ToVector2(),
+					["itemID"] = p.itemName
+				})
+			).ToList();
 		}
 		public override void ClearWorld() {
 			slimePositions = null;
+			unloadedSlimePositions = null;
 		}
 	}
 }
