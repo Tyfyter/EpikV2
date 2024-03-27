@@ -174,7 +174,7 @@ namespace EpikV2.NPCs {
                 npc.ai[2] -= 1f;
             }
             if (npc.wet) {
-                if (npc.collideY || npc.velocity.Y == 0) {
+                if (npc.collideY) {
                     npc.velocity.Y = 2f;
                 }
                 if (npc.velocity.Y > 0f && npc.ai[3] == npc.position.X) {
@@ -200,9 +200,9 @@ namespace EpikV2.NPCs {
                 npc.ai[0] = -100f;
                 npc.ai[2] = 1f;
                 npc.TargetClosest();
-            }
-            if (npc.velocity.Y == 0f || npc.velocity.Y == 0.01f) {
-                if ((npc.collideY || npc.velocity.Y == 0) && npc.oldVelocity.Y != 0f && Collision.SolidCollision(npc.position, npc.width, npc.height)) {
+			}
+			if (npc.velocity.Y == 0f || npc.velocity.Y == 0.0101f) {
+                if (npc.collideY && npc.oldVelocity.Y != 0f && Collision.SolidCollision(npc.position, npc.width, npc.height)) {
                     npc.position.X -= npc.velocity.X + npc.direction;
                 }
                 if (npc.ai[3] == npc.position.X) {
@@ -253,7 +253,7 @@ namespace EpikV2.NPCs {
                 if (npc.collideX && Math.Abs(npc.velocity.X) == 0.2f) {
                     npc.position.X -= 1.4f * npc.direction;
                 }
-                if ((npc.collideY || npc.velocity.Y == 0) && npc.oldVelocity.Y != 0f && Collision.SolidCollision(npc.position, npc.width, npc.height)) {
+                if (npc.collideY && npc.oldVelocity.Y != 0f && Collision.SolidCollision(npc.position, npc.width, npc.height)) {
                     npc.position.X -= npc.velocity.X + npc.direction;
                 }
                 if ((npc.direction == -1 && npc.velocity.X < 0.01) || (npc.direction == 1 && npc.velocity.X > -0.01)) {
