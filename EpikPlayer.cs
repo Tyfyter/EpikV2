@@ -836,14 +836,15 @@ namespace EpikV2 {
 					break;
 
 					case 4:// vulpine teachings
-					Player.lifeRegen--;
 					Player.GetCritChance(DamageClass.Melee) -= 2f;
 					Player.GetDamage(DamageClass.Melee) -= 0.051f;
 					Player.GetAttackSpeed(DamageClass.Melee) -= 0.051f;
-					Player.statDefense -= 5;
+					Player.statDefense -= 3;
 
 					Player.GetDamage(DamageClass.Magic) += 0.051f;
 					Player.GetAttackSpeed(DamageClass.Magic) += 0.051f;
+					Player.manaCost -= 0.03f;
+					Player.manaRegenCount += 6;
 					if (wolfBloodLevel > 0) {// Hecate's chosen
 						Player.GetDamage(DamageClass.Magic) += 0.08f;
 						Player.manaCost -= 0.06f;

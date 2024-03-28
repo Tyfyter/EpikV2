@@ -27,8 +27,8 @@ namespace EpikV2.Items.Armor {
 	[AutoloadEquip(EquipType.Head, EquipType.Back)]
 	public class Nightmare_Helmet : ModItem, IDeclarativeEquipStats, IMultiModeItem {
 		public IEnumerable<IEquipStat> GetStats() {
-			yield return new AdditiveDamageStat(0.16f, DamageClass.Magic);
-			yield return new CritStat(16, DamageClass.Magic);
+			yield return new AdditiveDamageStat(0.18f, DamageClass.Magic);
+			yield return new CritStat(18, DamageClass.Magic);
 		}
 		public override void SetDefaults() {
 			Item.width = 20;
@@ -36,7 +36,7 @@ namespace EpikV2.Items.Armor {
 			Item.value = 5000000;
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
-            Item.defense = 6;
+            Item.defense = 8;
 		}
 		public int GetSlotContents(int slotIndex) => Nightmare_Weapons.SlotContents(slotIndex);
 		public bool ItemSelected(int slotIndex) => false;
@@ -121,7 +121,7 @@ namespace EpikV2.Items.Armor {
 			Item.value = 5000000;
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
-			Item.defense = 6;
+			Item.defense = 8;
 		}
 		public override void UpdateEquip(Player player) {
 			player.spikedBoots += 1;
@@ -147,7 +147,7 @@ namespace EpikV2.Items.Armor {
 			Item.value = 5000000;
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
-			Item.defense = 6;
+			Item.defense = 8;
 		}
 		public override void UpdateEquip(Player player) {
 			player.spikedBoots += 1;
@@ -278,11 +278,12 @@ namespace EpikV2.Items.Armor {
 			ID = Type;
 		}
 		public override void SetDefaults() {
-			Item.DefaultToMagicWeapon(ProjectileID.None, 20, 5);
+			Item.DefaultToMagicWeapon(ProjectileID.None, 18, 5);
 			Item.useStyle = ItemUseStyleID.RaiseLamp;
-			Item.damage = 80;
-			Item.ArmorPenetration = 15;
-			Item.knockBack = 4;
+			Item.damage = 150;
+			Item.crit = 10;
+			Item.ArmorPenetration = 18;
+			Item.knockBack = 6;
 			Item.noUseGraphic = true;
 			Item.mana = 17;
 			Item.width = 20;
@@ -290,6 +291,7 @@ namespace EpikV2.Items.Armor {
 			Item.value = 5000000;
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
+			Item.value = 0;
 		}
 		public override void HoldStyle(Player player, Rectangle heldItemFrame) {
 			UseStyle(player, heldItemFrame);
@@ -880,7 +882,7 @@ namespace EpikV2.Items.Armor {
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			const int steps = 5;
 			Vector2 vel = new Vector2(1, 0).RotatedBy(Projectile.rotation - MathHelper.PiOver4) * (65f / steps) * Projectile.scale;
-			projHitbox.Inflate(9, 9);
+			projHitbox.Inflate(16, 16);
 			for (int j = 0; j <= steps; j++) {
 				Rectangle hitbox = projHitbox;
 				Vector2 offset = vel * j;
