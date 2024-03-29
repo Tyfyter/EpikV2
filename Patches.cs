@@ -281,6 +281,25 @@ namespace EpikV2 {
 			On_Player.WallslideMovement += On_Player_WallslideMovement;
 			IL_Player.UpdateManaRegen += IL_Player_UpdateManaRegen;
 			On_Player.UpdateItemDye += On_Player_UpdateItemDye;
+			On_Player.AddBuff_DetermineBuffTimeToAdd += (orig, self, type, time) => {
+				float timeMult = 1f;
+				if (self.whoAmI == Main.myPlayer) {
+					switch (type) {
+						case BuffID.Chilled:
+						case BuffID.Frozen:
+						case BuffID.Frostburn:
+						case BuffID.Frostburn2:
+						if (EpikPlayer.LocalEpikPlayer.adjCampfire) {
+							timeMult *= EpikPlayer.warm_coefficient_for_cold;
+						}
+						if (!Main.expertMode && EpikPlayer.LocalEpikPlayer.isWet) {
+							timeMult *= EpikPlayer.wet_coefficient_for_cold;
+						}
+						break;
+					}
+				}
+				return (int)(orig(self, type, time) * timeMult);
+			};
 			if (EpikConfig.Instance.ShroomiteBonusFix) {
 				IL_Player.GetWeaponDamage += (il) => {
 					ILCursor c = new(il);

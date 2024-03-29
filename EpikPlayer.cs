@@ -131,10 +131,8 @@ namespace EpikV2 {
 		public void SetNearbyNameDist(float dist) => nearbyNameDist = Math.Max(nearbyNameDist, dist);
 		public float NearbyNameDistSQ => nearbyNameDist * nearbyNameDist;
 		public int? switchBackSlot = 0;
-		private int[] buffIndecies;
-		public int[] BuffIndecies => buffIndecies ??= BuffID.Sets.Factory.CreateIntSet(-1);
-		public int activeBuffs = 0;
-		private bool oldWet = false;
+		public HashSet<int> oldActiveBuffs;
+		public HashSet<int> activeBuffs;
 		public AltNameColorTypes altNameColors = AltNameColorTypes.None;
 		public string nameColorOverride = null;
 		public Color? magicColor = null;
@@ -162,10 +160,16 @@ namespace EpikV2 {
 		public bool realUnicornHorn;
 		public int cUnicornHorn;
 
+		public bool adjCampfire;
+		bool oldAdjCampfire;
+		public bool isWet;
+		private bool oldWet = false;
+		public const float warm_coefficient_for_cold = 0.5f;
+		public const float wet_coefficient_for_cold = 1.5f;
+
 		public static BitsBytes ItemChecking;
 		public static bool nextMouseInterface;
 		public static EpikPlayer LocalEpikPlayer { get; private set; }
-
 		public override void ResetEffects() {
 			if (Main.myPlayer == Player.whoAmI) LocalEpikPlayer = this;
 			//majesticWings = false;
@@ -678,12 +682,13 @@ namespace EpikV2 {
 			Player.statLifeMax2 -= (int)organRearrangement;
 		}
 		public override void PostUpdateBuffs() {
-			buffIndecies = BuffID.Sets.Factory.CreateIntSet(-1);
-			activeBuffs = 0;
+			activeBuffs ??= new();
+			oldActiveBuffs ??= new();
+			Utils.Swap(ref activeBuffs, ref oldActiveBuffs);
+			activeBuffs.Clear();
 			for (int i = 0; i < Player.buffType.Length; i++) {
 				if (Player.buffTime[i] > 0) {
-					buffIndecies[Player.buffType[i]] = i;
-					activeBuffs++;
+					activeBuffs.Add(Player.buffType[i]);
 				}
 			}
 			/*if (shimmerCloak && Player.shimmering) {
@@ -691,22 +696,37 @@ namespace EpikV2 {
 			}*/
 		}
 		public override void PostUpdateMiscEffects() {
-			bool isWet = false;
+			isWet = false;
 			if (Player.wet && !Player.lavaWet && !Player.honeyWet && !Player.shimmerWet) {
 				Player.AddBuff(BuffID.Wet, 600);
 				isWet = true;
 			}
-			if (Player.position.X > 4 * 16 && Player.position.Y > 3 * 16) Player.AdjTiles();
-			bool adjCampfire = Player.adjTile[TileID.Campfire];
-			bool changeCampfire = adjCampfire != Player.oldAdjTile[TileID.Campfire];
+			int xRange = 4;
+			int yRange = 3;
+			if (Player.ateArtisanBread) {
+				xRange += 4;
+				yRange += 4;
+			}
+			adjCampfire = false;
+			Point pos = Player.Bottom.ToTileCoordinates();
+			for (int i = pos.X - xRange; i <= pos.X + xRange; i++) {
+				for (int j = pos.Y - yRange; j < pos.Y + yRange; j++) {
+					if (!IsInWorld(i, j)) continue;
+					Tile tile = Main.tile[i, j];
+					if (tile.HasTile) {
+						if (tile.TileType == TileID.Campfire || (TileLoader.GetTile(tile.TileType)?.AdjTiles?.Contains(TileID.Campfire) ?? false)) {
+							adjCampfire = true;
+							break;
+						}
+					}
+				}
+			}
+			bool changeCampfire = adjCampfire != oldAdjCampfire;
+			oldAdjCampfire = adjCampfire;
 			bool changeWet = !Main.expertMode && (isWet || Player.dripping) != oldWet;
-			const float warmCoefficient = 0.5f;
-			const float wetCoefficient = 1.5f;
-			int buffsProcessed = 0;
-			for (int buffType = 0; buffType < buffIndecies.Length; buffType++) {
-				int buffIndex = buffIndecies[buffType];
-				if (buffIndex >= 0) {
-					buffsProcessed++;
+			for (int i = 0; i < Player.MaxBuffs; i++) {
+				int buffType = Player.buffType[i];
+				if (buffType >= 0 && Player.buffTime[i] >= 0) {
 					float timeMult = 1f;
 					switch (buffType) {
 						case BuffID.Chilled:
@@ -715,24 +735,21 @@ namespace EpikV2 {
 						case BuffID.Frostburn2:
 						if (changeCampfire) {
 							if (adjCampfire) {
-								timeMult *= warmCoefficient;
+								timeMult *= warm_coefficient_for_cold;
 							} else {
-								timeMult /= warmCoefficient;
+								timeMult /= warm_coefficient_for_cold;
 							}
 						}
 						if (changeWet) {
 							if (oldWet) {
-								timeMult /= wetCoefficient;
+								timeMult /= wet_coefficient_for_cold;
 							} else {
-								timeMult *= wetCoefficient;
+								timeMult *= wet_coefficient_for_cold;
 							}
 						}
 						break;
 					}
-					Player.buffTime[buffIndex] = (int)(Player.buffTime[buffIndex] * timeMult);
-				}
-				if (buffsProcessed >= activeBuffs) {
-					break;
+					Player.buffTime[i] = (int)(Player.buffTime[i] * timeMult);
 				}
 			}
 			oldWet = isWet || Player.dripping;

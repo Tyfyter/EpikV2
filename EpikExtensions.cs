@@ -1186,7 +1186,7 @@ namespace EpikV2 {
 			}
 			return null;
 		}
-
+		public static bool IsInWorld(int i, int j) => i >= 0 && j >= 0 && i < Main.maxTilesX && j < Main.maxTilesY;
 	}
 	public static class ConditionExtensions {
 		public static Condition CommaAnd(this Condition a, Condition b) {

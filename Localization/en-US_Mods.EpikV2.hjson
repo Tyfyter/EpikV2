@@ -1256,6 +1256,8 @@ DamageClasses: {
 			NoDamage: melee/magic
 		}
 	}
+
+	Magic_Melee_Speed.DisplayName: magic damage
 }
 
 Biomes: {

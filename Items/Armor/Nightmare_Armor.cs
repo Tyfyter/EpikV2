@@ -279,6 +279,7 @@ namespace EpikV2.Items.Armor {
 		}
 		public override void SetDefaults() {
 			Item.DefaultToMagicWeapon(ProjectileID.None, 18, 5);
+			Item.DamageType = Damage_Classes.Magic_Melee_Speed;
 			Item.useStyle = ItemUseStyleID.RaiseLamp;
 			Item.damage = 150;
 			Item.crit = 10;
@@ -679,11 +680,13 @@ namespace EpikV2.Items.Armor {
 	public class Nightmare_Sword_P : ModProjectile {
 		public override string Texture => "EpikV2/Items/Armor/Nightmare_Sword";
 		public override void SetStaticDefaults() {
-			ProjectileID.Sets.TrailingMode[Projectile.type] = 2;
-			ProjectileID.Sets.TrailCacheLength[Projectile.type] = 20;
+			ProjectileID.Sets.TrailingMode[Type] = 2;
+			ProjectileID.Sets.TrailCacheLength[Type] = 20;
+			ProjectileID.Sets.CanDistortWater[Type] = true;
 		}
 		public override void SetDefaults() {
 			Projectile.width = Projectile.height = 0;
+			Projectile.aiStyle = 0;
 			Projectile.DamageType = DamageClass.Magic;
 			Projectile.penetrate = -1;
 			Projectile.friendly = false;
@@ -691,6 +694,7 @@ namespace EpikV2.Items.Armor {
 			Projectile.tileCollide = false;
 			Projectile.localNPCHitCooldown = -1;
 			Projectile.usesLocalNPCImmunity = true;
+			Projectile.ignoreWater = true;
 		}
 		public static void SetAIMode(Projectile proj, int mode, int useTime, bool fromBuffer = false) {
 			if (proj.owner != Main.myPlayer) return;
@@ -879,6 +883,8 @@ namespace EpikV2.Items.Armor {
 			}
 			epikPlayer.nightmareSword.Set(Projectile.whoAmI);
 		}
+		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) => false;
+		public override bool CanHitPvp(Player target) => Projectile.ai[0] != 0;
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			const int steps = 5;
 			Vector2 vel = new Vector2(1, 0).RotatedBy(Projectile.rotation - MathHelper.PiOver4) * (65f / steps) * Projectile.scale;
