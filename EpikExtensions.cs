@@ -1081,10 +1081,7 @@ namespace EpikV2 {
 				case NetmodeID.Server:
 				ChatHelper.BroadcastChatMessage(NetworkText.FromLiteral(text), Color.White);
 				break;
-				case NetmodeID.MultiplayerClient:
-				Main.NewText(text);
-				break;
-				case NetmodeID.SinglePlayer:
+				case NetmodeID.SinglePlayer or NetmodeID.MultiplayerClient:
 				Main.NewText(text);
 				break;
 			}

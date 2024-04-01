@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using EpikV2.Buffs;
 using EpikV2.Items;
@@ -16,6 +17,7 @@ using Terraria.GameContent.Personalities;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 using static EpikV2.EpikExtensions;
 using static EpikV2.EpikV2;
 using static EpikV2.Resources;
@@ -27,7 +29,6 @@ namespace EpikV2.NPCs {
         protected override bool CloneNewInstances => true;
 		public override bool AppliesToEntity(NPC entity, bool lateInstantiation) {
 			switch (entity.type) {
-				case NPCID.IlluminantBat:
                 case NPCID.IlluminantSlime:
                 case NPCID.GoblinShark:
                 case NPCID.BloodNautilus:
@@ -37,9 +38,6 @@ namespace EpikV2.NPCs {
 		}
 		static bool ShouldApply(NPC npc) {
 			switch (npc.type) {
-				case NPCID.IlluminantBat:
-				return EpikConfig.Instance.npcChangesConfig.IlluminantBats;
-
 				case NPCID.IlluminantSlime:
 				return EpikConfig.Instance.npcChangesConfig.IlluminantSlime;
 
@@ -66,64 +64,6 @@ namespace EpikV2.NPCs {
 						IllSlimeAI(npc);
 						return false;
 					}
-					break;
-				}
-
-                case NPCID.IlluminantBat: {
-					if (npc.ai[0] == 0) {
-						if (npc.ai[1] >= 240) {
-							npc.ai[1] = 0;
-							npc.ai[3]++;
-							npc.netUpdate = true;
-							if (Main.rand.Next(1, 5) < npc.ai[3]) {
-								npc.ai[3] = 0;
-								npc.ai[0] = 1;
-								for (int i = (int)Math.Ceiling(npc.life / 20f); i-- > 0;) {
-									NPC child = NPC.NewNPCDirect(
-										npc.GetSource_FromAI(),
-										(int)npc.Center.X,
-										(int)npc.Center.Y,
-										NPCID.IlluminantBat,
-										ai0: -1,
-										ai3: npc.whoAmI
-									);
-									child.velocity += new Vector2(6, 0).RotatedBy(Main.rand.NextFloat(TwoPi));
-									child.netUpdate = true;
-								}
-							}
-						}
-						npc.alpha = 0;
-						npc.color = Color.Transparent;
-						npc.chaseable = true;
-					} else if (npc.ai[0] == 1) {
-						//npc.hide = true;
-						npc.alpha = 255;
-						npc.color = new Color(25, 25, 100, 100);
-						npc.chaseable = false;
-						if (++npc.ai[3] >= 200) {
-							npc.ai[3] = 0;
-							npc.ai[0] = 0;
-							npc.netUpdate = true;
-						}
-					} else if (npc.ai[0] == -1) {
-						NPC parent = Main.npc[(int)npc.ai[3]];
-						if (npc.lifeMax != 20) npc.netUpdate = true;
-						//npc.realLife = (int)npc.ai[3];
-						npc.scale = 0.75f;
-						npc.lifeMax = 20;
-						npc.life = npc.lifeMax;
-						npc.defense = 0;
-						npc.velocity = Vector2.Lerp(npc.velocity, parent.Center - npc.Center, (float)Math.Pow(Clamp((parent.ai[3] - 175) / 25, 0.01f, 1), 2));
-						npc.target = parent.target;
-						if (parent.ai[3] > 175) {
-							npc.noTileCollide = true;
-						}
-						if (parent.ai[0] != 1 || !parent.active) {
-							npc.active = false;
-							npc.netUpdate = true;
-						}
-					}
-					//if (npc.HasPlayerTarget) Main.player[npc.target].chatOverhead.NewMessage($"{npc.ai[0]}\n{npc.ai[1]}\n{npc.ai[2]}\n{npc.ai[3]}\n{npc.aiAction}\n                           ", 5);
 					break;
 				}
 			}
@@ -165,10 +105,6 @@ namespace EpikV2.NPCs {
                 break;
             }
         }
-        public override bool SpecialOnKill(NPC npc) {
-			if (!ShouldApply(npc)) return false;
-			return npc.type == NPCID.IlluminantBat && npc.ai[0] == -1;
-        }
         static void IllSlimeAI(NPC npc) {
             if (npc.ai[2] > 1f) {
                 npc.ai[2] -= 1f;
@@ -201,7 +137,13 @@ namespace EpikV2.NPCs {
                 npc.ai[2] = 1f;
                 npc.TargetClosest();
 			}
-			if (npc.velocity.Y == 0f || npc.velocity.Y == 0.0101f) {
+			/*if (Main.combatText[0].active) {
+				Main.combatText[0].text = npc.velocity.Y + "";
+				Main.combatText[0].lifeTime = 5;
+			} else {
+				CombatText.NewText(npc.Hitbox, Color.AntiqueWhite, npc.velocity.Y + "");
+			}*/
+			if (npc.velocity.Y == 0f || npc.velocity.Y == 0.01f || npc.velocity.Y == 0.0101f) {
                 if (npc.collideY && npc.oldVelocity.Y != 0f && Collision.SolidCollision(npc.position, npc.width, npc.height)) {
                     npc.position.X -= npc.velocity.X + npc.direction;
                 }
@@ -290,12 +232,6 @@ namespace EpikV2.NPCs {
 					}
 					break;
 				}
-				case NPCID.IlluminantBat: {
-					if (npc.ai[0] == -1) {
-						modifiers.HideCombatText();
-					}
-					break;
-				}
             }
         }
 
@@ -309,54 +245,6 @@ namespace EpikV2.NPCs {
 							float oldKBValue = dreadNautilusKnockbackValue;
 							dreadNautilusKnockbackValue = Math.Min(Math.Max(dreadNautilusKnockbackValue, knockback) + knockback * 0.1f, 24);
 							npc.ai[1] += Math.Max(dreadNautilusKnockbackValue - oldKBValue, 1);
-						}
-					}
-					break;
-				}
-				case NPCID.IlluminantBat: {
-					if (npc.ai[0] == -1) {
-						NPC parent = Main.npc[(int)npc.ai[3]];
-						if (hit.Damage < 10 && npc.life > hit.Damage) {
-							parent.life -= hit.Damage;
-							parent.netUpdate = true;
-							NetMessage.SendStrikeNPC(npc, hit with {
-								HideCombatText = true,
-								Knockback = 0
-							});
-							Mod.Logger.Info("variable: " + parent.life);
-						} else {
-							hit.Damage = 20;
-							parent.life -= 20;
-							parent.checkDead();
-							NetMessage.SendStrikeNPC(npc, new NPC.HitInfo() {
-								Damage = 20,
-								Knockback = 0,
-								HideCombatText = true
-							});
-							npc.life = 0;
-							npc.realLife = -1;
-							npc.checkDead();
-							parent.netUpdate = true;
-							npc.netUpdate = true;
-							Mod.Logger.Info("20: " + parent.life);
-						}
-						CombatText.NewText(
-							new Rectangle((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height),
-							hit.Crit ? CombatText.DamagedHostileCrit : CombatText.DamagedHostile,
-							hit.Damage,
-							hit.Crit
-						);
-
-						if (Main.netMode != NetmodeID.Server) {
-							if (npc.life > 0) {
-								for (int i = 0; i < hit.Damage / npc.lifeMax * 50.0; i++) {
-									Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.UndergroundHallowedEnemies, 0f, 0f, 200).velocity *= 1.5f;
-								}
-							} else {
-								for (int i = 0; i < 50; i++) {
-									Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.UndergroundHallowedEnemies, hit.HitDirection, 0f, 200).velocity *= 1.5f;
-								}
-							}
 						}
 					}
 					break;
@@ -424,4 +312,166 @@ namespace EpikV2.NPCs {
             return true;
         }
     }
+	public class IlluminantBatChanges : GlobalNPC {
+		public override bool InstancePerEntity => true;
+		protected override bool CloneNewInstances => true;
+		public override bool AppliesToEntity(NPC entity, bool lateInstantiation) => entity.type == NPCID.IlluminantBat;
+		static bool ShouldApply(NPC npc) => EpikConfig.Instance.npcChangesConfig.IlluminantBats;
+		int mode = 0;
+		int timer = 0;
+		int var3 = 0;
+		int countedChildren = 0;
+		public override void SendExtraAI(NPC npc, BitWriter bitWriter, BinaryWriter binaryWriter) {
+			binaryWriter.Write((sbyte)mode);
+			binaryWriter.Write((ushort)timer);
+			binaryWriter.Write((ushort)var3);
+		}
+		public override void ReceiveExtraAI(NPC npc, BitReader bitReader, BinaryReader binaryReader) {
+			mode = binaryReader.ReadSByte();
+			timer = binaryReader.ReadUInt16();
+			var3 = binaryReader.ReadUInt16();
+		}
+		public override bool PreAI(NPC npc) {
+			if (!ShouldApply(npc)) return true;
+			if (mode == 0) {
+				timer++;
+				if (timer >= 240) {
+					timer = 0;
+					var3++;
+					if (Main.rand.Next(1, 5) < var3 + 5) {
+						var3 = 0;
+						mode = 1;
+						countedChildren = 0;
+						if (Main.netMode != NetmodeID.MultiplayerClient) {
+							for (int i = (int)Math.Ceiling(npc.life / 20f); i-- > 0;) {
+								NPC child = NPC.NewNPCDirect(
+									npc.GetSource_FromAI(),
+									(int)npc.Center.X,
+									(int)npc.Center.Y,
+									NPCID.IlluminantBat,
+									start: npc.whoAmI
+								);
+								IlluminantBatChanges childBat = child.GetGlobalNPC<IlluminantBatChanges>();
+								childBat.mode = -1;
+								childBat.var3 = npc.whoAmI;
+								child.velocity += new Vector2(6, 0).RotatedBy(Main.rand.NextFloat(TwoPi));
+								NetMessage.SendData(msgType: MessageID.SyncNPC, number: child.whoAmI);
+							}
+						}
+						npc.alpha = 255;
+						npc.color = new Color(25, 25, 100, 100);
+						npc.chaseable = false;
+						npc.netUpdate = true;
+					}
+				} else {
+					npc.alpha = 0;
+					npc.color = Color.Transparent;
+					npc.chaseable = true;
+				}
+			} else if (mode == 1) {
+				//npc.hide = true;
+				npc.alpha = 255;
+				npc.color = new Color(5, 5, 35, 100);
+				npc.chaseable = false;
+				if (++var3 >= 200) {
+					var3 = 0;
+					mode = 0;
+					npc.netUpdate = true;
+				}
+				countedChildren = 0;
+			} else if (mode == -1) {
+				NPC parent = Main.npc[var3];
+				if (npc.lifeMax != 20) npc.netUpdate = true;
+				//npc.realLife = (int)npc.ai[3];
+				npc.scale = 0.75f;
+				npc.lifeMax = 20;
+				npc.life = npc.lifeMax;
+				npc.defense = 0;
+				IlluminantBatChanges parentBat = parent.GetGlobalNPC<IlluminantBatChanges>();
+				npc.velocity = Vector2.Lerp(npc.velocity, parent.Center - npc.Center, (float)Math.Pow(Clamp((parentBat.var3 - 175) / 25f, 0.01f, 1), 2));
+				npc.target = parent.target;
+				if (parentBat.var3 > 175) {
+					npc.noTileCollide = true;
+				}
+				if (++parentBat.countedChildren > Math.Ceiling(parent.life / 20f)) npc.StrikeInstantKill();
+				if (parentBat.mode != 1 || !parent.active) {
+					npc.active = false;
+					npc.netUpdate = true;
+				}
+			}
+			return true;
+		}
+		public override void ResetEffects(NPC npc) {
+			if (mode == -1 && Main.netMode != NetmodeID.MultiplayerClient) {
+				while (npc.buffTime[0] > 0) {
+					npc.DelBuff(0);
+				}
+			}
+		}
+		public override bool SpecialOnKill(NPC npc) {
+			if (!ShouldApply(npc)) return false;
+			return mode == -1;
+		}
+		public override void ModifyIncomingHit(NPC npc, ref NPC.HitModifiers modifiers) {
+			if (!ShouldApply(npc)) return;
+			if (mode == -1) {
+				modifiers.HideCombatText();
+			}
+		}
+		public override void HitEffect(NPC npc, NPC.HitInfo hit) {
+			if (!ShouldApply(npc)) return;
+			//if () return;
+			if (mode == -1 && !hit.InstantKill) {
+				NPC parent = Main.npc[var3];
+				if (hit.Damage < 10 && npc.life > hit.Damage) {
+					parent.life -= hit.Damage;
+					parent.netUpdate = true;
+				} else {
+					hit.Damage = hit.Crit ? 40 : 20;
+					parent.life -= hit.Damage;
+					parent.checkDead();
+					npc.life = 0;
+					npc.realLife = -1;
+					npc.checkDead();
+					parent.netUpdate = true;
+					npc.netUpdate = true;
+				}
+				CombatText.NewText(
+					new Rectangle((int)npc.position.X, (int)npc.position.Y, npc.width, npc.height),
+					hit.Crit ? new Color(255, 30, 100, 255) : new Color(255, 80, 160, 255),
+					hit.Damage,
+					hit.Crit
+				);
+
+				if (Main.netMode != NetmodeID.Server) {
+					if (npc.life > 0) {
+						for (int i = 0; i < hit.Damage / npc.lifeMax * 50.0; i++) {
+							Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.UndergroundHallowedEnemies, 0f, 0f, 200).velocity *= 1.5f;
+						}
+					} else {
+						for (int i = 0; i < 50; i++) {
+							Dust.NewDustDirect(npc.position, npc.width, npc.height, DustID.UndergroundHallowedEnemies, hit.HitDirection, 0f, 200).velocity *= 1.5f;
+						}
+					}
+				}
+			}
+		}
+		public override bool CanHitNPC(NPC npc, NPC target) {
+			if (!ShouldApply(target)) return true;
+			if (mode == 1) return false;
+			return true;
+		}
+
+		public override bool? CanBeHitByProjectile(NPC target, Projectile projectile) {
+			if (!ShouldApply(target)) return null;
+			if (mode == 1) return false;
+			return base.CanBeHitByProjectile(target, projectile);
+		}
+
+		public override bool CanHitPlayer(NPC npc, Player target, ref int cooldownSlot) {
+			if (!ShouldApply(npc)) return true;
+			if (mode == 1) return false;
+			return true;
+		}
+	}
 }
