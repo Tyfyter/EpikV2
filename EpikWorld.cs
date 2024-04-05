@@ -38,6 +38,7 @@ namespace EpikV2 {
 		private HashSet<Point> naturalChests;
 		public HashSet<Point> NaturalChests => naturalChests ??= new HashSet<Point>();
 		public int timeManipMode;
+		public static int timeManipSubMode;
 		private float timeManipDanger;
 		private bool timeManipDangerDisableRegen;
 		public override void ModifyInterfaceLayers(List<GameInterfaceLayer> layers) {
@@ -105,7 +106,7 @@ namespace EpikV2 {
 			for (int i = 0; i < Sacrifices.Count; i++) {
 				if (Sacrifices[i] < Main.townNPCCanSpawn.Length) Main.townNPCCanSpawn[Sacrifices[i]] = false;
 			}
-			int timeManipAltMode = 0;
+			bool isSubModeValid = false;
 			switch (timeManipMode) {
 				case 1:
 				Main.xMas = true;
@@ -124,8 +125,8 @@ namespace EpikV2 {
 				}
 				break;
 
-				case 5:// April fools
-				timeManipAltMode = 1;
+				case 5:// Other
+				isSubModeValid = true;
 				break;
 			}
 			if (!timeManipDangerDisableRegen) {
@@ -134,7 +135,9 @@ namespace EpikV2 {
 				timeManipDangerDisableRegen = true;
 			}
 			EpikV2.timeManipDanger = timeManipDanger;
-			EpikV2.timeManipAltMode = timeManipAltMode;
+			if (timeManipSubMode != -1 && !isSubModeValid) {
+				timeManipSubMode = -1;
+			}
 		}
 		public void AddDarkMagicDanger(float amount, bool disableRegen = true) {
 			const int dayLength = 86400;
@@ -144,11 +147,13 @@ namespace EpikV2 {
 		}
 		public override void NetSend(BinaryWriter writer) {
 			writer.Write(timeManipMode);
+			writer.Write(timeManipSubMode);
 			writer.WriteList(Sacrifices);
 			writer.WriteList(naturalChests.ToList());
 		}
 		public override void NetReceive(BinaryReader reader) {
 			timeManipMode = reader.ReadInt32();
+			timeManipSubMode = reader.ReadInt32();
 			Sacrifices = reader.ReadInt32List();
 			naturalChests = reader.ReadPoint32List().ToHashSet();
 		}

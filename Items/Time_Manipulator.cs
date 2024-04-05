@@ -11,14 +11,12 @@ using Microsoft.Xna.Framework;
 using Terraria.GameContent;
 using System.IO;
 using Tyfyter.Utils;
+using EpikV2.CrossMod;
 
 namespace EpikV2.Items {
 	public class Time_Manipulator : ModItem, IMultiModeItem {
 		int mode = 0;
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Temporal Proximity Manipulator");
-			// Tooltip.SetDefault("<switch> to change modes\nAllows the user to warp space-time such that any two points in time are nearer or further than is natural");
-		}
+		int subMode = 0;
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.PlatinumWatch);
 			Item.accessory = false;
@@ -43,10 +41,13 @@ namespace EpikV2.Items {
 				).noGravity = true;
 			}
 			if (player.ItemAnimationJustStarted) {
-				Terraria.Audio.SoundEngine.PlaySound(SoundID.Item29.WithPitchVarience(0.025f).WithPitch(-0.9f));
+				Terraria.Audio.SoundEngine.PlaySound(SoundID.Item29.WithPitchVarience(0.025f).WithPitch(-0.9f).WithVolumeScale(0.6f));
 			}
 			if (player.ItemAnimationEndingOrEnded) {
 				if (canSetMode) {
+					if (mode == 5) {
+						EpikIntegration.EnabledMods.HolidayLibInt.DoTimeManipScroll();
+					}
 					epikWorld.SetTimeManipMode(mode);
 				} else {
 					Projectile.NewProjectileDirect(
@@ -74,6 +75,9 @@ namespace EpikV2.Items {
 				return Time_Manipulator_Slow.ID;
 				case 4:
 				return Time_Manipulator_Fast.ID;
+				case 5:
+				if (EpikIntegration.EnabledMods.HolidayLibInt.Enabled) return Time_Manipulator_Other.ID;
+				break;
 			}
 			return 0;
 		}
@@ -103,6 +107,10 @@ namespace EpikV2.Items {
 		}
 		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
 			int itemID = GetSlotContents(mode);
+			if (itemID == 0) {
+				mode = 0;
+				return true;
+			}
 			if (itemID < 0 || itemID == Type) {
 				return true;
 			}
@@ -141,33 +149,32 @@ namespace EpikV2.Items {
 	public class Time_Manipulator_Christmas : ModItem {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Temporal Proximity Manipulator (Christmas)");
-			// Tooltip.SetDefault("Makes it Christmas");
 			ID = Type;
 		}
 	}
 	public class Time_Manipulator_Halloween : ModItem {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Temporal Proximity Manipulator (Halloween)");
-			// Tooltip.SetDefault("Makes it Halloween");
 			ID = Type;
 		}
 	}
 	public class Time_Manipulator_Slow : ModItem {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Temporal Proximity Manipulator (Slow)");
-			// Tooltip.SetDefault("Makes it Slow");
 			ID = Type;
 		}
 	}
 	public class Time_Manipulator_Fast : ModItem {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Temporal Proximity Manipulator (Fast)");
-			// Tooltip.SetDefault("Makes it Fast");
 			ID = Type;
+		}
+	}
+	public class Time_Manipulator_Other : ModItem {
+		public static int ID { get; private set; }
+		public override void SetStaticDefaults() {
+			ID = Type;
+			if (EpikIntegration.EnabledMods.HolidayLibInt.Enabled) EpikIntegration.EnabledMods.HolidayLibInt.DoTimeManipSetup();
 		}
 	}
 }

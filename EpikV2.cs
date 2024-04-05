@@ -218,6 +218,7 @@ namespace EpikV2 {
 				unloadable.Unload();
 			}
 			unloadables.Clear();
+			EpikIntegration.EnabledMods.ResetEnabled();
 			//TextureAssets.Item[ItemID.HighTestFishingLine] = Main.Assets.Request<Texture2D>("Images/Item_" + ItemID.HighTestFishingLine, AssetRequestMode.DoNotLoad);
 			//filterMapQueue.Clear();
 			//filterMapQueue = null;

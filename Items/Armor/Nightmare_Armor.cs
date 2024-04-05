@@ -519,8 +519,11 @@ namespace EpikV2.Items.Armor {
 		public void DrawSlots() => Nightmare_Weapons.DrawSlots(Item);
 		public override bool CanReforge() => false;
 		public override void UpdateInventory(Player player) {
-			//if (!player.GetModPlayer<EpikPlayer>().nightmareSet) Item.TurnToAir();
+			player.GetModPlayer<EpikPlayer>().postUpdateEquips.Push((epikPlayer) => {
+				if (!epikPlayer.nightmareSet) Item.TurnToAir();
+			});
 		}
+		public override void PostUpdate() => Item.TurnToAir();
 	}
 	public class Nightmare_Shield_P : ModProjectile {
 		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.TerraBlade2;
@@ -1117,25 +1120,39 @@ namespace EpikV2.Items.Armor {
 				if (player.ownedProjectileCounts[Nightmare_Orb_P.ID] > 0) {
 					Rectangle kickHitbox = new(0, 0, 96, 96);
 					kickHitbox.Offset((player.MountedCenter - new Vector2(48, 48) + velocity * 3).ToPoint());
-					
+					bool before = false;
 					for (int i = 0; i < Main.maxProjectiles; i++) {
 						Projectile orb = Main.projectile[i];
-						if (orb.active && orb.type == Nightmare_Orb_P.ID && orb.owner == player.whoAmI && orb.Hitbox.Intersects(kickHitbox)) {
-							position = orb.Center + orb.velocity;
-							Vector2 aim = Main.MouseWorld - position;
-							if (aim != default) {
-								aim.Normalize();
-								velocity = aim * velocity.Length();
+						if (orb.active) {
+							if (orb.type == Nightmare_Orb_P.ID && orb.owner == player.whoAmI && orb.Hitbox.Intersects(kickHitbox)) {
+								position = orb.Center;
+								if (before) position += orb.velocity;
+								Vector2 aim = Main.MouseWorld - position;
+								if (aim != default) {
+									aim.Normalize();
+									velocity = aim * velocity.Length();
+								}
+								if (!before) position -= velocity;
+								break;
 							}
-							break;
+						}else {
+							before = true;
 						}
 					}
+				}
+			} else {
+				float speed = velocity.Length();
+				if (GeometryUtils.AngleToTarget(Main.MouseWorld - position, speed, 0.04f, false) is float angle) {
+					velocity = new Vector2(speed, 0).RotatedBy(angle);
 				}
 			}
 		}
 		public override void UpdateInventory(Player player) {
-			//if (!player.GetModPlayer<EpikPlayer>().nightmareSet) Item.TurnToAir();
+			player.GetModPlayer<EpikPlayer>().postUpdateEquips.Push((epikPlayer) => {
+				if (!epikPlayer.nightmareSet) Item.TurnToAir();
+			});
 		}
+		public override void PostUpdate() => Item.TurnToAir();
 	}
 	public class Nightmare_Orb_P : ModProjectile {
 		public override string Texture => "EpikV2/Items/Armor/Nightmare_Sorcery";
@@ -1195,7 +1212,7 @@ namespace EpikV2.Items.Armor {
 				}
 			}
 			if (Projectile.ai[2] > 0) {
-				Projectile.timeLeft -= Main.rand.RandomRound(Projectile.ai[2] * 3);
+				Projectile.timeLeft -= Main.rand.RandomRound(Projectile.ai[2] * 2);
 			}
 		}
 		public override void OnKill(int timeLeft) {
@@ -1214,7 +1231,7 @@ namespace EpikV2.Items.Armor {
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			if (Projectile.ai[2] > 0) {
-				Projectile.timeLeft -= Main.rand.RandomRound(Projectile.ai[2] * 300);
+				Projectile.timeLeft -= Main.rand.RandomRound(Projectile.ai[2] * 480);
 			}
 			Vector2 normalizedDir = (Rectangle.Intersect(target.Hitbox, Projectile.Hitbox).Center.ToVector2() - Projectile.Center).SafeNormalize(default);
 			Projectile.velocity -= 1.9f * Vector2.Dot(Projectile.velocity, normalizedDir) * normalizedDir + new Vector2(0, 2);
@@ -1281,8 +1298,9 @@ namespace EpikV2.Items.Armor {
 				if (Projectile.localAI[0] != 0) {
 					target = new(Projectile.localAI[0], Projectile.localAI[1]);
 				}
-				Vector2 direction = (target - Projectile.Center).SafeNormalize(Projectile.velocity / speed);
-				if (rand.NextBool(2, 3) && Projectile.localAI[2] > 0.25f && Main.myPlayer == Projectile.owner) {
+				Vector2 normalizedVelocity = Projectile.velocity / speed;
+				Vector2 direction = (target - Projectile.Center).SafeNormalize(normalizedVelocity);
+				if (speed > 0 && rand.NextBool(2, 3) && Projectile.localAI[2] > 0.25f && Main.myPlayer == Projectile.owner) {
 					Projectile.NewProjectile(
 						Projectile.GetSource_FromAI(),
 						Projectile.Center - Projectile.velocity,

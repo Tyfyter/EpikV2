@@ -1077,6 +1077,11 @@ Items: {
 		DisplayName: Nightmare_ Sorcery
 		Tooltip: ""
 	}
+
+	Time_Manipulator_Other: {
+		DisplayName: Time_ Manipulator_ Other
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck

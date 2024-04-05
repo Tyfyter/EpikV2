@@ -167,6 +167,8 @@ namespace EpikV2 {
 		public const float warm_coefficient_for_cold = 0.5f;
 		public const float wet_coefficient_for_cold = 1.5f;
 
+		public Stack<Action<EpikPlayer>> postUpdateEquips = new();
+
 		public static BitsBytes ItemChecking;
 		public static bool nextMouseInterface;
 		public static EpikPlayer LocalEpikPlayer { get; private set; }
@@ -645,6 +647,7 @@ namespace EpikV2 {
 			}
 		}
 		public override void PostUpdateEquips() {
+			while (postUpdateEquips.TryPop(out Action<EpikPlayer> update)) update(this);
 			oldStatLife = Player.statLife;
 			if (ChargedGem()) Player.aggro += 600;
 			/*if(majesticWings&&(player.wingFrameCounter!=0||player.wingFrame!=0)) {

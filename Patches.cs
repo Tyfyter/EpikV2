@@ -759,7 +759,6 @@ namespace EpikV2 {
 			}
 		}
 		internal static float timeManipDanger;
-		internal static float timeManipAltMode;
 		private void NPC_ScaleStats_UseStrengthMultiplier(On_NPC.orig_ScaleStats_UseStrengthMultiplier orig, NPC self, float strength) {
 			if (Main.netMode != NetmodeID.MultiplayerClient) {
 				const int maxStrength = 86400 * 2;
