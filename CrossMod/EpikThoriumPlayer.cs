@@ -98,7 +98,7 @@ namespace EpikV2.CrossMod {
 				if (Main.LocalPlayer.DistanceSQ(Player.Center) <= range * range) {
 					short baseDuration = (short)((300 + thoriumPlayer.bardBuffDuration) * thoriumPlayer.bardBuffDurationX);
 					bool applyGlow = false;
-					foreach (EmpowermentTimer timer in Empowerments.GetValue(Main.LocalPlayer.GetModPlayer<ThoriumPlayer>()).Timers) {
+					foreach (EmpowermentTimer timer in Empowerments.GetValue(Main.LocalPlayer.GetModPlayer<ThoriumPlayer>()).Timers.Values) {
 						if (timer.level > 0 && timer.timer > 0 && timer.timer < baseDuration) {
 							short dur = (short)(timer.timer + apollosLaurelsRefreshTime + 5);
 							timer.timer = dur < baseDuration ? dur : baseDuration;
