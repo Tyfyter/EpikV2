@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace EpikV2.Items {
@@ -19,9 +20,8 @@ namespace EpikV2.Items {
 			EpikV2.AddBalanceRarityOverride(Type, ItemRarityID.Pink);
 		}
 		public override void SetDefaults() {
-			base.SetDefaults();
-			Item.width = 36;
-			Item.height = 36;
+			Item.width = 34;
+			Item.height = 32;
 		}
 		public override void UpdateEquip(Player player) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
@@ -48,13 +48,7 @@ namespace EpikV2.Items {
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			base.ModifyTooltips(tooltips);
 			if (Main.LocalPlayer.GetModPlayer<EpikPlayer>().manaAdictionEquipped) {
-				tooltips.Add(new TooltipLine(Mod, "CurseDescription0", "Consumes mana while equipped") {
-					OverrideColor = tooltips[0].OverrideColor
-				});
-				tooltips.Add(new TooltipLine(Mod, "CurseDescription1", "Consumes health and reduces damage dealt if you are out of mana") {
-					OverrideColor = tooltips[0].OverrideColor
-				});
-				tooltips.Add(new TooltipLine(Mod, "CurseDescription2", "Consumes mana to unequip") {
+				tooltips.Add(new TooltipLine(Mod, "CurseDescription", Language.GetTextValue("Mods.EpikV2.Items.Mana_Addiction.CurseDescription")) {
 					OverrideColor = tooltips[0].OverrideColor
 				});
 			}

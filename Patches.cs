@@ -331,6 +331,20 @@ namespace EpikV2 {
 					c.MarkLabel(label);
 				};
 			}
+			IL_Player.UpdateManaRegen += () => {
+				ILCursor c = new(il);
+				c.GotoNext(MoveType.AfterLabel,
+					i => i.MatchLdarg0(),
+					i => i.MatchLdarg0(),
+					i => i.MatchLdfld<Player>(nameof(Player.manaRegenCount)),
+					i => i.MatchLdarg0(),
+					i => i.MatchLdfld<Player>(nameof(Player.manaRegen)),
+					i => i.MatchAdd(),
+					i => i.MatchStfld<Player>(nameof(Player.manaRegenCount))
+				);
+				c.EmitLdarg0();
+				c.EmitDelegate<Action<Player>>(player => player.GetModPlayer<EpikPlayer>().UpdateManaRegen());
+			};
 		}
 
 		private void On_Player_UpdateItemDye(On_Player.orig_UpdateItemDye orig, Player self, bool isNotInVanitySlot, bool isSetToHidden, Item armorItem, Item dyeItem) {

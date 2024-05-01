@@ -624,6 +624,12 @@ Items: {
 			Increases magic damage by 30%
 			10% increased magic weapon speed
 			'''
+		CurseDescription:
+			'''
+			Consumes mana while equipped
+			Consumes health and reduces damage dealt if you are out of mana
+			Consumes mana to unequip
+			'''
 	}
 
 	Mobile_Glitch_Present: {
@@ -964,7 +970,13 @@ Items: {
 
 	Scimitar_Of_The_Rising_Sun: {
 		DisplayName: Scimitar Of The Rising Sun
-		Tooltip: ""
+		Tooltip: 
+			'''
+			<right> to block
+			Time blocking just before an attack lands to deflect
+			Block and attack to use your selected Combat Art
+			<switch> to select a Combat Art
+			'''
 		Combat_Art: Combat Art: {0}
 	}
 
@@ -1080,6 +1092,36 @@ Items: {
 
 	Time_Manipulator_Other: {
 		DisplayName: Time_ Manipulator_ Other
+		Tooltip: ""
+	}
+
+	Daybreaker_Helmet: {
+		DisplayName: Daybreaker_ Helmet
+		Tooltip: ""
+	}
+
+	Daybreaker_Helmet_Full_Hair: {
+		DisplayName: Daybreaker_ Helmet_ Full_ Hair
+		Tooltip: ""
+	}
+
+	Daybreaker_Helmet_Hair: {
+		DisplayName: Daybreaker_ Helmet_ Hair
+		Tooltip: ""
+	}
+
+	Daybreaker_Pauldrons: {
+		DisplayName: Daybreaker_ Pauldrons
+		Tooltip: ""
+	}
+
+	Daybreaker_Sword: {
+		DisplayName: Daybreaker_ Sword
+		Tooltip: ""
+	}
+
+	Daybreaker_Tassets: {
+		DisplayName: Daybreaker_ Tassets
 		Tooltip: ""
 	}
 }

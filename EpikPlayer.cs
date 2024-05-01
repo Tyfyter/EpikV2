@@ -101,6 +101,7 @@ namespace EpikV2 {
 		public Vector2 telescopePos = default;
 		public float partialManaCost = 0;
 		public bool manaAdictionEquipped = false;
+		public bool alicornAmuletEquipped = false;
 		public bool manaWithdrawal = false;
 		public int timeSinceRespawn = 0;
 		public bool drugPotion = false;
@@ -179,6 +180,7 @@ namespace EpikV2 {
 			chargedAmber = false;
 			chargedDiamond = false;
 			manaAdictionEquipped = false;
+			alicornAmuletEquipped = false;
 			oily = false;
 			glaiveRecall = false;
 			if (dracoDash > 0) dracoDash--;
@@ -636,6 +638,11 @@ namespace EpikV2 {
 				EpikV2.modeSwitchHotbarActive = false;
 			}
 			dashHotkey = EpikV2.DashHotkey.JustPressed;
+		}
+		public void UpdateManaRegen() {
+			if (alicornAmuletEquipped) {
+				Player.manaRegen = (int)((Player.manaRegen + 4) / 5);
+			}
 		}
 		public override void UpdateBadLifeRegen() {
 			if (manaWithdrawal) {
