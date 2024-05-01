@@ -63,7 +63,7 @@ namespace EpikV2.Items
             recipe.AddTile(TileID.DemonAltar);
             recipe.Register();
         }
-		public override bool RangedPrefix() => Main.rand.NextBool();
+		public override bool RangedPrefix() => false; //TODO: should be true, but tML doesn't support it yet
 		public override bool MagicPrefix() => true;
 		public override bool CanConsumeAmmo(Item ammo, Player player) => nextShotTime + 1f >= shotDelay;
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
@@ -82,13 +82,13 @@ namespace EpikV2.Items
 
 				}
 				if (shotDelay > 5f) {
-                    shotDelay -= 10f / Item.useTime;
+                    shotDelay -= 10f / CombinedHooks.TotalUseTime(Item.useTime, player, Item);
                 }
 				if (!shot || player.GetModPlayer<EpikPlayer>().CheckFloatMana(Item, player.GetManaCost(Item) / 25f)) {
 					return false;
 				}
 			}
-			shotDelay = Item.useTime * 0.25f;
+			shotDelay = CombinedHooks.TotalUseTime(Item.useTime, player, Item) * 0.25f;
 			nextShotTime = shotDelay;
 			player.itemAnimation = 2;
 			player.itemTime = 2;
