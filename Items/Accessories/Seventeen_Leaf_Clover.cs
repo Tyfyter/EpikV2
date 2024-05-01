@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 
 namespace EpikV2.Items.Accessories {
@@ -29,10 +30,7 @@ namespace EpikV2.Items.Accessories {
 			base.ModifyTooltips(tooltips);
 			Color curseColor = ModContent.GetInstance<CursedRarity>().RarityColor;
 			if (Main.LocalPlayer.GetModPlayer<EpikPlayer>().cursedCloverEquipped) {
-				tooltips.Add(new TooltipLine(Mod, "CurseDescription0", "No") {
-					OverrideColor = curseColor
-				});
-				tooltips.Add(new TooltipLine(Mod, "CurseDescription1", "Reduces luck by 70%") {
+				tooltips.Add(new TooltipLine(Mod, "CurseDescription", Language.GetOrRegister("Mods.EpikV2.Items.Seventeen_Leaf_Clover.CurseDescription").Value) {
 					OverrideColor = curseColor
 				});
 			}

@@ -102,6 +102,8 @@ namespace EpikV2 {
 		public float partialManaCost = 0;
 		public bool manaAdictionEquipped = false;
 		public bool alicornAmuletEquipped = false;
+		public Item alicornAmuletItem = null;
+		public bool disableFullManaSparkle = false;
 		public bool manaWithdrawal = false;
 		public int timeSinceRespawn = 0;
 		public bool drugPotion = false;
@@ -181,6 +183,7 @@ namespace EpikV2 {
 			chargedDiamond = false;
 			manaAdictionEquipped = false;
 			alicornAmuletEquipped = false;
+			disableFullManaSparkle = false;
 			oily = false;
 			glaiveRecall = false;
 			if (dracoDash > 0) dracoDash--;
@@ -605,10 +608,10 @@ namespace EpikV2 {
 		public override void OnMissingMana(Item item, int neededMana) {
 			if (redStar) {
 				int neededHealth = neededMana;
-				int cd = Player.hurtCooldowns[0];
-				Player.hurtCooldowns[0] = 0;
-				Player.Hurt(Red_Star_Pendant.DeathReason(Player), neededHealth, 0, cooldownCounter: -1, dodgeable: true, scalingArmorPenetration: 1, knockback: 0);
-				Player.hurtCooldowns[0] = cd;
+				int cd = Player.hurtCooldowns[ImmunityCooldownID.WrongBugNet];
+				Player.hurtCooldowns[ImmunityCooldownID.WrongBugNet] = 0;
+				Player.Hurt(Red_Star_Pendant.DeathReason(Player), neededHealth, 0, cooldownCounter: ImmunityCooldownID.WrongBugNet, dodgeable: false, scalingArmorPenetration: 1, knockback: 0);
+				Player.hurtCooldowns[ImmunityCooldownID.WrongBugNet] = cd;
 				Player.statMana = neededMana;
 				redStarGlow = Math.Min(redStarGlow + (2f - neededHealth * 0.01f) / 2f, 2f);
 			}
@@ -641,7 +644,8 @@ namespace EpikV2 {
 		}
 		public void UpdateManaRegen() {
 			if (alicornAmuletEquipped) {
-				Player.manaRegen = (int)((Player.manaRegen + 4) / 5);
+				CheckFloatMana(alicornAmuletItem, Player.manaCost * 0.15f, blockQuickMana: false);
+				Player.manaRegen = ((Player.manaRegen + 3) / 4);
 			}
 		}
 		public override void UpdateBadLifeRegen() {

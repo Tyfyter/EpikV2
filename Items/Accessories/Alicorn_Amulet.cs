@@ -29,7 +29,10 @@ namespace EpikV2.Items.Accessories {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
             epikPlayer.redStar = true;
 			epikPlayer.alicornAmuletEquipped = true;
-			epikPlayer.CheckFloatMana(Item, player.manaCost * 0.3f, blockQuickMana: false);
+			epikPlayer.alicornAmuletItem = Item;
+			epikPlayer.disableFullManaSparkle = true;
+			player.manaCost -= 0.1f;
+			player.lifeSteal += 0.6f;
 			if (!hideVisual) UpdateVanity(player);
 		}
 		public override void UpdateVanity(Player player) {
@@ -37,8 +40,8 @@ namespace EpikV2.Items.Accessories {
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			base.ModifyTooltips(tooltips);
-			if (Main.LocalPlayer.GetModPlayer<EpikPlayer>().manaAdictionEquipped) {
-				tooltips.Add(new TooltipLine(Mod, "CurseDescription", Language.GetTextValue("Mods.EpikV2.Items.Alicorn_Amulet.CurseDescription")) {
+			if (Main.LocalPlayer.GetModPlayer<EpikPlayer>().alicornAmuletEquipped) {
+				tooltips.Add(new TooltipLine(Mod, "CurseDescription", Language.GetOrRegister("Mods.EpikV2.Items.Alicorn_Amulet.CurseDescription").Value) {
 					OverrideColor = tooltips[0].OverrideColor
 				});
 			}

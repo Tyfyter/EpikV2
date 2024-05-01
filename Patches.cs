@@ -331,19 +331,39 @@ namespace EpikV2 {
 					c.MarkLabel(label);
 				};
 			}
-			IL_Player.UpdateManaRegen += () => {
+			IL_Player.UpdateManaRegen += (il) => {
 				ILCursor c = new(il);
-				c.GotoNext(MoveType.AfterLabel,
+				c.GotoNext(MoveType.After,
+					i => i.MatchStfld<Player>(nameof(Player.manaRegenCount))
+				);
+				c.GotoPrev(MoveType.AfterLabel,
 					i => i.MatchLdarg0(),
 					i => i.MatchLdarg0(),
 					i => i.MatchLdfld<Player>(nameof(Player.manaRegenCount)),
 					i => i.MatchLdarg0(),
-					i => i.MatchLdfld<Player>(nameof(Player.manaRegen)),
-					i => i.MatchAdd(),
-					i => i.MatchStfld<Player>(nameof(Player.manaRegenCount))
+					i => i.MatchLdfld<Player>(nameof(Player.manaRegen))
 				);
 				c.EmitLdarg0();
 				c.EmitDelegate<Action<Player>>(player => player.GetModPlayer<EpikPlayer>().UpdateManaRegen());
+
+				c.GotoNext(MoveType.After,
+					i => i.MatchLdarg0(),
+					i => i.MatchLdarg0(),
+					i => i.MatchLdfld<Player>(nameof(Player.statMana)),
+					i => i.MatchLdcI4(1),
+					i => i.MatchAdd(),
+					i => i.MatchStfld<Player>(nameof(Player.statMana)),
+					i => i.MatchLdcI4(1),
+					i => i.MatchStloc(out _)
+				);
+				c.Index--;
+				c.EmitLdarg0();
+				c.EmitDelegate<Func<bool, Player, bool>>((flag, player) => {
+					if (player.GetModPlayer<EpikPlayer>().disableFullManaSparkle) {
+						return false;
+					}
+					return flag;
+				});
 			};
 		}
 

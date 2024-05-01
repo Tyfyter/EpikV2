@@ -48,7 +48,7 @@ namespace EpikV2.Items {
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			base.ModifyTooltips(tooltips);
 			if (Main.LocalPlayer.GetModPlayer<EpikPlayer>().manaAdictionEquipped) {
-				tooltips.Add(new TooltipLine(Mod, "CurseDescription", Language.GetTextValue("Mods.EpikV2.Items.Mana_Addiction.CurseDescription")) {
+				tooltips.Add(new TooltipLine(Mod, "CurseDescription", Language.GetOrRegister("Mods.EpikV2.Items.Mana_Addiction.CurseDescription").Value) {
 					OverrideColor = tooltips[0].OverrideColor
 				});
 			}

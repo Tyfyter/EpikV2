@@ -204,6 +204,11 @@ Items: {
 	Seventeen_Leaf_Clover: {
 		DisplayName: Seventeen-Leaf Clover
 		Tooltip: If a four-leaf clover is lucky than a seventeen-leaf clover has to be super lucky, right?
+		CurseDescription:
+			'''
+			No.
+			Reduces luck by 70%
+			'''
 	}
 
 	Alchemera: {
@@ -970,7 +975,7 @@ Items: {
 
 	Scimitar_Of_The_Rising_Sun: {
 		DisplayName: Scimitar Of The Rising Sun
-		Tooltip: 
+		Tooltip:
 			'''
 			<right> to block
 			Time blocking just before an attack lands to deflect
@@ -1123,6 +1128,16 @@ Items: {
 	Daybreaker_Tassets: {
 		DisplayName: Daybreaker_ Tassets
 		Tooltip: ""
+	}
+
+	Alicorn_Amulet: {
+		DisplayName: Alicorn Amulet
+		Tooltip: Increases the effectiveness of lifesteal effects
+		CurseDescription:
+			'''
+			Consumes mana while equipped
+			You may consume health instead of mana
+			'''
 	}
 }
 
