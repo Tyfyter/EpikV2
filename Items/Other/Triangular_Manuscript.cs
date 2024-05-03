@@ -38,8 +38,8 @@ namespace EpikV2.Items.Other {
 			}
 			return null;
 		}
-		[JITWhenModsEnabled("Origins")]
-		static void GiveQuestNotification() => Triangular_Manuscript_Quest.GiveQuestNotification();
+		[JITWhenModsEnabled("Origins")]//todo: reimplement
+		static void GiveQuestNotification() { }// => Triangular_Manuscript_Quest.GiveQuestNotification();
 		public override bool CanShoot(Player player) {
 			return player.ownedProjectileCounts[Item.shoot] <= 0;
 		}
@@ -793,7 +793,7 @@ namespace EpikV2.Items.Other {
 			}
 		}
 	}
-	[ExtendsFromMod("Origins")]
+	/*[ExtendsFromMod("Origins")]
 	public class Triangular_Manuscript_Quest : Origins.Questing.Quest {
 		public override bool SaveToWorld => false;
 		public override void SetStaticDefaults() {
@@ -814,5 +814,5 @@ namespace EpikV2.Items.Other {
 		internal static void GiveQuestNotification() {
 			ModContent.GetInstance<Triangular_Manuscript_Quest>().HasNotification = true;
 		}
-	}
+	}*/
 }
