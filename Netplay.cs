@@ -123,7 +123,7 @@ namespace EpikV2 {
 							break;
 						}
 						packet.Write(reader.ReadBytes(length));
-						packet.Send();
+						packet.Send(ignoreClient: whoAmI);
 						break;
 					}
 
@@ -199,7 +199,7 @@ namespace EpikV2 {
 						Player otherPlayer = Main.player[reader.ReadByte()];
 						switch (itemType) {
 							case UseItemType.refractionEnsign:
-							EoL_Dash.Dash(otherPlayer.GetModPlayer<EpikPlayer>(), new(reader.ReadSingle(), reader.ReadSingle()));
+							EoL_Dash.Dash(otherPlayer.GetModPlayer<EpikPlayer>(), new(reader.ReadSingle(), reader.ReadSingle()), true);
 							break;
 						}
 						break;

@@ -29,13 +29,7 @@ namespace EpikV2.Items.Accessories {
 			epikPlayer.empressDashAltColor = DashAltColor;
 			epikPlayer.empressDashRestoreDye = DashRestoreDye;
 			if (player.whoAmI != Main.myPlayer) {
-				for (int l = 0; l < player.doubleTapCardinalTimer.Length; l++) {
-					player.doubleTapCardinalTimer[l]--;
-					if (player.doubleTapCardinalTimer[l] < 0) {
-						player.doubleTapCardinalTimer[l] = 0;
-					}
-				}
-				//return;
+				return;
 			}
 			bool oneTap = false;
 			int dashCooldownEnd = Main.CurrentFrameFlags.AnyActiveBossNPC ? -dash_cooldown_boss_increase : 0;
@@ -56,19 +50,15 @@ namespace EpikV2.Items.Accessories {
 			bool releaseLeft = player.releaseLeft || epikPlayer.dashHotkey;
 			if (player.controlDown && releaseDown && (player.doubleTapCardinalTimer[down] < 15 || oneTap)) {
 				dashDirection = down;
-				if (player.whoAmI != Main.myPlayer) player.doubleTapCardinalTimer[down] = 15;
 			}
 			if (player.controlUp && releaseUp && (player.doubleTapCardinalTimer[up] < 15 || oneTap)) {
 				dashDirection = up;
-				if (player.whoAmI != Main.myPlayer) player.doubleTapCardinalTimer[up] = 15;
 			}
 			if (player.controlRight && releaseRight && (player.doubleTapCardinalTimer[right] < 15 || oneTap)) {
 				dashDirection = right;
-				if (player.whoAmI != Main.myPlayer) player.doubleTapCardinalTimer[right] = 15;
 			}
 			if (player.controlLeft && releaseLeft && (player.doubleTapCardinalTimer[left] < 15 || oneTap)) {
 				dashDirection = left;
-				if (player.whoAmI != Main.myPlayer) player.doubleTapCardinalTimer[left] = 15;
 			}
 			Vector2 dashVelocity = default;
 			const float mainDirectionVal = 1f;
@@ -125,7 +115,8 @@ namespace EpikV2.Items.Accessories {
 				}
 			}
 		}
-		public static void Dash(EpikPlayer epikPlayer, Vector2 dashVelocity) {
+		public static void Dash(EpikPlayer epikPlayer, Vector2 dashVelocity, bool fromNet = false) {
+			if (fromNet && epikPlayer.Player.whoAmI != Main.myPlayer) return;
 			epikPlayer.empressDashTime = 12;
 			epikPlayer.empressDashVelocity = dashVelocity * 2f;
 			epikPlayer.empressDashCount--;
