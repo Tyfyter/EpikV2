@@ -166,7 +166,7 @@ namespace EpikV2.Items {
 			Vector2 splitShake = unit * ((split - splitValue) / 15f);
 			float splitBack = ARCool ? 1.5f : 0;//drawPlayer.altFunctionUse == 2?0:1.5f;
 
-			Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
+			Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
 			//pos+=unit*4;
 
 			value = new DrawData(handleTexture, pos, new Rectangle(0, 0, itemTexture.Width, itemTexture.Height), Item.GetAlpha(lightColor), itemRotation, drawOrigin, scale, drawInfo.itemEffect, 0) {

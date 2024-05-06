@@ -146,7 +146,7 @@ namespace EpikV2.Items {
             int shaderIDStars = GameShaders.Armor.GetShaderIdFromItemId(ItemID.StardustDye);
             int shaderIDSun = GameShaders.Armor.GetShaderIdFromItemId(ItemID.SolarDye);
 
-            Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X + itemCenter.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
+            Vector2 pos = new Vector2((int)(drawInfo.ItemLocation.X - Main.screenPosition.X), (int)(drawInfo.ItemLocation.Y - Main.screenPosition.Y + itemCenter.Y));
 
             //string
             int stringLength = (int)(25 * (1 + ChargePercent / 8));
