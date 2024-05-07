@@ -1,5 +1,6 @@
 ﻿using EpikV2.Items.Accessories;
 using EpikV2.Items.Armor;
+using EpikV2.Items.Debugging;
 using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using System;
@@ -47,6 +48,7 @@ namespace EpikV2 {
 					break;
 
 					case PacketType.playerSync:
+					case PacketType.statLimiterSync:
 					altHandle = true;
 					break;
 
@@ -164,6 +166,7 @@ namespace EpikV2 {
 					break;
 
 					case PacketType.playerSync:
+					case PacketType.statLimiterSync:
 					altHandle = true;
 					break;
 
@@ -212,16 +215,29 @@ namespace EpikV2 {
 			}
 			if (altHandle) {
 				switch (type) {
-					case PacketType.playerSync:
-					byte playerindex = reader.ReadByte();
-					EpikPlayer epikPlayer = Main.player[playerindex].GetModPlayer<EpikPlayer>();
-					epikPlayer.ReceivePlayerSync(reader);
+					case PacketType.playerSync: {
+						byte playerindex = reader.ReadByte();
+						EpikPlayer epikPlayer = Main.player[playerindex].GetModPlayer<EpikPlayer>();
+						epikPlayer.ReceivePlayerSync(reader);
 
-					if (Main.netMode == NetmodeID.Server) {
-						// Forward the changes to the other clients
-						epikPlayer.SyncPlayer(-1, whoAmI, false);
+						if (Main.netMode == NetmodeID.Server) {
+							// Forward the changes to the other clients
+							epikPlayer.SyncPlayer(-1, whoAmI, false);
+						}
+						break;
 					}
-					break;
+
+					case PacketType.statLimiterSync: {
+						byte playerindex = reader.ReadByte();
+						StatLimiterPlayer statLimiterPlayer = Main.player[playerindex].GetModPlayer<StatLimiterPlayer>();
+						statLimiterPlayer.ReceivePlayerSync(reader);
+
+						if (Main.netMode == NetmodeID.Server) {
+							// Forward the changes to the other clients
+							statLimiterPlayer.SyncPlayer(-1, whoAmI, false);
+						}
+						break;
+					}
 				}
 			}
 		}
@@ -240,6 +256,7 @@ namespace EpikV2 {
 			public const byte orePositionSync = 10;
 			public const byte requestOrePositionSync = 10;
 			public const byte useItem = 11;
+			public const byte statLimiterSync = 12;
 		}
 		public static class UseItemType {
 			public const byte refractionEnsign = 0;
