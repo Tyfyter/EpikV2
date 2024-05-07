@@ -1139,6 +1139,11 @@ Items: {
 			You may consume health instead of mana
 			'''
 	}
+
+	StatLimiter: {
+		DisplayName: Stat Limiter
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck

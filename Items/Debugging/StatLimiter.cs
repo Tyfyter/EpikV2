@@ -87,7 +87,7 @@ namespace EpikV2.Items.Debugging {
             for (int i = maxManaSources.Count; i-->0;) {
                 int used = maxManaSources[i].GetCount(Player);
 				int lessness = Math.Min(remainingLess, used);
-				health.Base -= lessness * maxManaSources[i].StatPerUse;
+				mana.Base -= lessness * maxManaSources[i].StatPerUse;
 				remainingLess -= lessness;
             }
 		}
