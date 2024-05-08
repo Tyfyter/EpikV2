@@ -18,6 +18,7 @@ using Terraria.Audio;
 using Terraria.Chat;
 using Terraria.DataStructures;
 using Terraria.GameContent;
+using Terraria.GameContent.Bestiary;
 using Terraria.GameContent.NetModules;
 using Terraria.GameInput;
 using Terraria.Graphics.Shaders;
@@ -1184,6 +1185,10 @@ namespace EpikV2 {
 			return null;
 		}
 		public static bool IsInWorld(int i, int j) => i >= 0 && j >= 0 && i < Main.maxTilesX && j < Main.maxTilesY;
+		public static FlavorTextBestiaryInfoElement GetBestiaryFlavorText(this ModNPC npc, string defaultValue = null) {
+			Language.GetOrRegister($"Mods.{npc.Mod.Name}.Bestiary.{npc.Name}", defaultValue is null ? (() => "bestiary text here") : (() => defaultValue));
+			return new FlavorTextBestiaryInfoElement($"Mods.{npc.Mod.Name}.Bestiary.{npc.Name}");
+		}
 	}
 	public static class ConditionExtensions {
 		public static Condition CommaAnd(this Condition a, Condition b) {

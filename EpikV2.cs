@@ -271,6 +271,7 @@ namespace EpikV2 {
 		}
 		public static uint GetSpecialNameData(string name, AltNameColorTypes altColors = AltNameColorTypes.None) {
 			string lowerName = name.ToLower();
+			uint starlightType = altColors.HasFlag(AltNameColorTypes.Starlight) ? NameTypes.Starlight : NameTypes.None;
 			switch (lowerName) {
 				case "[i:4296]":
 				case "[i/p57:4296]":
@@ -280,13 +281,13 @@ namespace EpikV2 {
 				return NameTypes.Asher | NameTypes.Generic;
 
 				case "jennifer":
-				return NameTypes.Asher | NameTypes.Faust | NameTypes.Generic | (altColors.HasFlag(AltNameColorTypes.Starlight) ? NameTypes.Starlight : NameTypes.None);
+				return NameTypes.Asher | NameTypes.Faust | NameTypes.Generic | starlightType;
 
 				case "aurora":
 				return NameTypes.Starlight | NameTypes.Faust;
 			}
 			if (lowerName.EndsWith("faust")) {
-				return NameTypes.Faust;
+				return NameTypes.Faust | starlightType;
 			}
 			return 0;
 		}
