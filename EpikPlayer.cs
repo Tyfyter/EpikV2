@@ -644,8 +644,8 @@ namespace EpikV2 {
 		}
 		public void UpdateManaRegen() {
 			if (alicornAmuletEquipped) {
-				CheckFloatMana(alicornAmuletItem, Player.manaCost * 0.15f, blockQuickMana: false);
-				Player.manaRegen = ((Player.manaRegen + 3) / 4);
+				CheckFloatMana(alicornAmuletItem, Player.manaCost * 0.1f, blockQuickMana: false);
+				Player.manaRegen = ((Player.manaRegen + 2) / 3);
 			}
 		}
 		public override void UpdateBadLifeRegen() {

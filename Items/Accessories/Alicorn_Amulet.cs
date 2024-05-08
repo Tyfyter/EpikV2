@@ -33,10 +33,9 @@ namespace EpikV2.Items.Accessories {
 			epikPlayer.disableFullManaSparkle = true;
 			player.manaCost -= 0.1f;
 			player.lifeSteal += 0.6f;
-			if (!hideVisual) UpdateVanity(player);
-		}
-		public override void UpdateVanity(Player player) {
-			player.GetModPlayer<EpikPlayer>().realUnicornHorn = true;
+			if (player.mount.Active && (MountID.Sets.Cart[player.mount.Type] || player.mount.Type == MountID.GolfCartSomebodySaveMe)) {
+				player.mount.Dismount(player);
+			}
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
 			base.ModifyTooltips(tooltips);

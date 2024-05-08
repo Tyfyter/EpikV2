@@ -1137,6 +1137,7 @@ Items: {
 			'''
 			Consumes mana while equipped
 			You may consume health instead of mana
+			You don't trust wheels
 			'''
 	}
 
@@ -1365,6 +1366,7 @@ NPCs: {
 	MinisharkNPC.DisplayName: Minishark
 	Vile_Spirit.DisplayName: Vile Spirit
 	Wrong_Spawn_NPC.DisplayName: Wrong Spawn NPC (You're so incredibly high lmao)
+	Bee_Jay.DisplayName: Bee Jay
 }
 
 Dialogue.PartyGirl.SlimeRain: Stuff's gonna start falling! You better duck for cover.
