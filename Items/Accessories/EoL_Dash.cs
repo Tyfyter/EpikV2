@@ -16,13 +16,13 @@ namespace EpikV2.Items.Accessories {
 		public virtual int DashAltColor => 0;
 		public virtual int DashRestoreDye => ItemID.HallowBossDye;
 		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Refraction Ensign");
 			ItemID.Sets.ItemNoGravity[Type] = true;
 		}
 		public override void SetDefaults() {
 			Item.DefaultToAccessory(26, 30);
 			Item.master = true;
 			Item.maxStack = 1;
+			Item.dye = 0;
 		}
 		public override void UpdateEquip(Player player) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
@@ -126,9 +126,5 @@ namespace EpikV2.Items.Accessories {
 	public class EoL_Dash_Alt : EoL_Dash {
 		public override int DashAltColor => 1;
 		public override int DashRestoreDye => ItemID.MartianArmorDye;
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Glimmering {$Mods.EpikV2.ItemName.EoL_Dash}");
-			ItemID.Sets.ItemNoGravity[Type] = true;
-		}
 	}
 }
