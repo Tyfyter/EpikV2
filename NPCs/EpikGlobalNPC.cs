@@ -360,10 +360,8 @@ namespace EpikV2.NPCs
                         }
                     }
                 } else {
-                    if (Main.netMode == NetmodeID.SinglePlayer) {
-                        Main.LocalPlayer.GetModPlayer<EpikPlayer>().golemTime = 5;
-                    }
-                }
+					Main.LocalPlayer.GetModPlayer<EpikPlayer>().golemTime = 5;
+				}
                 break;
 
                 case NPCID.HallowBoss:
@@ -377,12 +375,23 @@ namespace EpikV2.NPCs
                         }
                     }
                 } else {
-                    if (Main.netMode == NetmodeID.SinglePlayer) {
-                        Main.LocalPlayer.GetModPlayer<EpikPlayer>().empressTime = 5;
-                    }
+					Main.LocalPlayer.GetModPlayer<EpikPlayer>().empressTime = 5;
                 }
                 break;
-            }
+
+				case NPCID.BigMimicJungle:
+				int beeJay = ModContent.NPCType<Bee_Jay>();
+				for (int i = 0; i < 6; i++) {
+					Vector2 pos = Main.rand.NextVector2FromRectangle(npc.Hitbox);
+					NPC.NewNPC(
+						npc.GetSource_Death(),
+						(int)pos.X,
+						(int)pos.Y,
+						beeJay
+					);
+				}
+				break;
+			}
             if (npc.HasBuff(ModContent.BuffType<ShroomInfestedDebuff>())){
 				int a;
 				for(int i = 0; i < npc.buffTime[npc.FindBuffIndex(ModContent.BuffType<ShroomInfestedDebuff>())]; i++){
