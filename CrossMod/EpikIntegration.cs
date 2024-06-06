@@ -19,20 +19,19 @@ using static Tyfyter.Utils.MiscUtils;
 namespace EpikV2.CrossMod {
 	public class EpikIntegration : ILoadable {
 		public static class EnabledMods {
-			[JITWhenModsEnabled(nameof(HolidayLib.HolidayLib))]
+			[JITWhenModsEnabled("HolidayLib")]
 			public static class HolidayLibInt {
 				public static HolidayLib.HolidayLib Mod { get; private set; }
-				public static bool Enabled { get; private set; }
 				internal static List<Holiday> Holidays { get; private set; }
 				internal static Func<object[], object> HolidayForceChanged { get; private set; }
-				internal static void CheckEnabled() {
-					if (ModLoader.TryGetMod("HolidayLib", out Mod mod) && mod is HolidayLib.HolidayLib holidayLib) {
-						Mod = holidayLib;
-						Enabled = true;
-						Holidays = (List<Holiday>)typeof(HolidayLib.HolidayLib).GetField("holidays", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(holidayLib);
-						HolidayForceChanged = (Func<object[], object>)holidayLib.Call("GETFUNC", "HOLIDAYFORCECHANGED");
-					}
+				[JITWhenModsEnabled("HolidayLib")]
+				internal static void Setup(Mod mod) {
+					HolidayLib.HolidayLib holidayLib = (HolidayLib.HolidayLib)mod;
+					Mod = holidayLib;
+					Holidays = (List<Holiday>)typeof(HolidayLib.HolidayLib).GetField("holidays", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(holidayLib);
+					HolidayForceChanged = (Func<object[], object>)holidayLib.Call("GETFUNC", "HOLIDAYFORCECHANGED");
 				}
+				[JITWhenModsEnabled("HolidayLib")]
 				internal static void DoTimeManipSetup() {
 					int i = 0;
 					foreach (Holiday holiday in Holidays) {
@@ -40,14 +39,14 @@ namespace EpikV2.CrossMod {
 						i++;
 					}
 				}
+				[JITWhenModsEnabled("HolidayLib")]
 				internal static void DoTimeManipScroll() {
 					EpikWorld.timeManipSubMode = (EpikWorld.timeManipSubMode + 1) % Holidays.Count;
-					HolidayForceChanged(Array.Empty<object>());
+					HolidayForceChanged([]);
 					Main.NewText($"started {Holidays[EpikWorld.timeManipSubMode].Names.First()}");
 				}
 				internal static void ResetEnabled() {
 					Mod = null;
-					Enabled = false;
 					Holidays = null;
 				}
 			}
@@ -57,6 +56,7 @@ namespace EpikV2.CrossMod {
 			public static bool AltLibrary { get; private set; }
 			public static bool CharLoader { get; private set; }
 			public static bool BountifulGoodieBags { get; private set; }
+			public static bool HolidayLibEnabled { get; private set; }
 			internal static void ResetEnabled() {
 				RecipeBrowser = false;
 				Origins = null;
@@ -65,7 +65,8 @@ namespace EpikV2.CrossMod {
 				CharLoader = false;
 				Chars = null;
 				BountifulGoodieBags = false;
-				HolidayLibInt.ResetEnabled();
+				if (HolidayLibEnabled) HolidayLibInt.ResetEnabled();
+				HolidayLibEnabled = false;
 			}
 			internal static void CheckEnabled() {
 				RecipeBrowser = ModLoader.TryGetMod("RecipeBrowser", out Mod recipeBrowser) && recipeBrowser.Version >= new Version(0, 5);
@@ -74,7 +75,10 @@ namespace EpikV2.CrossMod {
 				if (AltLibrary = ModLoader.TryGetMod("AltLibrary", out _)) {
 					AltLibIntegration();
 				}
-				HolidayLibInt.CheckEnabled();
+				if (ModLoader.TryGetMod("HolidayLib", out Mod mod)) {
+					HolidayLibEnabled = false;
+					HolidayLibInt.Setup(mod);
+				}
 
 				CharLoader = ModLoader.TryGetMod("CharLoader", out Mod charLoader);
 				Chars = new();

@@ -45,7 +45,7 @@ namespace EpikV2.Items {
 			}
 			if (player.ItemAnimationEndingOrEnded) {
 				if (canSetMode) {
-					if (mode == 5) {
+					if (mode == 5 && EpikIntegration.EnabledMods.HolidayLibEnabled) {
 						EpikIntegration.EnabledMods.HolidayLibInt.DoTimeManipScroll();
 					}
 					epikWorld.SetTimeManipMode(mode);
@@ -76,7 +76,7 @@ namespace EpikV2.Items {
 				case 4:
 				return Time_Manipulator_Fast.ID;
 				case 5:
-				if (EpikIntegration.EnabledMods.HolidayLibInt.Enabled) return Time_Manipulator_Other.ID;
+				if (EpikIntegration.EnabledMods.HolidayLibEnabled) return Time_Manipulator_Other.ID;
 				break;
 			}
 			return 0;
@@ -174,7 +174,7 @@ namespace EpikV2.Items {
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			ID = Type;
-			if (EpikIntegration.EnabledMods.HolidayLibInt.Enabled) EpikIntegration.EnabledMods.HolidayLibInt.DoTimeManipSetup();
+			if (EpikIntegration.EnabledMods.HolidayLibEnabled) EpikIntegration.EnabledMods.HolidayLibInt.DoTimeManipSetup();
 		}
 	}
 }
