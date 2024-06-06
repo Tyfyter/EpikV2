@@ -281,7 +281,7 @@ namespace EpikV2.Items {
                 scale = new Vector2(scale),
                 shader = Item.dye
             };
-            GameShaders.Armor.ApplySecondary(Item.dye, Main.player[Item.playerIndexTheItemIsReservedFor], data);
+            GameShaders.Armor.ApplySecondary(Item.dye, null, data);
             return true;
         }
 		public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI) {

@@ -157,8 +157,8 @@ namespace EpikV2.NPCs {
 		}
 	}
 	public class ShimmerSlimeSystem : ModSystem {
-		List<(Point pos, int itemID)> slimePositions;
-		List<(Point pos, string itemName)> unloadedSlimePositions;
+		List<(Point pos, int itemID)> slimePositions = [];
+		List<(Point pos, string itemName)> unloadedSlimePositions = [];
 		public List<(Point pos, int itemID)> SlimePositions => slimePositions ??= new();
 		public override void AddRecipes() {
 			ShimmerSlimeTransmutation.AddTransmutation(ItemID.CorruptionKey, ItemID.ScourgeoftheCorruptor, Condition.DownedPlantera);
@@ -170,8 +170,8 @@ namespace EpikV2.NPCs {
 			if (ModLoader.HasMod("AltLibrary")) ShimmerSlimeTransmutation.RegisterAltLibTransmutations();
 		}
 		public override void LoadWorldData(TagCompound tag) {
-			slimePositions = new();
-			unloadedSlimePositions = new();
+			slimePositions = [];
+			unloadedSlimePositions = [];
 			if (tag.TryGet("positions", out List<TagCompound> positions)) {
 				foreach (var position in positions) {
 					try {
@@ -190,7 +190,9 @@ namespace EpikV2.NPCs {
 			}
 		}
 		public override void SaveWorldData(TagCompound tag) {
-			if (slimePositions is not null) tag["positions"] = slimePositions.Select(p => new TagCompound() {
+			slimePositions ??= [];
+			unloadedSlimePositions ??= [];
+			tag["positions"] = slimePositions.Select(p => new TagCompound() {
 				["pos"] = p.pos.ToVector2(),
 				["itemID"] = ItemID.Search.GetName(p.itemID)
 			}).Concat(
@@ -201,8 +203,8 @@ namespace EpikV2.NPCs {
 			).ToList();
 		}
 		public override void ClearWorld() {
-			slimePositions = null;
-			unloadedSlimePositions = null;
+			slimePositions = [];
+			unloadedSlimePositions = [];
 		}
 	}
 }

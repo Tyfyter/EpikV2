@@ -177,9 +177,6 @@ namespace EpikV2 {
 				orig(self);
 				ProcessModBiomes(self);
 			};
-			/*MonoModHooks.Add(typeof(AprilFools).GetMethod("CheckAprilFools", BindingFlags.Public | BindingFlags.Static),
-				(hook_CheckAprilFools)((orig) => (timeManipAltMode == 1) || orig())
-			);*/
 			On_Chest.DestroyChest += (orig, x, y) => {
 				if (orig(x, y)) {
 					try {
@@ -197,14 +194,14 @@ namespace EpikV2 {
 			IL_NewMultiplayerClosePlayersOverlay.PlayerOffScreenCache.DrawPlayerDistance += PlayerOffScreenCache_DrawPlayerDistance;
 			MonoModHooks.Add(
 				typeof(ModContent).GetMethod("ResizeArrays", BindingFlags.NonPublic | BindingFlags.Static),
-				(Action<Action<bool>, bool>)((Action<bool> orig, bool unloading) => {
+				(Action<bool> orig, bool unloading) => {
 					orig(unloading);
 					if (unloading) {
 						Sets.Unload();
 					} else {
 						Sets.ResizeArrays();
 					}
-				})
+				}
 			);
 			IL_Player.Update += (ILContext il) => {
 				ILCursor c = new ILCursor(il);
@@ -272,7 +269,6 @@ namespace EpikV2 {
 			MonoModHooks.Modify(typeof(AccessorySlotLoader).GetMethod("DrawSlot", BindingFlags.NonPublic | BindingFlags.Instance), IL_AccessorySlotLoader_DrawSlot);
 			On_Player.FixLoadedData_EliminiateDuplicateAccessories += (_, _) => { };
 			IL_Main.UpdateTime += IL_Main_UpdateTime;
-			Action<Vector2, int, int> v = new Projectile().EmitEnchantmentVisualsAt;
 			On_Projectile.EmitEnchantmentVisualsAt += On_Projectile_EmitEnchantmentVisualsAt;
 			On_Player.LookForTileInteractions += (orig, self) => {
 				if (self.HeldItem?.ModItem is IDisableTileInteractItem item && item.DisableTileInteract(self)) return;
@@ -928,15 +924,15 @@ namespace EpikV2 {
 		}
 
 		private void Main_DoDraw(ILContext il) {
-			ILCursor c = new ILCursor(il);
+			ILCursor c = new(il);
 			if (c.TryGotoNext(MoveType.After, i => i.MatchLdcI4(6), i => i.MatchLdcI4(0), i => i.MatchCallvirt(typeof(OverlayManager), "Draw"))) {
-				c.EmitDelegate((Action)(() => {
+				c.EmitDelegate(() => {
 					drawAfterNPCs ??= new();
 					for (int i = 0; i < drawAfterNPCs.Count; i++) {
 						drawAfterNPCs[i].DrawPostNPCLayer();
 					}
 					drawAfterNPCs.Clear();
-				}));
+				});
 			} else {
 				Logger.Error("could not find OverlayManager.Draw call in Main.DoDraw");
 				drawAfterNPCs = null;
@@ -1135,7 +1131,7 @@ namespace EpikV2 {
 					c.Emit(OpCodes.Ldfld, distanceString);
 					c.Emit(OpCodes.Ldarg_0);
 					c.Emit(OpCodes.Ldfld, _player);
-					c.EmitDelegate<Func<string, Player, string>>(ApplyDistSymbol);
+					c.EmitDelegate(ApplyDistSymbol);
 					c.Emit(OpCodes.Stfld, distanceString);
 				}
 			}
@@ -1163,32 +1159,6 @@ namespace EpikV2 {
 			}
 			return iconText + distText + iconText;
 		}
-		/*
-private void Main_OnPostDraw(GameTime obj) {
-   if(filterMapQueue is null) {
-	   return;
-   }
-   bool filter = filterMapQueue.Count > 0;
-   if(!(mappedFilter is null))Main.LocalPlayer.ManageSpecialBiomeVisuals("EpikV2:FilterMapped", filter, Main.LocalPlayer.Center);
-   if(!filter) {
-	   mappedFilter.Opacity = 0;
-	   return;
-   }
-   RenderTarget2D filterMapTarget = new RenderTarget2D(Main.graphics.GraphicsDevice, Main.screenWidth, Main.screenHeight);
-
-   Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.instance.Rasterizer, null, Main.Transform);
-   Main.instance.GraphicsDevice.SetRenderTarget(filterMapTarget);
-   Main.instance.GraphicsDevice.Clear(new Color(0,128,128,0));
-
-   //Main.LocalPlayer.chatOverhead.NewMessage(alphaMapShader);
-   filterMapQueue.DrawTo(Main.spriteBatch);
-   filterMapQueue.Clear();
-
-   Main.spriteBatch.End();
-   Main.instance.GraphicsDevice.SetRenderTarget(null);
-
-   mappedFilter.GetShader().UseImage(filterMapTarget, 2);
-}//*/
 		public static float ShimmerCalc(float val) {
 			return 0.5f + MathHelper.Clamp(val / 16f, -0.5f, 0.5f);
 		}
