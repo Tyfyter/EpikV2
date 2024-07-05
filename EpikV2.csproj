@@ -9,6 +9,7 @@
     <None Remove="Effects\MagicWave.fx" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Effects\Misc.fx" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AltLibrary">

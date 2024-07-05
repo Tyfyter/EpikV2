@@ -58,6 +58,7 @@ namespace EpikV2 {
 		public byte dracoDash = 0;
 		public bool reallyWolf = false;
 		public int hydraHeads = 0;
+		public int lastHydraHeads = 0;
 		public int forceDrawItemFrames = 0;
 		public float organRearrangement = 0;
 		public bool glaiveRecall = false;
@@ -188,6 +189,7 @@ namespace EpikV2 {
 			glaiveRecall = false;
 			if (dracoDash > 0) dracoDash--;
 			if (forceDrawItemFrames > 0) forceDrawItemFrames--;
+			lastHydraHeads = hydraHeads;
 			hydraHeads = 0;
 			moonlightThreads = 0;
 			if (sacrifice > 0) {

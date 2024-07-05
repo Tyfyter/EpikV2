@@ -195,8 +195,8 @@ namespace EpikV2 {
 			DashHotkey = KeybindLoader.RegisterKeybind(this, "Use Dash", "Mouse4");
 			ApplyPatches();
 			EpikV2.AddBalanceRarityOverride(ItemID.PickaxeAxe, ItemRarityID.Pink);
+			Main.OnPostDraw += PostDraw;
 		}
-
 		public override void Unload() {
 			instance = null;
 			Textures = null;
@@ -222,6 +222,10 @@ namespace EpikV2 {
 			//TextureAssets.Item[ItemID.HighTestFishingLine] = Main.Assets.Request<Texture2D>("Images/Item_" + ItemID.HighTestFishingLine, AssetRequestMode.DoNotLoad);
 			//filterMapQueue.Clear();
 			//filterMapQueue = null;
+			Main.OnPostDraw -= PostDraw;
+		}
+		private void PostDraw(GameTime obj) {
+			currentScreenTarget = null;
 		}
 		public override void PostSetupContent() {
 			Sets.SetupPostContentSampleSets();

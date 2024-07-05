@@ -39,7 +39,7 @@ namespace EpikV2.Reflection {
 			string methodName = method.ReflectedType.FullName + ".call_" + method.Name;
 			MethodInfo invoke = typeof(T).GetMethod("Invoke");
 			ParameterInfo[] parameters = invoke.GetParameters();
-			DynamicMethod getterMethod = new DynamicMethod(methodName, invoke.ReturnType, parameters.Select(p => p.ParameterType).ToArray(), true);
+			DynamicMethod getterMethod = new(methodName, invoke.ReturnType, parameters.Select(p => p.ParameterType).ToArray(), true);
 			ILGenerator gen = getterMethod.GetILGenerator();
 
 			for (int i = 0; i < parameters.Length; i++) {
@@ -95,14 +95,14 @@ namespace EpikV2.Reflection {
 					if (genericType == typeof(FastFieldInfo<,>) || genericType == typeof(FastStaticFieldInfo<,>)) {
 						item.SetValue(
 							null,
-							item.FieldType.GetConstructor(new Type[] { typeof(string), typeof(BindingFlags), typeof(bool) })
-							.Invoke(new object[] { name, BindingFlags.Public | BindingFlags.NonPublic, true })
+							item.FieldType.GetConstructor([typeof(string), typeof(BindingFlags), typeof(bool)])
+							.Invoke([name, BindingFlags.Public | BindingFlags.NonPublic, true])
 						);
 					} else if (genericType == typeof(FastStaticFieldInfo<>)) {
 						item.SetValue(
 							null,
-							item.FieldType.GetConstructor(new Type[] { typeof(Type), typeof(string), typeof(BindingFlags), typeof(bool) })
-							.Invoke(new object[] { item.GetCustomAttribute<ReflectionParentTypeAttribute>().ParentType, name, BindingFlags.Public | BindingFlags.NonPublic, true })
+							item.FieldType.GetConstructor([typeof(Type), typeof(string), typeof(BindingFlags), typeof(bool)])
+							.Invoke([item.GetCustomAttribute<ReflectionParentTypeAttribute>().ParentType, name, BindingFlags.Public | BindingFlags.NonPublic, true])
 						);
 					}
 				}

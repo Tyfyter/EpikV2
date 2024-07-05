@@ -13,6 +13,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
 using static EpikV2.Resources;
+using ReLogic.Content;
 
 namespace EpikV2.Items {
     public class Jade_Dye : Dye_Item {
@@ -93,7 +94,7 @@ namespace EpikV2.Items {
 		}
     }
     public class GPSArmorShaderData : ArmorShaderData {
-        public GPSArmorShaderData(Ref<Effect> shader, string passName) : base(shader, passName) {}
+        public GPSArmorShaderData(Asset<Effect> shader, string passName) : base(shader, passName) {}
         public override void Apply(Entity entity, DrawData? drawData = null) {
             Shader.Parameters["uWorldSize"].SetValue(new Vector2(Main.maxTilesX*16f, Main.maxTilesY*16f));
             base.Apply(entity, drawData);
