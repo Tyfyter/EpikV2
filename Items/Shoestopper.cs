@@ -39,7 +39,7 @@ namespace EpikV2.Items {
 			player.spikedBoots += 2;
 
 			player.lavaMax += 420;
-			player.accRunSpeed = 6.75f;
+			if (player.accRunSpeed < 6.75f) player.accRunSpeed = 6.75f;
 			player.rocketBoots = 4;
 			player.vanityRocketBoots = 4;
 			player.moveSpeed += 0.08f;
