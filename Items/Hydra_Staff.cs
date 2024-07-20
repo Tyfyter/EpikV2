@@ -90,7 +90,6 @@ namespace EpikV2.Items {
 
 		float jawOpen;
 		public float JawOpenTarget => Projectile.friendly ? 0.15f : 0;
-		Vector2 idlePosition;
 
 		public bool Fired => Projectile.velocity.Length() > 0;
 		public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.NebulaBlaze2;
@@ -267,13 +266,16 @@ namespace EpikV2.Items {
 			Projectile.localAI[1] = (Projectile.ai[1] - 20) * 2;
 			Dust d;
 			float rot = TwoPi / 27f;
+			Player player = Main.player[Projectile.owner];
+			ArmorShaderData dustShader = Shaders.starlightShader;
+			if (player.cMinion != 0) dustShader = GameShaders.Armor.GetSecondaryShader(player.cMinion, player);
 			for (int i = 0; i < 27; i++) {
 				d = Dust.NewDustPerfect(Projectile.Center, Utils.SelectRandom(Main.rand, 242, 59, 88), new Vector2(Main.rand.NextFloat(2, 5) + i % 3, 0).RotatedBy(rot * i + Main.rand.NextFloat(-0.1f, 0.1f)), 0, default, 1.2f);
 				d.noGravity = true;
 				if (Main.rand.NextBool(2)) {
 					d.fadeIn = 1.4f;
 				}
-				d.shader = Shaders.starlightShader;
+				d.shader = dustShader;
 			}
 			Projectile.position.X += Projectile.width / 2;
 			Projectile.position.Y += Projectile.height / 2;
@@ -346,34 +348,6 @@ namespace EpikV2.Items {
 			_vertexStrip.PrepareStripWithProceduralPadding(positions, rotations, (_) => new(0, 6, 31), (_) => 4.5f, -Main.screenPosition, true);
 			_vertexStrip.DrawTrail();
 			Main.pixelShader.CurrentTechnique.Passes[0].Apply();
-			/*Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.hydraNeckShader.Shader);
-			Main.graphics.GraphicsDevice.Textures[1] = Shaders.nebulaDistortionTexture.Value;
-			EffectParameterCollection parameters = Shaders.hydraNeckShader.Shader.Parameters;
-			parameters["uImageSize1"].SetValue(new Vector2(300));
-
-			parameters["pointA"].SetValue(startPos);
-			parameters["pointB"].SetValue(Projectile.Center + new Vector2(0, 24));
-			parameters["pointC"].SetValue(Projectile.Center);
-			parameters["uWorldPosition"].SetValue(area.TopLeft());
-			parameters["uScale"].SetValue(Projectile.scale);
-			parameters["uOffset"].SetValue(uOffset);
-			parameters["uImageSize0"].SetValue(area.Size());
-			Rectangle area = EpikExtensions.BoxOf(new Vector2(8), startPos, Projectile.Center, Projectile.Center + new Vector2(0, 24));
-			area.Offset((-Main.screenPosition).ToPoint());
-			Main.EntitySpriteDraw(new DrawData(Textures.pixelTexture, area, new Color(0, 6, 31)));
-			*/
-
-			//Main.spriteBatch.Restart(SpriteSortMode.Immediate, effect: Shaders.nebulaShader.Shader);
-			//Main.graphics.GraphicsDevice.Textures[1] = Shaders.nebulaDistortionTexture.Value;
-			/*parameters = Shaders.nebulaShader.Shader.Parameters;
-			parameters["uImageSize1"].SetValue(new Vector2(300));
-			parameters["uImageSize0"].SetValue(new Vector2(16, 16));
-			parameters["uSourceRect"].SetValue(new Vector4(0, 0, 16, 16));
-
-			parameters["uImageSize0"].SetValue(new Vector2(62, 28));
-			parameters["uWorldPosition"].SetValue(Projectile.Center - new Vector2(flip ? -50 : 32, flip ? 22 : 16));
-			parameters["uSourceRect"].SetValue(new Vector4(0, 0, 62, 28));
-			parameters["uDirection"].SetValue(flip ? 1 : -1);*/
 
 			DrawData data;
 
@@ -387,7 +361,6 @@ namespace EpikV2.Items {
 				new Vector2(Projectile.scale),
 				spriteEffects
 			);
-			//data.shader = 87;
 			Main.EntitySpriteDraw(data);
 			data = new DrawData(
 				bottomJawTexture,
@@ -399,7 +372,6 @@ namespace EpikV2.Items {
 				Projectile.scale,
 				spriteEffects
 			);
-			//data.shader = EpikV2.nebulaShaderID;
 			Main.EntitySpriteDraw(data);
 		}
 		public override bool PreDraw(ref Color lightColor) {

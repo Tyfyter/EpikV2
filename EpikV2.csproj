@@ -5,6 +5,12 @@
     <AssemblyName>EpikV2</AssemblyName>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <IsPublishable>False</IsPublishable>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <IsPublishable>False</IsPublishable>
+  </PropertyGroup>
   <ItemGroup>
     <None Remove="Effects\MagicWave.fx" />
   </ItemGroup>

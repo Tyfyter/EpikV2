@@ -83,11 +83,12 @@ namespace EpikV2 {
 				EpikV2.magicWaveShader2ID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Nightmare_Sword>());
 
 				nebulaShader = new ArmorShaderData(mod.Assets.Request<Effect>("Effects/Nebula"), "Nebula");
-				nebulaDistortionTexture = mod.Assets.Request<Texture2D>("Textures/Starry_Noise", AssetRequestMode.ImmediateLoad);
-				nebulaShader.UseNonVanillaImage(nebulaDistortionTexture);
+				//nebulaDistortionTexture = mod.Assets.Request<Texture2D>("Textures/Starry_Noise");
+				nebulaDistortionTexture = mod.Assets.Request<Texture2D>("Textures/Star_Noise_2");
+				nebulaShader.UseImage(nebulaDistortionTexture);
 
 				hydraNeckShader = new ArmorShaderData(mod.Assets.Request<Effect>("Effects/HydraNeck"), "HydraNeck");
-				hydraNeckShader.UseNonVanillaImage(nebulaDistortionTexture);
+				hydraNeckShader.UseImage(nebulaDistortionTexture);
 				GameShaders.Armor.BindShader(ItemType<Mobile_Glitch_Present>(), hydraNeckShader);
 
 				retroShader = new ArmorShaderData(mod.Assets.Request<Effect>("Effects/Armor"), "Retro");
