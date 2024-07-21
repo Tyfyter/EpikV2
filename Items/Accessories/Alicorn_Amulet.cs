@@ -13,7 +13,7 @@ using Terraria.ModLoader;
 
 namespace EpikV2.Items.Accessories {
 	public class Alicorn_Amulet : Parasitic_Accessory, IDeclarativeEquipStats {
-		public IEnumerable<IEquipStat> GetStats() {
+		public IEnumerable<EquipStat> GetStats() {
 			yield return new AdditiveDamageStat(0.25f, DamageClass.Magic);
 			yield return new AttackSpeedStat(0.15f, DamageClass.Magic);
 		}

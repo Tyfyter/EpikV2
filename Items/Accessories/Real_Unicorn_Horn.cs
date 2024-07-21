@@ -11,7 +11,7 @@ using Terraria.ModLoader;
 
 namespace EpikV2.Items.Accessories {
 	public class Real_Unicorn_Horn : ModItem, IDeclarativeEquipStats {
-		public IEnumerable<IEquipStat> GetStats() {
+		public IEnumerable<EquipStat> GetStats() {
 			yield return new AttackSpeedStat(0.07f, DamageClass.Magic);
 		}
 		public override void SetDefaults() {

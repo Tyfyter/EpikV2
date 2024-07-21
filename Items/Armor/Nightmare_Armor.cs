@@ -26,7 +26,7 @@ using Tyfyter.Utils;
 namespace EpikV2.Items.Armor {
 	[AutoloadEquip(EquipType.Head, EquipType.Back)]
 	public class Nightmare_Helmet : ModItem, IDeclarativeEquipStats, IMultiModeItem {
-		public IEnumerable<IEquipStat> GetStats() {
+		public IEnumerable<EquipStat> GetStats() {
 			yield return new AdditiveDamageStat(0.18f, DamageClass.Magic);
 			yield return new CritStat(18, DamageClass.Magic);
 		}
@@ -108,7 +108,7 @@ namespace EpikV2.Items.Armor {
 	}
 	[AutoloadEquip(EquipType.Body)]
 	public class Nightmare_Pauldrons : ModItem, IDeclarativeEquipStats {
-		public IEnumerable<IEquipStat> GetStats() {
+		public IEnumerable<EquipStat> GetStats() {
 			yield return new DamageReductionStat(0.10f);
 			yield return new ManaCostStat(0.10f);
 		}
@@ -132,7 +132,7 @@ namespace EpikV2.Items.Armor {
 	}
 	[AutoloadEquip(EquipType.Legs, EquipType.Waist)]
 	public class Nightmare_Tassets : ModItem, IDeclarativeEquipStats {
-		public IEnumerable<IEquipStat> GetStats() {
+		public IEnumerable<EquipStat> GetStats() {
 			yield return new SpeedStat(0.14f);
 			yield return new JumpSpeedStat(2f);
 		}

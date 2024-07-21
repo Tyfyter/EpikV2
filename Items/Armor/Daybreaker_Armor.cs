@@ -27,7 +27,7 @@ namespace EpikV2.Items.Armor {
 	[AutoloadEquip(EquipType.Head, EquipType.Back)]
 	public class Daybreaker_Helmet : ModItem, IDeclarativeEquipStats, IMultiModeItem {
 		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
-		public IEnumerable<IEquipStat> GetStats() {
+		public IEnumerable<EquipStat> GetStats() {
 			yield return new AdditiveDamageStat(0.18f, DamageClass.Magic, DamageClass.Melee);
 			yield return new CritStat(18, DamageClass.Magic);
 		}
@@ -110,7 +110,7 @@ namespace EpikV2.Items.Armor {
 	[AutoloadEquip(EquipType.Body)]
 	public class Daybreaker_Pauldrons : ModItem, IDeclarativeEquipStats {
 		public override string Texture => "EpikV2/Items/Armor/Nightmare_Pauldrons";
-		public IEnumerable<IEquipStat> GetStats() {
+		public IEnumerable<EquipStat> GetStats() {
 			yield return new DamageReductionStat(0.10f);
 			yield return new ManaCostStat(0.10f);
 		}
@@ -135,7 +135,7 @@ namespace EpikV2.Items.Armor {
 	[AutoloadEquip(EquipType.Legs, EquipType.Waist)]
 	public class Daybreaker_Tassets : ModItem, IDeclarativeEquipStats {
 		public override string Texture => "EpikV2/Items/Armor/Nightmare_Tassets";
-		public IEnumerable<IEquipStat> GetStats() {
+		public IEnumerable<EquipStat> GetStats() {
 			yield return new SpeedStat(0.14f);
 			yield return new JumpSpeedStat(2f);
 		}
