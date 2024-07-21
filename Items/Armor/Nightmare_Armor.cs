@@ -36,7 +36,7 @@ namespace EpikV2.Items.Armor {
 			Item.value = 5000000;
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
-            Item.defense = 8;
+			Item.defense = 8;
 		}
 		public int GetSlotContents(int slotIndex) => Nightmare_Weapons.SlotContents(slotIndex);
 		public bool ItemSelected(int slotIndex) => false;
@@ -460,7 +460,7 @@ namespace EpikV2.Items.Armor {
 				}
 			}
 			if (player.whoAmI == Main.myPlayer && !player.CCed) {
-				int swordMode = sword is null ? 0 : (int)sword.ai[0]; 
+				int swordMode = sword is null ? 0 : (int)sword.ai[0];
 				if (!epikPlayer.nightmareShield.active && swordMode != 6 && player.controlUseTile && (player.releaseUseTile || (player.CanAutoReuseItem(Item) && swordMode == 0))) {
 					Vector2 diff = Main.MouseWorld - player.MountedCenter;
 					epikPlayer.nightmareShield.Set(Projectile.NewProjectile(
@@ -1115,6 +1115,14 @@ namespace EpikV2.Items.Armor {
 		public void DrawSlots() => Nightmare_Weapons.DrawSlots(Item);
 		public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
 			if (player.altFunctionUse == 2) {
+				float speed = velocity.Length() * 1.25f;
+				if (GeometryUtils.AngleToTarget(Main.MouseWorld - position, speed, 0.04f, false) is float angle) {
+					velocity = new Vector2(speed, 0).RotatedBy(angle);
+				}
+				//SoundEngine.PlaySound(SoundID.Item105.WithPitchRange(0.85f, 1f), position);
+				SoundEngine.PlaySound(SoundID.Item25.WithPitchRange(0.6f, 0.7f), position);
+				SoundEngine.PlaySound(SoundID.Item28.WithPitchRange(0.5f, 0.6f), position);
+			} else {
 				type = Nightmare_Lightning_P.ID;
 				velocity *= 1.5f;
 				if (player.ownedProjectileCounts[Nightmare_Orb_P.ID] > 0) {
@@ -1135,16 +1143,12 @@ namespace EpikV2.Items.Armor {
 								if (!before) position -= velocity;
 								break;
 							}
-						}else {
+						} else {
 							before = true;
 						}
 					}
 				}
-			} else {
-				float speed = velocity.Length();
-				if (GeometryUtils.AngleToTarget(Main.MouseWorld - position, speed, 0.04f, false) is float angle) {
-					velocity = new Vector2(speed, 0).RotatedBy(angle);
-				}
+				SoundEngine.PlaySound(SoundID.Item122.WithPitchRange(0.85f, 1f), position);
 			}
 		}
 		public override void UpdateInventory(Player player) {
@@ -1177,16 +1181,6 @@ namespace EpikV2.Items.Armor {
 			for (int i = 0; i < Main.maxProjectiles; i++) {
 				if (i == Projectile.whoAmI) continue;
 				Projectile other = Main.projectile[i];
-				if (other.active && other.type == Nightmare_Lightning_P.ID && other.owner == Projectile.owner && other.Colliding(other.Hitbox, Projectile.Hitbox)) {
-					if (other.velocity == default || other.localAI[2] < 0) continue;
-					Projectile.ai[2] += other.localAI[2];
-					other.Kill();
-					if (other.localAI[2] < 0.75f) continue;
-					float speed = other.velocity.Length();
-					Vector2 direction = (new Vector2(other.ai[0], other.ai[1]) - other.Center).SafeNormalize(other.velocity / speed);
-					Projectile.velocity = direction * 8;
-					continue;
-				}
 				if (other.active && other.hostile && other.damage > 0) {
 					ref byte deflectState = ref other.GetGlobalProjectile<EpikGlobalProjectile>().deflectState;
 					if (deflectState < 2) {
@@ -1213,6 +1207,16 @@ namespace EpikV2.Items.Armor {
 			}
 			if (Projectile.ai[2] > 0) {
 				Projectile.timeLeft -= Main.rand.RandomRound(Projectile.ai[2] * 2);
+				if (Main.myPlayer == Projectile.owner && Projectile.ai[2] > Main.rand.NextFloat(0, 4)) {
+					Projectile.NewProjectile(
+						Projectile.GetSource_FromAI(),
+						Projectile.Center,
+						Main.rand.NextVector2CircularEdge(8, 8),
+						Nightmare_Orb_Lightning_P.ID,
+						Projectile.damage,
+						Projectile.knockBack
+					);
+				}
 			}
 		}
 		public override void OnKill(int timeLeft) {
@@ -1222,7 +1226,7 @@ namespace EpikV2.Items.Armor {
 						Projectile.GetSource_FromAI(),
 						Projectile.Center,
 						Main.rand.NextVector2CircularEdge(8, 8),
-						Nightmare_Lightning_P.ID,
+						Nightmare_Orb_Lightning_P.ID,
 						Projectile.damage,
 						Projectile.knockBack
 					);
@@ -1234,24 +1238,23 @@ namespace EpikV2.Items.Armor {
 				Projectile.timeLeft -= Main.rand.RandomRound(Projectile.ai[2] * 480);
 			}
 			Vector2 normalizedDir = (Rectangle.Intersect(target.Hitbox, Projectile.Hitbox).Center.ToVector2() - Projectile.Center).SafeNormalize(default);
-			Projectile.velocity -= 1.9f * Vector2.Dot(Projectile.velocity, normalizedDir) * normalizedDir + new Vector2(0, 2);
+			Projectile.velocity -= 1.8f * Vector2.Dot(Projectile.velocity, normalizedDir) * normalizedDir + new Vector2(0, 2);
 		}
 		public override bool OnTileCollide(Vector2 oldVelocity) {
 			if (Projectile.ai[2] > 0) {
 				Projectile.timeLeft -= Main.rand.RandomRound(Projectile.ai[2] * 300);
 			}
 			Vector2 normalizedDir = new Vector2(Math.Sign(oldVelocity.X - Projectile.velocity.X), Math.Sign(oldVelocity.Y - Projectile.velocity.Y)).SafeNormalize(Vector2.Zero);
-			Projectile.velocity = oldVelocity - 1.9f * Vector2.Dot(oldVelocity, normalizedDir) * normalizedDir;
+			Projectile.velocity = oldVelocity - 1.8f * Vector2.Dot(oldVelocity, normalizedDir) * normalizedDir;
 			return false;
 		}
 	}
-	///TODO: needs to spawn less or be replaced, shooting like 3 bolts reaches the projectile cap
-	public class Nightmare_Lightning_P : ModProjectile {
+	public class Nightmare_Orb_Lightning_P : ModProjectile {
 		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			ProjectileID.Sets.TrailingMode[Projectile.type] = 0;
-			ProjectileID.Sets.TrailCacheLength[Projectile.type] = 30;
+			ProjectileID.Sets.TrailCacheLength[Projectile.type] = 20;
 			ID = Type;
 		}
 		public override void SetDefaults() {
@@ -1261,10 +1264,67 @@ namespace EpikV2.Items.Armor {
 			Projectile.alpha = 255;
 			Projectile.ignoreWater = true;
 			Projectile.tileCollide = true;
-			Projectile.extraUpdates = 4;
-			Projectile.timeLeft = 600;
+			Projectile.extraUpdates = 1;
+			Projectile.timeLeft = 10010;
 			Projectile.penetrate = -1;
 		}
+		public bool MainActive => Projectile.oldPos[^1] != Projectile.position;
+		public override void OnSpawn(IEntitySource source) {
+			Projectile.ai[2] = Main.rand.Next(100);
+			Vector2 target = Projectile.Center + Projectile.velocity * 8;
+			Projectile.ai[0] = target.X;
+			Projectile.ai[1] = target.Y;
+		}
+		public override void AI() {
+			if (Projectile.numUpdates == 0) {
+				UnifiedRandom rand = new((int)Projectile.ai[2]);
+				Projectile.ai[2] = rand.Next(100);
+				if (Projectile.timeLeft > 10000) {
+					Nightmare_Lightning_P.UpdateZappiness(ref Projectile.velocity, Projectile.Center, rand, new(Projectile.ai[0], Projectile.ai[1]), 0);
+				} else if (Projectile.velocity != default) {
+					Projectile.velocity = default;
+				}
+				if (!MainActive) Projectile.Kill();
+			}
+		}
+		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
+			for (int n = 0; n < Projectile.oldPos.Length && Projectile.oldPos[n] != default; n++) {
+				projHitbox.Location = Projectile.oldPos[n].ToPoint();
+				if (projHitbox.Intersects(targetHitbox)) return true;
+			}
+			return false;
+		}
+		public override bool OnTileCollide(Vector2 oldVelocity) {
+			Projectile.position += Projectile.velocity;
+			Projectile.velocity = Vector2.Zero;
+			return false;
+		}
+		public override bool PreDraw(ref Color lightColor) {
+			Nightmare_Lightning_P.DrawLaser(Projectile.position, Projectile.oldPos, 2, new Vector2(Projectile.width, Projectile.height) / 2f + Vector2.UnitY * Projectile.gfxOffY);
+			return false;
+		}
+	}
+	public class Nightmare_Lightning_P : ModProjectile {
+		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
+		public static int ID { get; private set; }
+		public override void SetStaticDefaults() {
+			ProjectileID.Sets.TrailingMode[Projectile.type] = 0;
+			ProjectileID.Sets.TrailCacheLength[Projectile.type] = 30;
+			ID = Type;
+		}
+		List<Lightning_Offshoot> offshoots = [];
+		public override void SetDefaults() {
+			Projectile.width = 14;
+			Projectile.height = 14;
+			Projectile.friendly = true;
+			Projectile.alpha = 255;
+			Projectile.ignoreWater = true;
+			Projectile.tileCollide = true;
+			Projectile.extraUpdates = 4;
+			Projectile.timeLeft = 10600;
+			Projectile.penetrate = -1;
+		}
+		public bool MainActive => Projectile.oldPos[^1] != Projectile.position;
 		public override void OnSpawn(IEntitySource source) {
 			Projectile.ai[2] = Main.rand.Next(100);
 			float parentScale = 1f;
@@ -1289,46 +1349,111 @@ namespace EpikV2.Items.Armor {
 			Projectile.ai[0] = target.X;
 			Projectile.ai[1] = target.Y;
 		}
+		public void AddOffshoot(Lightning_Offshoot offshoot) {
+			for (int i = 0; i < offshoots.Count; i++) {
+				if (!offshoots[i].active) {
+					offshoots[i] = offshoot;
+					return;
+				}
+			}
+			offshoots.Add(offshoot);
+		}
+		public static void UpdateZappiness(ref Vector2 velocity, Vector2 center, UnifiedRandom rand, Vector2 target, int generation) {
+			float speed = velocity.Length();
+			if (speed <= 0) return;
+
+			Vector2 normalizedVelocity = velocity / speed;
+			Vector2 direction = (target - center).SafeNormalize(normalizedVelocity);
+			float angleRange = 0.75f;
+			do {
+				velocity = direction.RotatedBy(rand.NextFloat(-angleRange, angleRange)) * speed;
+				angleRange -= 0.05f;
+			} while (angleRange > 0 && !Collision.CanHitLine(center, 4, 4, center + velocity * 8, 4, 4));
+			if (generation != 0 && velocity != Vector2.Zero) {
+				if (Vector2.Dot((target - (center + velocity * (4 - generation))).SafeNormalize(default), direction) <= 0) {
+					velocity = Vector2.Zero;
+				}
+			}
+		}
 		public override void AI() {
-			if (Projectile.numUpdates == 0) {
+			for (int i = 0; i < offshoots.Count; i++) {
+				if (Projectile.numUpdates >= offshoots[i].generation) {
+					offshoots[i].Update();
+					if (!offshoots[i].active) offshoots.RemoveAt(i--);
+				}
+			}
+			Vector2? forceTarget = null;
+			const float mag_range = 4 * 16;
+			for (int i = 0; i < Main.maxProjectiles; i++) {
+				if (i == Projectile.whoAmI) continue;
+				Projectile other = Main.projectile[i];
+				if (other.active && other.type == Nightmare_Orb_P.ID && other.owner == Projectile.owner) {
+					Rectangle rectHitbox = other.Hitbox;
+					if (MainActive && Projectile.Hitbox.Intersects(other.Hitbox)) {
+						other.ai[2] += 0.75f;
+						Projectile.Kill();
+						float speed = Projectile.velocity.Length();
+						Vector2 direction = (new Vector2(Projectile.ai[0], Projectile.ai[1]) - Projectile.Center).SafeNormalize(Projectile.velocity / speed);
+						other.velocity = direction * 8;
+						break;
+					}
+					if (Projectile.DistanceSQ(other.Center) < mag_range * mag_range) {
+						forceTarget = other.Center;
+					}
+					for (int j = 0; j < offshoots.Count; j++) {
+						if (offshoots[j].Colliding(rectHitbox)) {
+							other.ai[2] += Lightning_Offshoot.GetScale(offshoots[j].generation);
+						}
+					}
+				}
+			}
+			if (Projectile.numUpdates == -1) {
 				UnifiedRandom rand = new((int)Projectile.ai[2]);
 				Projectile.ai[2] = rand.Next(100);
-				float speed = Projectile.velocity.Length();
-				Vector2 target = new(Projectile.ai[0], Projectile.ai[1]);
-				if (Projectile.localAI[0] != 0) {
-					target = new(Projectile.localAI[0], Projectile.localAI[1]);
-				}
-				Vector2 normalizedVelocity = Projectile.velocity / speed;
-				Vector2 direction = (target - Projectile.Center).SafeNormalize(normalizedVelocity);
-				if (speed > 0 && rand.NextBool(2, 3) && Projectile.localAI[2] > 0.25f && Main.myPlayer == Projectile.owner) {
-					Projectile.NewProjectile(
-						Projectile.GetSource_FromAI(),
-						Projectile.Center - Projectile.velocity,
-						Projectile.velocity,
-						Type,
-						Projectile.damage,
-						Projectile.knockBack
-					);
-				}
-				Projectile.velocity = direction.RotatedBy(rand.NextFloat(-0.75f, 0.75f)) * speed;
-				if (Projectile.localAI[0] != 0) {
-					float dot = Vector2.Dot((target - (Projectile.Center + Projectile.velocity * 4)).SafeNormalize(default), direction);
-					if (dot <= 0) {
-						Projectile.localAI[0] = 0;
-						Projectile.localAI[1] = 0;
+				if (Projectile.timeLeft > 10000) {
+					Vector2 target = new(Projectile.ai[0], Projectile.ai[1]);
+					if (forceTarget.HasValue) {
+						target = forceTarget.Value;
+					} else if (Projectile.localAI[0] != 0) {
+						target = new(Projectile.localAI[0], Projectile.localAI[1]);
 					}
-				} else if (Projectile.localAI[2] < 0.75f && Projectile.velocity != Vector2.Zero) {
-					if (Vector2.Dot((target - (Projectile.Center + Projectile.velocity * 4)).SafeNormalize(default), direction) <= 0) {
-						Projectile.velocity = Vector2.Zero;
+					UpdateZappiness(ref Projectile.velocity, Projectile.Center, rand, target, 0);
+					if (Projectile.velocity != default && Main.myPlayer == Projectile.owner && rand.NextBool(2, 3)) {
+						offshoots.Add(new(Projectile.Center - Projectile.velocity, Projectile.velocity, 1));
+					}
+					if (Projectile.localAI[0] != 0) {
+						Vector2 direction = (target - Projectile.Center).SafeNormalize(default);
+						float dot = Vector2.Dot((target - (Projectile.Center + Projectile.velocity * 4)).SafeNormalize(default), direction);
+						if (dot <= 0) {
+							Projectile.localAI[0] = 0;
+							Projectile.localAI[1] = 0;
+						}
+					}
+				} else if (Projectile.velocity != default) {
+					Projectile.velocity = default;
+				}
+				if (!MainActive && offshoots.Count <= 0) {
+					Projectile.Kill();
+				} else {
+					for (int i = 0; i < offshoots.Count; i++) {
+						Lightning_Offshoot offshoot = offshoots[i];
+						UpdateZappiness(ref offshoot.velocity, offshoot.position + offshoot.HalfSize, rand, offshoot.target, offshoot.generation);
+						if (offshoot.velocity != default && offshoot.generation < 2 && Main.myPlayer == Projectile.owner && rand.NextBool(2, 3)) {
+							offshoots.Add(new(offshoot.position - offshoot.velocity, offshoot.velocity, offshoot.generation + 1));
+						}
 					}
 				}
-				if (Projectile.oldPos[^1] == Projectile.position) Projectile.Kill();
 			}
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
-			for (int n = 0; n < Projectile.oldPos.Length && Projectile.oldPos[n] != default; n++) {
-				projHitbox.Location = Projectile.oldPos[n].ToPoint();
-				if (projHitbox.Intersects(targetHitbox)) return true;
+			if (MainActive) {
+				for (int n = 0; n < Projectile.oldPos.Length && Projectile.oldPos[n] != default; n++) {
+					projHitbox.Location = Projectile.oldPos[n].ToPoint();
+					if (projHitbox.Intersects(targetHitbox)) return true;
+				}
+			}
+			for (int i = 0; i < offshoots.Count; i++) {
+				if (offshoots[i].Colliding(targetHitbox)) return true;
 			}
 			return false;
 		}
@@ -1338,13 +1463,19 @@ namespace EpikV2.Items.Armor {
 			return false;
 		}
 		public override bool PreDraw(ref Color lightColor) {
-			if (Projectile.localAI[2] == 0) {
-				Projectile.Kill();
-				return false;
+			for (int i = 0; i < offshoots.Count; i++) {
+				Lightning_Offshoot offshoot = offshoots[i];
+				DrawLaser(offshoot.position, offshoot.oldPos, offshoot.generation);
 			}
-			float scaleFactor = Math.Abs(Projectile.localAI[2]);
+			if (MainActive) {
+				DrawLaser(Projectile.position, Projectile.oldPos, 0, new Vector2(Projectile.width, Projectile.height) / 2f + Vector2.UnitY * Projectile.gfxOffY);
+			}
+			return false;
+		}
+		public static void DrawLaser(Vector2 position, Vector2[] oldPos, int generation, Vector2 centerOffset = default) {
+			float scaleFactor = Lightning_Offshoot.GetScale(generation);
 			Texture2D texture = TextureAssets.Extra[33].Value;
-			Vector2 scale = default;
+			Vector2 scale;
 			for (int i = 0; i < 3; i++) {
 				switch (i) {
 					case 0:
@@ -1362,10 +1493,10 @@ namespace EpikV2.Items.Armor {
 				}
 
 				DelegateMethods.f_1 = 0.5f;
-				for (int j = Projectile.oldPos.Length - 1; j > 1; j--) {
-					if (Projectile.oldPos[j] == Vector2.Zero) continue;
-					Vector2 start = Projectile.oldPos[j] + new Vector2(Projectile.width, Projectile.height) / 2f + Vector2.UnitY * Projectile.gfxOffY;
-					Vector2 end2 = Projectile.oldPos[j - 1] + new Vector2(Projectile.width, Projectile.height) / 2f + Vector2.UnitY * Projectile.gfxOffY;
+				for (int j = oldPos.Length - 1; j > 1; j--) {
+					if (oldPos[j] == Vector2.Zero) continue;
+					Vector2 start = oldPos[j];
+					Vector2 end2 = oldPos[j - 1];
 					Utils.DrawLaser(
 						Main.spriteBatch,
 						texture,
@@ -1376,9 +1507,9 @@ namespace EpikV2.Items.Armor {
 					);
 				}
 
-				if (Projectile.oldPos[0] != Vector2.Zero) {
-					Vector2 start2 = Projectile.oldPos[0] + new Vector2(Projectile.width, Projectile.height) / 2f + Vector2.UnitY * Projectile.gfxOffY;
-					Vector2 end = Projectile.Center + Vector2.UnitY * Projectile.gfxOffY;
+				if (oldPos[0] != Vector2.Zero) {
+					Vector2 start2 = oldPos[0] + centerOffset;
+					Vector2 end = position + centerOffset;
 					Utils.DrawLaser(
 						Main.spriteBatch,
 						texture,
@@ -1389,7 +1520,40 @@ namespace EpikV2.Items.Armor {
 					);
 				}
 			}
-			return base.PreDraw(ref lightColor);
 		}
+	}
+	public class Lightning_Offshoot(Vector2 position, Vector2 velocity, int generation) {
+		public Vector2 position = position;
+		public Vector2 velocity = velocity;
+		public Vector2 target = position + velocity * 12;
+		public Vector2[] oldPos = new Vector2[20];
+		public readonly int generation = generation;
+		public bool active = true;
+		public Vector2 HalfSize => new(7 * GetScale(generation));
+		public Rectangle Hitbox {
+			get {
+				Vector2 halfSize = HalfSize;
+				return EpikExtensions.BoxOf(position - halfSize, position + halfSize);
+			}
+		}
+		public void Update() {
+			if (active && oldPos[^1] == position) active = false;
+			if (!active) return;
+			for (int i = oldPos.Length - 1; i > 0; i--) {
+				oldPos[i] = oldPos[i - 1];
+			}
+			oldPos[0] = position;
+			position += velocity;
+		}
+		public bool Colliding(Rectangle targetHitbox) {
+			Vector2 halfSize = HalfSize;
+			Rectangle hitbox = new(0, 0, (int)(halfSize.X * 2), (int)(halfSize.Y * 2));
+			for (int n = 0; n < oldPos.Length && oldPos[n] != default; n++) {
+				hitbox.Location = (oldPos[n] - halfSize).ToPoint();
+				if (hitbox.Intersects(targetHitbox)) return true;
+			}
+			return false;
+		}
+		public static float GetScale(int generation) => 0.75f - 0.25f * generation;
 	}
 }

@@ -633,7 +633,7 @@ Items: {
 			'''
 			Consumes mana while equipped
 			Consumes health and reduces damage dealt if you are out of mana
-			Consumes mana to unequip
+			Must consume mana to remove
 			'''
 	}
 
@@ -1060,14 +1060,14 @@ Items: {
 		Tooltip: ""
 	}
 
-	Nightmare_Helmet_Hair: {
-		DisplayName: "{$EpikV2.Items.Nightmare_Helmet.DisplayName} (Open Back)"
-		Tooltip: ""
-	}
-
 	Nightmare_Helmet_Full_Hair: {
 		DisplayName: "{$EpikV2.Items.Nightmare_Helmet.DisplayName} (Open)"
-		Tooltip: ""
+		Tooltip: "{$EpikV2.Items.Nightmare_Helmet.Tooltip}"
+	}
+
+	Nightmare_Helmet_Hair: {
+		DisplayName: "{$EpikV2.Items.Nightmare_Helmet.DisplayName} (Open Back)"
+		Tooltip: "{$EpikV2.Items.Nightmare_Helmet.Tooltip}"
 	}
 
 	Nightmare_Pauldrons: {
@@ -1091,42 +1091,42 @@ Items: {
 	}
 
 	Nightmare_Sorcery: {
-		DisplayName: Nightmare_ Sorcery
+		DisplayName: Nightmarish Sorcery
 		Tooltip: ""
 	}
 
 	Time_Manipulator_Other: {
-		DisplayName: Time_ Manipulator_ Other
+		DisplayName: Time Manipulator (Other)
 		Tooltip: ""
 	}
 
 	Daybreaker_Helmet: {
-		DisplayName: Daybreaker_ Helmet
+		DisplayName: Daybroken Helmet
 		Tooltip: ""
 	}
 
 	Daybreaker_Helmet_Full_Hair: {
-		DisplayName: Daybreaker_ Helmet_ Full_ Hair
-		Tooltip: ""
+		DisplayName: Daybroken Helmet (Open)
+		Tooltip: "{$EpikV2.Items.Daybreaker_Helmet.Tooltip}"
 	}
 
 	Daybreaker_Helmet_Hair: {
-		DisplayName: Daybreaker_ Helmet_ Hair
-		Tooltip: ""
+		DisplayName: Daybroken Helmet (Open Back)
+		Tooltip: "{$EpikV2.Items.Daybreaker_Helmet.Tooltip}"
 	}
 
 	Daybreaker_Pauldrons: {
-		DisplayName: Daybreaker_ Pauldrons
+		DisplayName: Daybroken Pauldrons
 		Tooltip: ""
 	}
 
 	Daybreaker_Sword: {
-		DisplayName: Daybreaker_ Sword
+		DisplayName: Daybroken Executioner
 		Tooltip: ""
 	}
 
 	Daybreaker_Tassets: {
-		DisplayName: Daybreaker_ Tassets
+		DisplayName: Daybroken Tassets
 		Tooltip: ""
 	}
 
@@ -1243,8 +1243,9 @@ Projectiles: {
 	Nightmare_Shield_P.DisplayName: Nightmarish Shield
 	Nightmare_Sword_P.DisplayName: Nightmarish Sword
 	Temporary_Nightmare_Sword_P.DisplayName: Nightmarish Sword
-	Nightmare_Lightning_P.DisplayName: Nightmare_ Lightning_ P
-	Nightmare_Orb_P.DisplayName: Nightmare_ Orb_ P
+	Nightmare_Lightning_P.DisplayName: Nightmarish Lightning
+	Nightmare_Orb_P.DisplayName: Shield Bubble
+	Nightmare_Orb_Lightning_P.DisplayName: Nightmarish Lightning
 }
 
 DamageClasses: {

@@ -355,7 +355,7 @@ namespace EpikV2 {
 							rectangle.TopLeft() + new Vector2(i, j),
 							6,
 							Vector2.Zero
-						);
+						).noGravity = true;
 					}
 				}
 			}
