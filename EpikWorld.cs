@@ -94,12 +94,12 @@ namespace EpikV2 {
 			HashSet<string> _moddedKeys = (HashSet<string>)typeof(LanguageManager).GetField(nameof(_moddedKeys), BindingFlags.NonPublic | BindingFlags.Instance).GetValue(LanguageManager.Instance);
 			Dictionary<string, LocalizedText> _localizedTexts = (Dictionary<string, LocalizedText>)typeof(LanguageManager).GetField(nameof(_localizedTexts), BindingFlags.NonPublic | BindingFlags.Instance).GetValue(LanguageManager.Instance);
 			string baseText = DamageClass.Generic.DisplayName.Value;
-			ConstructorInfo ctor = typeof(LocalizedText).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, new Type[] { typeof(string), typeof(string) });
+			ConstructorInfo ctor = typeof(LocalizedText).GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, [typeof(string), typeof(string)]);
 			for (int i = 0; i < DamageClassLoader.DamageClassCount; i++) {
 				DamageClass dc = DamageClassLoader.GetDamageClass(i);
 				string key = "NoDamage." + dc.DisplayName.Key;
 				_moddedKeys.Add(key);
-				_localizedTexts[key] = (LocalizedText)ctor.Invoke(new object[] { key, dc.DisplayName.Value.Replace(baseText, "") });
+				_localizedTexts[key] = (LocalizedText)ctor.Invoke([key, dc.DisplayName.Value.Replace(baseText, "").Trim()]);
 			}
 		}
 		public override void PostUpdateTime() {

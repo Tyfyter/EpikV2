@@ -24,10 +24,11 @@ Effects: {
 		{0}
 		{1}
 		'''
-	Damage: "{0:P0} increased{1}"
-	ClassCritChance: "{0}% increased{1} critical strike chance"
+	ClassDamage: "{0:P0} increased {1} damage"
+	Damage: "{0:P0} increased damage"
+	ClassCritChance: "{0}% increased {1} critical strike chance"
 	CritChance: "{0}% increased critical strike chance"
-	ClassAttackSpeed: "{0:P0} increased{1} speed"
+	ClassAttackSpeed: "{0:P0} increased {1} speed"
 	AttackSpeed: "{0:P0} increased attack speed"
 	ManaCost: "{0:P0} reduced mana cost"
 	ManaMax: Increases maximum mana by {0}
@@ -1249,83 +1250,17 @@ Projectiles: {
 }
 
 DamageClasses: {
-	Biome_Key_Corrupt_Damage: {
-		DisplayName: {
-			$parentVal: profaned damage
-			NoDamage: profaned
-		}
-	}
-
-	Biome_Key_Crimson_Damage: {
-		DisplayName: {
-			$parentVal: sanguine damage
-			NoDamage: sanguine
-		}
-	}
-
-	Biome_Key_Desert_Damage: {
-		DisplayName: {
-			$parentVal: desolate damage
-			NoDamage: desolate
-		}
-	}
-
-	Biome_Key_Forest_Damage: {
-		DisplayName: {
-			$parentVal: pure damage
-			NoDamage: pure
-		}
-	}
-
-	Biome_Key_Frozen_Damage: {
-		DisplayName: {
-			$parentVal: frigid damage
-			NoDamage: frigid
-		}
-	}
-
-	Biome_Key_Hallow_Damage: {
-		DisplayName: {
-			$parentVal: holy damage
-			NoDamage: holy
-		}
-	}
-
-	Biome_Key_Jungle_Damage: {
-		DisplayName: {
-			$parentVal: wild damage
-			NoDamage: wild
-		}
-	}
-
-	Melee_Summon: {
-		DisplayName: {
-			$parentVal: melee/summon damage
-			NoDamage: melee/summon
-		}
-	}
-
-	Ranged_Magic: {
-		DisplayName: {
-			$parentVal: ranged/magic damage
-			NoDamage: ranged/magic
-		}
-	}
-
-	Ranged_Melee_Speed: {
-		DisplayName: {
-			$parentVal: ranged damage
-			NoDamage: ranged
-		}
-	}
-
-	Spellsword: {
-		DisplayName: {
-			$parentVal: melee/magic damage
-			NoDamage: melee/magic
-		}
-	}
-
+	Biome_Key_Corrupt_Damage.DisplayName: profaned damage
+	Biome_Key_Crimson_Damage.DisplayName: sanguine damage
+	Biome_Key_Desert_Damage.DisplayName: desolate damage
+	Biome_Key_Forest_Damage.DisplayName: pure damage
+	Biome_Key_Frozen_Damage.DisplayName: frigid damage
+	Biome_Key_Hallow_Damage.DisplayName: holy damage
+	Biome_Key_Jungle_Damage.DisplayName: wild damage
+	Melee_Summon.DisplayName: melee/summon damage
+	Ranged_Magic.DisplayName: ranged/magic damage
+	Ranged_Melee_Speed.DisplayName: ranged damage
+	Spellsword.DisplayName: melee/magic damage
 	Magic_Melee_Speed.DisplayName: magic damage
 }
 

@@ -28,7 +28,7 @@ namespace EpikV2.Items.Armor {
 	public class Daybreaker_Helmet : ModItem, IDeclarativeEquipStats, IMultiModeItem {
 		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
 		public IEnumerable<IEquipStat> GetStats() {
-			yield return new AdditiveDamageStat(0.18f, DamageClass.Magic);
+			yield return new AdditiveDamageStat(0.18f, DamageClass.Magic, DamageClass.Melee);
 			yield return new CritStat(18, DamageClass.Magic);
 		}
 		public override void SetDefaults() {
@@ -47,7 +47,7 @@ namespace EpikV2.Items.Armor {
 		}
 		public void DrawSlots() => Nightmare_Weapons.DrawSlots(Item);
 		public override bool IsArmorSet(Item head, Item body, Item legs) {
-			return body.ModItem is Nightmare_Pauldrons && legs.ModItem is Nightmare_Tassets;
+			return body.ModItem is Daybreaker_Pauldrons && legs.ModItem is Daybreaker_Pauldrons;
 		}
 		public override void ArmorSetShadows(Player player) {
 			player.armorEffectDrawShadowSubtle = true;
@@ -66,7 +66,7 @@ namespace EpikV2.Items.Armor {
 		}
 	}
 	[AutoloadEquip(EquipType.Head, EquipType.Back)]
-	public class Daybreaker_Helmet_Hair : Nightmare_Helmet {
+	public class Daybreaker_Helmet_Hair : Daybreaker_Helmet {
 		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
 		public override void SetStaticDefaults() {
 			ArmorIDs.Head.Sets.DrawHatHair[Item.headSlot] = true;
@@ -74,16 +74,16 @@ namespace EpikV2.Items.Armor {
 		public override void ArmorSetShadows(Player player) { }
 		public override void AddRecipes() {
 			Recipe.Create(Type)
-			.AddIngredient<Nightmare_Helmet>()
+			.AddIngredient<Daybreaker_Helmet>()
 			.Register();
 
-			Recipe.Create(ModContent.ItemType<Nightmare_Helmet>())
+			Recipe.Create(ModContent.ItemType<Daybreaker_Helmet>())
 			.AddIngredient(Type)
 			.Register();
 		}
 	}
 	[AutoloadEquip(EquipType.Head, EquipType.Back)]
-	public class Daybreaker_Helmet_Full_Hair : Nightmare_Helmet {
+	public class Daybreaker_Helmet_Full_Hair : Daybreaker_Helmet {
 		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
 		public override void SetStaticDefaults() {
 			ArmorIDs.Head.Sets.DrawFullHair[Item.headSlot] = true;
@@ -91,18 +91,18 @@ namespace EpikV2.Items.Armor {
 		public override void ArmorSetShadows(Player player) { }
 		public override void AddRecipes() {
 			Recipe.Create(Type)
-			.AddIngredient<Nightmare_Helmet>()
+			.AddIngredient<Daybreaker_Helmet>()
 			.Register();
 
-			Recipe.Create(ModContent.ItemType<Nightmare_Helmet>())
+			Recipe.Create(ModContent.ItemType<Daybreaker_Helmet>())
 			.AddIngredient(Type)
 			.Register();
 
 			Recipe.Create(Type)
-			.AddIngredient<Nightmare_Helmet_Hair>()
+			.AddIngredient<Daybreaker_Helmet_Hair>()
 			.Register();
 
-			Recipe.Create(ModContent.ItemType<Nightmare_Helmet_Hair>())
+			Recipe.Create(ModContent.ItemType<Daybreaker_Helmet_Hair>())
 			.AddIngredient(Type)
 			.Register();
 		}

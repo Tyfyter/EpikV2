@@ -1156,9 +1156,14 @@ namespace EpikV2 {
 			}
 			return false;
 		}
+		public static LocalizedText CombineWithAnd(params LocalizedText[] values) {
+			if (values.Length == 1) return values[0];
+			if (values.Length == 2) return Language.GetText("Mods.EpikV2.Conditions.And").WithFormatArgs([..values]);
+			return Language.GetText("Mods.EpikV2.Conditions.CommaAnd").WithFormatArgs(SubstitutionRecurse(Language.GetText("Mods.EpikV2.Conditions.Comma"), values, values.Length - 2), values[^1]);
+		}
 		public static LocalizedText CombineWithOr(params LocalizedText[] values) {
 			if (values.Length == 1) return values[0];
-			if (values.Length == 2) return Language.GetText("Mods.EpikV2.Conditions.Or").WithFormatArgs(values.ToArray<object>());
+			if (values.Length == 2) return Language.GetText("Mods.EpikV2.Conditions.Or").WithFormatArgs([.. values]);
 			return Language.GetText("Mods.EpikV2.Conditions.CommaOr").WithFormatArgs(SubstitutionRecurse(Language.GetText("Mods.EpikV2.Conditions.Comma"), values, values.Length - 2), values[^1]);
 		}
 		public static LocalizedText GetText(string key, params object[] substitutions) => Language.GetText(key).WithFormatArgs(substitutions);
@@ -1189,6 +1194,7 @@ namespace EpikV2 {
 			Language.GetOrRegister($"Mods.{npc.Mod.Name}.Bestiary.{npc.Name}", defaultValue is null ? (() => "bestiary text here") : (() => defaultValue));
 			return new FlavorTextBestiaryInfoElement($"Mods.{npc.Mod.Name}.Bestiary.{npc.Name}");
 		}
+		public static LocalizedText GetDamageClassName(this DamageClass damageClass) => Language.GetText("NoDamage." + damageClass.DisplayName.Key);
 	}
 	public static class ConditionExtensions {
 		public static Condition CommaAnd(this Condition a, Condition b) {
