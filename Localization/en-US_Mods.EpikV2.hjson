@@ -1083,7 +1083,11 @@ Items: {
 
 	Nightmare_Sword: {
 		DisplayName: Nightmarish Sword
-		Tooltip: ""
+		Tooltip:
+			'''
+			<right> to project a magical shield
+			You can attack while blocking 
+			'''
 	}
 
 	Real_Unicorn_Horn: {
@@ -1116,18 +1120,18 @@ Items: {
 		Tooltip: "{$EpikV2.Items.Daybreaker_Helmet.Tooltip}"
 	}
 
-	Daybreaker_Pauldrons: {
-		DisplayName: Daybroken Pauldrons
+	Daybreaker_Wingguards: {
+		DisplayName: Daybroken Chestguard
+		Tooltip: ""
+	}
+
+	Daybreaker_Hoofguards: {
+		DisplayName: Daybroken Shinguards
 		Tooltip: ""
 	}
 
 	Daybreaker_Sword: {
 		DisplayName: Daybroken Executioner
-		Tooltip: ""
-	}
-
-	Daybreaker_Tassets: {
-		DisplayName: Daybroken Tassets
 		Tooltip: ""
 	}
 
@@ -1144,6 +1148,11 @@ Items: {
 
 	StatLimiter: {
 		DisplayName: Stat Limiter
+		Tooltip: ""
+	}
+
+	Daybreaker_Wings: {
+		DisplayName: Daybroken Wings
 		Tooltip: ""
 	}
 }

@@ -141,6 +141,7 @@ namespace EpikV2 {
 		public string nameColorOverride = null;
 		public Color? magicColor = null;
 		public Color MagicColor => magicColor ?? Player.eyeColor;
+		public Color horseMagicColor;
 		public bool noKnockbackOnce = false;
 		public bool consumeShieldBuff = false;
 		public int triangleManuscriptIndex = -1;

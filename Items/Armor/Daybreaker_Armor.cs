@@ -24,9 +24,8 @@ using Terraria.Utilities;
 using Tyfyter.Utils;
 
 namespace EpikV2.Items.Armor {
-	[AutoloadEquip(EquipType.Head, EquipType.Back)]
+	[AutoloadEquip(EquipType.Head)]
 	public class Daybreaker_Helmet : ModItem, IDeclarativeEquipStats, IMultiModeItem {
-		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
 		public IEnumerable<EquipStat> GetStats() {
 			yield return new AdditiveDamageStat(0.18f, DamageClass.Magic, DamageClass.Melee);
 			yield return new CritStat(18, DamageClass.Magic);
@@ -37,17 +36,17 @@ namespace EpikV2.Items.Armor {
 			Item.value = 5000000;
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
-            Item.defense = 8;
+			Item.defense = 8;
 		}
-		public int GetSlotContents(int slotIndex) => Nightmare_Weapons.SlotContents(slotIndex);
+		public int GetSlotContents(int slotIndex) => Daybreaker_Weapons.SlotContents(slotIndex);
 		public bool ItemSelected(int slotIndex) => false;
 		public void SelectItem(int slotIndex) {
 			if (!Main.LocalPlayer.HeldItem.IsAir) return;
-			Nightmare_Weapons.TransformHeldItem(slotIndex);
+			Daybreaker_Weapons.TransformHeldItem(slotIndex);
 		}
-		public void DrawSlots() => Nightmare_Weapons.DrawSlots(Item);
+		public void DrawSlots() => Daybreaker_Weapons.DrawSlots(Item);
 		public override bool IsArmorSet(Item head, Item body, Item legs) {
-			return body.ModItem is Daybreaker_Pauldrons && legs.ModItem is Daybreaker_Pauldrons;
+			return body.ModItem is Daybreaker_Wingguards && legs.ModItem is Daybreaker_Hoofguards;
 		}
 		public override void ArmorSetShadows(Player player) {
 			player.armorEffectDrawShadowSubtle = true;
@@ -56,18 +55,20 @@ namespace EpikV2.Items.Armor {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			epikPlayer.nightmareSet = true;
 			epikPlayer.airMultimodeItem = this;
+			epikPlayer.horseMagicColor = new Color(205, 150, 10, 100);
+			player.equippedWings = ContentSamples.ItemsByType[Daybreaker_Wings.ID];
+			player.wings = Daybreaker_Wings.WingsID;
+			player.wingsLogic = Daybreaker_Wings.WingsID;
 		}
 		public override void EquipFrameEffects(Player player, EquipType type) {
-			player.backpack = Item.backSlot;
-			player.cBackpack = player.cHead;
 		}
 		public override void AddRecipes() {
 			//ShimmerSlimeTransmutation.AddTransmutation(ItemID.HallowedHeadgear, Type);
 		}
 	}
-	[AutoloadEquip(EquipType.Head, EquipType.Back)]
+	[AutoloadEquip(EquipType.Head)]
 	public class Daybreaker_Helmet_Hair : Daybreaker_Helmet {
-		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
+		public override string Texture => "EpikV2/Items/Armor/Daybreaker_Helmet";
 		public override void SetStaticDefaults() {
 			ArmorIDs.Head.Sets.DrawHatHair[Item.headSlot] = true;
 		}
@@ -82,9 +83,9 @@ namespace EpikV2.Items.Armor {
 			.Register();
 		}
 	}
-	[AutoloadEquip(EquipType.Head, EquipType.Back)]
+	[AutoloadEquip(EquipType.Head)]
 	public class Daybreaker_Helmet_Full_Hair : Daybreaker_Helmet {
-		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
+		public override string Texture => "EpikV2/Items/Armor/Daybreaker_Helmet";
 		public override void SetStaticDefaults() {
 			ArmorIDs.Head.Sets.DrawFullHair[Item.headSlot] = true;
 		}
@@ -108,10 +109,9 @@ namespace EpikV2.Items.Armor {
 		}
 	}
 	[AutoloadEquip(EquipType.Body)]
-	public class Daybreaker_Pauldrons : ModItem, IDeclarativeEquipStats {
-		public override string Texture => "EpikV2/Items/Armor/Nightmare_Pauldrons";
+	public class Daybreaker_Wingguards : ModItem, IDeclarativeEquipStats {
 		public IEnumerable<EquipStat> GetStats() {
-			yield return new DamageReductionStat(0.10f);
+			yield return new AttackSpeedStat(0.10f, DamageClass.Magic, DamageClass.Melee);
 			yield return new ManaCostStat(0.10f);
 		}
 		public override void SetStaticDefaults() {
@@ -128,13 +128,105 @@ namespace EpikV2.Items.Armor {
 		public override void UpdateEquip(Player player) {
 			player.spikedBoots += 1;
 		}
+		public override void EquipFrameEffects(Player player, EquipType type) {
+			if (player.wingsLogic == Daybreaker_Wings.WingsID) player.wings = Daybreaker_Wings.WingsID;
+		}
 		public override void AddRecipes() {
 			//ShimmerSlimeTransmutation.AddTransmutation(ItemID.HallowedPlateMail, Type);
 		}
 	}
-	[AutoloadEquip(EquipType.Legs, EquipType.Waist)]
-	public class Daybreaker_Tassets : ModItem, IDeclarativeEquipStats {
-		public override string Texture => "EpikV2/Items/Armor/Nightmare_Tassets";
+	public class Daybreaker_Wings : ModItem {
+		public override string Texture => "EpikV2/Items/Armor/Nightmare_Helmet";
+		public static int ID { get; private set; }
+		public static int WingsID { get; private set; }
+		public override void Load() {
+			WingsID = EquipLoader.AddEquipTexture(Mod, $"EpikV2/Items/Armor/Daybreaker_Wings_{EquipType.Wings}", EquipType.Wings, this);
+		}
+		public override void SetStaticDefaults() {
+			ID = Type;
+			ArmorIDs.Wing.Sets.Stats[WingsID] = new(180, 8, 2, true, 10f, 10f);
+		}
+		public override void SetDefaults() {
+			Item.width = 20;
+			Item.height = 16;
+			Item.value = 5000000;
+			Item.rare = CursedRarity.ID;
+			Item.maxStack = 1;
+			Item.defense = 8;
+		}
+		public override bool WingUpdate(Player player, bool inUse) {
+			if (inUse) {
+				int framesMax = 5;
+				if (player.TryingToHoverDown && !player.controlLeft && !player.controlRight) framesMax = 6;
+				if (++player.wingFrameCounter > framesMax) {
+					player.wingFrameCounter = 0;
+					if (++player.wingFrame >= 4) player.wingFrame = 0;
+					if (player.wingFrame == 3) SoundEngine.PlaySound(SoundID.Item32.WithPitchOffset(-0.1f), player.Center);
+				}
+				return true;
+			}
+			if (player.wingFrame == 3) {
+				if (!player.flapSound) {
+					SoundEngine.PlaySound(SoundID.Item32.WithPitchOffset(-0.1f), player.Center);
+					player.flapSound = true;
+				}
+			} else {
+				player.flapSound = false;
+			}
+			return false;
+		}
+		public override void HorizontalWingSpeeds(Player player, ref float speed, ref float acceleration) {
+			if (player.TryingToHoverDown) {
+				speed *= 1.65f;
+				acceleration *= 1.85f;
+			}
+			const float braking_factor = 0.97f;
+			if (!player.controlRight && player.velocity.X > 0) player.velocity.X *= braking_factor;
+			if (!player.controlLeft && player.velocity.X < 0) player.velocity.X *= braking_factor;
+		}
+		public override void VerticalWingSpeeds(Player player, ref float ascentWhenFalling, ref float ascentWhenRising, ref float maxCanAscendMultiplier, ref float maxAscentMultiplier, ref float constantAscend) {
+			ascentWhenFalling = 0.75f;
+			ascentWhenRising = 0.15f;
+			maxCanAscendMultiplier = 1f;
+			maxAscentMultiplier = 2.5f;
+			constantAscend = 0.125f;
+
+			if (player.TryingToHoverDown) {
+				player.wingTime += (player.controlLeft || player.controlRight) ? 0.5f : 1f;
+				ascentWhenFalling = player.gravity + player.velocity.Y * 0.05f;
+				ascentWhenRising = -(player.gravity + player.velocity.Y * 0.05f);
+				constantAscend = -player.gravity;
+			}
+		}
+	}
+	public class Daybreaker_Wings_Layer : PlayerDrawLayer {
+		AutoLoadingAsset<Texture2D> wingsArmor = "EpikV2/Items/Armor/Daybreaker_Wings_Guards";
+		public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) {
+			return drawInfo.drawPlayer.wings == Daybreaker_Wings.WingsID;
+		}
+		public override Position GetDefaultPosition() => new AfterParent(PlayerDrawLayers.Wings);
+		protected override void Draw(ref PlayerDrawSet drawInfo) {
+			const int frameCount = 4;
+			Vector2 position = (drawInfo.Position - Main.screenPosition + new Vector2(drawInfo.drawPlayer.width / 2, drawInfo.drawPlayer.height - drawInfo.drawPlayer.bodyFrame.Height / 2) + new Vector2(0f, 7f))
+				+ new Vector2(-9, 2) * drawInfo.drawPlayer.Directions;
+			Texture2D texture = wingsArmor;
+			int frameHeight = texture.Height / frameCount;
+			DrawData item = new(
+				texture,
+				position.Floor(),
+				new Rectangle(0, frameHeight * drawInfo.drawPlayer.wingFrame, texture.Width, frameHeight),
+				drawInfo.colorArmorBody,
+				drawInfo.drawPlayer.bodyRotation,
+				new Vector2(texture.Width / 2, frameHeight / 2),
+				1f,
+				drawInfo.playerEffect) {
+				shader = drawInfo.cBody
+			};
+			drawInfo.DrawDataCache.Add(item);
+		}
+	}
+	[AutoloadEquip(EquipType.Legs)]
+	public class Daybreaker_Hoofguards : ModItem, IDeclarativeEquipStats {
 		public IEnumerable<EquipStat> GetStats() {
 			yield return new SpeedStat(0.14f);
 			yield return new JumpSpeedStat(2f);
@@ -155,10 +247,6 @@ namespace EpikV2.Items.Armor {
 		public override void UpdateEquip(Player player) {
 			player.spikedBoots += 1;
 		}
-		public override void EquipFrameEffects(Player player, EquipType type) {
-			player.waist = Item.waistSlot;
-			player.cWaist = player.cLegs;
-		}
 		public override void AddRecipes() {
 			//ShimmerSlimeTransmutation.AddTransmutation(ItemID.HallowedGreaves, Type);
 		}
@@ -166,7 +254,7 @@ namespace EpikV2.Items.Armor {
 	public class Daybreaker_Legs_Layer : PlayerDrawLayer {
 		AutoLoadingAsset<Texture2D> legsSkin = "EpikV2/Items/Armor/Nightmare_Tassets_Legs_Skin";
 		public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) {
-			return drawInfo.drawPlayer.legs == Nightmare_Tassets.LegsID;
+			return drawInfo.drawPlayer.legs == Daybreaker_Hoofguards.LegsID;
 		}
 		public override Position GetDefaultPosition() => new Between(PlayerDrawLayers.Skin, PlayerDrawLayers.Leggings);
 		protected override void Draw(ref PlayerDrawSet drawInfo) {
@@ -205,7 +293,7 @@ namespace EpikV2.Items.Armor {
 		public static int SlotContents(int slotIndex) {
 			switch (slotIndex) {
 				case 0:
-				return ModContent.ItemType<Nightmare_Sword>();
+				return ModContent.ItemType<Daybreaker_Sword>();
 				case 1:
 				return ModContent.ItemType<Nightmare_Sorcery>();
 			}
@@ -268,7 +356,7 @@ namespace EpikV2.Items.Armor {
 				color.A /= 2;
 				scale = 1f;
 			} else {
-				type = DustID.Clentaminator_Purple;
+				type = DustID.Clentaminator_Red;
 				noLight = true;
 				color = default;
 				scale = forShield ? 0.75f : 0.5f;
@@ -276,7 +364,6 @@ namespace EpikV2.Items.Armor {
 		}
 	}
 	public class Daybreaker_Sword : ModItem, IMultiModeItem {
-		public override string Texture => "EpikV2/Items/Armor/Nightmare_Sword";
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			ID = Type;
@@ -324,19 +411,6 @@ namespace EpikV2.Items.Armor {
 				armRotation = (player.direction == 1) ? (-armRotation - MathHelper.PiOver2) : (armRotation - MathHelper.PiOver2);
 				armRotation += shield.velocity.ToRotation();
 				leftArm = (true, stretchAmount, armRotation);
-				/*Vector2 handPos = player.direction == 1 ? player.GetFrontHandPosition(leftArm.stretch, leftArm.rotation) : player.GetBackHandPosition(leftArm.stretch, leftArm.rotation);
-				
-				Dust dust = Dust.NewDustPerfect(
-					handPos + Main.rand.NextVector2Square(-1, 1),
-					112,
-					Vector2.Zero
-				);
-				dust.noGravity = true;
-				dust.noLight = true;
-				dust.velocity = default;
-				dust.shader = GameShaders.Armor.GetSecondaryShader(player.cHead, player);
-				dust.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
-				dust.scale = 0.5f;*/
 				player.itemAnimation = 2;
 			}
 			if (epikPlayer.nightmareSword.CheckActive(out Projectile sword)) {
@@ -511,16 +585,16 @@ namespace EpikV2.Items.Armor {
 			player.SetCompositeArm(true, leftArm.stretch, leftArm.rotation, leftArm.enabled);
 		}
 		public override bool CanUseItem(Player player) => false;
-		public int GetSlotContents(int slotIndex) => Nightmare_Weapons.SlotContents(slotIndex);
+		public int GetSlotContents(int slotIndex) => Daybreaker_Weapons.SlotContents(slotIndex);
 		public bool ItemSelected(int slotIndex) => false;
 		public void SelectItem(int slotIndex) {
-			if (Nightmare_Weapons.SlotContents(slotIndex) == Type) {
+			if (Daybreaker_Weapons.SlotContents(slotIndex) == Type) {
 				Item.TurnToAir();
 			} else {
-				Nightmare_Weapons.TransformHeldItem(slotIndex);
+				Daybreaker_Weapons.TransformHeldItem(slotIndex);
 			}
 		}
-		public void DrawSlots() => Nightmare_Weapons.DrawSlots(Item);
+		public void DrawSlots() => Daybreaker_Weapons.DrawSlots(Item);
 		public override bool CanReforge() => false;
 		public override void UpdateInventory(Player player) {
 			player.GetModPlayer<EpikPlayer>().postUpdateEquips.Push((epikPlayer) => {

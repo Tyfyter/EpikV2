@@ -55,6 +55,7 @@ namespace EpikV2.Items.Armor {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			epikPlayer.nightmareSet = true;
 			epikPlayer.airMultimodeItem = this;
+			epikPlayer.horseMagicColor = new Color(150, 10, 205, 100);
 		}
 		public override void EquipFrameEffects(Player player, EquipType type) {
 			player.backpack = Item.backSlot;
@@ -1088,7 +1089,7 @@ namespace EpikV2.Items.Armor {
 		}
 		public override void SetDefaults() {
 			Item.DefaultToMagicWeapon(ProjectileID.None, 20, 5);
-			Item.useStyle = ItemUseStyleID.RaiseLamp;
+			Item.useStyle = ItemUseStyleID.HiddenAnimation;
 			Item.damage = 80;
 			Item.ArmorPenetration = 15;
 			Item.knockBack = 4;
@@ -1113,6 +1114,39 @@ namespace EpikV2.Items.Armor {
 			}
 		}
 		public void DrawSlots() => Nightmare_Weapons.DrawSlots(Item);
+		public override void HoldItem(Player player) {
+			string DoColor(bool value) => value ? "00FF00" : "FF0000";
+			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+            if (player.ItemAnimationActive) {
+				if (epikPlayer.forceLeftHandMagic <= 0 && !player.ItemAnimationJustStarted && PlayerInput.Triggers.JustPressed.MouseRight && player.CheckMana(Item)) {
+					player.altFunctionUse = 2;
+					player.itemAnimation = player.itemAnimationMax;
+					player.itemTime = 0;
+				}
+				if (epikPlayer.forceRightHandMagic <= 0 && !player.ItemAnimationJustStarted && PlayerInput.Triggers.JustPressed.MouseLeft && player.CheckMana(Item)) {
+					player.altFunctionUse = 0;
+					player.itemAnimation = player.itemAnimationMax;
+					player.itemTime = 0;
+				}
+			}
+		}
+		public override void UseStyle(Player player, Rectangle heldItemFrame) {
+			Player.CompositeArmData left, right;
+			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			if (player.direction == 1) {
+				left = player.compositeBackArm;
+				right = player.compositeFrontArm;
+			} else {
+				right = player.compositeBackArm;
+				left = player.compositeFrontArm;
+			}
+			if (epikPlayer.forceLeftHandMagic > 0) {
+				player.SetCompositeArm(true, left.stretch, left.rotation, true);
+			}
+			if (epikPlayer.forceRightHandMagic > 0) {
+				player.SetCompositeArm(false, right.stretch, right.rotation, true);
+			}
+		}
 		public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
 			if (player.altFunctionUse == 2) {
 				float speed = velocity.Length() * 1.25f;
@@ -1120,8 +1154,6 @@ namespace EpikV2.Items.Armor {
 					velocity = new Vector2(speed, 0).RotatedBy(angle);
 				}
 				//SoundEngine.PlaySound(SoundID.Item105.WithPitchRange(0.85f, 1f), position);
-				SoundEngine.PlaySound(SoundID.Item25.WithPitchRange(0.6f, 0.7f), position);
-				SoundEngine.PlaySound(SoundID.Item28.WithPitchRange(0.5f, 0.6f), position);
 			} else {
 				type = Nightmare_Lightning_P.ID;
 				velocity *= 1.5f;
@@ -1148,8 +1180,20 @@ namespace EpikV2.Items.Armor {
 						}
 					}
 				}
-				SoundEngine.PlaySound(SoundID.Item122.WithPitchRange(0.85f, 1f), position);
 			}
+		}
+		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
+			if (player.altFunctionUse == 2) {
+				SoundEngine.PlaySound(SoundID.Item25.WithPitchRange(0.6f, 0.7f), position);
+				SoundEngine.PlaySound(SoundID.Item28.WithPitchRange(0.5f, 0.6f), position);
+				player.SetCompositeArm(true, Player.CompositeArmStretchAmount.Full, velocity.ToRotation() - MathHelper.PiOver2, true);
+				player.GetModPlayer<EpikPlayer>().forceLeftHandMagic = player.itemAnimationMax;
+			} else {
+				SoundEngine.PlaySound(SoundID.Item122.WithPitchRange(0.85f, 1f), position);
+				player.SetCompositeArm(false, Player.CompositeArmStretchAmount.Full, velocity.ToRotation() - MathHelper.PiOver2, true);
+				player.GetModPlayer<EpikPlayer>().forceRightHandMagic = player.itemAnimationMax;
+			}
+			return true;
 		}
 		public override void UpdateInventory(Player player) {
 			player.GetModPlayer<EpikPlayer>().postUpdateEquips.Push((epikPlayer) => {

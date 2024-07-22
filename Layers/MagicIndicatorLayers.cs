@@ -59,7 +59,7 @@ namespace EpikV2.Layers {
 					texture,
 					position,
 					sourceRect,
-					new Color(150, 10, 205, 100),//drawInfo.drawPlayer.eyeColor * 0.4f,//
+					drawInfo.drawPlayer.GetModPlayer<EpikPlayer>().horseMagicColor,//drawInfo.drawPlayer.eyeColor * 0.4f,//
 					rotation,
 					origin,
 					1f,
@@ -114,7 +114,7 @@ namespace EpikV2.Layers {
 					Left_Hand_Magic_Layer.texture,
 					position,
 					sourceRect,
-					new Color(150, 10, 205, 100),//drawInfo.drawPlayer.eyeColor * 0.4f,//
+					drawInfo.drawPlayer.GetModPlayer<EpikPlayer>().horseMagicColor,//drawInfo.drawPlayer.eyeColor * 0.4f,//
 					rotation,
 					origin,
 					1f,
