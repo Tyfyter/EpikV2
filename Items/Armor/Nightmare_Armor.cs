@@ -1096,7 +1096,7 @@ namespace EpikV2.Items.Armor {
 			Item.noUseGraphic = true;
 			Item.mana = 17;
 			Item.shoot = Nightmare_Orb_P.ID;
-			Item.shootSpeed = 7;
+			Item.shootSpeed = 8.75f;
 			Item.width = 20;
 			Item.height = 16;
 			Item.value = 5000000;
@@ -1115,7 +1115,6 @@ namespace EpikV2.Items.Armor {
 		}
 		public void DrawSlots() => Nightmare_Weapons.DrawSlots(Item);
 		public override void HoldItem(Player player) {
-			string DoColor(bool value) => value ? "00FF00" : "FF0000";
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
             if (player.ItemAnimationActive) {
 				if (epikPlayer.forceLeftHandMagic <= 0 && !player.ItemAnimationJustStarted && PlayerInput.Triggers.JustPressed.MouseRight && player.CheckMana(Item)) {
@@ -1149,14 +1148,14 @@ namespace EpikV2.Items.Armor {
 		}
 		public override void ModifyShootStats(Player player, ref Vector2 position, ref Vector2 velocity, ref int type, ref int damage, ref float knockback) {
 			if (player.altFunctionUse == 2) {
-				float speed = velocity.Length() * 1.25f;
+				float speed = velocity.Length();
 				if (GeometryUtils.AngleToTarget(Main.MouseWorld - position, speed, 0.04f, false) is float angle) {
 					velocity = new Vector2(speed, 0).RotatedBy(angle);
 				}
 				//SoundEngine.PlaySound(SoundID.Item105.WithPitchRange(0.85f, 1f), position);
 			} else {
 				type = Nightmare_Lightning_P.ID;
-				velocity *= 1.5f;
+				velocity *= 1.2f;
 				if (player.ownedProjectileCounts[Nightmare_Orb_P.ID] > 0) {
 					Rectangle kickHitbox = new(0, 0, 96, 96);
 					kickHitbox.Offset((player.MountedCenter - new Vector2(48, 48) + velocity * 3).ToPoint());
