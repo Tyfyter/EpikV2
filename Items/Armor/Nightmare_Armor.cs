@@ -1117,28 +1117,23 @@ namespace EpikV2.Items.Armor {
 		public override void HoldItem(Player player) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
             if (player.ItemAnimationActive) {
-				if (epikPlayer.forceLeftHandMagic <= 0 && !player.ItemAnimationJustStarted && PlayerInput.Triggers.JustPressed.MouseRight && player.CheckMana(Item)) {
-					player.altFunctionUse = 2;
-					player.itemAnimation = player.itemAnimationMax;
-					player.itemTime = 0;
-				}
-				if (epikPlayer.forceRightHandMagic <= 0 && !player.ItemAnimationJustStarted && PlayerInput.Triggers.JustPressed.MouseLeft && player.CheckMana(Item)) {
-					player.altFunctionUse = 0;
-					player.itemAnimation = player.itemAnimationMax;
-					player.itemTime = 0;
+				if (!player.ItemAnimationJustStarted && player.CheckMana(Item)) {
+					if (epikPlayer.forceLeftHandMagic <= 0 && PlayerInput.Triggers.JustPressed.MouseRight) {
+						player.altFunctionUse = 2;
+						player.itemAnimation = player.itemAnimationMax;
+						player.itemTime = 0;
+					}
+					if (epikPlayer.forceRightHandMagic <= 0 && PlayerInput.Triggers.JustPressed.MouseLeft) {
+						player.altFunctionUse = 0;
+						player.itemAnimation = player.itemAnimationMax;
+						player.itemTime = 0;
+					}
 				}
 			}
 		}
 		public override void UseStyle(Player player, Rectangle heldItemFrame) {
-			Player.CompositeArmData left, right;
+			player.GetCompositeArms(out Player.CompositeArmData left, out Player.CompositeArmData right);
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
-			if (player.direction == 1) {
-				left = player.compositeBackArm;
-				right = player.compositeFrontArm;
-			} else {
-				right = player.compositeBackArm;
-				left = player.compositeFrontArm;
-			}
 			if (epikPlayer.forceLeftHandMagic > 0) {
 				player.SetCompositeArm(true, left.stretch, left.rotation, true);
 			}
