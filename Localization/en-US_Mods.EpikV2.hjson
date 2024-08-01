@@ -1059,6 +1059,7 @@ Items: {
 	Nightmare_Helmet: {
 		DisplayName: Nightmarish Helmet
 		Tooltip: ""
+		SetBonus: <switch> with an empty hand to summon a weapon
 	}
 
 	Nightmare_Helmet_Full_Hair: {
@@ -1108,6 +1109,11 @@ Items: {
 	Daybreaker_Helmet: {
 		DisplayName: Daybroken Helmet
 		Tooltip: ""
+		SetBonus:
+			'''
+			<switch> with an empty hand to summon a weapon
+			Gives you wings
+			'''
 	}
 
 	Daybreaker_Helmet_Full_Hair: {
@@ -1256,6 +1262,7 @@ Projectiles: {
 	Nightmare_Lightning_P.DisplayName: Nightmarish Lightning
 	Nightmare_Orb_P.DisplayName: Shield Bubble
 	Nightmare_Orb_Lightning_P.DisplayName: Nightmarish Lightning
+	Daybreaker_Sword_P.DisplayName: Daybreaker Sword P
 }
 
 DamageClasses: {
@@ -1271,6 +1278,7 @@ DamageClasses: {
 	Ranged_Melee_Speed.DisplayName: ranged damage
 	Spellsword.DisplayName: melee/magic damage
 	Magic_Melee_Speed.DisplayName: magic damage
+	Daybreaker.DisplayName: Daybreaker
 }
 
 Biomes: {

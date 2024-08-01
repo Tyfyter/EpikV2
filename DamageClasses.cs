@@ -14,17 +14,20 @@ namespace EpikV2 {
 		private static DamageClass melee_Summon;
 		private static DamageClass spellsword;
 		private static DamageClass magic_Melee_Speed;
+		private static DamageClass daybreaker;
 		public static DamageClass Ranged_Melee_Speed => ranged_Melee_Speed ??= ModContent.GetInstance<Ranged_Melee_Speed>();
 		public static DamageClass Ranged_Magic => ranged_Magic ??= ModContent.GetInstance<Ranged_Magic>();
 		public static DamageClass Melee_Summon => melee_Summon ??= ModContent.GetInstance<Melee_Summon>();
 		public static DamageClass Spellsword => spellsword ??= ModContent.GetInstance<Spellsword>();
 		public static DamageClass Magic_Melee_Speed => magic_Melee_Speed ??= ModContent.GetInstance<Magic_Melee_Speed>();
+		public static DamageClass Daybreaker => daybreaker ??= ModContent.GetInstance<Daybreaker>();
 		public void Unload() {
 			ranged_Melee_Speed = null;
 			ranged_Magic = null;
 			melee_Summon = null;
 			spellsword = null;
 			magic_Melee_Speed = null;
+			daybreaker = null;
 		}
 		public void Load(Mod mod) { }
 	}
@@ -100,6 +103,15 @@ namespace EpikV2 {
 		}
 		public override void SetDefaultStats(Player player) {
 			//player.GetCritChance(this) += 4;
+		}
+	}
+	public class Daybreaker : DamageClass {
+		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
+			if (damageClass == Melee || damageClass == Magic) return new(armorPenInheritance: 1);
+			return damageClass == Generic ? StatInheritanceData.Full : StatInheritanceData.None;
+		}
+		public override bool GetEffectInheritance(DamageClass damageClass) {
+			return damageClass == Melee || damageClass == Magic;
 		}
 	}
 }

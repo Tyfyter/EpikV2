@@ -27,11 +27,13 @@ namespace EpikV2.Items {
 			if (tooltipIndex == -1) tooltipIndex = 1;
 			EquipStat[] stats = EquipStats[item.type];
 			for (int i = 0; i < stats.Length; i++) {
-				tooltips.Insert(tooltipIndex++, new TooltipLine(
-					Mod,
-					stats[i].Name,
-					stats[i].Tooltip.Value
-				));
+				if (stats[i].Tooltip is LocalizedText line) {
+					tooltips.Insert(tooltipIndex++, new TooltipLine(
+						Mod,
+						stats[i].Name,
+						line.Value
+					));
+				}
 			}
 		}
 		public override void UpdateEquip(Item item, Player player) {

@@ -159,6 +159,7 @@ namespace EpikV2 {
 		public IMultiModeItem airMultimodeItem;
 		public HeldProjectile nightmareShield;
 		public HeldProjectile nightmareSword;
+		public bool daybreakerSet = false;
 		public int forceRightHandMagic;
 		public int forceLeftHandMagic;
 		public bool releaseUseItem;
@@ -253,6 +254,7 @@ namespace EpikV2 {
 			imbueIchor = false;
 			divineConfetti = false;
 			nightmareSet = false;
+			daybreakerSet = false;
 			airMultimodeItem = null;
 			showLuck = false;
 

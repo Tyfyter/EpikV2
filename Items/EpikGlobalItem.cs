@@ -274,32 +274,35 @@ namespace EpikV2.Items {
 				break;
 			}
 		}
-		public static void ReplaceTooltipPlaceholders(List<TooltipLine> tooltips, TooltipPlaceholder tooltipPlaceholders) {
-			List<(string key, string replacement)> replacements = new();
+		public static List<(string key, string replacement)> GetTooltipPlaceholderReplacements(TooltipPlaceholder tooltipPlaceholders = TooltipPlaceholder.All) {
+			List<(string key, string replacement)> replacements = [];
+			InputMode inputMode = InputMode.Keyboard;
+			switch (PlayerInput.CurrentInputMode) {
+				case InputMode.XBoxGamepad:
+				inputMode = InputMode.XBoxGamepad;
+				break;
+				case InputMode.XBoxGamepadUI:
+				inputMode = InputMode.XBoxGamepad;
+				break;
+			}
 			if (tooltipPlaceholders.HasFlag(TooltipPlaceholder.ModeSwitch)) {
-				InputMode inputMode = InputMode.Keyboard;
-				switch (PlayerInput.CurrentInputMode) {
-					case InputMode.XBoxGamepad:
-					inputMode = InputMode.XBoxGamepad;
-					break;
-					case InputMode.XBoxGamepadUI:
-					inputMode = InputMode.XBoxGamepad;
-					break;
-				}
 				replacements.Add((
 					"<switch>",
 					EpikV2.ModeSwitchHotkey.GetAssignedKeys(inputMode).FirstOrDefault() ?? "Mode switch hotkey"
 				));
 			}
+			return replacements;
+		}
+		public static void ReplaceTooltipPlaceholders(List<TooltipLine> tooltips, TooltipPlaceholder tooltipPlaceholders = TooltipPlaceholder.All) {
+			List<(string key, string replacement)> replacements = GetTooltipPlaceholderReplacements(tooltipPlaceholders);
 			foreach (TooltipLine line in tooltips) {
-				for (int i = 0; i < replacements.Count; i++) {
-					line.Text = line.Text.Replace(replacements[i].key, replacements[i].replacement);
-				}
+				line.Text = line.Text.ReplaceAll(replacements);
 			}
 		}
 		[Flags]
-		public enum TooltipPlaceholder {
-			ModeSwitch = 0b00000001
+		public enum TooltipPlaceholder : uint {
+			ModeSwitch = 0b00000001,
+			All = 0xFFFFFFFF
 		}
 		public override void NetSend(Item item, BinaryWriter writer) {
 			if (item.type == ItemID.CatEars) {

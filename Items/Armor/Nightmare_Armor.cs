@@ -52,6 +52,7 @@ namespace EpikV2.Items.Armor {
 			player.armorEffectDrawShadowSubtle = true;
 		}
 		public override void UpdateArmorSet(Player player) {
+			player.setBonus = Language.GetOrRegister("Mods.EpikV2.Items.Nightmare_Helmet.SetBonus").Value.ReplaceAll(EpikGlobalItem.GetTooltipPlaceholderReplacements());
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			epikPlayer.nightmareSet = true;
 			epikPlayer.airMultimodeItem = this;

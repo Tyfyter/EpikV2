@@ -1191,7 +1191,7 @@ namespace EpikV2 {
 			}
 		}
 		public static Vector2? GetCompositeArmPosition(this Player player, bool leftSide) {
-			if ((player.direction == 1) ^ leftSide) {
+			if ((player.direction == 1) == leftSide) {
 				if (player.compositeBackArm.enabled) return player.GetBackHandPosition(player.compositeBackArm.stretch, player.compositeBackArm.rotation);
 			} else {
 				if (player.compositeFrontArm.enabled) return player.GetFrontHandPosition(player.compositeFrontArm.stretch, player.compositeFrontArm.rotation);
@@ -1204,6 +1204,13 @@ namespace EpikV2 {
 			return new FlavorTextBestiaryInfoElement($"Mods.{npc.Mod.Name}.Bestiary.{npc.Name}");
 		}
 		public static LocalizedText GetDamageClassName(this DamageClass damageClass) => Language.GetText("NoDamage." + damageClass.DisplayName.Key);
+		public static string ReplaceAll(this string text, List<(string key, string replacement)> replacements) {
+			string output = text;
+			for (int i = 0; i < replacements.Count; i++) {
+				output = output.Replace(replacements[i].key, replacements[i].replacement);
+			}
+			return output;
+		}
 	}
 	public static class ConditionExtensions {
 		public static Condition CommaAnd(this Condition a, Condition b) {
