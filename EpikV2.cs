@@ -185,17 +185,19 @@ namespace EpikV2 {
 				//mappedFilter = new Filter(new ScreenShaderData(new Ref<Effect>(GetEffect("Effects/MappedShade")), "MappedShade"), EffectPriority.High);
 				//filterMapQueue = new SpriteBatchQueue();
 			}
-			ChatManager.Register<CatgirlMemeHandler>(new string[]{
+			ChatManager.Register<CatgirlMemeHandler>([
 				"herb"
-			});
-			ChatManager.Register<StrikethroughHandler>(new string[]{
+			]);
+			ChatManager.Register<StrikethroughHandler>([
 				"strike"
-			});
+			]);
 			ModeSwitchHotkey = KeybindLoader.RegisterKeybind(this, "Change Item Mode", "Mouse5");
 			DashHotkey = KeybindLoader.RegisterKeybind(this, "Use Dash", "Mouse4");
 			ApplyPatches();
 			EpikV2.AddBalanceRarityOverride(ItemID.PickaxeAxe, ItemRarityID.Pink);
 			Main.OnPostDraw += PostDraw;
+
+			EpikExtensions.Load();
 		}
 		public override void Unload() {
 			instance = null;
@@ -223,6 +225,8 @@ namespace EpikV2 {
 			//filterMapQueue.Clear();
 			//filterMapQueue = null;
 			Main.OnPostDraw -= PostDraw;
+
+			EpikExtensions.Unload();
 		}
 		private void PostDraw(GameTime obj) {
 			currentScreenTarget = null;

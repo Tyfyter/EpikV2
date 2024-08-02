@@ -1263,6 +1263,7 @@ Projectiles: {
 	Nightmare_Orb_P.DisplayName: Shield Bubble
 	Nightmare_Orb_Lightning_P.DisplayName: Nightmarish Lightning
 	Daybreaker_Sword_P.DisplayName: Daybreaker Sword P
+	Daybreaker_Floor_Fire.DisplayName: Daybreaker Floor Fire
 }
 
 DamageClasses: {

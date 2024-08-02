@@ -1211,6 +1211,55 @@ namespace EpikV2 {
 			}
 			return output;
 		}
+		static Triangle[] tileTriangles;
+		static Rectangle[] tileRectangles;
+		public static void Load() {
+			Vector2 topLeft = Vector2.Zero * 16;
+			Vector2 topRight = Vector2.UnitX * 16;
+			Vector2 bottomLeft = Vector2.UnitY * 16;
+			Vector2 bottomRight = Vector2.One * 16;
+			tileTriangles = [
+				new Triangle(topLeft, bottomLeft, bottomRight),
+				new Triangle(topRight, bottomLeft, bottomRight),
+				new Triangle(topLeft, topRight, bottomLeft),
+				new Triangle(topLeft, topRight, bottomRight)
+			];
+			tileRectangles = [
+				new Rectangle(0, 0, 16, 16),
+				new Rectangle(0, 8, 16, 8)
+			];
+		}
+		public static void Unload() {
+			tileTriangles = null;
+			tileRectangles = null;
+		}
+		public static bool OverlapsAnyTiles(this Rectangle area, bool fallThrough = true) {
+			Rectangle checkArea = area;
+			Point topLeft = area.TopLeft().ToTileCoordinates();
+			Point bottomRight = area.BottomRight().ToTileCoordinates();
+			int minX = Utils.Clamp(topLeft.X, 0, Main.maxTilesX - 1);
+			int minY = Utils.Clamp(topLeft.Y, 0, Main.maxTilesY - 1);
+			int maxX = Utils.Clamp(bottomRight.X, 0, Main.maxTilesX - 1) - minX;
+			int maxY = Utils.Clamp(bottomRight.Y, 0, Main.maxTilesY - 1) - minY;
+			int cornerX = area.X - topLeft.X * 16;
+			int cornerY = area.Y - topLeft.Y * 16;
+			for (int i = 0; i <= maxX; i++) {
+				for (int j = 0; j <= maxY; j++) {
+					Tile tile = Main.tile[i + minX, j + minY];
+					if (fallThrough && Main.tileSolidTop[tile.TileType]) continue;
+					if (tile != null && tile.HasUnactuatedTile && Main.tileSolid[tile.TileType]) {
+						checkArea.X = i * -16 + cornerX;
+						checkArea.Y = j * -16 + cornerY;
+						if (tile.Slope != SlopeType.Solid) {
+							if (tileTriangles[(int)tile.Slope - 1].Intersects(checkArea)) return true;
+						} else {
+							if (tileRectangles[(int)tile.BlockType].Intersects(checkArea)) return true;
+						}
+					}
+				}
+			}
+			return false;
+		}
 	}
 	public static class ConditionExtensions {
 		public static Condition CommaAnd(this Condition a, Condition b) {
