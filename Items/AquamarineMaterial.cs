@@ -10,7 +10,7 @@ using static Microsoft.Xna.Framework.MathHelper;
 
 namespace EpikV2.Items {
 	public class AquamarineMaterial : ModItem {
-		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeEmerald;
+		public override string Texture => "Terraria/Images/Item_" + ItemID.LargeEmerald;
 		protected override bool CloneNewInstances => true;
 		public static int id { get; private set; }
 		public int time = 3600;
@@ -31,15 +31,15 @@ namespace EpikV2.Items {
 			recipe.Register();
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
-			for(int i = 1; i < tooltips.Count; i++) {
-				if(tooltips[i].Name=="Tooltip1") {
-					tooltips[i].Text = $"{time/60} seconds left";
+			for (int i = 1; i < tooltips.Count; i++) {
+				if (tooltips[i].Name == "Tooltip1") {
+					tooltips[i].Text = $"{time / 60} seconds left";
 					break;
 				}
 			}
 		}
 		public override void UpdateInventory(Player player) {
-			if(time>0)time--;
+			if (time > 0) time--;
 			else {
 				Item.type = ItemID.LargeEmerald;
 				Item.SetDefaults(Item.type);
@@ -49,7 +49,7 @@ namespace EpikV2.Items {
 		public override bool CanResearch() => false;
 	}
 	public class SunstoneMaterial : ModItem {
-		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeAmber;
+		public override string Texture => "Terraria/Images/Item_" + ItemID.LargeAmber;
 		protected override bool CloneNewInstances => true;
 		public static int id { get; private set; }
 		public const int hitpoints = 300;
@@ -71,9 +71,9 @@ namespace EpikV2.Items {
 			recipe.Register();
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
-			for(int i = 1; i < tooltips.Count; i++) {
-				if(tooltips[i].Name=="Tooltip1") {
-					tooltips[i].Text = $"{(hp*100)/hitpoints}% charge left";
+			for (int i = 1; i < tooltips.Count; i++) {
+				if (tooltips[i].Name == "Tooltip1") {
+					tooltips[i].Text = $"{(hp * 100) / hitpoints}% charge left";
 					break;
 				}
 			}
@@ -82,10 +82,10 @@ namespace EpikV2.Items {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			epikPlayer.chargedAmber = true;
 			int oldLife = epikPlayer.oldStatLife;
-			int dmg = oldLife-player.statLife;
-			if(dmg<=0)return;
-			hp-=dmg;
-			if(hp<=0){
+			int dmg = oldLife - player.statLife;
+			if (dmg <= 0) return;
+			hp -= dmg;
+			if (hp <= 0) {
 				Item.type = ItemID.LargeAmber;
 				Item.SetDefaults(Item.type);
 			}
@@ -93,7 +93,7 @@ namespace EpikV2.Items {
 		public override bool CanResearch() => false;
 	}
 	public class SanguineMaterial : ModItem {
-		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeRuby;
+		public override string Texture => "Terraria/Images/Item_" + ItemID.LargeRuby;
 		public static int ID { get; private set; }
 		public override void SetStaticDefaults() {
 			// DisplayName.SetDefault("Sanguine Ruby");
@@ -111,7 +111,7 @@ namespace EpikV2.Items {
 		public override bool CanResearch() => false;
 	}
 	public class SanguineMaterialPartial : ModItem {
-		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeRuby;
+		public override string Texture => "Terraria/Images/Item_" + ItemID.LargeRuby;
 		protected override bool CloneNewInstances => true;
 		public static int id = 0;
 		public int charge = 1;
@@ -126,19 +126,19 @@ namespace EpikV2.Items {
 			Item.rare = ItemRarityID.Purple;
 		}
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
-			for(int i = 1; i < tooltips.Count; i++) {
-				if(tooltips[i].Name=="Tooltip1") {
-					tooltips[i].Text = $"{charge*33}% filled";
+			for (int i = 1; i < tooltips.Count; i++) {
+				if (tooltips[i].Name == "Tooltip1") {
+					tooltips[i].Text = $"{charge * 33}% filled";
 					break;
 				}
 			}
 		}
 		public override void UpdateInventory(Player player) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
-			if(epikPlayer.sacrifice>0) {
+			if (epikPlayer.sacrifice > 0) {
 				epikPlayer.sacrifice = 0;
 				charge++;
-				if(charge>=3) {
+				if (charge >= 3) {
 					Item.type = SanguineMaterial.ID;
 					Item.SetDefaults(Item.type);
 				}
@@ -147,7 +147,7 @@ namespace EpikV2.Items {
 		public override bool CanResearch() => false;
 	}
 	public class MoonlaceMaterial : ModItem {
-		public override string Texture => "Terraria/Images/Item_"+ItemID.LargeDiamond;
+		public override string Texture => "Terraria/Images/Item_" + ItemID.LargeDiamond;
 		protected override bool CloneNewInstances => true;
 		public static int id { get; private set; }
 		public int time = 0;
@@ -189,7 +189,6 @@ namespace EpikV2.Items {
 		public override bool CanResearch() => false;
 	}
 	public class Sacrificial_Dagger : ModItem {
-		Rectangle hitBox;
 		public override void SetStaticDefaults() {
 			// DisplayName.SetDefault("Sacrificial Dagger");
 			// Tooltip.SetDefault("");
@@ -204,40 +203,37 @@ namespace EpikV2.Items {
 			Item.knockBack = 0;
 			Item.scale = 0.8f;
 		}
-		public override bool? CanHitNPC(Player player, NPC target) {
-			return target.Hitbox.Intersects(hitBox);
-		}
+		public override bool? CanHitNPC(Player player, NPC target) => true;
 		public override void OnHitNPC(Player player, NPC target, NPC.HitInfo hit, int damageDone) {
-			if(target.life<1&&(target.townNPC||target.type==NPCID.CultistDevote||target.type==NPCID.CultistArcherBlue||target.type==NPCID.CultistArcherWhite)) {
+			if (target.life < 1 && (target.townNPC || target.type == NPCID.CultistDevote || target.type == NPCID.CultistArcherBlue || target.type == NPCID.CultistArcherWhite)) {
 				player.GetModPlayer<EpikPlayer>().sacrifice = 3;
-				if(!target.townNPC)return;
-				if(!EpikWorld.Sacrifices.Contains(target.type)) EpikWorld.Sacrifices.Add(target.type);
+				if (!target.townNPC) return;
+				if (!EpikWorld.Sacrifices.Contains(target.type)) EpikWorld.Sacrifices.Add(target.type);
 				Main.townNPCCanSpawn[target.type] = false;
 			}
 		}
 		public override void ModifyHitNPC(Player player, NPC target, ref NPC.HitModifiers modifiers) {
 			modifiers.ScalingArmorPenetration += 1;
-			if(target.townNPC || player.direction==target.direction) {
+			if (player.direction == target.direction) {
 				modifiers.SetCrit();
 			}
 		}
 		public override void UseItemHitbox(Player player, ref Rectangle hitbox, ref bool noHitbox) {
-			noHitbox = player.itemAnimation!=8;
-			hitbox.Y+=16;
-			hitbox.X+=4*player.direction;
-			hitbox.Height+=hitbox.Height/2;
-			player.itemRotation+=2*player.direction;
-			player.itemLocation+=new Vector2(-3*player.direction,3).RotatedBy(player.itemRotation);
-			if(player.itemAnimation==8) {
+			noHitbox = player.itemAnimation != 8;
+			hitbox.Y += 16;
+			hitbox.X += 4 * player.direction;
+			hitbox.Height += hitbox.Height / 2;
+			player.itemRotation += 2 * player.direction;
+			player.itemLocation += new Vector2(-3 * player.direction, 3).RotatedBy(player.itemRotation);
+			if (player.itemAnimation == 8) {
 				player.reuseDelay = 30;
-			}else if(player.itemAnimation<8) {
-				player.itemAnimation = --player.reuseDelay<1?0:8;
+			} else if (player.itemAnimation < 8) {
+				player.itemAnimation = --player.reuseDelay < 1 ? 0 : 8;
 			}
-			hitBox = hitbox;
 		}
 	}
 	public class GolemDeath : ModItem {
-		public override string Texture => "Terraria/Images/Item_"+ItemID.GolemTrophy;
+		public override string Texture => "Terraria/Images/Item_" + ItemID.GolemTrophy;
 		public override void SetStaticDefaults() {
 			// DisplayName.SetDefault("Golem");
 			// Tooltip.SetDefault("");
@@ -247,12 +243,12 @@ namespace EpikV2.Items {
 		}
 
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
-			tooltips.RemoveRange(1, tooltips.Count-1);
+			tooltips.RemoveRange(1, tooltips.Count - 1);
 		}
 		public override bool CanResearch() => false;
 	}
 	public class EmpressDeath : ModItem {
-		public override string Texture => "Terraria/Images/Item_"+ItemID.FairyQueenTrophy;
+		public override string Texture => "Terraria/Images/Item_" + ItemID.FairyQueenTrophy;
 		public override void SetStaticDefaults() {
 			// DisplayName.SetDefault("Empress of Light");
 			// Tooltip.SetDefault("");
@@ -262,7 +258,7 @@ namespace EpikV2.Items {
 		}
 
 		public override void ModifyTooltips(List<TooltipLine> tooltips) {
-			tooltips.RemoveRange(1, tooltips.Count-1);
+			tooltips.RemoveRange(1, tooltips.Count - 1);
 		}
 		public override bool CanResearch() => false;
 	}
@@ -271,24 +267,24 @@ namespace EpikV2.Items {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			if (epikPlayer.golemTime > 0) {
 				bool consumed = false;
-				if(item.type == ItemID.LargeAmber) {
+				if (item.type == ItemID.LargeAmber) {
 					item.type = SunstoneMaterial.id;
 					item.SetDefaults(item.type);
 					consumed = true;
-				}else if(item.type == ItemID.LargeEmerald) {
+				} else if (item.type == ItemID.LargeEmerald) {
 					item.type = AquamarineMaterial.id;
 					item.SetDefaults(item.type);
 					consumed = true;
 				}
-				if(consumed) {
+				if (consumed) {
 					epikPlayer.golemTime = 0;
 				}
-			}else if(item.type == ItemID.LargeDiamond && epikPlayer.empressTime > 0) {
+			} else if (item.type == ItemID.LargeDiamond && epikPlayer.empressTime > 0) {
 				item.type = MoonlaceMaterial.id;
 				item.SetDefaults(item.type);
 			}
-			if(item.type == ItemID.LargeRuby) {
-				if(epikPlayer.sacrifice > 0) {
+			if (item.type == ItemID.LargeRuby) {
+				if (epikPlayer.sacrifice > 0) {
 					epikPlayer.sacrifice = 0;
 					item.type = SanguineMaterialPartial.id;
 					item.SetDefaults(item.type);
@@ -296,8 +292,8 @@ namespace EpikV2.Items {
 			}
 		}
 		public override bool CanUseItem(Item item, Player player) {
-			if(item.UseSound == SoundID.Item6 && player.GetModPlayer<EpikPlayer>().chargedAmber)return false;
-			if(item.healMana > 0 && player.GetModPlayer<EpikPlayer>().chargedDiamond)return false;
+			if (item.UseSound == SoundID.Item6 && player.GetModPlayer<EpikPlayer>().chargedAmber) return false;
+			if (item.healMana > 0 && player.GetModPlayer<EpikPlayer>().chargedDiamond) return false;
 			return true;
 		}
 	}
