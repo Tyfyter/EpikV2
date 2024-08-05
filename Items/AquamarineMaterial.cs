@@ -12,13 +12,9 @@ namespace EpikV2.Items {
 	public class AquamarineMaterial : ModItem {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.LargeEmerald;
 		protected override bool CloneNewInstances => true;
-		public static int id { get; private set; }
+		public static int ID { get; private set; }
 		public int time = 3600;
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Charged Emerald");
-			// Tooltip.SetDefault("This won't retain a charge for long in this state\ndisplaytime");
-			id = Item.type;
-		}
+		public override void SetStaticDefaults() => ID = Item.type;
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.LargeEmerald);
 			Item.color = new Color(0, 200, 255);
@@ -51,14 +47,10 @@ namespace EpikV2.Items {
 	public class SunstoneMaterial : ModItem {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.LargeAmber;
 		protected override bool CloneNewInstances => true;
-		public static int id { get; private set; }
+		public static int ID { get; private set; }
 		public const int hitpoints = 300;
 		public int hp = hitpoints;
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Charged Amber");
-			// Tooltip.SetDefault("This is quite unstable\ndisplayhp");
-			id = Item.type;
-		}
+		public override void SetStaticDefaults() => ID = Item.type;
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.LargeAmber);
 			Item.color = new Color(255, 128, 0);
@@ -149,13 +141,9 @@ namespace EpikV2.Items {
 	public class MoonlaceMaterial : ModItem {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.LargeDiamond;
 		protected override bool CloneNewInstances => true;
-		public static int id { get; private set; }
+		public static int ID { get; private set; }
 		public int time = 0;
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Radiant Diamond");
-			// Tooltip.SetDefault("");
-			id = Item.type;
-		}
+		public override void SetStaticDefaults() => ID = Item.type;
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.LargeDiamond);
 			Item.color = new Color(255, 255, 255, 0);
@@ -189,11 +177,6 @@ namespace EpikV2.Items {
 		public override bool CanResearch() => false;
 	}
 	public class Sacrificial_Dagger : ModItem {
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Sacrificial Dagger");
-			// Tooltip.SetDefault("");
-			Item.ResearchUnlockCount = 1;
-		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.PsychoKnife);
 			Item.DamageType = DamageClass.Default;
@@ -234,10 +217,6 @@ namespace EpikV2.Items {
 	}
 	public class GolemDeath : ModItem {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.GolemTrophy;
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Golem");
-			// Tooltip.SetDefault("");
-		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.GolemTrophy);
 		}
@@ -249,10 +228,6 @@ namespace EpikV2.Items {
 	}
 	public class EmpressDeath : ModItem {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.FairyQueenTrophy;
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Empress of Light");
-			// Tooltip.SetDefault("");
-		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.FairyQueenTrophy);
 		}
@@ -268,11 +243,11 @@ namespace EpikV2.Items {
 			if (epikPlayer.golemTime > 0) {
 				bool consumed = false;
 				if (item.type == ItemID.LargeAmber) {
-					item.type = SunstoneMaterial.id;
+					item.type = SunstoneMaterial.ID;
 					item.SetDefaults(item.type);
 					consumed = true;
 				} else if (item.type == ItemID.LargeEmerald) {
-					item.type = AquamarineMaterial.id;
+					item.type = AquamarineMaterial.ID;
 					item.SetDefaults(item.type);
 					consumed = true;
 				}
@@ -280,7 +255,7 @@ namespace EpikV2.Items {
 					epikPlayer.golemTime = 0;
 				}
 			} else if (item.type == ItemID.LargeDiamond && epikPlayer.empressTime > 0) {
-				item.type = MoonlaceMaterial.id;
+				item.type = MoonlaceMaterial.ID;
 				item.SetDefaults(item.type);
 			}
 			if (item.type == ItemID.LargeRuby) {

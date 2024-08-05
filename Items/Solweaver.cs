@@ -36,7 +36,7 @@ namespace EpikV2.Items {
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type);
-            recipe.AddIngredient(SunstoneMaterial.id);
+            recipe.AddIngredient(SunstoneMaterial.ID);
             recipe.AddTile(TileID.DemonAltar);
             recipe.Register();
         }

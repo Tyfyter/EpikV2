@@ -44,7 +44,7 @@ namespace EpikV2.Items {
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type);
-            recipe.AddIngredient(MoonlaceMaterial.id);
+            recipe.AddIngredient(MoonlaceMaterial.ID);
             recipe.AddTile(TileID.DemonAltar);
             recipe.Register();
         }

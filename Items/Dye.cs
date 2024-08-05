@@ -19,7 +19,7 @@ namespace EpikV2.Items {
     public class Jade_Dye : Dye_Item {
         public override void AddRecipes() {
             Recipe.Create(Type, 9)
-            .AddIngredient(AquamarineMaterial.id)
+            .AddIngredient(AquamarineMaterial.ID)
             .AddTile(TileID.DyeVat)
             .Register();
         }
@@ -30,7 +30,7 @@ namespace EpikV2.Items {
         public override string Texture => "EpikV2/Items/Non-Chromatic_Dye";
         public override void AddRecipes() {
             Recipe.Create(Type, 9)
-            .AddIngredient(SunstoneMaterial.id)
+            .AddIngredient(SunstoneMaterial.ID)
             .AddTile(TileID.DyeVat)
             .Register();
         }
