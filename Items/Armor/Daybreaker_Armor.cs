@@ -409,6 +409,7 @@ namespace EpikV2.Items.Armor {
 			if (a.ApplyTo(baseValue) > b.ApplyTo(baseValue)) return a.CombineWith(b.Scale(0.5f));
 			else return b.CombineWith(a.Scale(0.5f));
 		}
+		float pullRotation;
 		public override void HoldStyle(Player player, Rectangle heldItemFrame) {
 			UseStyle(player, heldItemFrame);
 		}
@@ -418,49 +419,35 @@ namespace EpikV2.Items.Armor {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			Player.CompositeArmStretchAmount stretchAmount;
 			float armRotation;
-			if (epikPlayer.nightmareShield.CheckActive(out Projectile shield) && shield.ai[0] != -1) {
-				stretchAmount = Player.CompositeArmStretchAmount.None;
-				armRotation = 0;
-				float progress = (shield.ai[0] / shield.ai[1]) * 20;
-				if (progress > 5f) {
-					stretchAmount = Player.CompositeArmStretchAmount.Full;
-					armRotation = 1f;
-				} else if (progress > 2f) {
-					stretchAmount = Player.CompositeArmStretchAmount.ThreeQuarters;
-					armRotation = 0.6f;
-				} else if (progress > 1f) {
-					stretchAmount = Player.CompositeArmStretchAmount.Quarter;
-					armRotation = 0.2f;
-				}
-				armRotation = (player.direction == 1) ? (-armRotation - MathHelper.PiOver2) : (armRotation - MathHelper.PiOver2);
-				armRotation += shield.velocity.ToRotation();
-				leftArm = (true, stretchAmount, armRotation);
-				player.itemAnimation = 2;
+			if (epikPlayer.forceLeftHandMagic > 0) {
+				player.GetCompositeArms(out Player.CompositeArmData left, out _);
+				leftArm = (true, left.stretch, left.rotation);
 			}
 			if (epikPlayer.nightmareSword.CheckActive(out Projectile sword)) {
 				///TODO: animate 2 more attacks
 				if (sword.ai[0] != 0) player.direction = sword.direction;
 				else player.direction = Math.Sign((Main.MouseWorld - player.MountedCenter).X);
 				stretchAmount = Player.CompositeArmStretchAmount.Full;
-				armRotation = (sword.position - (player.MountedCenter - new Vector2(0, 8))).ToRotation();
-				armRotation = (player.direction == 1) ? (armRotation - MathHelper.PiOver2) : (armRotation - MathHelper.PiOver2);
+				armRotation = (sword.position - (player.MountedCenter - new Vector2(0, 8))).ToRotation() - MathHelper.PiOver2;
 				rightArm = (true, stretchAmount, armRotation);
 			}
 			if (player.whoAmI == Main.myPlayer && !player.CCed) {
-				int swordMode = sword is null ? 0 : (int)sword.ai[0]; 
-				if (!epikPlayer.nightmareShield.active && swordMode != 6 && player.controlUseTile && (player.releaseUseTile || (player.CanAutoReuseItem(Item) && swordMode == 0))) {
+				if (player.controlUseTile && player.releaseUseTile) {
 					Vector2 diff = Main.MouseWorld - player.MountedCenter;
-					epikPlayer.nightmareShield.Set(Projectile.NewProjectile(
+					Vector2 direction = Vector2.UnitX * player.direction;
+					if (epikPlayer.collide.y == 0) direction = diff.SafeNormalize(direction);
+					Projectile.NewProjectile(
 						player.GetSource_ItemUse(Item),
 						player.MountedCenter,
-						diff.SafeNormalize(Vector2.UnitX),
-						ModContent.ProjectileType<Nightmare_Shield_P>(),
+						direction * 8,
+						ModContent.ProjectileType<Daybreaker_Pull_P>(),
 						player.GetWeaponDamage(Item) / 2,
 						player.GetWeaponKnockback(Item),
 						player.whoAmI,
 						ai1: CombinedHooks.TotalAnimationTime(Item.useAnimation, player, Item)
-					));
-					player.direction = Math.Sign(diff.X);
+					);
+					epikPlayer.forceLeftHandMagic = CombinedHooks.TotalAnimationTime(Item.useAnimation, player, Item);
+					leftArm = (true, Player.CompositeArmStretchAmount.Full, direction.ToRotation() - MathHelper.PiOver2);
 				}
 				if (sword is null) {
 					Projectile.NewProjectile(
@@ -475,6 +462,8 @@ namespace EpikV2.Items.Armor {
 				} else if (player.controlUseItem && (epikPlayer.releaseUseItem || (player.CanAutoReuseItem(Item) && sword.localAI[2] < 0))) {
 					int mode = (player.direction == 1 ? player.controlLeft : player.controlRight) ? 2 : 1;
 					if (player.controlDown) mode = 3;
+					if (player.controlUp) mode = 4;
+					if (epikPlayer.collide.y == 0) mode = 5;
 					Daybreaker_Sword_P.SetAIMode(sword, mode);
 				}
 			}
@@ -510,7 +499,7 @@ namespace EpikV2.Items.Armor {
 		public override void SetDefaults() {
 			Projectile.width = Projectile.height = 0;
 			Projectile.aiStyle = 0;
-			Projectile.DamageType = DamageClass.Magic;
+			Projectile.DamageType = Damage_Classes.Daybreaker;
 			Projectile.penetrate = -1;
 			Projectile.friendly = false;
 			Projectile.ContinuouslyUpdateDamageStats = false;
@@ -518,9 +507,24 @@ namespace EpikV2.Items.Armor {
 			Projectile.localNPCHitCooldown = -1;
 			Projectile.usesLocalNPCImmunity = true;
 			Projectile.ignoreWater = true;
+			Projectile.hide = true;
 		}
 		public static void TriggerAttack(Projectile proj, Player player, Item item, int mode) {
 			if (proj.owner != Main.myPlayer) return;
+			switch ((mode, (int)proj.localAI[0])) {
+				case (5, 5):
+				mode = 6;
+				break;
+				case (3, 1):
+				player.velocity.X *= 0.5f;
+				break;
+				case (2, 3):
+				player.velocity.Y *= 0.5f;
+				break;
+				case (5, 4):
+				mode = 45;
+				break;
+			}
 			StatModifier damage = player.GetTotalDamage(item.DamageType);
 			CombinedHooks.ModifyWeaponDamage(player, item, ref damage);
 			proj.damage = (int)damage.ApplyTo(item.damage);
@@ -559,13 +563,8 @@ namespace EpikV2.Items.Armor {
 			set => Projectile.ai[0] = value;
 		}
 		public override bool ShouldUpdatePosition() => false;
-		bool? hitGroundLastFrame = null;
 		public override void AI() {
 			Player player = Main.player[Projectile.owner];
-			if (player.HeldItem.ModItem is not Daybreaker_Sword) {
-				Projectile.Kill();
-				return;
-			}
 			if (AIMode == 0) {
 				Projectile.spriteDirection = player.direction;
 			} else {
@@ -580,13 +579,15 @@ namespace EpikV2.Items.Armor {
 			//if (player.GetCompositeArmPosition(false) is Vector2 handPos) restPoint = (restPoint + handPos) * 0.5f;
 			float baseRotation = MathHelper.PiOver2 + player.direction * (MathHelper.PiOver4 * 1.65f - Projectile.stepSpeed * 0.1f);
 			float rotation = Projectile.rotation - MathHelper.PiOver4;
+			bool isHeld = true;
+			bool doResetPoof = AIMode != 0 && Projectile.ai[1] == Projectile.ai[2];
 			static float GetProgressScaled(float ai1, float ai2) {
 				float progress = MathHelper.Clamp(1 - (ai1 / ai2), 0, 1);
 				return MathHelper.Lerp(MathF.Pow(progress, 4f), MathF.Pow(progress, 0.25f), progress * progress);
 			}
-			static float GetDashSpeed(float progressScaled, int direction, float speed) => (progressScaled * speed - progressScaled * progressScaled * speed * 0.8f) * direction;
+			static float GetDashSpeed(float progressScaled, float speed, float ratio = 0.8f) => (progressScaled * speed - progressScaled * progressScaled * speed * ratio);
 			switch (AIMode) {
-				case 0: {
+				case 0:{
 					Projectile.friendly = false;
 					if (Projectile.localAI[2] != 0) {
 						GeometryUtils.AngleDif(rotation, baseRotation, out int oldDir);
@@ -598,6 +599,7 @@ namespace EpikV2.Items.Armor {
 					rotation += (float)GeometryUtils.AngleDif(rotation, baseRotation) * 0.2f;
 
 					Rectangle projHitbox = new((int)Projectile.position.X - 6, (int)Projectile.position.Y - 6, 12, 12);
+					Rectangle resultHitbox = default;
 					for (int i = 0; i < 4; i++) {
 						const int length_steps = 5;
 						bool hitGround = false;
@@ -608,6 +610,7 @@ namespace EpikV2.Items.Armor {
 							hitbox.Offset((int)offset.X, (int)offset.Y);
 							if (EpikExtensions.OverlapsAnyTiles(hitbox)) {
 								hitGround = true;
+								resultHitbox = hitbox;
 								break;
 							}
 						}
@@ -623,6 +626,7 @@ namespace EpikV2.Items.Armor {
 								hitbox.Offset((int)offset.X, (int)offset.Y);
 								if (EpikExtensions.OverlapsAnyTiles(hitbox)) {
 									hitGround = true;
+									resultHitbox = hitbox;
 									break;
 								}
 							}
@@ -632,22 +636,32 @@ namespace EpikV2.Items.Armor {
 							}
 						}
 					}
+					if (Math.Abs(player.velocity.X) > 4f && resultHitbox != default) {
+						Dust dust = Dust.NewDustDirect(
+							resultHitbox.BottomLeft(),
+							resultHitbox.Width,
+							0,
+							DustID.MinecartSpark
+						);
+						dust.noGravity = false;
+						dust.velocity.Y -= 2;
+					}
 					Projectile.stepSpeed = MathHelper.Clamp(Projectile.stepSpeed, -1.5f, 1.5f);
 					break;
 				}
 
-				case 1: {
+				case 1:{
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
 					rotation = baseRotation + progressScaled * 5 * player.direction;
 					if (Projectile.ai[1] != Projectile.ai[2]) {
 						const float speed = 48;
-						player.velocity.X += GetDashSpeed(progressScaled, player.direction, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), player.direction, speed);
+						player.velocity.X += (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed)) * player.direction;
 					}
 					goto default;
 				}
 
-				case 2: {
+				case 2:{
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					float oldProgressScaled = GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]);
 					const float threshold = 0.78f;
@@ -660,26 +674,27 @@ namespace EpikV2.Items.Armor {
 							float progressFactor = progressScaled;
 							if (i != 0) progressFactor = GetProgressScaled(Projectile.ai[1] - (i / (float)count), Projectile.ai[2]);
 							float factor = ((progressFactor - threshold) / (1f - threshold));
-							Projectile.NewProjectile(
+							Vector2 vel = new Vector2(6, 0).RotatedBy(GetRotation(progressFactor)) - new Vector2(factor * player.direction * 2, factor * 6);
+							Projectile.NewProjectileDirect(
 								Projectile.GetSource_FromAI(),
-								Projectile.position + new Vector2(64 * factor * player.direction, factor * -64),
-								new Vector2(6, 0).RotatedBy(GetRotation(progressFactor)) - new Vector2(factor * player.direction * 2, factor * 6),
+								Projectile.position + new Vector2(64 * (factor - 0.5f) * player.direction, (factor - 0.75f) * -64) + vel * 8,
+								vel,
 								ProjectileID.MolotovFire,
 								Projectile.damage,
 								Projectile.knockBack,
 								Projectile.owner
-							);
+							).timeLeft = 16;
 						}
 					}
 					if (Projectile.ai[1] != Projectile.ai[2]) {
 						const float speed = 24;
-						player.velocity.X += GetDashSpeed(progressScaled, player.direction, speed) - GetDashSpeed(oldProgressScaled, player.direction, speed);
+						player.velocity.X += (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed)) * player.direction;
 					}
 					if (Projectile.ai[1] == 1) Projectile.oldRot[0] += (float)GeometryUtils.AngleDif(Projectile.oldRot[0], rotation + MathHelper.PiOver4) * 0.6f;
 					goto default;
 				}
 
-				case 3: {
+				case 3:{
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					float oldProgressScaled = GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]);
 					rotation = baseRotation + MathHelper.Lerp(progressScaled * 0.4f, progressScaled, Math.Clamp(progressScaled - 0.5f, 0, 1) * 2f) * 5 * player.direction;
@@ -730,7 +745,96 @@ namespace EpikV2.Items.Armor {
 					}
 					if (Projectile.ai[1] != Projectile.ai[2]) {
 						const float speed = 24;
-						player.velocity.X += GetDashSpeed(progressScaled, player.direction, speed) - GetDashSpeed(oldProgressScaled, player.direction, speed);
+						player.velocity.X += (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed)) * player.direction;
+					}
+					goto default;
+				}
+
+				case 4:{
+					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
+					const float threshold = 0.78f;
+					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
+					float GetRotation(float progressScaled) => baseRotation - MathHelper.Lerp(progressScaled * 0.25f, progressScaled, Math.Clamp(progressScaled - 0.375f, 0, 1) * 1.6f) * 4 * player.direction;
+					rotation = GetRotation(progressScaled);
+					if (progressScaled > threshold) {
+						int count = 4;
+						for (int i = 0; i < count; i++) {
+							float progressFactor = progressScaled;
+							if (i != 0) progressFactor = GetProgressScaled(Projectile.ai[1] - (i / (float)count), Projectile.ai[2]);
+							float factor = ((progressFactor - threshold) / (1f - threshold));
+							Vector2 vel = new Vector2(6, 0).RotatedBy(GetRotation(progressFactor)) - new Vector2(factor * player.direction * 2, factor * 6);
+							Projectile.NewProjectileDirect(
+								Projectile.GetSource_FromAI(),
+								Projectile.position + new Vector2(64 * (factor - 0.5f) * player.direction, (factor - 0.75f) * -64) + vel * 8,
+								vel,
+								ProjectileID.MolotovFire,
+								Projectile.damage,
+								Projectile.knockBack,
+								Projectile.owner
+							).timeLeft = 16;
+						}
+					}
+					if (Projectile.ai[1] != Projectile.ai[2]) {
+						float speed = progressScaled > 0.2f ? 96 : 0;
+						player.velocity.Y -= (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed));
+						player.velocity.Y -= player.gravity * player.gravDir;
+					}
+					if (Projectile.ai[1] == 1) Projectile.oldRot[0] += (float)GeometryUtils.AngleDif(Projectile.oldRot[0], rotation + MathHelper.PiOver4) * 0.6f;
+					goto default;
+				}
+
+				case 5: {
+					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
+					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
+					rotation = Projectile.velocity.ToRotation() + (progressScaled * 5 - 3) * player.direction;
+					if (Projectile.ai[1] != Projectile.ai[2]) {
+						const float speed = 80;
+						player.velocity += Projectile.velocity * (GetDashSpeed(progressScaled, speed, 0.9f) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed, 0.9f));
+						player.velocity.Y -= player.gravity * player.gravDir;
+					}
+					goto default;
+				}
+
+				case 6: {
+					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
+					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
+					rotation = Projectile.velocity.ToRotation() + (3 - progressScaled * 5) * player.direction;
+					if (Projectile.ai[1] != Projectile.ai[2]) {
+						const float speed = 40;
+						player.velocity += Projectile.velocity * (GetDashSpeed(progressScaled, speed, 0.9f) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed, 0.9f));
+						player.velocity.Y -= player.gravity * player.gravDir;
+					}
+					goto default;
+				}
+
+				case 45: {
+					const float depth = 48;
+					rotation = Projectile.velocity.ToRotation();
+					if (Projectile.ai[1] == Projectile.ai[2]) player.velocity -= Projectile.velocity * 8;
+					Projectile.position += Projectile.velocity * depth;
+					Rectangle projHitbox = new((int)Projectile.position.X - 6, (int)Projectile.position.Y - 6, 12, 12);
+					if (!projHitbox.OverlapsAnyTiles()) {
+						const float range = 15 * 16;
+						if (Projectile.DistanceSQ(restPoint) < range * range && Projectile.ai[1] < Projectile.ai[2] - 1) {
+							Projectile.ai[1]++;
+						}
+						for (int i = 0; i < 4; i++) {
+							Projectile.position += Projectile.velocity * 8;
+							projHitbox = new((int)Projectile.position.X - 6, (int)Projectile.position.Y - 6, 12, 12);
+							if (projHitbox.OverlapsAnyTiles()) {
+								SoundEngine.PlaySound(SoundID.Item14, Projectile.position);
+
+								break;
+							}
+						}
+					}
+					Projectile.position -= Projectile.velocity * depth;
+					if (Projectile.ai[1] == 1) {
+						rotation = baseRotation;
+						Projectile.position = restPoint;
+						doResetPoof = true;
+					} else {
+						isHeld = false;
 					}
 					goto default;
 				}
@@ -740,17 +844,20 @@ namespace EpikV2.Items.Armor {
 				if (Projectile.ai[1] == Projectile.ai[2]) SoundEngine.PlaySound(SoundID.Item71, Projectile.position);
 				if (--Projectile.ai[1] <= 0) {
 					int mode = AIMode;
-					SetAIMode(Projectile, (int)Projectile.localAI[1], true);
 					Projectile.localAI[0] = mode;
+					SetAIMode(Projectile, (int)Projectile.localAI[1], true);
 					Projectile.localAI[1] = 0;
-					Projectile.localAI[2] = -8;
+					Projectile.localAI[2] = -12;
 				}
 				break;
 			}
-			player.SetCompositeArm(false, Player.CompositeArmStretchAmount.Full, rotation - MathHelper.PiOver2, true);
-			Projectile.position = player.GetCompositeArmPosition(false).Value;
+			if (isHeld) {
+				player.SetCompositeArm(false, Player.CompositeArmStretchAmount.Full, rotation - MathHelper.PiOver2, true);
+				Projectile.position = player.GetCompositeArmPosition(false).Value;
+				if (player.direction == 1) player.heldProj = Projectile.whoAmI;
+			}
 			Projectile.rotation = rotation + MathHelper.PiOver4;
-			if (Projectile.ai[1] == Projectile.ai[2] - 1) {
+			if (doResetPoof) {
 				Projectile.ResetLocalNPCHitImmunity();
 				if (Projectile.DistanceSQ(old.pos) > 8 * 8 || GeometryUtils.AngleDif(Projectile.rotation, old.rot) > 0.8f) {
 					Nightmare_Weapons.GetDustInfo(player, false, out int dustType, out bool noLight, out Color dustColor, out float dustScale);
@@ -773,6 +880,11 @@ namespace EpikV2.Items.Armor {
 					}
 				}
 			}
+			if (isHeld && player.HeldItem.ModItem is not Daybreaker_Sword) {
+				Projectile.position = default;
+				Projectile.Kill();
+				return;
+			}
 			if (Projectile.localAI[2] > 0) {
 				if (--Projectile.localAI[2] <= 0) {
 					Projectile.localAI[0] = 0;
@@ -785,6 +897,19 @@ namespace EpikV2.Items.Armor {
 				}
 			}
 			epikPlayer.nightmareSword.Set(Projectile.whoAmI);
+			{
+				const int steps = 5;
+				Vector2 vel = new Vector2(1, 0).RotatedBy(Projectile.rotation - MathHelper.PiOver4) * (86f / steps) * Projectile.scale;
+				Vector3 lightColor;
+				if (epikPlayer.realUnicornHorn && epikPlayer.magicColor.HasValue) {
+					lightColor = epikPlayer.magicColor.Value.ToVector3() * 0.5f;
+				} else {
+					lightColor = Color.OrangeRed.ToVector3() * 0.5f;
+				}
+				for (int j = 1; j <= steps; j++) {
+					Lighting.AddLight(Projectile.position + vel * j, lightColor);
+				}
+			}
 		}
 		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) => false;
 		public override bool CanHitPvp(Player target) => Projectile.ai[0] != 0;
@@ -803,6 +928,7 @@ namespace EpikV2.Items.Armor {
 			return false;
 		}
 		public override bool PreDraw(ref Color lightColor) {
+			EpikPlayer epikPlayer = Main.LocalPlayer.GetModPlayer<EpikPlayer>();
 			Main.EntitySpriteDraw(
 				TextureAssets.Projectile[Type].Value,
 				Projectile.position - Main.screenPosition,
@@ -816,9 +942,16 @@ namespace EpikV2.Items.Armor {
 			DaybreakerSwingDrawer trailDrawer = default;
 			trailDrawer.ColorStart = Color.Goldenrod;
 			trailDrawer.ColorEnd = Color.OrangeRed * 0.5f;
+			if (epikPlayer.realUnicornHorn && epikPlayer.magicColor.HasValue) {
+				trailDrawer.ColorStart = epikPlayer.magicColor.Value;
+				trailDrawer.ColorEnd = epikPlayer.magicColor.Value * 0.5f;
+			}
 			trailDrawer.Length = 86 * Projectile.scale;
 			trailDrawer.Draw(Projectile);
 			return false;
+		}
+		public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI) {
+			behindNPCsAndTiles.Add(index);
 		}
 	}
 	public struct DaybreakerSwingDrawer {
@@ -826,7 +959,7 @@ namespace EpikV2.Items.Armor {
 
 		public const int FramesPerImportantTrail = 60;
 
-		private static VertexStrip _vertexStrip = new VertexStrip();
+		private static VertexStrip _vertexStrip = new();
 
 		public Color ColorStart;
 
@@ -854,14 +987,14 @@ namespace EpikV2.Items.Armor {
 			Main.pixelShader.CurrentTechnique.Passes[0].Apply();
 		}
 
-		private Color StripColors(float progressOnStrip) {
+		private readonly Color StripColors(float progressOnStrip) {
 			Color result = Color.Lerp(ColorStart, ColorEnd, Utils.GetLerpValue(0f, 0.7f, progressOnStrip, clamped: true)) * (1f - Utils.GetLerpValue(0f, 0.98f, progressOnStrip, clamped: true));
 			result.A /= 2;
 			//result *= spriteDirections[Math.Max((int)(progressOnStrip * spriteDirections.Length) - 1, 0)];
 			return result;
 		}
 
-		private float StripWidth(float progressOnStrip) {
+		private readonly float StripWidth(float progressOnStrip) {
 			return Length;
 		}
 	}
@@ -912,7 +1045,16 @@ namespace EpikV2.Items.Armor {
 			behindNPCsAndTiles.Add(index);
 		}
 		private static VertexStrip _vertexStrip = new();
+		public Color ColorStart;
+		public Color ColorEnd;
 		public override bool PreDraw(ref Color lightColor) {
+			EpikPlayer epikPlayer = Main.LocalPlayer.GetModPlayer<EpikPlayer>();
+			ColorStart = Color.Goldenrod;
+			ColorEnd = Color.OrangeRed * 0.5f;
+			if (epikPlayer.realUnicornHorn && epikPlayer.magicColor.HasValue) {
+				ColorStart = epikPlayer.magicColor.Value;
+				ColorEnd = epikPlayer.magicColor.Value * 0.5f;
+			}
 			if (Projectile.ai[0] < 0) {
 				MiscShaderData miscShaderData = GameShaders.Misc["FlameLash"];
 				miscShaderData.UseSaturation(-1f);
@@ -934,10 +1076,52 @@ namespace EpikV2.Items.Armor {
 		}
 
 		private Color StripColors(float progressOnStrip) {
-			Color result = Color.Lerp(Color.Goldenrod, Color.OrangeRed * 0.5f, Utils.GetLerpValue(0f, 0.7f, progressOnStrip, clamped: true)) * (1f - Utils.GetLerpValue(0f, 0.98f, progressOnStrip, clamped: true));
+			Color result = Color.Lerp(ColorStart, ColorEnd, Utils.GetLerpValue(0f, 0.7f, progressOnStrip, clamped: true)) * (1f - Utils.GetLerpValue(0f, 0.98f, progressOnStrip, clamped: true));
 			result.A /= 2;
 			//result *= spriteDirections[Math.Max((int)(progressOnStrip * spriteDirections.Length) - 1, 0)];
 			return result;
+		}
+	}
+	public class Daybreaker_Pull_P : ModProjectile {
+		public override string Texture => "EpikV2/Items/Armor/Daybreaker_Sword";
+		public override void SetStaticDefaults() {
+			ProjectileID.Sets.CanDistortWater[Type] = true;
+		}
+		public override void SetDefaults() {
+			Projectile.timeLeft = 60;
+			Projectile.extraUpdates = 60;
+			Projectile.width = 32;
+			Projectile.height = 64;
+			Projectile.aiStyle = 0;
+			Projectile.DamageType = Damage_Classes.Daybreaker;
+			Projectile.penetrate = -1;
+			Projectile.friendly = true;
+			Projectile.ContinuouslyUpdateDamageStats = false;
+			Projectile.tileCollide = false;
+			Projectile.localNPCHitCooldown = -1;
+			Projectile.usesLocalNPCImmunity = true;
+			Projectile.ignoreWater = true;
+		}
+		public override void AI() {
+			if (Projectile.velocity.Y != 0) {
+				Projectile.rotation = Projectile.velocity.ToRotation();
+			}
+			Vector2 size = new Vector2(0, 32).RotatedBy(Projectile.rotation);
+			Dust.NewDustPerfect(Projectile.Center + size * Main.rand.NextFloat(-1, 1), 6);
+		}
+		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
+			if (Projectile.velocity.Y != 0) {
+				Vector2 size = new Vector2(0, Projectile.height * 0.5f).RotatedBy(Projectile.rotation);
+				float collisionPoint = 0f;
+				return Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), Projectile.Center - size, Projectile.Center + size, Projectile.width, ref collisionPoint);
+			}
+			return null;
+		}
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			modifiers.HitDirectionOverride = 0;
+		}
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
+			target.velocity = Vector2.Lerp(target.velocity, Projectile.velocity * -hit.Knockback, target.knockBackResist);
 		}
 	}
 }
