@@ -10,6 +10,7 @@ using Terraria.GameContent;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
+using Tyfyter.Utils;
 using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items {
@@ -45,14 +46,9 @@ namespace EpikV2.Items {
             recipe.Register();
         }
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-            Main.spriteBatch.Restart(
-                sortMode: SpriteSortMode.Immediate, 
-                transformMatrix: Main.UIScaleMatrix
-            );
-            //Main.spriteBatch.End();
-            //Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.UIScaleMatrix);
+			Main.spriteBatch.Restart(Main.spriteBatch.GetState(), SpriteSortMode.Immediate);
 
-            DrawData data = new DrawData {
+			DrawData data = new DrawData {
                 texture = TextureAssets.Item[Item.type].Value,
                 position = position,
                 color = drawColor,
@@ -61,46 +57,37 @@ namespace EpikV2.Items {
                 shader = Item.dye
             };
             if (Main.GameUpdateCount % 2 == 0) {
-                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.VoidDye), Main.player[Item.playerIndexTheItemIsReservedFor], data);
+                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.VoidDye), Main.LocalPlayer, data);
 			} else {
-                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.LivingRainbowDye), Main.player[Item.playerIndexTheItemIsReservedFor], data);
+                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.LivingRainbowDye), Main.LocalPlayer, data);
             }
             return true;
         }
         public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-            Main.spriteBatch.Restart(transformMatrix: Main.UIScaleMatrix);
-            //Main.spriteBatch.End();
-            //Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.UIScaleMatrix);
-        }
-        public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI) {
-            Main.spriteBatch.Restart(
-                sortMode: SpriteSortMode.Immediate,
-                samplerState: SamplerState.PointClamp,
-                transformMatrix: Main.LocalPlayer.gravDir == 1f ? Main.GameViewMatrix.ZoomMatrix : Main.GameViewMatrix.TransformationMatrix
-            );
-            //Main.spriteBatch.End();
-            //Main.spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.PointClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.LocalPlayer.gravDir == 1f ? Main.GameViewMatrix.ZoomMatrix : Main.GameViewMatrix.TransformationMatrix);
-
-            DrawData data = new DrawData {
-                texture = TextureAssets.Item[Item.type].Value,
-                position = Item.position - Main.screenPosition,
-                color = lightColor,
-                rotation = rotation,
-                scale = new Vector2(scale),
-                shader = Item.dye
-            };
-            if (Main.GameUpdateCount % 2 == 0) {
-                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.VoidDye), Main.player[Item.playerIndexTheItemIsReservedFor], data);
-            } else {
-                GameShaders.Armor.ApplySecondary(GameShaders.Armor.GetShaderIdFromItemId(ItemID.LivingRainbowDye), Main.player[Item.playerIndexTheItemIsReservedFor], data);
-            }
-            return true;
-        }
+			Main.spriteBatch.Restart(Main.spriteBatch.GetState(), SpriteSortMode.Deferred);
+		}
+		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI) => false;
         public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI) {
-            Main.spriteBatch.Restart();
-            //Main.spriteBatch.End();
-            //Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, Main.instance.Rasterizer, null, Main.GameViewMatrix.TransformationMatrix);
-        }
+			MiscUtils.SpriteBatchState state = Main.spriteBatch.GetState();
+			Main.spriteBatch.Restart(state, SpriteSortMode.Immediate);
+			Rectangle frame = TextureAssets.Item[Item.type].Value.Frame();
+			Vector2 origin = frame.Size() / 2f;
+			Vector2 offset = new((Item.width / 2) - origin.X, Item.height - frame.Height);
+
+			int dye = GameShaders.Armor.GetShaderIdFromItemId(Main.GameUpdateCount % 2 == 0 ? ItemID.VoidDye : ItemID.LivingRainbowDye);
+			DrawData data = new() {
+				texture = TextureAssets.Item[Item.type].Value,
+				position = Item.position - Main.screenPosition + origin + offset,
+				color = lightColor,
+				rotation = rotation,
+				scale = new Vector2(scale),
+				shader = dye,
+				origin = origin
+			};
+			GameShaders.Armor.ApplySecondary(dye, null, data);
+			data.Draw(Main.spriteBatch);
+			Main.spriteBatch.Restart(state);
+		}
     }
     public class High_Buff : ModBuff {
 		public override string Texture => "Terraria/Images/Buff_160";

@@ -497,6 +497,9 @@ namespace EpikV2 {
 			if (target.life <= 0) {
 				recentKillFactor += target.lifeMax * 0.5f;
 			}
+			if (daybreakerSet) {
+				target.AddBuff(BuffID.Oiled, Main.rand.Next(480, 600));
+			}
 		}
 		public override void OnHitNPCWithItem(Item item, NPC target, NPC.HitInfo hit, int damageDone) {
 			if (divineConfetti) DivineConfettiOnHit(target);

@@ -704,7 +704,8 @@ namespace EpikV2.Items.Weapons {
 			Item.mana = mana_cost;
 		}
 		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-			Main.spriteBatch.RestartWithLiteralNull(SpriteSortMode.Immediate, transformMatrix: Main.UIScaleMatrix);
+			MiscUtils.SpriteBatchState state = Main.spriteBatch.GetState();
+			Main.spriteBatch.Restart(state, SpriteSortMode.Immediate);
 
 			DrawData data = new DrawData {
 				texture = TextureAssets.Item[Item.type].Value,
@@ -719,7 +720,7 @@ namespace EpikV2.Items.Weapons {
 			};
 			GameShaders.Armor.ApplySecondary(Item.dye, null, data);
 			data.Draw(spriteBatch);
-			Main.spriteBatch.Restart(transformMatrix: Main.UIScaleMatrix);
+			Main.spriteBatch.Restart(state, SpriteSortMode.Deferred);
 			return false;
 		}
 		public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
@@ -862,7 +863,7 @@ namespace EpikV2.Items.Weapons {
 			}
 		}
 		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-			Main.spriteBatch.RestartWithLiteralNull(SpriteSortMode.Immediate, transformMatrix: Main.UIScaleMatrix);
+			Main.spriteBatch.Restart(Main.spriteBatch.GetState(), SpriteSortMode.Immediate);
 
 			DrawData data = new DrawData {
 				texture = TextureAssets.Item[Item.type].Value,
@@ -877,7 +878,7 @@ namespace EpikV2.Items.Weapons {
 			return true;
 		}
 		public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-			Main.spriteBatch.Restart(transformMatrix: Main.UIScaleMatrix);
+			Main.spriteBatch.Restart(Main.spriteBatch.GetState(), SpriteSortMode.Deferred);
 		}
 	}
 	public class Scimitar_Of_The_Rising_Sun_Mortal_Draw : Scimitar_Of_The_Rising_Sun_Slash {

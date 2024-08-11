@@ -149,7 +149,15 @@ namespace EpikV2.NPCs
                 npc.velocity = Vector2.Lerp(npc.velocity, Main.player[scorpioOwner].velocity, Math.Min(npc.knockBackResist*3f, 1));
                 scorpioTime--;
                 return false;
-            }
+			}
+			int index = npc.FindBuffIndex(Daybreaker_Stagger_Debuff.ID);
+			if (index >= 0) {
+				Dust.NewDust(npc.position, npc.width, npc.height, DustID.Torch);
+				if (npc.knockBackResist != 0 || !npc.buffImmune[BuffID.Confused]) {
+					npc.velocity.X = npc.velocity.X * 0.97f - Math.Sign(npc.velocity.X) * 0.01f;
+					if (npc.buffTime[index] % 5 != 0) return false;
+				}
+			}
 			if (npc.HasBuff<Scimitar_Of_The_Rising_Sun_Deathblow_Debuff>()) {
 				return false;
 			}

@@ -170,6 +170,16 @@ Buffs: {
 		DisplayName: Scimitar Of The Rising Sun Deathblow
 		Description: Mods.EpikV2.Buffs.Scimitar_Of_The_Rising_Sun_Deathblow_Debuff.Description
 	}
+
+	Daybreaker_Stagger_Debuff: {
+		DisplayName: Daybreaker Stagger Debuff
+		Description: Mods.EpikV2.Buffs.Daybreaker_Stagger_Debuff.Description
+	}
+
+	Daybreaker_Air_Stagger_Debuff: {
+		DisplayName: Daybreaker Air Stagger Debuff
+		Description: Mods.EpikV2.Buffs.Daybreaker_Air_Stagger_Debuff.Description
+	}
 }
 
 Empowerment.SolarRejuvenation: Solar Rejuvenation

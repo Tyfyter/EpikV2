@@ -25,6 +25,7 @@ namespace EpikV2.Projectiles {
         public bool controledNPCProjectile = false;
 		public byte partyCannonEffect = 0;
         public byte deflectState = 0;
+        int daybreakState = 0;
 		public override void OnSpawn(Projectile projectile, IEntitySource source) {
 			if (projectile.type == ProjectileID.ConfettiGun && projectile.damage == 0) {
                 partyCannonEffect = ((source is EntitySource_Wiring) ? (byte)2 : (byte)1);
@@ -36,6 +37,13 @@ namespace EpikV2.Projectiles {
                 if (prefix is IOnSpawnProjectilePrefix spawnPrefix) {
                     spawnPrefix.OnProjectileSpawn(projectile, source);
                 }
+				switch (projectile.type) {
+					case ProjectileID.InfernoFriendlyBolt:
+					if (itemUseSource.Player.GetModPlayer<EpikPlayer>().daybreakerSet) {
+						SetDaybreakState(projectile, true);
+					}
+					break;
+				}
             } else if(source is EntitySource_Parent parentSource) {
 				if (parentSource.Entity is Projectile parentProjectile) {
                     EpikGlobalProjectile parentGlobalProjectile = parentProjectile.GetGlobalProjectile<EpikGlobalProjectile>();
@@ -50,8 +58,22 @@ namespace EpikV2.Projectiles {
             if (controledNPCProjectile && projectile.hostile) {
                 Utils.Swap(ref projectile.friendly, ref projectile.hostile);
             }
-        }
-
+		}
+		public bool GetDaybreakState() => daybreakState == 1;
+		public void SetDaybreakState(Projectile projectile, bool value) {
+			if (value != GetDaybreakState()) {
+				int newValue = value ? 1 : 0;
+				ApplyDaybreaker(projectile, newValue - daybreakState);
+				daybreakState = newValue;
+			}
+		}
+		static void ApplyDaybreaker(Projectile projectile, int direction) {
+			switch (projectile.type) {
+				case ProjectileID.InfernoFriendlyBolt:
+				projectile.extraUpdates += 2 * direction;
+				break;
+			}
+		}
 		static void ApplyPartyCannonEffect(Projectile projectile, byte level) {
 			if (level > 0) {
                 projectile.damage = 1;
@@ -191,12 +213,16 @@ namespace EpikV2.Projectiles {
 		public override void SendExtraAI(Projectile projectile, BitWriter bitWriter, BinaryWriter binaryWriter) {
             binaryWriter.Write(prefix?.Type ?? 0);
             binaryWriter.Write(partyCannonEffect); 
-            binaryWriter.Write((byte)deflectState); 
+            binaryWriter.Write((byte)deflectState);
+
+			bitWriter.WriteBit(GetDaybreakState());
 		}
 		public override void ReceiveExtraAI(Projectile projectile, BitReader bitReader, BinaryReader binaryReader) {
             prefix = PrefixLoader.GetPrefix(binaryReader.ReadInt32());
             ApplyPartyCannonEffect(projectile, partyCannonEffect = binaryReader.ReadByte());
 			deflectState = binaryReader.ReadByte();
+
+			SetDaybreakState(projectile, bitReader.ReadBit());
         }
 	}
 }

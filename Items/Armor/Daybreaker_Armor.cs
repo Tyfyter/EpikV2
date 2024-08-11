@@ -179,8 +179,8 @@ namespace EpikV2.Items.Armor {
 		}
 		public override void HorizontalWingSpeeds(Player player, ref float speed, ref float acceleration) {
 			if (player.controlJump && player.TryingToHoverDown) {
-				speed *= 1.65f;
-				acceleration *= 1.85f;
+				speed *= 1.35f;
+				acceleration *= 1.35f;
 			} else if (player.controlDown) {
 				player.velocity.Y += player.gravity * player.gravDir * 0.75f;
 				player.maxFallSpeed *= 1.25f;
@@ -377,7 +377,7 @@ namespace EpikV2.Items.Armor {
 			Item.DefaultToMagicWeapon(ProjectileID.None, 34, 5);
 			Item.DamageType = Damage_Classes.Daybreaker;
 			Item.useStyle = ItemUseStyleID.RaiseLamp;
-			Item.damage = 150;
+			Item.damage = 111;
 			Item.crit = -10;
 			Item.knockBack = 6;
 			Item.noUseGraphic = true;
@@ -409,7 +409,6 @@ namespace EpikV2.Items.Armor {
 			if (a.ApplyTo(baseValue) > b.ApplyTo(baseValue)) return a.CombineWith(b.Scale(0.5f));
 			else return b.CombineWith(a.Scale(0.5f));
 		}
-		float pullRotation;
 		public override void HoldStyle(Player player, Rectangle heldItemFrame) {
 			UseStyle(player, heldItemFrame);
 		}
@@ -432,10 +431,16 @@ namespace EpikV2.Items.Armor {
 				rightArm = (true, stretchAmount, armRotation);
 			}
 			if (player.whoAmI == Main.myPlayer && !player.CCed) {
-				if (player.controlUseTile && player.releaseUseTile) {
+				if (epikPlayer.forceLeftHandMagic <= 0 && player.controlUseTile && player.releaseUseTile) {
+					int mode = (player.direction == 1 ? player.controlLeft : player.controlRight) ? 1 : 0;
+					if (player.controlDown) mode = 2;
+					if (player.controlUp) mode = 3;
 					Vector2 diff = Main.MouseWorld - player.MountedCenter;
 					Vector2 direction = Vector2.UnitX * player.direction;
-					if (epikPlayer.collide.y == 0) direction = diff.SafeNormalize(direction);
+					if (epikPlayer.collide.y == 0) {
+						mode = 4;
+						direction = diff.SafeNormalize(direction);
+					}
 					Projectile.NewProjectile(
 						player.GetSource_ItemUse(Item),
 						player.MountedCenter,
@@ -444,7 +449,7 @@ namespace EpikV2.Items.Armor {
 						player.GetWeaponDamage(Item) / 2,
 						player.GetWeaponKnockback(Item),
 						player.whoAmI,
-						ai1: CombinedHooks.TotalAnimationTime(Item.useAnimation, player, Item)
+						ai0: mode
 					);
 					epikPlayer.forceLeftHandMagic = CombinedHooks.TotalAnimationTime(Item.useAnimation, player, Item);
 					leftArm = (true, Player.CompositeArmStretchAmount.Full, direction.ToRotation() - MathHelper.PiOver2);
@@ -586,6 +591,7 @@ namespace EpikV2.Items.Armor {
 				return MathHelper.Lerp(MathF.Pow(progress, 4f), MathF.Pow(progress, 0.25f), progress * progress);
 			}
 			static float GetDashSpeed(float progressScaled, float speed, float ratio = 0.8f) => (progressScaled * speed - progressScaled * progressScaled * speed * ratio);
+			int timeForComboAfter = 12;
 			switch (AIMode) {
 				case 0:{
 					Projectile.friendly = false;
@@ -698,7 +704,7 @@ namespace EpikV2.Items.Armor {
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					float oldProgressScaled = GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]);
 					rotation = baseRotation + MathHelper.Lerp(progressScaled * 0.4f, progressScaled, Math.Clamp(progressScaled - 0.5f, 0, 1) * 2f) * 5 * player.direction;
-					if (progressScaled > 0.3f) {
+					if (progressScaled > 0.7f) {
 						const int rotation_steps = 3;
 						const int length_steps = 5;
 						Rectangle projHitbox = new((int)Projectile.position.X - 6, (int)Projectile.position.Y - 6, 12, 12);
@@ -728,18 +734,23 @@ namespace EpikV2.Items.Armor {
 									hitPos + new Vector2((i - 1) * 24 * player.direction, -32),
 									default,
 									projType,
-									Projectile.damage,
-									0,
+									Projectile.damage / 3,
+									Projectile.knockBack,
 									Projectile.owner,
 									i
 								);
 							}
 							Projectile.oldRot[0] = (rotation + MathHelper.PiOver4) + player.direction * 0.002f;
-							int mode = AIMode;
-							SetAIMode(Projectile, 0, true);
-							Projectile.localAI[0] = mode;
-							Projectile.localAI[1] = 0;
-							Projectile.localAI[2] = -24;
+							AIMode = -3;
+							int extraTime = (int)(Projectile.ai[2] * 0.4f);
+							Projectile.ai[1] += extraTime;
+							Projectile.ai[2] += extraTime;
+							//int mode = AIMode;
+							//SetAIMode(Projectile, 0, true);
+							//Projectile.localAI[0] = mode;
+							//Projectile.localAI[1] = 0;
+							//Projectile.localAI[2] = -24;
+							SoundEngine.PlaySound(SoundID.DD2_BetsyFireballImpact, Projectile.position);
 							break;
 						}
 					}
@@ -749,6 +760,10 @@ namespace EpikV2.Items.Armor {
 					}
 					goto default;
 				}
+
+				case -3:
+				rotation += player.direction * 0.001f;
+				goto default;
 
 				case 4:{
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
@@ -775,15 +790,16 @@ namespace EpikV2.Items.Armor {
 						}
 					}
 					if (Projectile.ai[1] != Projectile.ai[2]) {
-						float speed = progressScaled > 0.2f ? 96 : 0;
+						float speed = progressScaled > 0.3f ? 196 : 0;
 						player.velocity.Y -= (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed));
 						player.velocity.Y -= player.gravity * player.gravDir;
 					}
 					if (Projectile.ai[1] == 1) Projectile.oldRot[0] += (float)GeometryUtils.AngleDif(Projectile.oldRot[0], rotation + MathHelper.PiOver4) * 0.6f;
+					timeForComboAfter = 16;
 					goto default;
 				}
 
-				case 5: {
+				case 5:{
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
 					rotation = Projectile.velocity.ToRotation() + (progressScaled * 5 - 3) * player.direction;
@@ -791,11 +807,12 @@ namespace EpikV2.Items.Armor {
 						const float speed = 80;
 						player.velocity += Projectile.velocity * (GetDashSpeed(progressScaled, speed, 0.9f) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed, 0.9f));
 						player.velocity.Y -= player.gravity * player.gravDir;
+						if (epikPlayer.collide.y != 0) player.velocity.Y = 0;
 					}
 					goto default;
 				}
 
-				case 6: {
+				case 6:{
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
 					rotation = Projectile.velocity.ToRotation() + (3 - progressScaled * 5) * player.direction;
@@ -803,6 +820,7 @@ namespace EpikV2.Items.Armor {
 						const float speed = 40;
 						player.velocity += Projectile.velocity * (GetDashSpeed(progressScaled, speed, 0.9f) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed, 0.9f));
 						player.velocity.Y -= player.gravity * player.gravDir;
+						if (epikPlayer.collide.y != 0) player.velocity.Y = 0;
 					}
 					goto default;
 				}
@@ -823,7 +841,6 @@ namespace EpikV2.Items.Armor {
 							projHitbox = new((int)Projectile.position.X - 6, (int)Projectile.position.Y - 6, 12, 12);
 							if (projHitbox.OverlapsAnyTiles()) {
 								SoundEngine.PlaySound(SoundID.Item14, Projectile.position);
-
 								break;
 							}
 						}
@@ -841,13 +858,16 @@ namespace EpikV2.Items.Armor {
 
 				default:
 				Projectile.stepSpeed -= 0.05f * Math.Sign(Projectile.stepSpeed);
-				if (Projectile.ai[1] == Projectile.ai[2]) SoundEngine.PlaySound(SoundID.Item71, Projectile.position);
+				if (Projectile.ai[1] == Projectile.ai[2]) {
+					SoundEngine.PlaySound(SoundID.Item71, Projectile.position);
+					SoundEngine.PlaySound(SoundID.DD2_BetsyFireballShot, Projectile.position);
+				}
 				if (--Projectile.ai[1] <= 0) {
 					int mode = AIMode;
 					Projectile.localAI[0] = mode;
 					SetAIMode(Projectile, (int)Projectile.localAI[1], true);
 					Projectile.localAI[1] = 0;
-					Projectile.localAI[2] = -12;
+					Projectile.localAI[2] = -timeForComboAfter;
 				}
 				break;
 			}
@@ -880,11 +900,12 @@ namespace EpikV2.Items.Armor {
 					}
 				}
 			}
-			if (isHeld && player.HeldItem.ModItem is not Daybreaker_Sword) {
+			if (isHeld && (player.dead || player.HeldItem.ModItem is not Daybreaker_Sword)) {
 				Projectile.position = default;
 				Projectile.Kill();
 				return;
 			}
+			Projectile.timeLeft = 5;
 			if (Projectile.localAI[2] > 0) {
 				if (--Projectile.localAI[2] <= 0) {
 					Projectile.localAI[0] = 0;
@@ -910,6 +931,27 @@ namespace EpikV2.Items.Armor {
 					Lighting.AddLight(Projectile.position + vel * j, lightColor);
 				}
 			}
+		}
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			bool staggered = target.HasBuff<Daybreaker_Stagger_Debuff>();
+			switch (AIMode) {
+				case 3:
+				modifiers.CritDamage *= 1.5f;
+				break;
+				case 4:
+				if (staggered) {
+					modifiers.Knockback *= 1.5f;
+				}
+				break;
+			}
+			if (staggered) {
+				modifiers.CritDamage *= 1 + Projectile.CritChance / 100f;
+				modifiers.SetCrit();
+			}
+			target.AddBuff(BuffID.OnFire3, Main.rand.Next(300, 480));
+		}
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
+			SoundEngine.PlaySound((hit.Crit ? SoundID.DD2_MonkStaffGroundImpact : SoundID.DD2_MonkStaffGroundMiss).WithPitchRange(-0.2f, 0.0f), target.Center);
 		}
 		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) => false;
 		public override bool CanHitPvp(Player target) => Projectile.ai[0] != 0;
@@ -1024,7 +1066,7 @@ namespace EpikV2.Items.Armor {
 					}
 					Projectile.position.Y -= 1;
 					Projectile.friendly = true;
-					Projectile.timeLeft = 120;
+					Projectile.timeLeft = 45;
 					for (int i = 0; i < 8; i++) {
 						Dust.NewDustDirect(
 							Projectile.position,
@@ -1039,7 +1081,17 @@ namespace EpikV2.Items.Armor {
 			}
 		}
 		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
-			if (Projectile.ai[1] <= 0.1f) modifiers.SourceDamage /= 3f;
+			if (Projectile.ai[1] > 0.1f) {
+				modifiers.SourceDamage /= 2f;
+				modifiers.DisableKnockback();
+			} else modifiers.HitDirectionOverride = 0;
+		}
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
+			if (Projectile.ai[1] <= 0.1f) {
+				int sign = Math.Sign(target.knockBackResist);
+				target.velocity = Vector2.Lerp(target.velocity, new Vector2(0, -hit.Knockback), MathF.Pow(target.knockBackResist * sign, 0.5f) * sign * 2);
+			}
+			target.AddBuff(Daybreaker_Stagger_Debuff.ID, 5);
 		}
 		public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI) {
 			behindNPCsAndTiles.Add(index);
@@ -1094,7 +1146,7 @@ namespace EpikV2.Items.Armor {
 			Projectile.height = 64;
 			Projectile.aiStyle = 0;
 			Projectile.DamageType = Damage_Classes.Daybreaker;
-			Projectile.penetrate = -1;
+			Projectile.penetrate = 1;
 			Projectile.friendly = true;
 			Projectile.ContinuouslyUpdateDamageStats = false;
 			Projectile.tileCollide = false;
@@ -1121,7 +1173,54 @@ namespace EpikV2.Items.Armor {
 			modifiers.HitDirectionOverride = 0;
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
-			target.velocity = Vector2.Lerp(target.velocity, Projectile.velocity * -hit.Knockback, target.knockBackResist);
+			Vector2 targetSpeed = default;
+			switch ((int)Projectile.ai[0]) {
+				case 0:
+				targetSpeed = new Vector2(Projectile.direction * -hit.Knockback, 0);
+				break;
+
+				case 1:
+				targetSpeed = new Vector2(Projectile.direction * hit.Knockback, 0);
+				break;
+
+				case 2:
+				targetSpeed = new Vector2(0, hit.Knockback);
+				break;
+
+				case 3:
+				targetSpeed = new Vector2(0, -hit.Knockback);
+				break;
+
+				case 4:
+				targetSpeed = Projectile.velocity.SafeNormalize(default) * -hit.Knockback;
+				target.AddBuff(Daybreaker_Air_Stagger_Debuff.ID, 15);
+				break;
+			}
+			if (targetSpeed.Y < 0) targetSpeed.Y *= 2;
+			int sign = Math.Sign(target.knockBackResist);
+			target.velocity = Vector2.Lerp(target.velocity, targetSpeed, MathF.Pow(target.knockBackResist * sign, 0.5f) * sign * 2);
+			target.AddBuff(Daybreaker_Stagger_Debuff.ID, 45);
+		}
+	}
+	public class Daybreaker_Stagger_Debuff : ModBuff {
+		public override string Texture => "EpikV2/Items/Armor/Daybreaker_Sword";
+		public static int ID { get; private set; }
+		public override void SetStaticDefaults() {
+			Main.debuff[Type] = false;
+			ID = Type;
+		}
+	}
+	public class Daybreaker_Air_Stagger_Debuff : ModBuff {
+		public override string Texture => "EpikV2/Items/Armor/Daybreaker_Sword";
+		public static int ID { get; private set; }
+		public override void SetStaticDefaults() {
+			Main.debuff[Type] = false;
+			ID = Type;
+		}
+		public override void Update(NPC npc, ref int buffIndex) {
+			if (npc.knockBackResist == 0 && npc.buffImmune[BuffID.Confused]) return;
+			if (!npc.noGravity) npc.velocity.Y -= npc.gravity * 0.5f;
+			else npc.velocity.Y = npc.velocity.Y * 0.97f - Math.Sign(npc.velocity.Y) * 0.01f;
 		}
 	}
 }

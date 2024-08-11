@@ -463,7 +463,7 @@ namespace EpikV2.Items.Armor {
 			}
 			if (player.whoAmI == Main.myPlayer && !player.CCed) {
 				int swordMode = sword is null ? 0 : (int)sword.ai[0];
-				if (!epikPlayer.nightmareShield.active && swordMode != 6 && player.controlUseTile && (player.releaseUseTile || (player.CanAutoReuseItem(Item) && swordMode == 0))) {
+				if (!epikPlayer.nightmareShield.active && swordMode != 6 && player.controlUseTile && (player.releaseUseTile || (player.CanAutoReuseItem(Item) && swordMode == 0)) && player.CheckMana(player.HeldItem, pay: true)) {
 					Vector2 diff = Main.MouseWorld - player.MountedCenter;
 					epikPlayer.nightmareShield.Set(Projectile.NewProjectile(
 						player.GetSource_ItemUse(Item),
@@ -569,7 +569,7 @@ namespace EpikV2.Items.Armor {
 		public override void OnSpawn(IEntitySource source) {
 			Projectile.ai[2] = 0;
 		}
-		List<int> dusts = new();
+		List<int> dusts = [];
 		public override void AI() {
 			Player player = Main.player[Projectile.owner];
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
@@ -611,12 +611,14 @@ namespace EpikV2.Items.Armor {
 									if (Projectile.ai[2] <= 0) {
 										other.damage = (int)-Projectile.ai[2];
 										Projectile.ai[0] = -1;
-										Projectile.Kill();
+										//Projectile.Kill();
 										player.itemAnimation = 0;
 										SoundEngine.PlaySound(SoundID.Item27.WithPitchOffset(-0.1f), hitBox.Center.ToVector2());
 										SoundEngine.PlaySound(SoundID.Item167, hitBox.Center.ToVector2());
+										SoundEngine.PlaySound(SoundID.DeerclopsIceAttack.WithVolumeScale(4), hitBox.Center.ToVector2());;
 										broken = true;
-										Projectile.timeLeft = 20;
+										Projectile.timeLeft = 30;
+										player.CheckMana(player.HeldItem, pay: true);
 										break;
 									} else {
 										SoundEngine.PlaySound(SoundID.Dig.WithVolumeScale(0.25f), hitBox.Center.ToVector2());
