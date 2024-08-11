@@ -1191,12 +1191,63 @@ namespace EpikV2 {
 			}
 		}
 		public static Vector2? GetCompositeArmPosition(this Player player, bool leftSide) {
-			if ((player.direction == 1) == leftSide) {
-				if (player.compositeBackArm.enabled) return player.GetBackHandPosition(player.compositeBackArm.stretch, player.compositeBackArm.rotation);
+			Vector2? pos = null;
+			if (player.gravDir == -1) {
+				if ((player.direction == 1) == leftSide) {
+					float rotation = player.compositeBackArm.rotation - MathHelper.PiOver2;
+					Vector2 offset = rotation.ToRotationVector2();
+					switch (player.compositeBackArm.stretch) {
+						case Player.CompositeArmStretchAmount.Full:
+						offset *= new Vector2(10f, 12f);
+						break;
+						case Player.CompositeArmStretchAmount.None:
+						offset *= new Vector2(4f, 6f);
+						break;
+						case Player.CompositeArmStretchAmount.Quarter:
+						offset *= new Vector2(6f, 8f);
+						break;
+						case Player.CompositeArmStretchAmount.ThreeQuarters:
+						offset *= new Vector2(8f, 10f);
+						break;
+					}
+					if (player.direction == -1) {
+						offset += new Vector2(-6f, 2f);
+					} else {
+						offset += new Vector2(6f, 2f);
+					}
+					pos = player.MountedCenter + offset;
+				} else {
+					Vector2 offset = new(-1, 3 * player.direction);
+					switch (player.compositeFrontArm.stretch) {
+						case Player.CompositeArmStretchAmount.Full:
+						offset.X *= 10f;
+						break;
+						case Player.CompositeArmStretchAmount.None:
+						offset.X *= 4f;
+						break;
+						case Player.CompositeArmStretchAmount.Quarter:
+						offset.X *= 6f;
+						break;
+						case Player.CompositeArmStretchAmount.ThreeQuarters:
+						offset.X *= 8f;
+						break;
+					}
+					offset = offset.RotatedBy(player.compositeFrontArm.rotation + MathHelper.PiOver2);
+					if (player.direction == -1) {
+						offset += new Vector2(4f, 2f);
+					} else {
+						offset += new Vector2(-4f, 2f);
+					}
+					pos = player.MountedCenter + offset;
+				}
 			} else {
-				if (player.compositeFrontArm.enabled) return player.GetFrontHandPosition(player.compositeFrontArm.stretch, player.compositeFrontArm.rotation);
+				if ((player.direction == 1) == leftSide) {
+					if (player.compositeBackArm.enabled) pos = player.GetBackHandPosition(player.compositeBackArm.stretch, player.compositeBackArm.rotation);
+				} else {
+					if (player.compositeFrontArm.enabled) pos = player.GetFrontHandPosition(player.compositeFrontArm.stretch, player.compositeFrontArm.rotation);
+				}
 			}
-			return null;
+			return pos;
 		}
 		public static bool IsInWorld(int i, int j) => i >= 0 && j >= 0 && i < Main.maxTilesX && j < Main.maxTilesY;
 		public static FlavorTextBestiaryInfoElement GetBestiaryFlavorText(this ModNPC npc, string defaultValue = null) {

@@ -48,7 +48,7 @@ namespace EpikV2.Items {
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
 			Main.spriteBatch.Restart(Main.spriteBatch.GetState(), SpriteSortMode.Immediate);
 
-			DrawData data = new DrawData {
+			DrawData data = new() {
                 texture = TextureAssets.Item[Item.type].Value,
                 position = position,
                 color = drawColor,

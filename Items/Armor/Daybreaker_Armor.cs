@@ -197,9 +197,10 @@ namespace EpikV2.Items.Armor {
 			constantAscend = 0.125f;
 
 			if (player.TryingToHoverDown) {
+				float gravity = player.gravity * player.gravDir;
 				player.wingTime += (player.controlLeft || player.controlRight) ? 0.5f : 1f;
-				ascentWhenFalling = player.gravity + player.velocity.Y * 0.05f;
-				ascentWhenRising = -(player.gravity + player.velocity.Y * 0.05f);
+				ascentWhenFalling = player.gravity + player.velocity.Y * 0.05f * player.gravDir;
+				ascentWhenRising = -(player.gravity + player.velocity.Y * 0.05f * player.gravDir);
 				constantAscend = -player.gravity;
 			}
 		}
@@ -427,11 +428,11 @@ namespace EpikV2.Items.Armor {
 				if (sword.ai[0] != 0) player.direction = sword.direction;
 				else player.direction = Math.Sign((Main.MouseWorld - player.MountedCenter).X);
 				stretchAmount = Player.CompositeArmStretchAmount.Full;
-				armRotation = (sword.position - (player.MountedCenter - new Vector2(0, 8))).ToRotation() - MathHelper.PiOver2;
+				armRotation = ((sword.position - (player.MountedCenter - new Vector2(0, 8))) * new Vector2(1, player.gravDir)).ToRotation() - MathHelper.PiOver2;
 				rightArm = (true, stretchAmount, armRotation);
 			}
 			if (player.whoAmI == Main.myPlayer && !player.CCed) {
-				if (epikPlayer.forceLeftHandMagic <= 0 && player.controlUseTile && player.releaseUseTile) {
+				if (epikPlayer.forceLeftHandMagic <= 0 && player.controlUseTile && player.releaseUseTile && player.CheckMana(Item, pay: true)) {
 					int mode = (player.direction == 1 ? player.controlLeft : player.controlRight) ? 1 : 0;
 					if (player.controlDown) mode = 2;
 					if (player.controlUp) mode = 3;
@@ -582,7 +583,7 @@ namespace EpikV2.Items.Armor {
 			//if (player.direction == 1) player.compositeFrontArm.enabled = true;
 			//else player.compositeBackArm.enabled = true;
 			//if (player.GetCompositeArmPosition(false) is Vector2 handPos) restPoint = (restPoint + handPos) * 0.5f;
-			float baseRotation = MathHelper.PiOver2 + player.direction * (MathHelper.PiOver4 * 1.65f - Projectile.stepSpeed * 0.1f);
+			float baseRotation = (MathHelper.PiOver2 + player.direction * (MathHelper.PiOver4 * 1.65f - Projectile.stepSpeed * 0.1f)) * player.gravDir;
 			float rotation = Projectile.rotation - MathHelper.PiOver4;
 			bool isHeld = true;
 			bool doResetPoof = AIMode != 0 && Projectile.ai[1] == Projectile.ai[2];
@@ -592,6 +593,7 @@ namespace EpikV2.Items.Armor {
 			}
 			static float GetDashSpeed(float progressScaled, float speed, float ratio = 0.8f) => (progressScaled * speed - progressScaled * progressScaled * speed * ratio);
 			int timeForComboAfter = 12;
+			int swingDirectionCorrection = player.direction * (int)player.gravDir;
 			switch (AIMode) {
 				case 0:{
 					Projectile.friendly = false;
@@ -659,7 +661,7 @@ namespace EpikV2.Items.Armor {
 				case 1:{
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
-					rotation = baseRotation + progressScaled * 5 * player.direction;
+					rotation = baseRotation + progressScaled * 5 * swingDirectionCorrection;
 					if (Projectile.ai[1] != Projectile.ai[2]) {
 						const float speed = 48;
 						player.velocity.X += (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed)) * player.direction;
@@ -672,7 +674,7 @@ namespace EpikV2.Items.Armor {
 					float oldProgressScaled = GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]);
 					const float threshold = 0.78f;
 					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
-					float GetRotation(float progressScaled) => baseRotation - MathHelper.Lerp(progressScaled * 0.25f, progressScaled, Math.Clamp(progressScaled - 0.375f, 0, 1) * 1.6f) * 4 * player.direction;
+					float GetRotation(float progressScaled) => baseRotation - MathHelper.Lerp(progressScaled * 0.25f, progressScaled, Math.Clamp(progressScaled - 0.375f, 0, 1) * 1.6f) * 4 * swingDirectionCorrection;
 					rotation = GetRotation(progressScaled);
 					if (progressScaled > threshold) {
 						int count = 4;
@@ -680,10 +682,10 @@ namespace EpikV2.Items.Armor {
 							float progressFactor = progressScaled;
 							if (i != 0) progressFactor = GetProgressScaled(Projectile.ai[1] - (i / (float)count), Projectile.ai[2]);
 							float factor = ((progressFactor - threshold) / (1f - threshold));
-							Vector2 vel = new Vector2(6, 0).RotatedBy(GetRotation(progressFactor)) - new Vector2(factor * player.direction * 2, factor * 6);
+							Vector2 vel = new Vector2(6, 0).RotatedBy(GetRotation(progressFactor)) - new Vector2(factor * player.direction * 2, factor * 6 * player.gravDir);
 							Projectile.NewProjectileDirect(
 								Projectile.GetSource_FromAI(),
-								Projectile.position + new Vector2(64 * (factor - 0.5f) * player.direction, (factor - 0.75f) * -64) + vel * 8,
+								Projectile.position + new Vector2(64 * (factor - 0.5f) * player.direction, (factor - 0.75f) * -64 * player.gravDir) + vel * 8,
 								vel,
 								ProjectileID.MolotovFire,
 								Projectile.damage,
@@ -703,7 +705,7 @@ namespace EpikV2.Items.Armor {
 				case 3:{
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					float oldProgressScaled = GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]);
-					rotation = baseRotation + MathHelper.Lerp(progressScaled * 0.4f, progressScaled, Math.Clamp(progressScaled - 0.5f, 0, 1) * 2f) * 5 * player.direction;
+					rotation = baseRotation + MathHelper.Lerp(progressScaled * 0.4f, progressScaled, Math.Clamp(progressScaled - 0.5f, 0, 1) * 2f) * 5 * swingDirectionCorrection;
 					if (progressScaled > 0.7f) {
 						const int rotation_steps = 3;
 						const int length_steps = 5;
@@ -740,7 +742,7 @@ namespace EpikV2.Items.Armor {
 									i
 								);
 							}
-							Projectile.oldRot[0] = (rotation + MathHelper.PiOver4) + player.direction * 0.002f;
+							Projectile.oldRot[0] = (rotation + MathHelper.PiOver4) + swingDirectionCorrection * 0.002f;
 							AIMode = -3;
 							int extraTime = (int)(Projectile.ai[2] * 0.4f);
 							Projectile.ai[1] += extraTime;
@@ -762,36 +764,15 @@ namespace EpikV2.Items.Armor {
 				}
 
 				case -3:
-				rotation += player.direction * 0.001f;
+				rotation += swingDirectionCorrection * 0.001f;
 				goto default;
 
 				case 4:{
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
-					const float threshold = 0.78f;
-					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
-					float GetRotation(float progressScaled) => baseRotation - MathHelper.Lerp(progressScaled * 0.25f, progressScaled, Math.Clamp(progressScaled - 0.375f, 0, 1) * 1.6f) * 4 * player.direction;
-					rotation = GetRotation(progressScaled);
-					if (progressScaled > threshold) {
-						int count = 4;
-						for (int i = 0; i < count; i++) {
-							float progressFactor = progressScaled;
-							if (i != 0) progressFactor = GetProgressScaled(Projectile.ai[1] - (i / (float)count), Projectile.ai[2]);
-							float factor = ((progressFactor - threshold) / (1f - threshold));
-							Vector2 vel = new Vector2(6, 0).RotatedBy(GetRotation(progressFactor)) - new Vector2(factor * player.direction * 2, factor * 6);
-							Projectile.NewProjectileDirect(
-								Projectile.GetSource_FromAI(),
-								Projectile.position + new Vector2(64 * (factor - 0.5f) * player.direction, (factor - 0.75f) * -64) + vel * 8,
-								vel,
-								ProjectileID.MolotovFire,
-								Projectile.damage,
-								Projectile.knockBack,
-								Projectile.owner
-							).timeLeft = 16;
-						}
-					}
+					rotation = baseRotation - MathHelper.Lerp(progressScaled * 0.25f, progressScaled, Math.Clamp(progressScaled - 0.375f, 0, 1) * 1.6f) * 4 * swingDirectionCorrection;
 					if (Projectile.ai[1] != Projectile.ai[2]) {
 						float speed = progressScaled > 0.3f ? 196 : 0;
-						player.velocity.Y -= (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed));
+						player.velocity.Y -= (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed)) * player.gravDir;
 						player.velocity.Y -= player.gravity * player.gravDir;
 					}
 					if (Projectile.ai[1] == 1) Projectile.oldRot[0] += (float)GeometryUtils.AngleDif(Projectile.oldRot[0], rotation + MathHelper.PiOver4) * 0.6f;
@@ -802,7 +783,7 @@ namespace EpikV2.Items.Armor {
 				case 5:{
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
-					rotation = Projectile.velocity.ToRotation() + (progressScaled * 5 - 3) * player.direction;
+					rotation = Projectile.velocity.ToRotation() + (progressScaled * 5 - 3) * swingDirectionCorrection;
 					if (Projectile.ai[1] != Projectile.ai[2]) {
 						const float speed = 80;
 						player.velocity += Projectile.velocity * (GetDashSpeed(progressScaled, speed, 0.9f) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed, 0.9f));
@@ -815,7 +796,7 @@ namespace EpikV2.Items.Armor {
 				case 6:{
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
-					rotation = Projectile.velocity.ToRotation() + (3 - progressScaled * 5) * player.direction;
+					rotation = Projectile.velocity.ToRotation() + (3 - progressScaled * 5) * swingDirectionCorrection;
 					if (Projectile.ai[1] != Projectile.ai[2]) {
 						const float speed = 40;
 						player.velocity += Projectile.velocity * (GetDashSpeed(progressScaled, speed, 0.9f) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed, 0.9f));
@@ -872,7 +853,7 @@ namespace EpikV2.Items.Armor {
 				break;
 			}
 			if (isHeld) {
-				player.SetCompositeArm(false, Player.CompositeArmStretchAmount.Full, rotation - MathHelper.PiOver2, true);
+				player.SetCompositeArm(false, Player.CompositeArmStretchAmount.Full, rotation * player.gravDir - MathHelper.PiOver2, true);
 				Projectile.position = player.GetCompositeArmPosition(false).Value;
 				if (player.direction == 1) player.heldProj = Projectile.whoAmI;
 			}
@@ -952,6 +933,16 @@ namespace EpikV2.Items.Armor {
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			SoundEngine.PlaySound((hit.Crit ? SoundID.DD2_MonkStaffGroundImpact : SoundID.DD2_MonkStaffGroundMiss).WithPitchRange(-0.2f, 0.0f), target.Center);
+			switch (AIMode) {
+				case 2:
+				target.velocity.Y -= hit.Knockback * target.knockBackResist * 2f;
+				break;
+
+				case 4:
+				target.velocity.Y -= hit.Knockback * target.knockBackResist * 4f;
+				break;
+			}
+
 		}
 		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) => false;
 		public override bool CanHitPvp(Player target) => Projectile.ai[0] != 0;
