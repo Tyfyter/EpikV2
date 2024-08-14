@@ -517,35 +517,41 @@ namespace EpikV2.Items.Armor {
 		}
 		public static void TriggerAttack(Projectile proj, Player player, Item item, int mode) {
 			if (proj.owner != Main.myPlayer) return;
-			switch ((mode, (int)proj.localAI[0])) {
+			StatModifier damage = player.GetTotalDamage(item.DamageType);
+			CombinedHooks.ModifyWeaponDamage(player, item, ref damage);
+			float crit = player.GetWeaponCrit(item);
+			StatModifier knockback = player.GetTotalKnockback(item.DamageType);
+			CombinedHooks.ModifyWeaponKnockback(player, item, ref knockback);
+			float meleeAP = player.GetArmorPenetration(DamageClass.Melee);
+			float magicAP = player.GetArmorPenetration(DamageClass.Magic);
+			float armorPenetration = (player.GetWeaponArmorPenetration(item) + Math.Max(meleeAP, magicAP) + Math.Min(meleeAP, magicAP) * 0.5f);
+			float useTime = CombinedHooks.TotalAnimationTime(item.useAnimation, player, item);
+			switch (((int)proj.localAI[0], mode)) {
 				case (5, 5):
 				mode = 6;
 				break;
-				case (3, 1):
+				case (1, 3):
 				player.velocity.X *= 0.5f;
 				break;
-				case (2, 3):
+				case (3, 2):
 				player.velocity.Y *= 0.5f;
 				break;
-				case (5, 4):
+				case (1, 4):
+				mode = 14;
+				useTime *= 1.5f;
+				break;
+				case (14, 5):
+				mode = 145;
+				break;
+				case (4, 5):
 				mode = 45;
 				break;
 			}
-			StatModifier damage = player.GetTotalDamage(item.DamageType);
-			CombinedHooks.ModifyWeaponDamage(player, item, ref damage);
 			proj.damage = (int)damage.ApplyTo(item.damage);
-
-			proj.CritChance = player.GetWeaponCrit(item);
-
-			StatModifier knockback = player.GetTotalKnockback(item.DamageType);
-			CombinedHooks.ModifyWeaponKnockback(player, item, ref knockback);
+			proj.CritChance = (int)crit;
 			proj.knockBack = (int)knockback.ApplyTo(item.knockBack);
-
-			float melee = player.GetArmorPenetration(DamageClass.Melee);
-			float magic = player.GetArmorPenetration(DamageClass.Magic);
-			proj.ArmorPenetration = (int)(player.GetWeaponArmorPenetration(item) + Math.Max(melee, magic) + Math.Min(melee, magic) * 0.5f);
-
-			int useTime = CombinedHooks.TotalAnimationTime(item.useAnimation, player, item);
+			proj.ArmorPenetration = (int)armorPenetration;
+			useTime = (int)useTime;
 
 			proj.ai[0] = mode;
 			proj.ai[1] = useTime;
@@ -561,7 +567,7 @@ namespace EpikV2.Items.Armor {
 				TriggerAttack(proj, Main.LocalPlayer, Main.LocalPlayer.HeldItem, mode);
 			} else {
 				proj.localAI[1] = mode;
-				proj.localAI[2] = 12;
+				proj.localAI[2] = 15;
 			}
 		}
 		protected int AIMode {
@@ -592,7 +598,7 @@ namespace EpikV2.Items.Armor {
 				return MathHelper.Lerp(MathF.Pow(progress, 4f), MathF.Pow(progress, 0.25f), progress * progress);
 			}
 			static float GetDashSpeed(float progressScaled, float speed, float ratio = 0.8f) => (progressScaled * speed - progressScaled * progressScaled * speed * ratio);
-			int timeForComboAfter = 12;
+			int timeForComboAfter = 15;
 			int swingDirectionCorrection = player.direction * (int)player.gravDir;
 			switch (AIMode) {
 				case 0:{
@@ -714,7 +720,7 @@ namespace EpikV2.Items.Armor {
 						bool hitGround = false;
 						Vector2 hitPos = default;
 						for (int i = 0; i < rotation_steps; i++) {
-							float stepRot = MathHelper.Lerp(oldRot, rotation, (i + 1f) / rotation_steps);
+							float stepRot = oldRot + (float)GeometryUtils.AngleDif(oldRot, rotation) * (i + 1f) / rotation_steps;
 							Vector2 vel = new Vector2(1, 0).RotatedBy(stepRot) * (86f / length_steps) * Projectile.scale;
 							for (int j = 1; j <= length_steps; j++) {
 								Rectangle hitbox = projHitbox;
@@ -730,8 +736,9 @@ namespace EpikV2.Items.Armor {
 						}
 						if (hitGround) {
 							int projType = ModContent.ProjectileType<Daybreaker_Floor_Fire>();
+							Projectile lastFire = null;
 							for (int i = 0; i < 18; i++) {
-								Projectile.NewProjectile(
+								int currentFire = Projectile.NewProjectile(
 									Projectile.GetSource_FromAI(),
 									hitPos + new Vector2((i - 1) * 24 * player.direction, -32),
 									default,
@@ -741,6 +748,8 @@ namespace EpikV2.Items.Armor {
 									Projectile.owner,
 									i
 								);
+								if (lastFire is not null) lastFire.ai[2] = currentFire;
+								if (currentFire >= 0) lastFire = Main.projectile[currentFire];
 							}
 							Projectile.oldRot[0] = (rotation + MathHelper.PiOver4) + swingDirectionCorrection * 0.002f;
 							AIMode = -3;
@@ -806,6 +815,42 @@ namespace EpikV2.Items.Armor {
 					goto default;
 				}
 
+				case 14: {
+					if (Projectile.ai[1] == Projectile.ai[2]) player.velocity += new Vector2(6 * player.direction, -8);
+					if (player.velocity.X * player.direction < 12) player.velocity.X = player.direction * 12;
+					float spin = player.direction * 0.5f;
+					rotation += spin;
+					if (Projectile.ai[2] - Projectile.ai[1] < 7) rotation += spin;
+					player.fullRotation += spin;
+					player.fullRotationOrigin = player.Size * 0.5f;
+					if (Projectile.ai[1] == 1) player.fullRotation = 0;
+					if (Projectile.ai[1] < 10 && Projectile.localAI[2] > 0) {
+						Projectile.localAI[2]++;
+					}
+					goto default;
+				}
+
+				case 145: {
+					float spin = player.direction * 0.5f;
+					rotation += spin;
+					player.fullRotation += spin;
+					player.fullRotationOrigin = player.Size * 0.5f;
+					player.wingTime = 0;
+					if (epikPlayer.collide.y == player.gravDir) {
+						player.fullRotation = 0;
+						for (int i = 0; i < 5; i++) {
+							if (Math.Sin(rotation) < -0.5f) {
+								Projectile.ai[1] = (int)(Projectile.ai[2] * 0.4f);
+								AIMode = 3;
+								break;
+							}
+							rotation += spin * 0.1f;
+						}
+					}
+					if (Projectile.ai[1] == 1) Projectile.ai[1]++;
+					goto default;
+				}
+
 				case 45: {
 					const float depth = 48;
 					rotation = Projectile.velocity.ToRotation();
@@ -857,7 +902,7 @@ namespace EpikV2.Items.Armor {
 				Projectile.position = player.GetCompositeArmPosition(false).Value;
 				if (player.direction == 1) player.heldProj = Projectile.whoAmI;
 			}
-			Projectile.rotation = rotation + MathHelper.PiOver4;
+			Projectile.rotation = (rotation + MathHelper.PiOver4 + MathHelper.TwoPi) % MathHelper.TwoPi;
 			if (doResetPoof) {
 				Projectile.ResetLocalNPCHitImmunity();
 				if (Projectile.DistanceSQ(old.pos) > 8 * 8 || GeometryUtils.AngleDif(Projectile.rotation, old.rot) > 0.8f) {
@@ -942,7 +987,6 @@ namespace EpikV2.Items.Armor {
 				target.velocity.Y -= hit.Knockback * target.knockBackResist * 4f;
 				break;
 			}
-
 		}
 		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) => false;
 		public override bool CanHitPvp(Player target) => Projectile.ai[0] != 0;
@@ -1006,6 +1050,7 @@ namespace EpikV2.Items.Armor {
 			miscShaderData.UseOpacity(4);
 			miscShaderData.Apply();
 			int maxLength = Math.Min(proj.oldPos.Length, (int)(proj.ai[2] - proj.ai[1]));
+			if (proj.ai[0] == 145) maxLength = proj.oldPos.Length;
 			float[] oldRot = new float[maxLength];
 			Vector2[] oldPos = new Vector2[maxLength];
 			Vector2 move = new Vector2(Length * 0.65f, 0) * proj.direction;
@@ -1042,17 +1087,25 @@ namespace EpikV2.Items.Armor {
 			Projectile.usesIDStaticNPCImmunity = true;
 			Projectile.idStaticNPCHitCooldown = 25;
 			Projectile.hide = true;
+			Projectile.tileCollide = false;
 		}
 		public override void AI() {
 			if (Projectile.ai[0] >= 0) {
 				Projectile.ai[0] -= 1f;
 				if (Projectile.ai[0] < 0) {
-					int tries = 64;
+					int tries = 96;
 					while (!EpikExtensions.OverlapsAnyTiles(Projectile.Hitbox)) {
 						Projectile.position.Y += 1;
 						if (--tries <= 0) {
 							Projectile.Kill();
-							break;
+							return;
+						}
+					}
+					int nextFireIndex = (int)Projectile.ai[2];
+					if (nextFireIndex >= 0) {
+						Projectile nextFire = Main.projectile[nextFireIndex];
+						if (nextFire.type == Type && nextFire.ai[0] > 0) {
+							nextFire.position.Y = Projectile.position.Y - 32;
 						}
 					}
 					Projectile.position.Y -= 1;
