@@ -26,8 +26,7 @@ namespace EpikV2.Items.Other.HairDye {
 	public class Bloodstained_Hair_Dye : HairDye {
 		public override HairShaderData ShaderData => new BloodstainedHairShaderData(GetShader("BloodstainedHairDye"), "BloodstainedHairDye")
 		.UseImage("Images/Misc/noise");
-		public class BloodstainedHairShaderData : HairShaderData {
-			public BloodstainedHairShaderData(Ref<Effect> shader, string passName) : base(shader, passName) { }
+		public class BloodstainedHairShaderData(Asset<Effect> shader, string passName) : HairShaderData(shader, passName) {
 			public override void Apply(Player player, DrawData? drawData = null) {
 				_uOpacity = player.GetModPlayer<EpikPlayer>().recentKillFactor * 0.001f;
 				base.Apply(player, drawData);
@@ -85,8 +84,8 @@ namespace EpikV2.Items.Other.HairDye {
 		protected HairShaderData GetShaderWithPass(string shader, string pass) {
 			return new HairShaderData(GetShader(shader), pass);
 		}
-		protected Ref<Effect> GetShader(string shader) {
-			return new Ref<Effect>(Mod.Assets.Request<Effect>("Effects/" + shader, AssetRequestMode.ImmediateLoad).Value);
+		protected Asset<Effect> GetShader(string shader) {
+			return Mod.Assets.Request<Effect>("Effects/" + shader);
 		}
 	}
 }

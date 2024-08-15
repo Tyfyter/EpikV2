@@ -542,6 +542,7 @@ namespace EpikV2.Items.Armor {
 				break;
 				case (14, 5):
 				mode = 145;
+				useTime = 60 * 5;
 				break;
 				case (4, 5):
 				mode = 45;
@@ -601,7 +602,7 @@ namespace EpikV2.Items.Armor {
 			int timeForComboAfter = 15;
 			int swingDirectionCorrection = player.direction * (int)player.gravDir;
 			switch (AIMode) {
-				case 0:{
+				case 0: {
 					Projectile.friendly = false;
 					if (Projectile.localAI[2] != 0) {
 						GeometryUtils.AngleDif(rotation, baseRotation, out int oldDir);
@@ -664,51 +665,47 @@ namespace EpikV2.Items.Armor {
 					break;
 				}
 
-				case 1:{
+				case 1: {
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
 					rotation = baseRotation + progressScaled * 5 * swingDirectionCorrection;
 					if (Projectile.ai[1] != Projectile.ai[2]) {
 						const float speed = 48;
 						player.velocity.X += (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed)) * player.direction;
-					}
+					} else Projectile.soundDelay = 1;
 					goto default;
 				}
 
-				case 2:{
+				case 2: {
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
-					float oldProgressScaled = GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]);
-					const float threshold = 0.78f;
 					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
-					float GetRotation(float progressScaled) => baseRotation - MathHelper.Lerp(progressScaled * 0.25f, progressScaled, Math.Clamp(progressScaled - 0.375f, 0, 1) * 1.6f) * 4 * swingDirectionCorrection;
-					rotation = GetRotation(progressScaled);
-					if (progressScaled > threshold) {
-						int count = 4;
-						for (int i = 0; i < count; i++) {
-							float progressFactor = progressScaled;
-							if (i != 0) progressFactor = GetProgressScaled(Projectile.ai[1] - (i / (float)count), Projectile.ai[2]);
-							float factor = ((progressFactor - threshold) / (1f - threshold));
-							Vector2 vel = new Vector2(6, 0).RotatedBy(GetRotation(progressFactor)) - new Vector2(factor * player.direction * 2, factor * 6 * player.gravDir);
-							Projectile.NewProjectileDirect(
-								Projectile.GetSource_FromAI(),
-								Projectile.position + new Vector2(64 * (factor - 0.5f) * player.direction, (factor - 0.75f) * -64 * player.gravDir) + vel * 8,
-								vel,
-								ProjectileID.MolotovFire,
-								Projectile.damage,
-								Projectile.knockBack,
-								Projectile.owner
-							).timeLeft = 16;
+					rotation = baseRotation - MathHelper.Lerp(progressScaled * 0.25f, progressScaled, Math.Clamp(progressScaled - 0.375f, 0, 1) * 1.6f) * 5f * swingDirectionCorrection;
+					if (Projectile.ai[1] <= 2) {
+						rotation = Projectile.oldRot[0] - MathHelper.PiOver4 - swingDirectionCorrection * 0.01f;
+						if (Projectile.ai[1] == 1) {
+							int count = 2;
+							Vector2 vel = new Vector2(80f / count, 0).RotatedBy(rotation);
+							for (int i = 0; i < count; i++) {
+								Projectile.NewProjectileDirect(
+									Projectile.GetSource_FromAI(),
+									Projectile.position + vel * (i + 1f),
+									Vector2.Zero,
+									ProjectileID.FireWhipProj,
+									Projectile.damage,
+									Projectile.knockBack,
+									Projectile.owner
+								);
+							}
 						}
 					}
 					if (Projectile.ai[1] != Projectile.ai[2]) {
 						const float speed = 24;
 						player.velocity.X += (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed)) * player.direction;
-					}
-					if (Projectile.ai[1] == 1) Projectile.oldRot[0] += (float)GeometryUtils.AngleDif(Projectile.oldRot[0], rotation + MathHelper.PiOver4) * 0.6f;
+					} else Projectile.soundDelay = 1;
 					goto default;
 				}
 
-				case 3:{
+				case 3: {
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					float oldProgressScaled = GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]);
 					rotation = baseRotation + MathHelper.Lerp(progressScaled * 0.4f, progressScaled, Math.Clamp(progressScaled - 0.5f, 0, 1) * 2f) * 5 * swingDirectionCorrection;
@@ -768,7 +765,7 @@ namespace EpikV2.Items.Armor {
 					if (Projectile.ai[1] != Projectile.ai[2]) {
 						const float speed = 24;
 						player.velocity.X += (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed)) * player.direction;
-					}
+					} else Projectile.soundDelay = 1;
 					goto default;
 				}
 
@@ -776,20 +773,21 @@ namespace EpikV2.Items.Armor {
 				rotation += swingDirectionCorrection * 0.001f;
 				goto default;
 
-				case 4:{
+				case 4: {
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
-					rotation = baseRotation - MathHelper.Lerp(progressScaled * 0.25f, progressScaled, Math.Clamp(progressScaled - 0.375f, 0, 1) * 1.6f) * 4 * swingDirectionCorrection;
+					rotation = baseRotation - MathHelper.Lerp(progressScaled * 0.25f, progressScaled, Math.Clamp(progressScaled - 0.375f, 0, 1) * 1.6f) * 5 * swingDirectionCorrection;
 					if (Projectile.ai[1] != Projectile.ai[2]) {
 						float speed = progressScaled > 0.3f ? 196 : 0;
 						player.velocity.Y -= (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed)) * player.gravDir;
 						player.velocity.Y -= player.gravity * player.gravDir;
 					}
-					if (Projectile.ai[1] == 1) Projectile.oldRot[0] += (float)GeometryUtils.AngleDif(Projectile.oldRot[0], rotation + MathHelper.PiOver4) * 0.6f;
+					if (Projectile.ai[1] <= 2) rotation = Projectile.oldRot[0] - MathHelper.PiOver4 - swingDirectionCorrection * 0.1f;
 					timeForComboAfter = 16;
+					if (Projectile.ai[1] == Projectile.ai[2]) Projectile.soundDelay = (int)(Projectile.ai[2] * 0.4f);
 					goto default;
 				}
 
-				case 5:{
+				case 5: {
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
 					rotation = Projectile.velocity.ToRotation() + (progressScaled * 5 - 3) * swingDirectionCorrection;
@@ -798,11 +796,11 @@ namespace EpikV2.Items.Armor {
 						player.velocity += Projectile.velocity * (GetDashSpeed(progressScaled, speed, 0.9f) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed, 0.9f));
 						player.velocity.Y -= player.gravity * player.gravDir;
 						if (epikPlayer.collide.y != 0) player.velocity.Y = 0;
-					}
+					} else Projectile.soundDelay = 1;
 					goto default;
 				}
 
-				case 6:{
+				case 6: {
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
 					rotation = Projectile.velocity.ToRotation() + (3 - progressScaled * 5) * swingDirectionCorrection;
@@ -811,7 +809,7 @@ namespace EpikV2.Items.Armor {
 						player.velocity += Projectile.velocity * (GetDashSpeed(progressScaled, speed, 0.9f) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed, 0.9f));
 						player.velocity.Y -= player.gravity * player.gravDir;
 						if (epikPlayer.collide.y != 0) player.velocity.Y = 0;
-					}
+					} else Projectile.soundDelay = 1;
 					goto default;
 				}
 
@@ -827,6 +825,8 @@ namespace EpikV2.Items.Armor {
 					if (Projectile.ai[1] < 10 && Projectile.localAI[2] > 0) {
 						Projectile.localAI[2]++;
 					}
+					if (Projectile.ai[1] == Projectile.ai[2]) Projectile.soundDelay = 1;
+					else if (Projectile.soundDelay == 0) Projectile.soundDelay = 13;
 					goto default;
 				}
 
@@ -836,18 +836,19 @@ namespace EpikV2.Items.Armor {
 					player.fullRotation += spin;
 					player.fullRotationOrigin = player.Size * 0.5f;
 					player.wingTime = 0;
-					if (epikPlayer.collide.y == player.gravDir) {
+					if (Projectile.soundDelay == 0) Projectile.soundDelay = 13;
+					if (epikPlayer.collide.y == player.gravDir || Projectile.ai[1] == 1) {
 						player.fullRotation = 0;
 						for (int i = 0; i < 5; i++) {
 							if (Math.Sin(rotation) < -0.5f) {
+								SetAIMode(Projectile, 3, true);
 								Projectile.ai[1] = (int)(Projectile.ai[2] * 0.4f);
-								AIMode = 3;
 								break;
 							}
 							rotation += spin * 0.1f;
 						}
+						if (AIMode != 3 && Projectile.ai[1] == 1) Projectile.ai[1]++;
 					}
-					if (Projectile.ai[1] == 1) Projectile.ai[1]++;
 					goto default;
 				}
 
@@ -879,12 +880,13 @@ namespace EpikV2.Items.Armor {
 					} else {
 						isHeld = false;
 					}
+					if (Projectile.ai[1] == Projectile.ai[2]) Projectile.soundDelay = 1;
 					goto default;
 				}
 
 				default:
 				Projectile.stepSpeed -= 0.05f * Math.Sign(Projectile.stepSpeed);
-				if (Projectile.ai[1] == Projectile.ai[2]) {
+				if (Projectile.soundDelay == 1) {
 					SoundEngine.PlaySound(SoundID.Item71, Projectile.position);
 					SoundEngine.PlaySound(SoundID.DD2_BetsyFireballShot, Projectile.position);
 				}

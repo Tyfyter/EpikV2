@@ -63,6 +63,7 @@ namespace EpikV2 {
 		public class ShaderCache {
 			public List<InvalidArmorShader> InvalidArmorShaders { get; private set; }
 			public ShaderCache() {
+				Asset<Effect> PixelShaderRef = Main.Assets.Request<Effect>("PixelShader", AssetRequestMode.ImmediateLoad);
 				EpikV2 mod = EpikV2.instance;
 				jadeShader = mod.Assets.Request<Effect>("Effects/Jade").Value;
 				blurShader = mod.Assets.Request<Effect>("Effects/Blur").Value;
@@ -129,7 +130,7 @@ namespace EpikV2 {
 				altRainbowTexture2 = mod.Assets.Request<Texture2D>("Textures/Aurora", AssetRequestMode.ImmediateLoad);
 				empressWingsShaderAurora.UseNonVanillaImage(altRainbowTexture2);
 
-				GameShaders.Armor.BindShader(ItemType<Mortal_Draw>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorGel")).UseImage("Images/Misc/noise")
+				GameShaders.Armor.BindShader(ItemType<Mortal_Draw>(), new ArmorShaderData(PixelShaderRef, "ArmorGel")).UseImage("Images/Misc/noise")
 					.UseColor(2.0f, 0.2f, 0.2f)
 					.UseSecondaryColor(0.2f, -0.4f, -0.4f);
 
@@ -157,12 +158,12 @@ namespace EpikV2 {
 				GameShaders.Armor.BindShader(ItemType<Chroma_Dummy_Dye>(), EpikV2.alphaMapShader);
 				EpikV2.alphaMapShaderID = ItemType<Chroma_Dummy_Dye>();
 
-				GameShaders.Armor.BindShader(ItemType<Cursed_Hades_Dye>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorHades"))
+				GameShaders.Armor.BindShader(ItemType<Cursed_Hades_Dye>(), new ArmorShaderData(PixelShaderRef, "ArmorHades"))
 					.UseColor(0.2f, 1.5f, 0.2f).UseSecondaryColor(0.2f, 1.5f, 0.2f);
-				GameShaders.Armor.BindShader(ItemType<Ichor_Dye>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorLivingFlame"))
+				GameShaders.Armor.BindShader(ItemType<Ichor_Dye>(), new ArmorShaderData(PixelShaderRef, "ArmorLivingFlame"))
 					.UseColor(1.12f, 1f, 0f).UseSecondaryColor(1.25f, 0.8f, 0f);
 				EpikV2.ichorShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Ichor_Dye>());
-				GameShaders.Armor.BindShader(ItemType<Golden_Flame_Dye>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorHades"))
+				GameShaders.Armor.BindShader(ItemType<Golden_Flame_Dye>(), new ArmorShaderData(PixelShaderRef, "ArmorHades"))
 					.UseColor(1f, 1f, 1f).UseSecondaryColor(1.5f, 1.25f, 0.2f);
 
 				GameShaders.Armor.BindShader(ItemType<Laser_Bow>(), laserBowOverlayShader);
@@ -180,7 +181,7 @@ namespace EpikV2 {
 				GameShaders.Armor.BindShader(ItemType<Opaque_Inverted_Chimera_Dye>(), new ArmorShaderData(mod.Assets.Request<Effect>("Effects/Armor"), "ChimerebosInvertedOpaque"));
 				int opaqueInvertedChimeraShaderID = GameShaders.Armor.GetShaderIdFromItemId(ItemType<Opaque_Inverted_Chimera_Dye>());
 
-				GameShaders.Armor.BindShader(ItemType<Nyx_Dye>(), new ArmorShaderData(Main.PixelShaderRef, "ArmorBrightnessColored")).UseColor(0.098f, 0.149f, 0.18f).UseSaturation(1);
+				GameShaders.Armor.BindShader(ItemType<Nyx_Dye>(), new ArmorShaderData(PixelShaderRef, "ArmorBrightnessColored")).UseColor(0.098f, 0.149f, 0.18f).UseSaturation(1);
 
 				Filters.Scene["EpikV2:LSD"] = new Filter(new ScreenShaderData(mod.Assets.Request<Effect>("Effects/LSD"), "LSD"), EffectPriority.High);
 				Filters.Scene["EpikV2:LessD"] = new Filter(new ScreenShaderData(mod.Assets.Request<Effect>("Effects/LSD"), "LessD"), EffectPriority.High);

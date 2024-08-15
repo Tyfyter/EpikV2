@@ -25,7 +25,7 @@ namespace EpikV2.Items {
 		protected override bool CloneNewInstances => true;
 		bool? nOwO = null;
 		bool strengthened = false;
-		HashSet<Type> loggedContexts = new();
+		HashSet<Type> loggedContexts = [];
 		public override void OnCreated(Item item, ItemCreationContext context) {
 			if (context is RecipeItemCreationContext or BuyItemCreationContext or JourneyDuplicationItemCreationContext) {
 				InitCatgirlMeme(item);

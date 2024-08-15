@@ -226,18 +226,6 @@ namespace EpikV2.Items {
 	}
 
 	public class Nyx_Dye : Dye_Item { }
-	public class MotionArmorShaderData : ArmorShaderData {
-        public MotionArmorShaderData(Ref<Effect> shader, string passName) : base(shader, passName) {}
-        public override void Apply(Entity entity, DrawData? drawData = null) {
-            //null check
-            if(entity is Entity)Shader.Parameters["uVelocity"].SetValue(entity.velocity);
-            base.Apply(entity, drawData);
-        }
-        public void Apply(Vector2 velocity, DrawData? drawData = null) {
-            Shader.Parameters["uVelocity"].SetValue(velocity);
-            base.Apply(null, drawData);
-        }
-    }
     public abstract class Dye_Item : ModItem {
         public virtual bool UseShaderOnSelf => false;
 		public override void SetStaticDefaults() {
