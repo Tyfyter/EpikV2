@@ -20,6 +20,7 @@ namespace EpikV2.Items.Accessories {
 		}
 		public override void SetDefaults() {
 			Item.DefaultToAccessory(26, 30);
+			Item.rare = ItemRarityID.Yellow;
 			Item.master = true;
 			Item.maxStack = 1;
 			Item.dye = 0;

@@ -11,11 +11,6 @@ using Terraria.ModLoader;
 
 namespace EpikV2.Items.Other {
 	public class Chest_Polish : ModItem {
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Chest Polish");
-			// Tooltip.SetDefault("Hides a chest from prying spirits");
-			Item.ResearchUnlockCount = 1;
-		}
 		public override void SetDefaults() {
 			Item.width = 30;
 			Item.height = 26;
@@ -48,11 +43,6 @@ namespace EpikV2.Items.Other {
 	}
 	public class Chest_Webs : ModItem {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.Cobweb;
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("<PH> Chest Webs");
-			// Tooltip.SetDefault("Reveals a chest to prying spirits");
-			Item.ResearchUnlockCount = 1;
-		}
 		public override void SetDefaults() {
 			Item.width = 30;
 			Item.height = 26;

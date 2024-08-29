@@ -29,7 +29,7 @@ namespace EpikV2.Items {
 		public override void OnCreated(Item item, ItemCreationContext context) {
 			if (context is RecipeItemCreationContext or BuyItemCreationContext or JourneyDuplicationItemCreationContext) {
 				InitCatgirlMeme(item);
-			} else if(context is not InitializationItemCreationContext && item.type == ItemID.CatEars && (loggedContexts ??= new()).Add(context.GetType())) {
+			} else if(context is not InitializationItemCreationContext && item.type == ItemID.CatEars && (loggedContexts ??= []).Add(context.GetType())) {
 				EpikV2.instance.Logger.Info("cat ears created in unknown context: " + context);
 			}
 		}

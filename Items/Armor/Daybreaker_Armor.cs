@@ -197,7 +197,6 @@ namespace EpikV2.Items.Armor {
 			constantAscend = 0.125f;
 
 			if (player.TryingToHoverDown) {
-				float gravity = player.gravity * player.gravDir;
 				player.wingTime += (player.controlLeft || player.controlRight) ? 0.5f : 1f;
 				ascentWhenFalling = player.gravity + player.velocity.Y * 0.05f * player.gravDir;
 				ascentWhenRising = -(player.gravity + player.velocity.Y * 0.05f * player.gravDir);
@@ -301,9 +300,10 @@ namespace EpikV2.Items.Armor {
 				case 0:
 				return ModContent.ItemType<Daybreaker_Sword>();
 				case 1:
-				return ModContent.ItemType<Nightmare_Sorcery>();
+				break;
+				//return ModContent.ItemType<Nightmare_Sorcery>();
 			}
-			return 0;
+			return ItemID.None;
 		}
 		public static void TransformHeldItem(int slotIndex) {
 			Main.LocalPlayer.HeldItem.ChangeItemType(SlotContents(slotIndex));
