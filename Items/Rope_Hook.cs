@@ -18,24 +18,13 @@ namespace EpikV2.Items {
 			Item.shootSpeed = 25f;
 			Item.shoot = ProjectileType<Rope_Hook_Projectile>();
 		}
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Rope Hook");
-			// Tooltip.SetDefault("A bit springy");
-			Item.ResearchUnlockCount = 1;
-		}
-
-
 		public override void AddRecipes() {
-			Recipe recipe = Recipe.Create(Type);
-			recipe.AddIngredient(ItemID.Hook, 1);
-			recipe.AddIngredient(ItemID.RopeCoil, 1);
-			recipe.AddTile(TileID.WorkBenches);
-			recipe.Register();
-		}
-
-		public override bool CanUseItem(Player player){
-			Main.NewText(player.ownedProjectileCounts[Item.shoot]);
-			return base.CanUseItem(player);
+			Recipe.Create(Type)
+			.AddIngredient(ItemID.Hook)
+			.AddIngredient(ItemID.RopeCoil)
+			.AddIngredient(ItemID.FallenStar, 3)
+			.AddTile(TileID.WorkBenches)
+			.Register();
 		}
 	}
 	public class Rope_Hook_Projectile : ModProjectile {
@@ -53,17 +42,10 @@ namespace EpikV2.Items {
 
 		// Use this hook for hooks that can have multiple hooks mid-flight: Dual Hook, Web Slinger, Fish Hook, Static Hook, Lunar Hook
 		public override bool? CanUseGrapple(Player player) {
-			int hooksOut = 0;
-			for (int l = 0; l < 1000; l++) {
-				if (Main.projectile[l].active && Main.projectile[l].owner == Main.myPlayer && Main.projectile[l].type == Projectile.type) {
-					hooksOut++;
+			foreach (Projectile other in Main.ActiveProjectiles) {
+				if (other.owner == Main.myPlayer && other.type == Projectile.type) {
+					other.Kill();
 				}
-			}
-			if (hooksOut > 1) {// This hook can have 1 hook out.
-				Vector2 trgtvel = player.position - Projectile.position;
-				trgtvel.Normalize();
-				Main.npc[(int)Projectile.localAI[0]].velocity = -3*trgtvel;
-				return false;
 			}
 			return true;
 		}

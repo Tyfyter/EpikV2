@@ -67,8 +67,8 @@ namespace EpikV2 {
 		public bool wormToothNecklace = false;
 		public bool ichorNecklace = false;
 		public int moonlightThreads = 0;
-		public int extraHeadTexture = 0;
-		public int extraNeckTexture = 0;
+		public int extraHeadTexture = -1;
+		public int extraNeckTexture = -1;
 		#region Machiavellian Masquerade
 		public bool machiavellianMasquerade = false;
 		public int marionetteDeathTime = 0;
@@ -942,6 +942,7 @@ namespace EpikV2 {
 				Rope_Hook_Projectile rope = (Rope_Hook_Projectile)projectile.ModProjectile;
 				Vector2 displacement = projectile.Center - Player.MountedCenter;
 				float distance = displacement.Length();
+				Vector2 direction = displacement.SafeNormalize(Vector2.Zero);
 
 				float slide = 0;
 				if (Player.controlUp ^ Player.controlDown) {
@@ -950,25 +951,57 @@ namespace EpikV2 {
 				}
 				float range = Math.Min(rope.distance + slide, Rope_Hook_Projectile.rope_range);
 				if (rope.distance > range) {
-					float d = Vector2.Dot(Player.velocity, displacement.SafeNormalize(Vector2.Zero));
-					Player.velocity += (2 - d) * displacement.SafeNormalize(Vector2.Zero);
-					rope.distance = range;
+					Player.velocity -= 1.5f * Vector2.Dot(Player.velocity, direction) * direction;
+					Vector2 forceMove = Vector2.Lerp(projectile.Center, Player.MountedCenter, range / rope.distance) - Player.MountedCenter;
+					Vector2 canMove = Collision.TileCollision(Player.position, forceMove, Player.width, Player.height, true, false);
+					if (canMove != forceMove) {
+						forceMove = canMove;
+					}
+					Player.MountedCenter += forceMove;
+					rope.distance = (projectile.Center - Player.MountedCenter).Length();
 					goto endCustomMovement;
 				}
 				rope.distance = range;
 
 				if (Math.Round(distance) > Math.Round(range)) {
-					Vector2 stretch = displacement.SafeNormalize(Vector2.Zero) * (range - distance) * -4;
+					Player.gravity *= 0f;
+					float y_boost = (distance / range - 1);
+					float x_boost = 0.175f;
+					if (Player.velocity.X > 0) {
+						Vector2 dir = direction.RotatedBy(PiOver2);
+						Player.velocity += dir * Vector2.Dot(dir, -Vector2.UnitY) * y_boost;
+						Player.velocity += dir * Vector2.Dot(dir, Vector2.UnitX) * x_boost;
+					} else if (Player.velocity.X < 0) {
+						Vector2 dir = direction.RotatedBy(-PiOver2);
+						Player.velocity += dir * Vector2.Dot(dir, -Vector2.UnitY) * y_boost;
+						Player.velocity += dir * Vector2.Dot(dir, -Vector2.UnitX) * x_boost;
+					}
+					//Player.velocity += (Player.velocity - Player.oldVelocity) * 5;
+					float speed = Player.velocity.Length();
+					Player.velocity -= 1 * Vector2.Dot(Player.velocity, direction) * direction;
+					if (Player.velocity.LengthSquared() > 0.01f) Player.velocity *= (speed / Player.velocity.Length()) * 0.25f + 0.75f;
+					//Player.velocity += displacement * (1 - range / distance);
+					Vector2 forceMove = Vector2.Lerp(projectile.Center, Player.MountedCenter, range / distance) - Player.MountedCenter;
+					Vector2 canMove = Collision.TileCollision(Player.position, forceMove, Player.width, Player.height, true, false);
+					if (canMove != forceMove) {
+						forceMove = canMove;
+					}
+					Player.MountedCenter += forceMove;
+					rope.distance = (projectile.Center - Player.MountedCenter).Length();
+					//rope.distance = range;
+					goto endCustomMovement;
+					/*float strength = Math.Min(MathF.Pow((range - distance) / 16f, 2), 1);
+					Vector2 stretch = displacement.SafeNormalize(Vector2.Zero) * strength * -4;
 					if (Collision.TileCollision(Player.position, stretch, Player.width, Player.height, true, false) != stretch) {
 						rope.distance = distance;
 						goto endCustomMovement;
 					}
 
-					float d = Vector2.Dot(Player.velocity, displacement.SafeNormalize(Vector2.Zero));
-					Player.velocity += (2 - d) * displacement.SafeNormalize(Vector2.Zero);
+					float d = Vector2.Dot(Player.velocity.SafeNormalize(Vector2.Zero), displacement.SafeNormalize(Vector2.Zero));
+					Player.velocity -= -2 * d * stretch;
 					rope.distance = range;
 					goto endCustomMovement;
-					/*
+					
                     if(player.Center.Y<(projectile.Center.Y - Math.Abs(displacement.X) * 1f)) {
                         projectile.ai[0]=1f;//kills the projectile
                         return;
@@ -991,6 +1024,8 @@ namespace EpikV2 {
                     player.velocity = targetVelocity * 1.0085f;// * Math.Min(1.2f+dot, 1f);
 
                     if(player.velocity.Y == 0)player.velocity.Y+=player.gravity*player.gravDir;//*/
+				} else {
+					//Player.velocity += displacement.SafeNormalize(Vector2.Zero) * 0.33f;
 				}
 				if (Player.Hitbox.Intersects(projectile.Hitbox)) {
 					projectile.Kill();
