@@ -42,11 +42,6 @@ namespace EpikV2.Items {
 
 		// Use this hook for hooks that can have multiple hooks mid-flight: Dual Hook, Web Slinger, Fish Hook, Static Hook, Lunar Hook
 		public override bool? CanUseGrapple(Player player) {
-			foreach (Projectile other in Main.ActiveProjectiles) {
-				if (other.owner == Main.myPlayer && other.type == Projectile.type) {
-					other.Kill();
-				}
-			}
 			return true;
 		}
 
@@ -84,12 +79,19 @@ namespace EpikV2.Items {
 			while (distance > 8f && !float.IsNaN(distance)) {
 				center += distToProj;
 				distance = (playerCenter - center).Length();
-				Color drawColor = lightColor;
 
-				data = new DrawData(texture, center - Main.screenPosition,
-					new Rectangle(0, 0, TextureAssets.Chain30.Value.Width, TextureAssets.Chain30.Value.Height), drawColor, projRotation,
-					new Vector2(TextureAssets.Chain30.Value.Width * 0.5f, TextureAssets.Chain30.Value.Height * 0.5f), new Vector2(0.75f,1), SpriteEffects.None, 0);
-				data.shader = owner.cGrapple;
+				data = new DrawData(
+					texture,
+					center - Main.screenPosition,
+					new Rectangle(0, 0, TextureAssets.Chain30.Value.Width, TextureAssets.Chain30.Value.Height),
+					Lighting.GetColor(center.ToTileCoordinates()),
+					projRotation,
+					new Vector2(TextureAssets.Chain30.Value.Width * 0.5f,
+					TextureAssets.Chain30.Value.Height * 0.5f),
+					new Vector2(0.75f, 1),
+					SpriteEffects.None) {
+					shader = owner.cGrapple
+				};
 				Main.EntitySpriteDraw(data);
 			}
 			return true;

@@ -943,11 +943,10 @@ namespace EpikV2 {
 				Vector2 displacement = projectile.Center - Player.MountedCenter;
 				float distance = displacement.Length();
 				Vector2 direction = displacement.SafeNormalize(Vector2.Zero);
-
+				Player.runSlowdown = 0;
 				float slide = 0;
-				if (Player.controlUp ^ Player.controlDown) {
-					if (Player.controlUp) slide -= 2;
-					else slide += 5;
+				if (Player.controlUp && !Player.controlDown) {
+					slide -= 2;
 				}
 				float range = Math.Min(rope.distance + slide, Rope_Hook_Projectile.rope_range);
 				if (rope.distance > range) {
@@ -964,21 +963,26 @@ namespace EpikV2 {
 				rope.distance = range;
 
 				if (Math.Round(distance) > Math.Round(range)) {
+					if (Player.controlDown && !Player.controlUp) {
+						range = Math.Min(distance, Rope_Hook_Projectile.rope_range);
+						rope.distance = range;
+						if (Math.Round(distance) <= Math.Round(range)) goto endCustomMovement;
+					}
 					Player.gravity *= 0f;
-					float y_boost = (distance / range - 1);
-					float x_boost = 0.175f;
-					if (Player.velocity.X > 0) {
+					float y_boost = 0;//(distance / range - 1);
+					float x_boost = 0.175f;//.075f;
+					if (Player.controlRight && Player.velocity.X > 0) {
 						Vector2 dir = direction.RotatedBy(PiOver2);
 						Player.velocity += dir * Vector2.Dot(dir, -Vector2.UnitY) * y_boost;
 						Player.velocity += dir * Vector2.Dot(dir, Vector2.UnitX) * x_boost;
-					} else if (Player.velocity.X < 0) {
+					} else if (Player.controlLeft && Player.velocity.X < 0) {
 						Vector2 dir = direction.RotatedBy(-PiOver2);
 						Player.velocity += dir * Vector2.Dot(dir, -Vector2.UnitY) * y_boost;
 						Player.velocity += dir * Vector2.Dot(dir, -Vector2.UnitX) * x_boost;
 					}
 					//Player.velocity += (Player.velocity - Player.oldVelocity) * 5;
 					float speed = Player.velocity.Length();
-					Player.velocity -= 1 * Vector2.Dot(Player.velocity, direction) * direction;
+					Player.velocity -= 1f * Vector2.Dot(Player.velocity, direction) * direction;
 					if (Player.velocity.LengthSquared() > 0.01f) Player.velocity *= (speed / Player.velocity.Length()) * 0.25f + 0.75f;
 					//Player.velocity += displacement * (1 - range / distance);
 					Vector2 forceMove = Vector2.Lerp(projectile.Center, Player.MountedCenter, range / distance) - Player.MountedCenter;
@@ -988,44 +992,7 @@ namespace EpikV2 {
 					}
 					Player.MountedCenter += forceMove;
 					rope.distance = (projectile.Center - Player.MountedCenter).Length();
-					//rope.distance = range;
 					goto endCustomMovement;
-					/*float strength = Math.Min(MathF.Pow((range - distance) / 16f, 2), 1);
-					Vector2 stretch = displacement.SafeNormalize(Vector2.Zero) * strength * -4;
-					if (Collision.TileCollision(Player.position, stretch, Player.width, Player.height, true, false) != stretch) {
-						rope.distance = distance;
-						goto endCustomMovement;
-					}
-
-					float d = Vector2.Dot(Player.velocity.SafeNormalize(Vector2.Zero), displacement.SafeNormalize(Vector2.Zero));
-					Player.velocity -= -2 * d * stretch;
-					rope.distance = range;
-					goto endCustomMovement;
-					
-                    if(player.Center.Y<(projectile.Center.Y - Math.Abs(displacement.X) * 1f)) {
-                        projectile.ai[0]=1f;//kills the projectile
-                        return;
-                    }//* /
-                    const float perpAngle = PiOver2 + 0.01f;// - Math.Min((distance-range)*0.01f, 0.2f);
-                    //gets the magnitude and direction of the difference between the angles of player.velocity and displacement
-                    float angleDiff = AngleDif(player.velocity.ToRotation(), displacement.ToRotation(), out int angleDir);
-                    Vector2 targetVelocity = player.velocity.RotatedBy((angleDiff - perpAngle) * angleDir);
-                    targetVelocity += Vector2.Normalize(displacement) * Math.Min((distance-range)*0.1f, 1f);
-                    if(Math.Round(player.velocity.Y, 1) == 0.3 && Math.Abs(player.velocity.X) <= 0.5) {
-                        //player.velocity.X = 0;//*= 0.5f;
-                        //player.velocity.Y = 4;
-                        //player.chatOverhead.NewMessage(player.velocity.X+"", 2);
-                        targetVelocity *= Math.Min((Pi-angleDiff)*0.5f, 1f);
-                        //player.chatOverhead.NewMessage(Math.Min((Pi-angleDiff)*5, 1f)+"", 2);
-                    }
-                    //float dot = Vector2.Dot(Vector2.Normalize(player.velocity), Vector2.Normalize(displacement));
-                    //player.chatOverhead.NewMessage(+"", 2);
-                    //player.chatOverhead.NewMessage($"{{{Math.Round(player.velocity.X, 1)}, {Math.Round(player.velocity.Y, 1)}}}\n{{{Math.Round(targetVelocity.X, 1)}, {Math.Round(targetVelocity.Y, 1)}}}", 5);
-                    player.velocity = targetVelocity * 1.0085f;// * Math.Min(1.2f+dot, 1f);
-
-                    if(player.velocity.Y == 0)player.velocity.Y+=player.gravity*player.gravDir;//*/
-				} else {
-					//Player.velocity += displacement.SafeNormalize(Vector2.Zero) * 0.33f;
 				}
 				if (Player.Hitbox.Intersects(projectile.Hitbox)) {
 					projectile.Kill();
