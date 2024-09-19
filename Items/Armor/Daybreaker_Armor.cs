@@ -61,6 +61,7 @@ namespace EpikV2.Items.Armor {
 			player.equippedWings = ContentSamples.ItemsByType[Daybreaker_Wings.ID];
 			player.wings = Daybreaker_Wings.WingsID;
 			player.wingsLogic = Daybreaker_Wings.WingsID;
+			player.wingTimeMax = 180;
 		}
 		public override void EquipFrameEffects(Player player, EquipType type) {
 		}

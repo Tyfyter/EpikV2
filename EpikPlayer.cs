@@ -983,7 +983,10 @@ namespace EpikV2 {
 					//Player.velocity += (Player.velocity - Player.oldVelocity) * 5;
 					float speed = Player.velocity.Length();
 					Player.velocity -= 1f * Vector2.Dot(Player.velocity, direction) * direction;
-					if (Player.velocity.LengthSquared() > 0.01f) Player.velocity *= (speed / Player.velocity.Length()) * 0.25f + 0.75f;
+					if (Player.velocity.LengthSquared() > 0.01f) {
+						float boostFactor = 0.25f;//Math.Clamp(1 + Player.velocity.SafeNormalize(Vector2.Zero).Y, 0.25f, 1);
+						Player.velocity *= (speed / Player.velocity.Length()) * boostFactor + (1 - boostFactor);
+					}
 					//Player.velocity += displacement * (1 - range / distance);
 					Vector2 forceMove = Vector2.Lerp(projectile.Center, Player.MountedCenter, range / distance) - Player.MountedCenter;
 					Vector2 canMove = Collision.TileCollision(Player.position, forceMove, Player.width, Player.height, true, false);
