@@ -277,7 +277,12 @@ namespace EpikV2 {
 		public static uint GetSpecialNameData(EpikPlayer epikPlayer) {
 			return GetSpecialNameData(epikPlayer.nameColorOverride ?? epikPlayer.Player.name, epikPlayer.altNameColors);
 		}
+		//static DateTime lastLoggedSpecialNameData = DateTime.UnixEpoch;
 		public static uint GetSpecialNameData(string name, AltNameColorTypes altColors = AltNameColorTypes.None) {
+			/*if (DateTime.Now.Subtract(lastLoggedSpecialNameData) > new TimeSpan(0, 0, 10)) {
+				lastLoggedSpecialNameData = DateTime.Now;
+				Main.NewText(name);
+			}*/
 			string lowerName = name.ToLower();
 			uint starlightType = altColors.HasFlag(AltNameColorTypes.Starlight) ? NameTypes.Starlight : NameTypes.None;
 			switch (lowerName) {
