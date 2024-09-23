@@ -23,6 +23,7 @@ namespace EpikV2.Graphics {
 		SpriteBatch spriteBatch;
 		bool capturing = false;
 		bool spriteBatchWasRunning = false;
+		RenderTargetBinding[] oldRenderTargets = [];
 		public bool Capturing {
 			get => capturing;
 			private set {
@@ -48,6 +49,7 @@ namespace EpikV2.Graphics {
 				spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, Main.Rasterizer, null, Main.Transform);
 				spriteBatchState = this.spriteBatch.GetState();
 			}
+			oldRenderTargets = Main.graphics.GraphicsDevice.GetRenderTargets();
 			Main.graphics.GraphicsDevice.SetRenderTarget(renderTarget);
 			Main.graphics.GraphicsDevice.Clear(Color.Transparent);
 		}
@@ -64,19 +66,28 @@ namespace EpikV2.Graphics {
 			if (Main.dedServ) return;
 			Capturing = false;
 			spriteBatch.Restart(spriteBatchState);
-			RenderTargetUsage renderTargetUsage = EpikV2.currentScreenTarget?.RenderTargetUsage ?? Main.graphics.GraphicsDevice.PresentationParameters.RenderTargetUsage;
+			bool anyOldTargets = (oldRenderTargets?.Length ?? 0) != 0;
+			RenderTargetUsage[] renderTargetUsage = [];
 			try {
-				if (EpikV2.currentScreenTarget is not null) {
-					GraphicsMethods.SetRenderTargetUsage(EpikV2.currentScreenTarget, RenderTargetUsage.PreserveContents);
+				if (anyOldTargets) {
+					renderTargetUsage = new RenderTargetUsage[oldRenderTargets.Length];
+					for (int i = 0; i < oldRenderTargets.Length; i++) {
+						RenderTarget2D renderTarget = (RenderTarget2D)oldRenderTargets[i].RenderTarget;
+						renderTargetUsage[i] = renderTarget.RenderTargetUsage;
+						GraphicsMethods.SetRenderTargetUsage(renderTarget, RenderTargetUsage.PreserveContents);
+					}
 				} else {
-					Main.graphics.GraphicsDevice.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
+					renderTargetUsage = [Main.graphics.GraphicsDevice.PresentationParameters.RenderTargetUsage];
 				}
-				Main.graphics.GraphicsDevice.SetRenderTarget(EpikV2.currentScreenTarget);
+				Main.graphics.GraphicsDevice.SetRenderTargets(oldRenderTargets);
 			} finally {
-				if (EpikV2.currentScreenTarget is not null) {
-					GraphicsMethods.SetRenderTargetUsage(EpikV2.currentScreenTarget, renderTargetUsage);
+				if (anyOldTargets) {
+					renderTargetUsage = new RenderTargetUsage[oldRenderTargets.Length];
+					for (int i = 0; i < oldRenderTargets.Length; i++) {
+						GraphicsMethods.SetRenderTargetUsage((RenderTarget2D)oldRenderTargets[i].RenderTarget, renderTargetUsage[i]);
+					}
 				} else {
-					Main.graphics.GraphicsDevice.PresentationParameters.RenderTargetUsage = renderTargetUsage;
+					Main.graphics.GraphicsDevice.PresentationParameters.RenderTargetUsage = renderTargetUsage[0];
 				}
 			}
 			spriteBatch.Draw(renderTarget, Vector2.Zero, null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 0);
@@ -90,7 +101,7 @@ namespace EpikV2.Graphics {
 			} else {
 				spriteBatch.End();
 			}
-			Main.graphics.GraphicsDevice.SetRenderTarget(EpikV2.currentScreenTarget);
+			Main.graphics.GraphicsDevice.SetRenderTargets(oldRenderTargets);
 		}
 		public ShaderLayerTargetHandler() {
 			if (Main.dedServ) return;

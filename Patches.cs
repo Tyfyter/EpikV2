@@ -361,7 +361,6 @@ namespace EpikV2 {
 					return flag;
 				});
 			};
-			On_FilterManager.BeginCapture += On_FilterManager_BeginCapture;
 		}
 
 		private void On_Player_UpdateItemDye(On_Player.orig_UpdateItemDye orig, Player self, bool isNotInVanitySlot, bool isSetToHidden, Item armorItem, Item dyeItem) {
