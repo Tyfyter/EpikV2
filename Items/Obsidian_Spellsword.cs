@@ -97,7 +97,7 @@ namespace EpikV2.Items {
 				this.broken = broken;
 				UpdateAnimationFrames();
 			}
-			if (Main.netMode != NetmodeID.SinglePlayer && !fromNet && player is not null) {
+			if (Main.netMode != NetmodeID.SinglePlayer && !fromNet && player is not null && player.whoAmI == Main.myPlayer) {
 				NetMessage.SendData(MessageID.SyncEquipment, -1, -1, null, player.whoAmI, player.selectedItem);
 			}
 		}
