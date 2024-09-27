@@ -22,21 +22,22 @@ namespace EpikV2.Items.Weapons {
 			Item.CloneDefaults(ItemID.SDMG);
 			Item.useTime = 1;
 			Item.useAnimation = 30;
+			Item.useStyle = ItemUseStyleID.Shoot;
 			Item.holdStyle = ItemHoldStyleID.HoldHeavy;
 			Item.channel = true;
+			Item.UseSound = new($"Terraria/Sounds/Thunder_0", SoundType.Sound) { MaxInstances = 7, PitchVariance = 0.1f, Pitch = 0.4f, Volume = 0.5f };
 		}
 		public override void HoldItemFrame(Player player) {
 			UseItemFrame(player);
 		}
 		public override void UseItemFrame(Player player) {
-			bool recoil = !player.ItemAnimationActive && player.reuseDelay > 0;
+			bool recoil = !player.ItemAnimationJustStarted && player.reuseDelay > 0;
 			if (!recoil && player.whoAmI == Main.myPlayer) {
-				player.itemRotation = (Main.MouseWorld - player.MountedCenter).ToRotation();
+				Vector2 diff = Main.MouseWorld - player.MountedCenter;
+				player.ChangeDir(Math.Sign(diff.X));
+				player.itemRotation = diff.ToRotation();
 			}
-			if (player.itemRotation is > -MathHelper.PiOver2 and < MathHelper.PiOver2) {
-				player.ChangeDir(1);
-			} else {
-				player.ChangeDir(-1);
+			if (player.itemRotation is < -MathHelper.PiOver2 or > MathHelper.PiOver2) {
 				player.itemRotation += MathHelper.Pi;
 			}
 			Player.CompositeArmStretchAmount stretchAmount = Player.CompositeArmStretchAmount.Full;
@@ -44,11 +45,11 @@ namespace EpikV2.Items.Weapons {
 
 			}
 			if (recoil) {
-				if (player.reuseDelay > 23) {
+				if (player.itemAnimation > 23) {
 					stretchAmount = Player.CompositeArmStretchAmount.None;
-				} else if (player.reuseDelay > 21) {
+				} else if (player.itemAnimation > 21) {
 					stretchAmount = Player.CompositeArmStretchAmount.Quarter;
-				} else if (player.reuseDelay > 19) {
+				} else if (player.itemAnimation > 19) {
 					stretchAmount = Player.CompositeArmStretchAmount.ThreeQuarters;
 				}
 			}
@@ -78,7 +79,8 @@ namespace EpikV2.Items.Weapons {
 			return player.ItemUsesThisAnimation == 0 && !player.channel;
 		}
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
-			SoundEngine.PlaySound(Item.UseSound, position);
+			SoundEngine.PlaySound(SoundID.Item40, position);
+			if (player.reuseDelay >= 25) SoundEngine.PlaySound(Item.UseSound, position);
 			return true;
 		}
 		public override bool CanConsumeAmmo(Item ammo, Player player) {

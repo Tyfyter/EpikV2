@@ -112,6 +112,7 @@ float4 DashingDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLO
 }
 
 float4 LunarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
+	if (sampleColor.r == 0 && sampleColor.g == 0 && sampleColor.b == 0 && sampleColor.a == 0) return sampleColor;
 	/*float2 baseCoords = float2(0.5, (uSourceRect.y + 16) / uImageSize0.y);
 	float2 offsetCoords = (coords - baseCoords) * uImageSize0;
 	float len = length(offsetCoords) / 32;
@@ -156,6 +157,7 @@ float4 LunarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 	return color * baseColor + float4(star * 0.64, star * 0.7, star, 0) * baseColor.a * color.a * color.a; // * baseColor
 }
 float4 SolarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
+	if (sampleColor.r == 0 && sampleColor.g == 0 && sampleColor.b == 0 && sampleColor.a == 0) return sampleColor;
 	float4 baseColor = tex2D(uImage0, coords);
 	float4 color = float4(0.969, 0.607, 0.100, 0.369);
 	if (baseColor.a > 0) {
@@ -197,8 +199,8 @@ float4 SolarDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
 	
 	return color;
 }
-float4 StarryStarryDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0
-{
+float4 StarryStarryDye(float4 sampleColor : COLOR0, float2 coords : TEXCOORD0) : COLOR0 {
+	if (sampleColor.r == 0 && sampleColor.g == 0 && sampleColor.b == 0 && sampleColor.a == 0) return sampleColor;
 	/*float2 baseCoords = float2(0.5, (uSourceRect.y + 16) / uImageSize0.y);
 	float2 offsetCoords = (coords - baseCoords) * uImageSize0;
 	float len = length(offsetCoords) / 32;
