@@ -58,6 +58,7 @@ namespace EpikV2.Graphics {
 			Utils.Swap(ref renderTarget, ref oldRenderTarget);
 			Main.graphics.GraphicsDevice.SetRenderTarget(renderTarget);
 			Main.graphics.GraphicsDevice.Clear(Color.Transparent);
+			spriteBatch.Restart(spriteBatchState, transformMatrix: Matrix.Identity);
 			DrawData data = new(oldRenderTarget, Vector2.Zero, null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None);
 			shader.Apply(entity, data);
 			data.Draw(spriteBatch);
@@ -65,7 +66,7 @@ namespace EpikV2.Graphics {
 		public void Release() {
 			if (Main.dedServ) return;
 			Capturing = false;
-			spriteBatch.Restart(spriteBatchState);
+			spriteBatch.Restart(spriteBatchState, transformMatrix: Matrix.Identity);
 			bool anyOldTargets = (oldRenderTargets?.Length ?? 0) != 0;
 			RenderTargetUsage[] renderTargetUsage = [];
 			try {
@@ -91,6 +92,7 @@ namespace EpikV2.Graphics {
 				}
 			}
 			spriteBatch.Draw(renderTarget, Vector2.Zero, null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None, 0);
+			spriteBatch.Restart(spriteBatchState);
 			if (!spriteBatchWasRunning) spriteBatch.End();
 		}
 		public void Reset(GameTime _) {
