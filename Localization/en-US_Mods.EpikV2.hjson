@@ -1324,6 +1324,11 @@ Prefixes: {
 	}
 
 	Mortal_Prefix.DisplayName: Mortal
+
+	Malicious_Prefix: {
+		DisplayName: Malicious
+		Tooltip: +100 damage to friendly NPCs
+	}
 }
 
 NPCs: {

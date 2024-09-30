@@ -177,6 +177,11 @@ namespace EpikV2.Items {
 				meleeHitPrefix.OnMeleeHitNPC(player, item, target, hit);
 			}
 		}
+		public override void ModifyHitNPC(Item item, Player player, NPC target, ref NPC.HitModifiers modifiers) {
+			if (PrefixLoader.GetPrefix(item.prefix) is IMeleeHitPrefix meleeHitPrefix) {
+				meleeHitPrefix.ModifyMeleeHitNPC(player, item, target, ref modifiers);
+			}
+		}
 		public override void ModifyWeaponDamage(Item item, Player player, ref StatModifier damage) {
 			if (PrefixLoader.GetPrefix(item.prefix) is IModifyDamagePrefix modifyDamagePrefix) {
 				modifyDamagePrefix.ModifyWeaponDamage(item, player, ref damage);

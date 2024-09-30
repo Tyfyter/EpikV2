@@ -58,7 +58,7 @@ namespace EpikV2.Graphics {
 			Utils.Swap(ref renderTarget, ref oldRenderTarget);
 			Main.graphics.GraphicsDevice.SetRenderTarget(renderTarget);
 			Main.graphics.GraphicsDevice.Clear(Color.Transparent);
-			spriteBatch.Restart(spriteBatchState, transformMatrix: Matrix.Identity);
+			spriteBatch.Restart(spriteBatchState, SpriteSortMode.Immediate, transformMatrix: Matrix.Identity);
 			DrawData data = new(oldRenderTarget, Vector2.Zero, null, Color.White, 0, Vector2.Zero, Vector2.One, SpriteEffects.None);
 			shader.Apply(entity, data);
 			data.Draw(spriteBatch);
@@ -79,6 +79,7 @@ namespace EpikV2.Graphics {
 					}
 				} else {
 					renderTargetUsage = [Main.graphics.GraphicsDevice.PresentationParameters.RenderTargetUsage];
+					Main.graphics.GraphicsDevice.PresentationParameters.RenderTargetUsage = RenderTargetUsage.PreserveContents;
 				}
 				Main.graphics.GraphicsDevice.SetRenderTargets(oldRenderTargets);
 			} finally {

@@ -11,6 +11,7 @@ using EpikV2.Projectiles;
 using Microsoft.Xna.Framework;
 using Terraria.Localization;
 using EpikV2.Items.Weapons;
+using Terraria.ModLoader.IO;
 
 namespace EpikV2.Modifiers {
 	public interface IOnSpawnProjectilePrefix {
@@ -200,5 +201,20 @@ namespace EpikV2.Modifiers {
 		}
 		public override float RollChance(Item item) => NPC.downedPlantBoss ? 1f : 0;
 		public override bool CanRoll(Item item) => item.type == ModContent.ItemType<Scimitar_Of_The_Rising_Sun>();
+	}
+	public class Malicious_Prefix : ModPrefix, IMeleeHitPrefix, IProjectileHitPrefix {
+		public override PrefixCategory Category => PrefixCategory.AnyWeapon;
+		public override float RollChance(Item item) => item.type == ItemID.Flymeal ? 1 : 0.05f;
+		public void ModifyMeleeHitNPC(Player player, Item item, NPC target, ref NPC.HitModifiers modifiers) {
+			if (target.friendly) modifiers.SourceDamage.Base += 100;
+		}
+		public void ModifyProjectileHitNPC(Projectile projectile, NPC target, ref NPC.HitModifiers modifiers) {
+			if (target.friendly) modifiers.SourceDamage.Base += 100;
+		}
+		public override IEnumerable<TooltipLine> GetTooltipLines(Item item) {
+			yield return new(Mod, "FriendlyDamage", Language.GetOrRegister($"Mods.EpikV2.Prefixes.{nameof(Malicious_Prefix)}.Tooltip").Value) {
+				IsModifier = true,
+			};
+		}
 	}
 }
