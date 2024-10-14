@@ -757,7 +757,7 @@ namespace EpikV2.Items {
 				mult = 0;
 			}
 		}
-		public override bool MeleePrefix() => Main.rand.NextBool();
+		public override bool MeleePrefix() => true;
 		public override bool MagicPrefix() => true;
 	}
 	public class Biome_Key_Hallow_Stab : ModProjectile {
@@ -987,7 +987,7 @@ namespace EpikV2.Items {
 			Item.noUseGraphic = true;
 			Item.noMelee = true;
 		}
-		public override bool MeleePrefix() => Main.rand.NextBool();
+		public override bool MeleePrefix() => true;
 		public override bool RangedPrefix() => true;
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockback) {
 			if (!base.Shoot(player, source, position, velocity, type, damage, knockback)) {

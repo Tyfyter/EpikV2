@@ -63,7 +63,7 @@ namespace EpikV2.Items
             recipe.AddTile(TileID.DemonAltar);
             recipe.Register();
         }
-		public override bool RangedPrefix() => false; //TODO: should be true, but tML doesn't support it yet
+		public override bool RangedPrefix() => true;
 		public override bool MagicPrefix() => true;
 		public override bool CanConsumeAmmo(Item ammo, Player player) => nextShotTime + 1f >= shotDelay;
 		public override bool Shoot(Player player, EntitySource_ItemUse_WithAmmo source, Vector2 position, Vector2 velocity, int type, int damage, float knockBack) {
