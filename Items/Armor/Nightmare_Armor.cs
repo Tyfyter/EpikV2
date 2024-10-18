@@ -572,6 +572,7 @@ namespace EpikV2.Items.Armor {
 		List<int> dusts = [];
 		public override void AI() {
 			Player player = Main.player[Projectile.owner];
+			ArmorShaderData dustShader = GameShaders.Armor.GetSecondaryShader(player.cBody, player);
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			if (Projectile.ai[0] < 0) {
 				epikPlayer.nightmareShield.Set(Projectile.whoAmI);
@@ -649,6 +650,7 @@ namespace EpikV2.Items.Armor {
 					dust.velocity = broken ? Main.rand.NextVector2Circular(4, 4) : default;
 					dust.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
 					dust.scale = dustScale;
+					dust.shader = dustShader;
 					dusts.Add(dust.dustIndex);
 					//dust.alpha = (int)((j - count / 2) * count * 50);
 				}
@@ -684,7 +686,7 @@ namespace EpikV2.Items.Armor {
 			return false;
 		}
 	}
-	public class Nightmare_Sword_P : ModProjectile {
+	public class Nightmare_Sword_P : ModProjectile, IShadedProjectile {
 		public override string Texture => "EpikV2/Items/Armor/Nightmare_Sword";
 		public override void SetStaticDefaults() {
 			ProjectileID.Sets.TrailingMode[Type] = 2;
@@ -861,6 +863,7 @@ namespace EpikV2.Items.Armor {
 					const int steps = 30;
 					Vector2 vel = new Vector2(1, 0).RotatedBy(old.rot - MathHelper.PiOver4) * (65f / steps) * Projectile.scale;
 					Vector2 pos = old.pos;
+					ArmorShaderData dustShader = GameShaders.Armor.GetSecondaryShader(player.cBody, player);
 					for (int j = 0; j <= steps; j++) {
 						Dust dust = Dust.NewDustPerfect(
 							pos + Main.rand.NextVector2Square(-1, 1),
@@ -873,6 +876,7 @@ namespace EpikV2.Items.Armor {
 						dust.velocity = Main.rand.NextVector2Circular(1, 1);
 						dust.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
 						dust.scale = dustScale;
+						dust.shader = dustShader;
 						pos += vel;
 					}
 				}
@@ -924,6 +928,7 @@ namespace EpikV2.Items.Armor {
 			);
 			return false;
 		}
+		public int GetShaderID() => Main.player[Projectile.owner].cBody;
 	}
 	public class Temporary_Nightmare_Sword_P : Nightmare_Sword_P {
 		public static int ID { get; private set; }
@@ -1054,24 +1059,32 @@ namespace EpikV2.Items.Armor {
 			if (proj.ai[0] == 0) return;
 			int length = (int)Math.Min(proj.ai[2] - proj.ai[1], proj.oldRot.Length);
 			if (length <= 1) return;
-			MiscShaderData miscShaderData = GameShaders.Misc["EmpressBlade"];
-			int num = 1;//1
-			int num2 = 0;//0
-			int num3 = 0;//0
-			float w = 0.6f;//0.6f
-			miscShaderData.UseShaderSpecificData(new Vector4(num, num2, num3, w));
-			miscShaderData.Apply();
-			float[] oldRot = new float[length];
-			Vector2[] oldPos = new Vector2[length];
-			Vector2 move = new(Length * 0.375f, 0);
-			for (int i = 0; i < length; i++) {
-				oldRot[i] = proj.oldRot[i] + MathHelper.PiOver2 - MathHelper.PiOver4;
-				oldPos[i] = proj.oldPos[i] + move.RotatedBy(oldRot[i] - MathHelper.PiOver2);
+			Player owner = Main.player[proj.owner];
+			bool hasShader = owner.cBody != 0;
+			try {
+				if (hasShader) EpikV2.shaderOroboros.Capture();
+				MiscShaderData miscShaderData = GameShaders.Misc["EmpressBlade"];
+				int num = 1;//1
+				int num2 = 0;//0
+				int num3 = 0;//0
+				float w = 0.6f;//0.6f
+				miscShaderData.UseShaderSpecificData(new Vector4(num, num2, num3, w));
+				miscShaderData.Apply();
+				float[] oldRot = new float[length];
+				Vector2[] oldPos = new Vector2[length];
+				Vector2 move = new(Length * 0.375f, 0);
+				for (int i = 0; i < length; i++) {
+					oldRot[i] = proj.oldRot[i] + MathHelper.PiOver2 - MathHelper.PiOver4;
+					oldPos[i] = proj.oldPos[i] + move.RotatedBy(oldRot[i] - MathHelper.PiOver2);
+				}
+				//spriteDirections = proj.oldSpriteDirection;
+				_vertexStrip.PrepareStrip(oldPos, oldRot, StripColors, StripWidth, -Main.screenPosition + proj.Size / 2f, length, includeBacksides: true);
+				_vertexStrip.DrawTrail();
+				Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+				if (hasShader) EpikV2.shaderOroboros.Stack(GameShaders.Armor.GetSecondaryShader(owner.cBody, owner));
+			} finally {
+				if (hasShader) EpikV2.shaderOroboros.Release();
 			}
-			//spriteDirections = proj.oldSpriteDirection;
-			_vertexStrip.PrepareStrip(oldPos, oldRot, StripColors, StripWidth, -Main.screenPosition + proj.Size / 2f, length, includeBacksides: true);
-			_vertexStrip.DrawTrail();
-			Main.pixelShader.CurrentTechnique.Passes[0].Apply();
 		}
 
 		private Color StripColors(float progressOnStrip) {

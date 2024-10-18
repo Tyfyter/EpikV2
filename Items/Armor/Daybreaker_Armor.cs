@@ -420,10 +420,6 @@ namespace EpikV2.Items.Armor {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			Player.CompositeArmStretchAmount stretchAmount;
 			float armRotation;
-			if (epikPlayer.forceLeftHandMagic > 0) {
-				player.GetCompositeArms(out Player.CompositeArmData left, out _);
-				leftArm = (true, left.stretch, left.rotation);
-			}
 			if (epikPlayer.nightmareSword.CheckActive(out Projectile sword)) {
 				///TODO: animate 2 more attacks
 				if (sword.ai[0] != 0) player.direction = sword.direction;
@@ -431,6 +427,10 @@ namespace EpikV2.Items.Armor {
 				stretchAmount = Player.CompositeArmStretchAmount.Full;
 				armRotation = ((sword.position - (player.MountedCenter - new Vector2(0, 8))) * new Vector2(1, player.gravDir)).ToRotation() - MathHelper.PiOver2;
 				rightArm = (true, stretchAmount, armRotation);
+			}
+			if (epikPlayer.forceLeftHandMagic > 0) {
+				player.GetCompositeArms(out Player.CompositeArmData left, out _);
+				leftArm = (true, left.stretch, left.rotation);
 			}
 			if (player.whoAmI == Main.myPlayer && !player.CCed) {
 				if (epikPlayer.forceLeftHandMagic <= 0 && player.controlUseTile && player.releaseUseTile && player.CheckMana(Item, pay: true)) {
@@ -496,7 +496,7 @@ namespace EpikV2.Items.Armor {
 		}
 		public override void PostUpdate() => Item.TurnToAir();
 	}
-	public class Daybreaker_Sword_P : ModProjectile {
+	public class Daybreaker_Sword_P : ModProjectile, IShadedProjectile {
 		public override string Texture => "EpikV2/Items/Armor/Daybreaker_Sword";
 		public override void SetStaticDefaults() {
 			ProjectileID.Sets.TrailingMode[Type] = 2;
@@ -579,6 +579,7 @@ namespace EpikV2.Items.Armor {
 		public override bool ShouldUpdatePosition() => false;
 		public override void AI() {
 			Player player = Main.player[Projectile.owner];
+			ArmorShaderData dustShader = GameShaders.Armor.GetSecondaryShader(player.cBody, player);
 			if (AIMode == 0) {
 				Projectile.spriteDirection = player.direction;
 			} else {
@@ -661,6 +662,7 @@ namespace EpikV2.Items.Armor {
 						);
 						dust.noGravity = false;
 						dust.velocity.Y -= 2;
+						dust.shader = dustShader;
 					}
 					Projectile.stepSpeed = MathHelper.Clamp(Projectile.stepSpeed, -1.5f, 1.5f);
 					break;
@@ -677,7 +679,7 @@ namespace EpikV2.Items.Armor {
 					goto default;
 				}
 
-				case 2: {
+				/*case 2: {
 					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
 					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
 					rotation = baseRotation - MathHelper.Lerp(progressScaled * 0.25f, progressScaled, Math.Clamp(progressScaled - 0.375f, 0, 1) * 1.6f) * 5f * swingDirectionCorrection;
@@ -699,6 +701,17 @@ namespace EpikV2.Items.Armor {
 							}
 						}
 					}
+					if (Projectile.ai[1] != Projectile.ai[2]) {
+						const float speed = 24;
+						player.velocity.X += (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed)) * player.direction;
+					} else Projectile.soundDelay = 1;
+					goto default;
+				}*/
+
+				case 2: {
+					float progressScaled = GetProgressScaled(Projectile.ai[1], Projectile.ai[2]);
+					//float progressScaled = (MathF.Pow(progress, 4f) / 0.85f);
+					rotation = baseRotation - MathHelper.Lerp(progressScaled * 0.25f, progressScaled, progressScaled) * 5f * swingDirectionCorrection;
 					if (Projectile.ai[1] != Projectile.ai[2]) {
 						const float speed = 24;
 						player.velocity.X += (GetDashSpeed(progressScaled, speed) - GetDashSpeed(GetProgressScaled(Projectile.ai[1] + 1, Projectile.ai[2]), speed)) * player.direction;
@@ -925,6 +938,7 @@ namespace EpikV2.Items.Armor {
 						dust.velocity = Main.rand.NextVector2Circular(1, 1);
 						dust.rotation = Main.rand.NextFloat(MathHelper.TwoPi);
 						dust.scale = dustScale;
+						dust.shader = dustShader;
 						pos += vel;
 					}
 				}
@@ -980,7 +994,7 @@ namespace EpikV2.Items.Armor {
 			target.AddBuff(BuffID.OnFire3, Main.rand.Next(300, 480));
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
-			SoundEngine.PlaySound((hit.Crit ? SoundID.DD2_MonkStaffGroundImpact : SoundID.DD2_MonkStaffGroundMiss).WithPitchRange(-0.2f, 0.0f), target.Center);
+			//SoundEngine.PlaySound((hit.Crit ? SoundID.DD2_MonkStaffGroundImpact : SoundID.DD2_MonkStaffGroundMiss).WithPitchRange(-0.2f, 0.0f), target.Center);
 			switch (AIMode) {
 				case 2:
 				target.velocity.Y -= hit.Knockback * target.knockBackResist * 2f;
@@ -988,6 +1002,10 @@ namespace EpikV2.Items.Armor {
 
 				case 4:
 				target.velocity.Y -= hit.Knockback * target.knockBackResist * 4f;
+				break;
+
+				case 12:
+				target.velocity.X += hit.HitDirection * hit.Knockback * target.knockBackResist * 2f;
 				break;
 			}
 		}
@@ -1033,6 +1051,8 @@ namespace EpikV2.Items.Armor {
 		public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI) {
 			behindNPCsAndTiles.Add(index);
 		}
+
+		public int GetShaderID() => Main.player[Projectile.owner].cBody;
 	}
 	public struct DaybreakerSwingDrawer {
 		public const int TotalIllusions = 1;
@@ -1048,24 +1068,32 @@ namespace EpikV2.Items.Armor {
 		public float Length;
 		public void Draw(Projectile proj) {
 			if (proj.ai[0] == 0) return;
-			MiscShaderData miscShaderData = GameShaders.Misc["FlameLash"];
-			miscShaderData.UseSaturation(-1f);
-			miscShaderData.UseOpacity(4);
-			miscShaderData.Apply();
-			int maxLength = Math.Min(proj.oldPos.Length, (int)(proj.ai[2] - proj.ai[1]));
-			if (proj.ai[0] == 145) maxLength = proj.oldPos.Length;
-			float[] oldRot = new float[maxLength];
-			Vector2[] oldPos = new Vector2[maxLength];
-			Vector2 move = new Vector2(Length * 0.65f, 0) * proj.direction;
-			GeometryUtils.AngleDif(proj.oldRot[1], proj.oldRot[0], out int dir);
-			for (int i = 0; i < maxLength; i++) {
-				oldRot[i] = proj.oldRot[i] + MathHelper.PiOver4 + MathHelper.PiOver2 * (1 - dir);
-				oldPos[i] = proj.oldPos[i] + move.RotatedBy(oldRot[i] - MathHelper.PiOver2 * proj.direction) * dir;
+			Player owner = Main.player[proj.owner];
+			bool hasShader = owner.cBody != 0;
+			try {
+				if (hasShader) EpikV2.shaderOroboros.Capture();
+				MiscShaderData miscShaderData = GameShaders.Misc["FlameLash"];
+				miscShaderData.UseSaturation(-1f);
+				miscShaderData.UseOpacity(4);
+				miscShaderData.Apply();
+				int maxLength = Math.Min(proj.oldPos.Length, (int)(proj.ai[2] - proj.ai[1]));
+				if (proj.ai[0] == 145) maxLength = proj.oldPos.Length;
+				float[] oldRot = new float[maxLength];
+				Vector2[] oldPos = new Vector2[maxLength];
+				Vector2 move = new Vector2(Length * 0.65f, 0) * proj.direction;
+				GeometryUtils.AngleDif(proj.oldRot[1], proj.oldRot[0], out int dir);
+				for (int i = 0; i < maxLength; i++) {
+					oldRot[i] = proj.oldRot[i] + MathHelper.PiOver4 + MathHelper.PiOver2 * (1 - dir);
+					oldPos[i] = proj.oldPos[i] + move.RotatedBy(oldRot[i] - MathHelper.PiOver2 * proj.direction) * dir;
+				}
+				//spriteDirections = proj.oldSpriteDirection;
+				_vertexStrip.PrepareStrip(oldPos, oldRot, StripColors, StripWidth, -Main.screenPosition, maxLength, includeBacksides: false);
+				_vertexStrip.DrawTrail();
+				Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+				if (hasShader) EpikV2.shaderOroboros.Stack(GameShaders.Armor.GetSecondaryShader(owner.cBody, owner));
+			} finally {
+				if (hasShader) EpikV2.shaderOroboros.Release();
 			}
-			//spriteDirections = proj.oldSpriteDirection;
-			_vertexStrip.PrepareStrip(oldPos, oldRot, StripColors, StripWidth, -Main.screenPosition, maxLength, includeBacksides: false);
-			_vertexStrip.DrawTrail();
-			Main.pixelShader.CurrentTechnique.Passes[0].Apply();
 		}
 
 		private readonly Color StripColors(float progressOnStrip) {
@@ -1104,6 +1132,8 @@ namespace EpikV2.Items.Armor {
 							return;
 						}
 					}
+					Player player = Main.player[Projectile.owner];
+					ArmorShaderData dustShader = GameShaders.Armor.GetSecondaryShader(player.cBody, player);
 					int nextFireIndex = (int)Projectile.ai[2];
 					if (nextFireIndex >= 0) {
 						Projectile nextFire = Main.projectile[nextFireIndex];
@@ -1115,12 +1145,14 @@ namespace EpikV2.Items.Armor {
 					Projectile.friendly = true;
 					Projectile.timeLeft = 45;
 					for (int i = 0; i < 8; i++) {
-						Dust.NewDustDirect(
+						Dust dust = Dust.NewDustDirect(
 							Projectile.position,
 							Projectile.width,
 							Projectile.height,
 							Utils.SelectRandom(Main.rand, 6, 259, 158)
-						).velocity.Y -= 2;
+						);
+						dust.velocity.Y -= 2;
+						dust.shader = dustShader;
 					}
 				}
 			} else {
@@ -1155,21 +1187,29 @@ namespace EpikV2.Items.Armor {
 				ColorEnd = epikPlayer.magicColor.Value * 0.5f;
 			}
 			if (Projectile.ai[0] < 0) {
-				MiscShaderData miscShaderData = GameShaders.Misc["FlameLash"];
-				miscShaderData.UseSaturation(-1f);
-				miscShaderData.UseOpacity(4);
-				miscShaderData.Apply();
-				int maxLength = 8;
-				float[] oldRot = new float[maxLength];
-				Vector2[] oldPos = new Vector2[maxLength];
-				float sectionLength = 8 / (Projectile.ai[1] + 0.4f);
-				for (int i = 0; i < maxLength; i++) {
-					oldRot[i] = MathHelper.PiOver2;
-					oldPos[i] = Projectile.Center - Vector2.UnitY * sectionLength * (i - 2);
+				Player owner = Main.player[Projectile.owner];
+				bool hasShader = owner.cBody != 0;
+				try {
+					if (hasShader) EpikV2.shaderOroboros.Capture();
+					MiscShaderData miscShaderData = GameShaders.Misc["FlameLash"];
+					miscShaderData.UseSaturation(-1f);
+					miscShaderData.UseOpacity(4);
+					miscShaderData.Apply();
+					int maxLength = 8;
+					float[] oldRot = new float[maxLength];
+					Vector2[] oldPos = new Vector2[maxLength];
+					float sectionLength = 8 / (Projectile.ai[1] + 0.4f);
+					for (int i = 0; i < maxLength; i++) {
+						oldRot[i] = MathHelper.PiOver2;
+						oldPos[i] = Projectile.Center - Vector2.UnitY * sectionLength * (i - 2);
+					}
+					_vertexStrip.PrepareStrip(oldPos, oldRot, StripColors, _ => 32, -Main.screenPosition, maxLength, includeBacksides: false);
+					_vertexStrip.DrawTrail();
+					Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+					if (hasShader) EpikV2.shaderOroboros.Stack(GameShaders.Armor.GetSecondaryShader(owner.cBody, owner));
+				} finally {
+					if (hasShader) EpikV2.shaderOroboros.Release();
 				}
-				_vertexStrip.PrepareStrip(oldPos, oldRot, StripColors, _ => 32, -Main.screenPosition, maxLength, includeBacksides: false);
-				_vertexStrip.DrawTrail();
-				Main.pixelShader.CurrentTechnique.Passes[0].Apply();
 			}
 			return false;
 		}
@@ -1206,7 +1246,11 @@ namespace EpikV2.Items.Armor {
 				Projectile.rotation = Projectile.velocity.ToRotation();
 			}
 			Vector2 size = new Vector2(0, 32).RotatedBy(Projectile.rotation);
-			Dust.NewDustPerfect(Projectile.Center + size * Main.rand.NextFloat(-1, 1), 6);
+
+			Dust dust = Dust.NewDustPerfect(Projectile.Center + size * Main.rand.NextFloat(-1, 1), 6, -Projectile.velocity);
+			dust.noGravity = true;
+			Player owner = Main.player[Projectile.owner];
+			dust.shader = GameShaders.Armor.GetSecondaryShader(owner.cBody, owner);
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			if (Projectile.velocity.Y != 0) {
