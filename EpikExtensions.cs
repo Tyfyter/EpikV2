@@ -269,16 +269,6 @@ namespace EpikV2 {
 				MathHelper.Clamp(vector.X, rect.X, rect.X + rect.Width),
 				MathHelper.Clamp(vector.Y, rect.Y, rect.Y + rect.Height));
 		}
-		public static Vector2 MagnitudeMin(Vector2 vector, float mag) {
-			return vector.SafeNormalize(Vector2.Zero) * Math.Min(vector.Length(), mag);
-		}
-		public static Vector2 MagnitudeMin(this ref Vector2 vector, float mag) {
-			vector.Normalize();
-			mag = Math.Min(vector.Length(), mag);
-			vector.X *= mag;
-			vector.Y *= mag;
-			return vector;
-		}
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void LinearSmoothing(ref float smoothed, float target, float rate) {
 			if (target != smoothed) {
@@ -366,30 +356,6 @@ namespace EpikV2 {
 			}
 			bool itemCanHitNPC = ItemLoader.CanHitNPC(item, player, npc) ?? true;
 			if (!itemCanHitNPC) {
-				return false;
-			}
-			bool canBeHitByItem = NPCLoader.CanBeHitByItem(npc, player, item) ?? true;
-			if (!canBeHitByItem) {
-				return false;
-			}
-			bool playerCanHitNPC = PlayerLoader.CanHitNPCWithItem(player, item, npc) ?? true;
-			if (!playerCanHitNPC) {
-				return false;
-			}
-			if (npc.friendly) {
-				switch (npc.type) {
-					case NPCID.Guide:
-					return player.killGuide;
-					case NPCID.Clothier:
-					return player.killClothier;
-					default:
-					return false;
-				}
-			}
-			return true;
-		}
-		public static bool CanBeHitByNoItem(this NPC npc, Player player, Item item) {
-			if (!npc.active || npc.immortal || npc.dontTakeDamage) {
 				return false;
 			}
 			bool canBeHitByItem = NPCLoader.CanBeHitByItem(npc, player, item) ?? true;
@@ -898,27 +864,23 @@ namespace EpikV2 {
 			return 1f;
 		}
 		public static void Shuffle<T>(this IList<T> list, UnifiedRandom rng = null) {
-			if (rng is null) rng = Main.rand;
+			rng ??= Main.rand;
 
 			int n = list.Count;
 			while (n > 1) {
 				n--;
 				int k = rng.Next(n + 1);
-				T value = list[k];
-				list[k] = list[n];
-				list[n] = value;
+				(list[n], list[k]) = (list[k], list[n]);
 			}
 		}
 		public static void Shuffle<T>(this T[] list, UnifiedRandom rng = null) {
-			if (rng is null) rng = Main.rand;
+			rng ??= Main.rand;
 
 			int n = list.Length;
 			while (n > 1) {
 				n--;
 				int k = rng.Next(n + 1);
-				T value = list[k];
-				list[k] = list[n];
-				list[n] = value;
+				(list[n], list[k]) = (list[k], list[n]);
 			}
 		}
 		public static int RandomRound(this UnifiedRandom random, float value) {

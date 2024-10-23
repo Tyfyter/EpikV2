@@ -141,20 +141,7 @@ namespace EpikV2.Items.Accessories {
 				EquipmentLoadout otherLoadout = GetOtherLoadout(Main.LocalPlayer, Offset);
 				Item other = otherLoadout.Armor[equippedSlot];
 				equippedSlot = -1;
-				Main.instance.LoadItem(other.type);
-				Texture2D itemTexture = TextureAssets.Item[other.type].Value;
-				Rectangle otherFrame = (Main.itemAnimations[other.type] == null) ? itemTexture.Frame()
-					: Main.itemAnimations[other.type].GetFrame(itemTexture);
-				Vector2 otherOrigin = otherFrame.Size() * 0.5f;
-				ItemSlot.DrawItem_GetColorAndScale(other, scale, ref drawColor, 52, ref otherFrame, out var itemLight, out var finalDrawScale);
-
-				if (ItemLoader.PreDrawInInventory(other, spriteBatch, position, otherFrame, other.GetAlpha(itemLight), other.GetColor(drawColor), otherOrigin, finalDrawScale)) {
-					spriteBatch.Draw(itemTexture, position, otherFrame, other.GetAlpha(itemLight), 0f, otherOrigin, finalDrawScale, SpriteEffects.None, 0f);
-					if (other.color != Color.Transparent) {
-						spriteBatch.Draw(itemTexture, position, otherFrame, other.GetColor(drawColor), 0f, otherOrigin, finalDrawScale, SpriteEffects.None, 0f);
-					}
-				}
-				ItemLoader.PostDrawInInventory(other, spriteBatch, position, frame, other.GetAlpha(itemLight), other.GetColor(drawColor), otherOrigin, finalDrawScale);
+				ItemSlot.DrawItemIcon(other, ItemSlot.Context.BankItem, spriteBatch, position, Main.inventoryScale, 32f, drawColor);
 				return false;
 			}
 			return true;
