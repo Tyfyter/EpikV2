@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PegasusLib;
 using Terraria;
 using Terraria.DataStructures;
 using Terraria.GameContent;
@@ -13,9 +14,6 @@ using static Terraria.ModLoader.ModContent;
 namespace EpikV2.Items {
     [AutoloadEquip(EquipType.HandsOn)]
     public class Band_Of_Frost : ModItem {
-		public override void SetStaticDefaults() {
-            Item.ResearchUnlockCount = 1;
-        }
         public override void SetDefaults() {
             int h = Item.handOnSlot;
             Item.CloneDefaults(ItemID.FrostStaff);
@@ -168,7 +166,7 @@ namespace EpikV2.Items {
         }
         public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
             Vector2 spikePos = new Vector2(Projectile.Center.X, Projectile.Center.Y - (Projectile.frame * 2  * Projectile.scale) - 4);
-            Vector2 targetPos = Projectile.Center.Within(targetHitbox);
+            Vector2 targetPos = Projectile.Center.Clamp(targetHitbox);
             return (targetPos-spikePos).SafeNormalize(Vector2.Zero).Y>0.95f;
         }
         public override bool? CanHitNPC(NPC target) {

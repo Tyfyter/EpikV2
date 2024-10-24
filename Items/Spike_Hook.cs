@@ -20,13 +20,6 @@ namespace EpikV2.Items {
 			Item.shootSpeed = 20f;
             Item.shoot = ProjectileType<Spike_Hook_Spawn_Projectile>();
 		}
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Rope Hook");
-			// Tooltip.SetDefault("");
-			Item.ResearchUnlockCount = 1;
-		}
-
-
         public override void AddRecipes() {
 			Recipe recipe = Recipe.Create(Type);
 			recipe.AddIngredient(ItemID.Hook, 1);

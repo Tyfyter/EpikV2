@@ -38,7 +38,7 @@ namespace EpikV2.NPCs {
             bestiaryEntry.AddTags(new BestiaryPortraitBackgroundProviderPreferenceInfoElement(CommonTags.SpawnConditions.Biomes.Caverns));
             bestiaryEntry.AddTags(CommonTags.SpawnConditions.Biomes.Caverns);
         }
-    }
+	}
 	public class Bobber_Snail_Item : ModItem {
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.Snail);

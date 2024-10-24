@@ -15,12 +15,7 @@ namespace EpikV2.Items.Armor {
     [AutoloadEquip(EquipType.Head)]
 	public class Machiavellian_Masquerade : ModItem {
 		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Machiavellian Masquerade");
-			/* Tooltip.SetDefault("15% increased ranged and magic damage\n"+
-                               "15% increased ranged and magic use speed\n"+
-                               "Should not the death of a liar be itself a lie?"); */
 			ArmorIDs.Head.Sets.DrawFullHair[Item.headSlot] = true;
-			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			Item.width = 20;

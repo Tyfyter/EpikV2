@@ -13,9 +13,9 @@ using static Microsoft.Xna.Framework.MathHelper;
 using static EpikV2.Resources;
 using EpikV2.Modifiers;
 using EpikV2.NPCs;
-using Tyfyter.Utils;
 using Terraria.ModLoader.IO;
 using System.IO;
+using PegasusLib;
 
 namespace EpikV2.Projectiles {
     public class EpikGlobalProjectile : GlobalProjectile {

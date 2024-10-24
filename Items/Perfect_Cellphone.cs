@@ -27,12 +27,7 @@ namespace EpikV2.Items {
 		public override void Unload() {
 			Phone_Types = null;
 		}
-		protected void SetName(string name) {
-			// DisplayName.SetDefault($"Perfect Cellphone ({name})");
-			// Tooltip.SetDefault("<switch> to change modes\nIf you listen closely, you can hear screaming and something about \"power levels\"'");
-		}
 		public override void SetStaticDefaults() {
-			SetName("Home");
 			Item.ResearchUnlockCount = 1;
 			Phone_Types = new List<int> {
 				Type,
@@ -173,9 +168,6 @@ namespace EpikV2.Items {
         }
 	}
 	public class Perfect_Cellphone_World : Perfect_Cellphone {
-		public override void SetStaticDefaults() {
-			SetName("Spawn");
-		}
 		protected override void Teleport(Player player) {
 			Vector2 newPos = new Point(Main.spawnTileX, Main.spawnTileY).ToWorldCoordinates(8f, 0f) - new Vector2(player.width / 2, player.height);
 			player.Teleport(newPos, 11);
@@ -189,9 +181,6 @@ namespace EpikV2.Items {
 		}
 	}
 	public class Perfect_Cellphone_Ocean : Perfect_Cellphone {
-		public override void SetStaticDefaults() {
-			SetName("Ocean");
-		}
 		protected override void SpawnDust(int frame, Vector2 position, int width, int height, float speedX = 0, float speedY = 0, int alpha = 0, float scale = 1) {
 			Vector2 value = Vector2.UnitY.RotatedBy(frame * (MathHelper.Pi * 2f) / 30f) * new Vector2(15f, 0f);
 			Dust dust = Dust.NewDustPerfect(position + new Vector2(width / 2, height) + value, Dust.dustWater());
@@ -212,9 +201,6 @@ namespace EpikV2.Items {
 		}
 	}
 	public class Perfect_Cellphone_Hell : Perfect_Cellphone {
-		public override void SetStaticDefaults() {
-			SetName("Hell");
-		}
 		protected override void SpawnDust(int frame, Vector2 position, int width, int height, float speedX = 0, float speedY = 0, int alpha = 0, float scale = 1) {
 			Vector2 value = Vector2.UnitY.RotatedBy(frame * (MathHelper.Pi * 2f) / 30f) * new Vector2(15f, 0f);
 			Dust dust = Dust.NewDustPerfect(position + new Vector2(width / 2, height) + value, 35);
@@ -235,9 +221,6 @@ namespace EpikV2.Items {
 		}
 	}
 	public class Perfect_Cellphone_Return : Perfect_Cellphone {
-		public override void SetStaticDefaults() {
-			SetName("Return");
-		}
 		protected override void SpawnDust(int frame, Vector2 position, int width, int height, float speedX = 0, float speedY = 0, int alpha = 0, float scale = 1) {
 			Dust dust = Dust.NewDustDirect(position, width, height, DustID.MagicMirror, 0, 0, alpha, Color.Purple, scale);
 			dust.fadeIn = 1;

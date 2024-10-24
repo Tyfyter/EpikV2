@@ -15,10 +15,7 @@ using static Terraria.ModLoader.ModContent;
 namespace EpikV2.Items {
 	public class Sanguis_Royale : ModItem {
 		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Sanguis Royale");
-			// Tooltip.SetDefault("");
 			Item.staff[Item.type] = true;
-			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			Item.damage = 78;

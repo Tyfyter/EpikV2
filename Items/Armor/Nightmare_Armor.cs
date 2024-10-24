@@ -8,6 +8,7 @@ using EpikV2.Reflection;
 using EpikV2.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PegasusLib;
 using ReLogic.Content;
 using Terraria;
 using Terraria.Audio;
@@ -21,7 +22,6 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.Utilities;
-using Tyfyter.Utils;
 
 namespace EpikV2.Items.Armor {
 	[AutoloadEquip(EquipType.Head, EquipType.Back)]

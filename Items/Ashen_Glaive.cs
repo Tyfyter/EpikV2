@@ -19,9 +19,6 @@ namespace EpikV2.Items {
             Ashen_Glaive_P.marks = null;
         }
 		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Ashen Glaive");
-			// Tooltip.SetDefault("");
-            Item.ResearchUnlockCount = 1;
             if (Main.netMode == NetmodeID.Server)return;
             mark1Texture = Mod.RequestTexture("Items/Ashen_Mark_1");
             mark2Texture = Mod.RequestTexture("Items/Ashen_Mark_2");

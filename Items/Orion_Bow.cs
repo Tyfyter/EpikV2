@@ -13,6 +13,7 @@ using Terraria.DataStructures;
 using static EpikV2.Resources;
 using System.IO;
 using Terraria.Graphics.Shaders;
+using PegasusLib;
 
 namespace EpikV2.Items {
     public class Orion_Bow : ModItem, ICustomDrawItem {
@@ -33,11 +34,8 @@ namespace EpikV2.Items {
         public float BaseMult => 0.25f;
         public bool fireArrow = false;
 		public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Orion's Bow");
-		    // Tooltip.SetDefault("Shoot for the stars");
             ID = Item.type;
             ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
-            Item.ResearchUnlockCount = 1;
             if (Main.netMode == NetmodeID.Server)return;
             goldTexture = Mod.RequestTexture("Items/Orion_Bow_Limb_Gold");
             skyTexture = Mod.RequestTexture("Items/Orion_Bow_Limb_Sky");

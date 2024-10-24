@@ -27,11 +27,6 @@ namespace EpikV2.Items {
 	//left: stab, stab, big stab
 	//right dash slash, less dashy dash slash, big slash
     public class VIXI : ModItem {
-		public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Vixi");
-			// Tooltip.SetDefault("<right> to dash forwards with a slash");
-            Item.ResearchUnlockCount = 1;
-		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.PiercingStarlight);
 			Item.damage = 99;

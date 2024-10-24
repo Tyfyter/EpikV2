@@ -16,11 +16,6 @@ using Tyfyter.Utils;
 
 namespace EpikV2.Items {
 	public class Pyrkasivar: ModItem {
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Pyrkasivar");//Google translate seems to think this means armrest in Finnish, but 
-			// Tooltip.SetDefault("");
-			Item.ResearchUnlockCount = 1;
-		}
 		public override void SetDefaults() {
 			Item.DamageType = DamageClass.Summon;
 			Item.noMelee = true;

@@ -18,11 +18,6 @@ using Terraria.Utilities;
 namespace EpikV2.Items {
 	public class Jade_Whip : ModItem {
 		public override string Texture => "Terraria/Images/Item_" + ItemID.RainbowWhip;
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("<PH> Jade Whip");
-			// Tooltip.SetDefault("Summon tag damage and crit chance benefit from bonuses");
-			Item.ResearchUnlockCount = 1;
-		}
 		public override void SetDefaults() {
 			// Call this method to quickly set some of the properties below.
 			Item.DefaultToWhip(ModContent.ProjectileType<Jade_Whip_P>(), 20, 2, 4, 27);

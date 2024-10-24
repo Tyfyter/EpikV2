@@ -22,13 +22,8 @@ namespace EpikV2.Items.Armor {
             RealArmorID = EquipLoader.AddEquipTexture(Mod, "EpikV2/Items/Armor/Magicians_Top_Hat_Head", EquipType.Head, name: "Magicians_Top_Hat_Real");
         }
 		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Magicians Top Hat");
-			/* Tooltip.SetDefault("25% increased magic and minion damage\n"+
-                               "Increases your max number of minions by 1\n"+
-                               "'A magician never reveals <pro> secrets'"); */
             ArmorIDs.Head.Sets.DrawHatHair[ArmorID] = true;
             ArmorIDs.Head.Sets.DrawHatHair[RealArmorID] = true;
-            Item.ResearchUnlockCount = 1;
         }
 		public override void SetDefaults() {
             Item.headSlot = ArmorID;

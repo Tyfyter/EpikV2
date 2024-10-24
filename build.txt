@@ -6,4 +6,5 @@ homepage = https://tyfyter.github.io/?EpikV2
 displayName = EpikV2
 buildIgnore = Unused\*
 includeSource = true
+modReferences = PegasusLib
 weakReferences = AltLibrary, Origins, HolidayLib

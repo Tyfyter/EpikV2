@@ -23,7 +23,7 @@ using System.IO;
 using Tyfyter.Utils;
 using static Tyfyter.Utils.ChestLootCache.LootQueueAction;
 using static Tyfyter.Utils.ChestLootCache.LootQueueMode;
-using Tyfyter.Utils.ID;
+using PegasusLib.ID;
 using EpikV2.NPCs;
 using static EpikV2.Resources;
 using EpikV2.Items.Debugging;
@@ -46,7 +46,7 @@ using Terraria.Localization;
 using Terraria.GameContent.NetModules;
 using EpikV2.CrossMod;
 using EpikV2.Items.Armor;
-using static Tyfyter.Utils.MiscUtils;
+using PegasusLib;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -212,7 +212,6 @@ namespace EpikV2 {
 			itemRarityOverrides = null;
 			rarityTiers = null;
 			HellforgeRecipes = null;
-			MiscUtils.Unload();
 			ImbueDebuffs = null;
 			Array.Resize(ref TextureAssets.GlowMask, GlowMaskID.Count);
 			foreach (IUnloadable unloadable in unloadables) {

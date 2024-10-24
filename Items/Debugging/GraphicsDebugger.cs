@@ -9,6 +9,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
 using static EpikV2.Resources;
+using PegasusLib;
 
 namespace EpikV2.Items.Debugging {
 

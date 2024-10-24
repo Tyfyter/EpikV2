@@ -10,6 +10,7 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using PegasusLib;
 using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items {
@@ -104,19 +105,16 @@ namespace EpikV2.Items {
             return false;
         }
 		public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Lucre Launcher");
-		    // Tooltip.SetDefault("It's pay to win\nScroll while holding<Torch> or use <switch> to change coin type\nRight click to load in coins");
             ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
-            Item.ResearchUnlockCount = 1;
             if (Main.netMode == NetmodeID.Server)return;
             FrontTexture = Mod.RequestTexture("Items/Lucre_Launcher_Front");
             BackTexture = Mod.RequestTexture("Items/Lucre_Launcher_Back");
-            CoinsTextures = new AutoCastingAsset<Texture2D>[]{
+            CoinsTextures = [
                 Mod.RequestTexture("Items/Lucre_Launcher_Copper"),
                 Mod.RequestTexture("Items/Lucre_Launcher_Silver"),
                 Mod.RequestTexture("Items/Lucre_Launcher_Gold"),
                 Mod.RequestTexture("Items/Lucre_Launcher_Platinum")
-            };
+            ];
 		}
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.CoinGun);

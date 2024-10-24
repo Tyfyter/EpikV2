@@ -28,6 +28,7 @@ using EpikV2.Items.Armor;
 using EpikV2.CrossMod;
 using EpikV2.Items.Other;
 using System.Linq;
+using PegasusLib.ID;
 
 namespace EpikV2 {
 	public partial class EpikPlayer : ModPlayer {
@@ -1338,7 +1339,6 @@ namespace EpikV2 {
 			}
 		}
 		public override void HideDrawLayers(PlayerDrawSet drawInfo) {
-			if ((Player.ItemAnimationActive || drawInfo.heldItem.holdStyle > 0) && Player.HeldItem.ModItem is ICustomDrawItem) PlayerDrawLayers.HeldItem.Hide();
 			//if (drawInfo.drawPlayer.head == Magicians_Top_Hat.ArmorID) PlayerDrawLayers.Head.Hide();
 			if (dracoDash != 0) {
 				foreach (var layer in PlayerDrawLayerLoader.Layers) {

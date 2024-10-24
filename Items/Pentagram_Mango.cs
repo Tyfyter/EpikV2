@@ -12,11 +12,6 @@ using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items {
     public class Pentagram_Mango : ModItem {
-		public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Mango With a Pentagram on it");
-		    // Tooltip.SetDefault("Rearranges enemy organs");
-            Item.ResearchUnlockCount = 1;
-        }
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.FrostStaff);
             Item.damage = 40;

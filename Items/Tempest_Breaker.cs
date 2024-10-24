@@ -14,6 +14,7 @@ using Terraria.Utilities;
 using EpikV2.CrossMod;
 using System.Reflection;
 using EpikV2.Reflection;
+using PegasusLib;
 
 namespace EpikV2.Items {
     [AutoloadEquip(EquipType.HandsOn)]
@@ -29,9 +30,6 @@ namespace EpikV2.Items {
             blastTexture = null;
         }
 		public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Tempest Breaker");
-		    // Tooltip.SetDefault("Right click for a heavy attack");
-            Item.ResearchUnlockCount = 1;
             if (Main.netMode == NetmodeID.Server)return;
             blastTexture = Mod.RequestTexture("Items/Tempest_Breaker_Explosion");
 		}

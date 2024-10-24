@@ -8,6 +8,7 @@ using EpikV2.Projectiles;
 using EpikV2.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PegasusLib.Graphics;
 using ReLogic.Graphics;
 using Terraria;
 using Terraria.Audio;
@@ -704,26 +705,14 @@ namespace EpikV2.Items.Weapons {
 			Item.mana = mana_cost;
 		}
 		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-			MiscUtils.SpriteBatchState state = Main.spriteBatch.GetState();
-			Main.spriteBatch.Restart(state, SpriteSortMode.Immediate);
-
-			DrawData data = new DrawData {
-				texture = TextureAssets.Item[Item.type].Value,
-				sourceRect = frame,
-				position = position,
-				color = drawColor,
-				rotation = 0f,
-				scale = new Vector2(scale),
-				shader = Item.dye,
-				origin = origin,
-				effect = SpriteEffects.FlipVertically
-			};
-			GameShaders.Armor.ApplySecondary(Item.dye, null, data);
-			data.Draw(spriteBatch);
-			Main.spriteBatch.Restart(state, SpriteSortMode.Deferred);
-			return false;
+			EpikV2.shaderOroboros.Capture();
+			return true;
 		}
 		public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
+			if (EpikV2.shaderOroboros.Capturing) {
+				EpikV2.shaderOroboros.Stack(GameShaders.Armor.GetSecondaryShader(Item.dye, Main.LocalPlayer));
+				EpikV2.shaderOroboros.Release();
+			}
 		}
 	}
 	public class Scimitar_Of_The_Rising_Sun_Sakura_Dance_1 : Scimitar_Of_The_Rising_Sun_Slash {
@@ -863,22 +852,14 @@ namespace EpikV2.Items.Weapons {
 			}
 		}
 		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-			Main.spriteBatch.Restart(Main.spriteBatch.GetState(), SpriteSortMode.Immediate);
-
-			DrawData data = new DrawData {
-				texture = TextureAssets.Item[Item.type].Value,
-				sourceRect = frame,
-				position = position,
-				color = drawColor,
-				rotation = 0f,
-				scale = new Vector2(scale),
-				shader = Item.dye
-			};
-			GameShaders.Armor.ApplySecondary(Item.dye, null, data);
+			EpikV2.shaderOroboros.Capture();
 			return true;
 		}
 		public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-			Main.spriteBatch.Restart(Main.spriteBatch.GetState(), SpriteSortMode.Deferred);
+			if (EpikV2.shaderOroboros.Capturing) {
+				EpikV2.shaderOroboros.Stack(GameShaders.Armor.GetSecondaryShader(Item.dye, Main.LocalPlayer));
+				EpikV2.shaderOroboros.Release();
+			}
 		}
 	}
 	public class Scimitar_Of_The_Rising_Sun_Mortal_Draw : Scimitar_Of_The_Rising_Sun_Slash {

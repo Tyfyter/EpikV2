@@ -10,7 +10,6 @@ using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
 //using Origins.Projectiles;
 using System.Collections.Generic;
-using static Tyfyter.Utils.MiscUtils;
 using System.Diagnostics;
 using Terraria.Graphics.Effects;
 using System.IO;
@@ -25,13 +24,10 @@ namespace EpikV2.Items {
         public static int ID { get; internal set; } = -1;
 
 		public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Moonlight Staff");
-		    // Tooltip.SetDefault("");
             ItemID.Sets.StaffMinionSlotsRequired[Item.type] = 1;
 			ItemID.Sets.GamepadWholeScreenUseRange[Item.type] = true;
 			ItemID.Sets.LockOnIgnoresCollision[Item.type] = true;
             ID = Item.type;
-            Item.ResearchUnlockCount = 1;
         }
 		public override void SetDefaults() {
             int dye = Item.dye;

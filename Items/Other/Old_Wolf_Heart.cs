@@ -12,7 +12,6 @@ using static EpikV2.Resources;
 using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.UI.Chat;
-using static Tyfyter.Utils.MiscUtils;
 using Terraria.Graphics.Shaders;
 using System.Linq;
 

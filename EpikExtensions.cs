@@ -27,32 +27,9 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.Net;
 using Terraria.Utilities;
-using Tyfyter.Utils;
+using PegasusLib;
 
 namespace EpikV2 {
-	public static class OtherDeathReasonID {
-		public const int Fall = 0;
-		public const int Drown = 1;
-		public const int Lava = 2;
-		public const int Default = 3;
-		public const int Slain = 4;
-		public const int Petrified = 5;
-		public const int Stabbed = 6;
-		public const int Suffocated = 7;
-		public const int Burned = 8;
-		public const int Poisoned = 9;
-		public const int Electrocuted = 10;
-		public const int TriedToEscape = 11;
-		public const int Licked = 12;
-		public const int Teleport_1 = 13;
-		public const int Teleport_2_Male = 14;
-		public const int Teleport_2_Female = 15;
-		public const int Empty = 254;
-		public const int Slain_2 = 255;
-	}
-	public interface ICustomDrawItem {
-		void DrawInHand(Texture2D itemTexture, ref PlayerDrawSet drawInfo, Vector2 itemCenter, Color lightColor, Vector2 drawOrigin);
-	}
 	public interface IScrollableItem {
 		void Scroll(int direction);
 	}
@@ -270,54 +247,13 @@ namespace EpikV2 {
 				MathHelper.Clamp(vector.Y, rect.Y, rect.Y + rect.Height));
 		}
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void LinearSmoothing(ref float smoothed, float target, float rate) {
-			if (target != smoothed) {
-				if (Math.Abs(target - smoothed) < rate) {
-					smoothed = target;
-				} else {
-					if (target > smoothed) {
-						smoothed += rate;
-					} else if (target < smoothed) {
-						smoothed -= rate;
-					}
-				}
-			}
-		}
+		public static void LinearSmoothing(ref float smoothed, float target, float rate) => MathUtils.LinearSmoothing(ref smoothed, target, rate);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void LinearSmoothing(ref Vector2 smoothed, Vector2 target, float rate) {
-			if (target != smoothed) {
-				Vector2 diff = target - smoothed;
-				if (diff.Length() < rate) {
-					smoothed = target;
-				} else {
-					diff.Normalize();
-					smoothed += diff * rate;
-				}
-			}
-		}
+		public static void LinearSmoothing(ref Vector2 smoothed, Vector2 target, float rate) => MathUtils.LinearSmoothing(ref smoothed, target, rate);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AngularSmoothing(ref float smoothed, float target, float rate) {
-			if (target != smoothed) {
-				float diff = GeometryUtils.AngleDif(smoothed, target, out int dir);
-				if (Math.Abs(diff) < rate) {
-					smoothed = target;
-				} else {
-					smoothed += rate * dir;
-				}
-			}
-		}
+		public static void AngularSmoothing(ref float smoothed, float target, float rate) => GeometryUtils.AngularSmoothing(ref smoothed, target, rate);
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AngularSmoothing(ref float smoothed, float target, float rate, bool snap) {
-			if (target != smoothed) {
-				float diff = GeometryUtils.AngleDif(smoothed, target, out int dir);
-				diff = Math.Abs(diff);
-				if (diff < rate || (snap && diff > MathHelper.Pi - rate)) {
-					smoothed = target;
-				} else {
-					smoothed -= rate * dir;
-				}
-			}
-		}
+		public static void AngularSmoothing(ref float smoothed, float target, float rate, bool snap) => GeometryUtils.AngularSmoothing(ref smoothed, target, rate, snap);
 		public static Rectangle BoxOf(Vector2 a, Vector2 b, float buffer) {
 			return BoxOf(a, b, new Vector2(buffer));
 		}

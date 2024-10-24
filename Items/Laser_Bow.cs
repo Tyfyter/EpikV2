@@ -12,9 +12,9 @@ using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
 using static EpikV2.Resources;
 using Terraria.Utilities;
+using PegasusLib;
 
-namespace EpikV2.Items
-{
+namespace EpikV2.Items {
     public class Laser_Bow : ModItem, ICustomDrawItem {
         public static AutoCastingAsset<Texture2D> UseTexture { get; private set; }
         public static AutoCastingAsset<Texture2D> GlowTexture { get; private set; }
@@ -25,10 +25,7 @@ namespace EpikV2.Items
             GlowTexture = null;
         }
         public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Chimerebos");//portmanteau & bastardization of "chimera" and "rebus", which I just now realize doesn't include any indication as to what it's a combination of
-		    // Tooltip.SetDefault("It's glowing, so it's futuristic");
             ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
-            Item.ResearchUnlockCount = 1;
             if (Main.netMode == NetmodeID.Server) return;
             UseTexture = Mod.RequestTexture("Items/Laser_Bow_Use");
             GlowTexture = Mod.RequestTexture("Items/Laser_Bow_Glow");

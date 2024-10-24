@@ -13,6 +13,7 @@ using Terraria.DataStructures;
 //using Origins.Projectiles;
 using System.IO;
 using EpikV2.CrossMod;
+using PegasusLib;
 
 #pragma warning disable 672
 namespace EpikV2.Items {
@@ -24,10 +25,7 @@ namespace EpikV2.Items {
         public float ChargePercent => charge / (float)maxCharge;
         public float BaseMult => 0.25f;
 		public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Draco");
-		    // Tooltip.SetDefault("");
-            ID = Item.type;
-            Item.ResearchUnlockCount = 1;
+            ID = Type;
         }
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.NebulaBlaze);
@@ -224,12 +222,12 @@ namespace EpikV2.Items {
             SoundEngine.PlaySound(SoundID.Item14, Projectile.Center);
         }
         public override bool? CanHitNPC(NPC target) {
-            Vector2 targetPos = Projectile.Center.Within(target.Hitbox);
+            Vector2 targetPos = Projectile.Center.Clamp(target.Hitbox);
             if((Projectile.Center - targetPos).Length()>Projectile.width/2f) return false;
             return Fired ? null : new bool?(false);
         }
         public override bool CanHitPlayer(Player target) {
-            Vector2 targetPos = Projectile.Center.Within(target.Hitbox);
+            Vector2 targetPos = Projectile.Center.Clamp(target.Hitbox);
             if((Projectile.Center - targetPos).Length()>Projectile.width/2f) return false;
             return Fired;
         }

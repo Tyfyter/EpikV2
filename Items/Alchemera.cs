@@ -18,12 +18,6 @@ using Tyfyter.Utils;
 
 namespace EpikV2.Items {
     public class Alchemera : ModItem {
-        public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Alchemera");
-		    // Tooltip.SetDefault("");
-            Item.ResearchUnlockCount = 1;
-            //ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
-        }
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.ToxicFlask);
             Item.damage = 60;

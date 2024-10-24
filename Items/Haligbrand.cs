@@ -1,6 +1,8 @@
 using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PegasusLib;
+using PegasusLib.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,16 +15,10 @@ using Terraria.Graphics;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Tyfyter.Utils;
 using static EpikV2.CrossMod.EpikIntegration;
 
 namespace EpikV2.Items {
 	public class Haligbrand : ModItem {
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Haligbrand");
-			// Tooltip.SetDefault("");
-			Item.ResearchUnlockCount = 1;
-		}
 		public override void SetDefaults() {
 			Item.DamageType = DamageClass.Summon;
 			Item.noMelee = true;
@@ -91,7 +87,7 @@ namespace EpikV2.Items {
 				int npcTarget = -1;
 				for (int i = 0; i <= Main.maxNPCs; i++) {
 					if (Main.npc[i].CanBeChasedBy(projectile)) {
-						Vector2 p = Main.MouseWorld.Within(Main.npc[i].Hitbox);
+						Vector2 p = Main.MouseWorld.Clamp(Main.npc[i].Hitbox);
 						float dist = (Main.MouseWorld - p).LengthSquared();
 						if (dist < ((i == player.MinionAttackTargetNPC) ? (192 * 192) : (96 * 96))) {
 							npcTarget = i;
@@ -210,7 +206,7 @@ namespace EpikV2.Items {
 				case 1: {
 					NPC target = Main.npc[(int)Projectile.ai[0]];
 					//targetPos = target.Center;
-					targetPos = Projectile.Center.Within(target.Hitbox);
+					targetPos = Projectile.Center.Clamp(target.Hitbox);
 					goto case 2;
 				}
 
@@ -570,7 +566,7 @@ namespace EpikV2.Items {
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			float scaleFactor = ScaleFactor;
-			return (Projectile.Center - Projectile.Center.Within(targetHitbox)).LengthSquared() < scaleFactor * scaleFactor;
+			return (Projectile.Center - Projectile.Center.Clamp(targetHitbox)).LengthSquared() < scaleFactor * scaleFactor;
 		}
 		public bool AttackEnemyProjectiles(float damageMult = 1f, bool kill = true, bool deflect = false, bool weakenStrong = false) {
 			bool hitAny = false;

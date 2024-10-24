@@ -17,11 +17,6 @@ namespace EpikV2.Items {
 		protected override bool CloneNewInstances => true;
         internal static int spinProj = 0;
         //static int throwProj = -1;
-		public override void SetStaticDefaults(){
-			// DisplayName.SetDefault("Jade Reaper");
-			// Tooltip.SetDefault("");
-            Item.ResearchUnlockCount = 1;
-        }
 		public override void SetDefaults(){
 			Item.CloneDefaults(ItemID.MonkStaffT3);
 			Item.damage = 115;

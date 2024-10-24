@@ -16,14 +16,7 @@ namespace EpikV2.Items.Armor {
 	public class Sovereign_Crown : ModItem {
 		public const float range = 1200f;
 		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Sovereign Crown");
-			/* Tooltip.SetDefault("25% increased melee and minion damage\n" +
-                               "15% increased melee range\n" +
-                               "25% increased whip range\n" +
-                               "Increases your max number of minions by 1\n" +
-                               "'Heavy is the head that wears the crown'"); */
             ArmorIDs.Head.Sets.DrawHatHair[Item.headSlot] = true;
-			Item.ResearchUnlockCount = 1;
         }
 		public override void SetDefaults() {
 			Item.width = 20;

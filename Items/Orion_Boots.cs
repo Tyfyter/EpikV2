@@ -14,10 +14,7 @@ namespace EpikV2.Items {
         public static int ID = -1;
         public const float collisionMult = 0.5f;
 		public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Orion Boots");
-		    // Tooltip.SetDefault("I'm sure this is safe");
             ID = Item.type;
-            Item.ResearchUnlockCount = 1;
         }
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.AmethystHook);

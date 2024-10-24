@@ -13,11 +13,6 @@ namespace EpikV2.Items {
 	public class Kusariken : ModItem {
 		byte combo = 0;
 		byte comboTimer = 0;
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Kusariken");
-			// Tooltip.SetDefault("Right click to pull enemies closer with a chain");
-			Item.ResearchUnlockCount = 1;
-		}
 		public override void SetDefaults() {
 			Item.damage = 98;
 			Item.DamageType = DamageClass.Melee;

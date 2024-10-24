@@ -18,10 +18,7 @@ namespace EpikV2.Items {
     public class Breakpoint : ModItem {
         static short customGlowMask;
 		public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Breakpoint");
-		    // Tooltip.SetDefault("");
             customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
-            Item.ResearchUnlockCount = 1;
         }
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.WoodenBow);

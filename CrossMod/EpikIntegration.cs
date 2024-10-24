@@ -14,7 +14,7 @@ using Terraria;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using static Tyfyter.Utils.MiscUtils;
+using PegasusLib;
 
 namespace EpikV2.CrossMod {
 	public class EpikIntegration : ILoadable {

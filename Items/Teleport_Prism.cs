@@ -12,20 +12,15 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Tyfyter.Utils;
-using Tyfyter.Utils.ID;
+using PegasusLib.ID;
 using static Terraria.ModLoader.ModContent;
-using static Tyfyter.Utils.MiscUtils;
+using PegasusLib.Graphics;
 
 namespace EpikV2.Items {
 	//inspired by a dream I had on the night of November 18th 2022
 	//in which a blue fictional character known for her outstanding speed gave it up for magic and gained the ability to teleport
 	public class Teleport_Prism : ModItem {
 		public override string Texture => "EpikV2/Items/Burning_Ambition";
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Teleport_Prism");
-			// Tooltip.SetDefault("");
-			Item.ResearchUnlockCount = 1;
-		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.FlowerofFire);
 			Item.damage = 190;

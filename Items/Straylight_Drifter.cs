@@ -15,11 +15,7 @@ namespace EpikV2.Items {
     public class Straylight_Drifter : ModItem {
         internal static int id = -1;
 		public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("Straylight Drifter");
-		    // Tooltip.SetDefault("\"Skill honed sharp\"");
-            id = Item.type;
-            Item.ResearchUnlockCount = 1;
-            //customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
+            id = Type;
         }
         public override void SetDefaults(){
             Item.CloneDefaults(ItemID.Handgun);

@@ -17,9 +17,6 @@ namespace EpikV2.Items.Debugging {
 
     public class StatLimiter : ModItem, IScrollableItem {
         public override string Texture => "Terraria/Images/Item_" + ItemID.Shackle;
-        public override void SetStaticDefaults() {
-			Item.ResearchUnlockCount = 1;
-		}
         public override void SetDefaults() {
             Item.width = 24;
             Item.height = 28;
@@ -31,6 +28,7 @@ namespace EpikV2.Items.Debugging {
             Item.value = 1000;
             Item.rare = ItemRarityID.LightPurple;
             Item.UseSound = null;
+			Item.color = Color.Red;
         }
 		public void Scroll(int direction) {
 			StatLimiterPlayer statLimiterPlayer = Main.LocalPlayer.GetModPlayer<StatLimiterPlayer>();

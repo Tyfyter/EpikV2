@@ -12,20 +12,12 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using Tyfyter.Utils;
-using Tyfyter.Utils.ID;
 using static Terraria.ModLoader.ModContent;
-using static Tyfyter.Utils.MiscUtils;
+using PegasusLib;
+using PegasusLib.Graphics;
 
 namespace EpikV2.Items {
 	public class Burning_Ambition : ModItem {
-		//static short customGlowMask;
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Burning Avaritia");//does not contain the letter e
-			// Tooltip.SetDefault("Penetrates up to 8 armor\n<right> to smelt tiles.");
-			Item.ResearchUnlockCount = 1;
-			//customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
-		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.FlowerofFire);
 			Item.damage = 19;
@@ -45,7 +37,6 @@ namespace EpikV2.Items {
 			Item.noUseGraphic = true;
 			Item.shoot = ProjectileType<Burning_Ambition_Vortex>();
 			Item.shootSpeed = 6.25f;
-			//item.glowMask = customGlowMask;
 		}
 		public override void AddRecipes() {
 			Recipe recipe = Recipe.Create(Type);
@@ -289,16 +280,12 @@ namespace EpikV2.Items {
 		public override void ReceiveExtraAI(BinaryReader reader) {
 			Projectile.localAI[0] = reader.ReadSingle();
 		}
-		internal class Particle {
-			internal float distance;
-			internal PolarVec2 position;
-			int frame;
+		internal class Particle(float distance, PolarVec2 position) {
+			internal float distance = distance;
+			internal PolarVec2 position = position;
+			int frame = Main.rand.Next(3);
 			internal int age = 0;
-			public Particle(float distance, PolarVec2 position) {
-				this.distance = distance;
-				this.position = position;
-				frame = Main.rand.Next(3);
-			}
+
 			public Rectangle GetFrame() {
 				frame = (frame + 1) % 3;
 				age++;
@@ -470,21 +457,18 @@ namespace EpikV2.Items {
 			}
 		}
 		public override bool PreDraw(ref Color lightColor) {
-			BlendState bs = new BlendState();
-			bs.ColorSourceBlend = Blend.SourceAlpha;
-			bs.ColorDestinationBlend = Blend.One;
+			BlendState bs = new() {
+				ColorSourceBlend = Blend.SourceAlpha,
+				ColorDestinationBlend = Blend.One
+			};
 			SpriteBatchState oldState = Main.spriteBatch.GetState();
 			//Main.spriteBatch.Restart(SpriteSortMode.Deferred, blendState: bs, effect: Resources.Shaders.blurShader);
-			Main.spriteBatch.Restart(oldState with {
-				sortMode = SpriteSortMode.Deferred,
-				blendState = bs,
-				effect = Resources.Shaders.blurShader
-			});
+			Main.spriteBatch.Restart(oldState, blendState: bs, effect: Resources.Shaders.blurShader);
 			const int rDiff = 0;
 			const int gDiff = 190;
 			const int bDiff = 255;
 			const int aDiff = 100;
-			Color color = new Color(255 - rDiff, 255 - gDiff, 255 - bDiff, 255 - aDiff);
+			Color color = new(255 - rDiff, 255 - gDiff, 255 - bDiff, 255 - aDiff);
 			try {
 				float rot = Projectile.rotation;
 				for (int i = 4; i >= 0; i--) {
@@ -511,9 +495,6 @@ namespace EpikV2.Items {
 		}
 		protected override bool CloneNewInstances => true;
 		internal Fireball_Particle[] particles;
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Burning Avaritia");
-		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.WoodenArrowFriendly);
 			Projectile.DamageType = DamageClass.Magic;
@@ -542,7 +523,7 @@ namespace EpikV2.Items {
 						};
 					}
 				}
-				Vector2 target = new Vector2(Projectile.ai[0] * 16 + 8, Projectile.ai[1] * 16 + 8);
+				Vector2 target = new(Projectile.ai[0] * 16 + 8, Projectile.ai[1] * 16 + 8);
 				Vector2 diff = Projectile.Center - target;
 				if (diff.LengthSquared() > 2) {
 					Projectile.Center -= (diff * 0.25f).WithMaxLength(8);
@@ -565,13 +546,13 @@ namespace EpikV2.Items {
 								);
 							}
 						).ToList();
-						List<(Recipe, List<Point>)> validRecipes = new List<(Recipe, List<Point>)>();
+						List<(Recipe, List<Point>)> validRecipes = [];
 						for (int i = 0; i < recipes.Count; i++) {
 							Recipe recipe = recipes[i];
 							FungibleSet<int> ingredients = recipe.ToFungibleSet();
-							HashSet<Point> usedTiles = new HashSet<Point>();
-							List<Point> tileQueue = new List<Point>() { new Point((int)Projectile.ai[0], (int)Projectile.ai[1]) };
-							(int x, int y)[] directions = new (int, int)[] { (-1, 0), (0, -1), (1, 0), (0, 1) };
+							HashSet<Point> usedTiles = [];
+							List<Point> tileQueue = [new Point((int)Projectile.ai[0], (int)Projectile.ai[1])];
+							(int x, int y)[] directions = [(-1, 0), (0, -1), (1, 0), (0, 1)];
 							while (tileQueue.Count > 0 && ingredients.Total > 0) {
 								int curr = Main.rand.Next(tileQueue.Count);
 								Point current = tileQueue[curr];

@@ -1,6 +1,7 @@
 ﻿//*
 using Microsoft.Xna.Framework;
 using MonoMod.RuntimeDetour.HookGen;
+using PegasusLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -143,8 +144,8 @@ namespace EpikV2.CrossMod {
 			try {
 				EpikThoriumPlayer epikThoriumPlayer = drawPlayer.GetModPlayer<EpikThoriumPlayer>();
 				if (epikThoriumPlayer.apollosLaurelsGlowTime > 0) {
-					MiscUtils.PlayerShaderSet shaderSet = new MiscUtils.PlayerShaderSet(drawPlayer);
-					new MiscUtils.PlayerShaderSet(GameShaders.Armor.GetShaderIdFromItemId(ItemID.SolarDye)).Apply(drawPlayer);
+					PlayerShaderSet shaderSet = new PlayerShaderSet(drawPlayer);
+					new PlayerShaderSet(GameShaders.Armor.GetShaderIdFromItemId(ItemID.SolarDye)).Apply(drawPlayer);
 					int playerHairDye = drawPlayer.hairDye;
 					//drawPlayer.hairDye = amebicProtectionHairShaderID;
 					float shadowAlpha = 1 - (alpha * (float)Math.Pow(epikThoriumPlayer.apollosLaurelsGlowTime / 60f, 0.75f));

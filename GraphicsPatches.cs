@@ -1,4 +1,4 @@
-﻿using EpikV2.Graphics;
+﻿using PegasusLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoMod.Cil;

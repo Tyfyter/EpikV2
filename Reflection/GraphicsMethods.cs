@@ -1,4 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
+using PegasusLib;
+using PegasusLib.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +8,6 @@ using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria.ModLoader;
-using Tyfyter.Utils;
 
 namespace EpikV2.Reflection {
 	public class GraphicsMethods : ILoadable {
@@ -28,7 +29,6 @@ namespace EpikV2.Reflection {
 		public static void SetRenderTargetUsage(RenderTarget2D self, RenderTargetUsage renderTargetUsage) => setRenderTargetUsage(self, renderTargetUsage);
 	}
 	public class SpriteBatchMethods : ReflectionLoader {
-		public override Type ParentType => GetType();
 		public static FastFieldInfo<SpriteBatch, bool> beginCalled;
 	}
 }

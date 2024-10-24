@@ -46,7 +46,6 @@ namespace EpikV2.Items {
 		public static int? forcedSwitchIndex = null;
 		Dictionary<string, object> keyValuePairs;
 		public override void SetStaticDefaults() {
-            Item.ResearchUnlockCount = 1;
 			Sets.IsValidForAltManaPoweredPrefix[Type] = false;
 		}
 		public virtual void SetNormalAnimation() {

@@ -27,11 +27,6 @@ namespace EpikV2.Items {
 		Rectangle Frame => new Rectangle(90 * FrameIndex, 0, 90, 84);
 		protected abstract int FrameIndex { get; }
 		protected static List<int> Modes { get; set; }
-		public override void SetStaticDefaults() {
-		    // DisplayName.SetDefault("First Fractal");
-			// Tooltip.SetDefault("");
-            Item.ResearchUnlockCount = 1;
-		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.Zenith);
             Item.value = 1000000;

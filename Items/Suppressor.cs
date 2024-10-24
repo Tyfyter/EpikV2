@@ -9,6 +9,7 @@ using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
+using PegasusLib;
 
 namespace EpikV2.Items {
 
@@ -28,10 +29,7 @@ namespace EpikV2.Items {
 		float SplitRatio => split / 120f + 0.5f;
 		bool ARCool = false;
 		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Hardlight Rifle");
-			// Tooltip.SetDefault("\"This is totally just a [REDACTED]\"\nHold right click to charge a shotgun blast");
 			ItemID.Sets.SkipsInitialUseSound[Item.type] = true;
-			Item.ResearchUnlockCount = 1;
 			if (Main.netMode == NetmodeID.Server) return;
 			handleTexture = Mod.RequestTexture("Items/Suppressor_Handle");
 			centerTexture = Mod.RequestTexture("Items/Suppressor_Center");

@@ -6,6 +6,7 @@ using EpikV2.Items.Other.HairDye;
 using EpikV2.Items.Weapons;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PegasusLib.Graphics;
 using ReLogic.Content;
 using ReLogic.Graphics;
 using System;

@@ -11,9 +11,6 @@ using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items {
     public class Aquamarine : ModItem {
-		public override void SetStaticDefaults() {
-            Item.ResearchUnlockCount = 1;
-        }
         public override void SetDefaults() {
             Item.CloneDefaults(ItemID.WoodenBow);
             Item.damage = 60;

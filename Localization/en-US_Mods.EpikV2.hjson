@@ -609,6 +609,7 @@ Items: {
 	}
 
 	Laser_Bow: {
+		//portmanteau & bastardization of "chimera" and "rebus", which I just now realize doesn't include any indication as to what it's a combination of
 		DisplayName: Chimerebos
 		Tooltip: It's glowing, so it's futuristic
 	}

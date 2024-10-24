@@ -13,7 +13,6 @@ using Terraria.DataStructures;
 using static EpikV2.Resources;
 using Terraria.Graphics;
 using System.Collections.Generic;
-using EpikV2.Graphics;
 using Terraria.Graphics.Shaders;
 using Terraria.GameContent;
 

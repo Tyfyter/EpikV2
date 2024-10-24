@@ -17,6 +17,7 @@ using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.Utilities;
+using PegasusLib;
 
 namespace EpikV2.Items {
 	public class Obsidian_Spellsword : ModItem, ICustomDrawItem {
@@ -45,12 +46,9 @@ namespace EpikV2.Items {
 		int durability = 600;
 		bool broken = false;
 		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Obsidian Spellsword");
-			// Tooltip.SetDefault("Very fragile\n<right> to pay 20 mana and 10 health to break");
 			animation = new DrawAnimationManual(4);
 			Main.RegisterItemAnimation(Item.type, animation);
 			customGlowMask = EpikV2.SetStaticDefaultsGlowMask(this);
-			Item.ResearchUnlockCount = 1;
 		}
 		public override void SetDefaults() {
 			// Call this method to quickly set some of the properties below.

@@ -13,11 +13,6 @@ using static EpikV2.Resources;
 
 namespace EpikV2.Items {
     public class Solweaver : ModItem {
-		public override void SetStaticDefaults(){
-			// DisplayName.SetDefault("Solweaver");
-			// Tooltip.SetDefault("");
-            Item.ResearchUnlockCount = 1;
-        }
         public override void SetDefaults(){
             Item.damage = 80;
             Item.DamageType = DamageClass.Magic;

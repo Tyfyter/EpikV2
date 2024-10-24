@@ -15,6 +15,8 @@ using static Terraria.ModLoader.ModContent;
 using static EpikV2.Resources;
 using ReLogic.Content;
 using Tyfyter.Utils;
+using PegasusLib.Graphics;
+using Newtonsoft.Json.Linq;
 //using Origins;
 
 namespace EpikV2.Items {
@@ -51,10 +53,8 @@ namespace EpikV2.Items {
     public class Dim_Starlight_Dye : Dye_Item {
         public override string Texture => "EpikV2/Items/Starlight_Dye";
 		public override void SetDefaults() {
-			int dye = Item.dye;
-			Item.CloneDefaults(ItemID.RedandBlackDye);
-			Item.dye = dye;
-            Item.color = Colors.CoinSilver;
+			base.SetDefaults();
+			Item.color = Colors.CoinSilver;
 		}
         public override void AddRecipes() {
             Recipe.Create(Type, 9)
@@ -68,9 +68,7 @@ namespace EpikV2.Items {
     public class Bright_Starlight_Dye : Dye_Item {
         public override string Texture => "EpikV2/Items/Starlight_Dye";
 		public override void SetDefaults() {
-			int dye = Item.dye;
-			Item.CloneDefaults(ItemID.RedandBlackDye);
-			Item.dye = dye;
+			base.SetDefaults();
             Item.color = new Color(255, 255, 255, 100);
 		}
         public override void AddRecipes() {
@@ -89,15 +87,9 @@ namespace EpikV2.Items {
     public class GPS_Dye : Dye_Item {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
-		public override void SetDefaults() {
-			int dye = Item.dye;
-			Item.CloneDefaults(ItemID.RedandBlackDye);
-			Item.dye = dye;
-		}
     }
-    public class GPSArmorShaderData : ArmorShaderData {
-        public GPSArmorShaderData(Asset<Effect> shader, string passName) : base(shader, passName) {}
-        public override void Apply(Entity entity, DrawData? drawData = null) {
+    public class GPSArmorShaderData(Asset<Effect> shader, string passName) : ArmorShaderData(shader, passName) {
+		public override void Apply(Entity entity, DrawData? drawData = null) {
             Shader.Parameters["uWorldSize"].SetValue(new Vector2(Main.maxTilesX*16f, Main.maxTilesY*16f));
             base.Apply(entity, drawData);
         }
@@ -112,31 +104,10 @@ namespace EpikV2.Items {
         public override bool UseShaderOnSelf => true;
         public override string Texture => "EpikV2/Items/Red_Retro_Dye";
 		public override void SetDefaults() {
-			int dye = Item.dye;
-			Item.CloneDefaults(ItemID.RedandBlackDye);
-			Item.dye = dye;
-            Item.color = Color.Black;
+			base.SetDefaults();
+			Item.color = Color.Black;
 		}
     }
-
-    /*public class Motion_Blur_Dye : ModItem {
-        public override string Texture => "EpikV2/Items/Non-Chromatic_Dye";
-        public override void SetStaticDefaults() {
-            DisplayName.SetDefault("Swift Dye");
-        }
-		public override void SetDefaults() {
-			byte dye = item.dye;
-			item.CloneDefaults(ItemID.RedandBlackDye);
-			item.dye = dye;
-		}
-        public override void AddRecipes() {
-            Recipe recipe = Recipe.Create(Type);
-            recipe.AddIngredient(ItemID.Diamond);
-            recipe.AddTile(TileID.DyeVat);
-            recipe.SetResult(this, 3);
-            recipe.Register();
-        }
-    }*/
     public class Cursed_Hades_Dye : Dye_Item {
         public override void AddRecipes() {
             Recipe.Create(Type, 3)
@@ -232,57 +203,31 @@ namespace EpikV2.Items {
 			Item.ResearchUnlockCount = 3;
 		}
 		public override void SetDefaults() {
-            int dye = Item.dye;
-            Item.CloneDefaults(ItemID.RedandBlackDye);
-            Item.dye = dye;
-        }
+			Item.width = 20;
+			Item.height = 20;
+			Item.maxStack = Item.CommonMaxStack;
+			Item.value = 10000;
+			Item.rare = ItemRarityID.Blue;
+		}
         public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-			if (!UseShaderOnSelf) {
-                return true;
-            }
-			MiscUtils.SpriteBatchState state = Main.spriteBatch.GetState();
-			Main.spriteBatch.Restart(Main.spriteBatch.GetState(), SpriteSortMode.Immediate);
-            
-            DrawData data = new() {
-                texture = TextureAssets.Item[Item.type].Value,
-                sourceRect = frame,
-                position = position,
-                color = drawColor,
-                rotation = 0f,
-                scale = new Vector2(scale),
-                shader = Item.dye
-			};
-            GameShaders.Armor.ApplySecondary(Item.dye, null, data);
-            return true;
+			if (UseShaderOnSelf) EpikV2.shaderOroboros.Capture();
+			return true;
         }
 		public override void PostDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
-			Main.spriteBatch.Restart(Main.spriteBatch.GetState(), SpriteSortMode.Deferred);
+			if (UseShaderOnSelf && EpikV2.shaderOroboros.Capturing) {
+				EpikV2.shaderOroboros.Stack(GameShaders.Armor.GetSecondaryShader(Item.dye, Main.LocalPlayer));
+				EpikV2.shaderOroboros.Release();
+			}
 		}
 		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI) {
-            if (!UseShaderOnSelf) {
-                return true;
-			}
+			if (UseShaderOnSelf) EpikV2.shaderOroboros.Capture();
 			return false;
         }
 		public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI) {
-			MiscUtils.SpriteBatchState state = Main.spriteBatch.GetState();
-			Main.spriteBatch.Restart(state, SpriteSortMode.Immediate);
-			Rectangle frame = TextureAssets.Item[Item.type].Value.Frame();
-			Vector2 origin = frame.Size() / 2f;
-			Vector2 offset = new((Item.width / 2) - origin.X, Item.height - frame.Height);
-
-			DrawData data = new() {
-				texture = TextureAssets.Item[Item.type].Value,
-				position = Item.position - Main.screenPosition + origin + offset,
-				color = lightColor,
-				rotation = rotation,
-				scale = new Vector2(scale),
-				shader = Item.dye,
-				origin = origin
-			};
-			GameShaders.Armor.ApplySecondary(Item.dye, null, data);
-			data.Draw(Main.spriteBatch);
-			Main.spriteBatch.Restart(state);
+			if (UseShaderOnSelf && EpikV2.shaderOroboros.Capturing) {
+				EpikV2.shaderOroboros.Stack(GameShaders.Armor.GetSecondaryShader(Item.dye, Main.LocalPlayer));
+				EpikV2.shaderOroboros.Release();
+			}
 		}
 	}
 }

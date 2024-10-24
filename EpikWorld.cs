@@ -20,9 +20,10 @@ using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.UI;
 using Tyfyter.Utils;
-using Tyfyter.Utils.ID;
+using PegasusLib.ID;
 using static Tyfyter.Utils.ChestLootCache.LootQueueAction;
 using static Tyfyter.Utils.ChestLootCache.LootQueueMode;
+using PegasusLib;
 
 namespace EpikV2 {
 	public class EpikWorld : ModSystem {
