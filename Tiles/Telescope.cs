@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.DataStructures;
+using Terraria.Enums;
 using Terraria.GameContent.ObjectInteractions;
 using Terraria.ID;
 using Terraria.Localization;
@@ -22,20 +23,16 @@ namespace EpikV2.Tiles {
 			TileObjectData.newTile.Height = 3;
 			TileObjectData.newTile.Origin = new Point16(1, 2);
 			//TileObjectData.newTile.AnchorBottom = new AnchorData();
-			TileObjectData.newTile.AnchorBottom = new AnchorData(Terraria.Enums.AnchorType.SolidTile | Terraria.Enums.AnchorType.SolidWithTop, 2, 1);
+			TileObjectData.newTile.AnchorBottom = new AnchorData(AnchorType.SolidTile | AnchorType.SolidWithTop, 2, 1);
 			TileObjectData.newTile.UsesCustomCanPlace = true;
-			TileObjectData.newTile.Direction = Terraria.Enums.TileObjectDirection.None;
+			TileObjectData.newTile.Direction = TileObjectDirection.None;
 			TileObjectData.newTile.LavaDeath = false;
-			TileObjectData.newTile.CoordinateHeights = new int[3] { 16, 16, 16 };
+			TileObjectData.newTile.CoordinateHeights = [16, 16, 16];
 			TileObjectData.newTile.CoordinateWidth = 16;
 			TileObjectData.newTile.StyleHorizontal = true;
 			TileObjectData.newTile.CoordinatePadding = 2;
 			TileObjectData.addTile(Type);
-			LocalizedText name = CreateMapEntryName();
-			// name.SetDefault("Telescope");
-			AddMapEntry(new Color(200, 200, 200), name);
-			//disableSmartCursor = false;
-			//disableSmartInteract = false;
+			AddMapEntry(new Color(200, 200, 200), CreateMapEntryName());
 		}
 		public override bool HasSmartInteract(int i, int j, SmartInteractScanSettings settings) {
 			return true;

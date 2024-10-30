@@ -12,7 +12,7 @@ using static Terraria.GameContent.Bestiary.BestiaryDatabaseNPCsPopulator;
 
 namespace EpikV2.Items.Other {
 	public class Divine_Confetti : ModItem {
-		public static HashSet<int> NPCIDs = new() {
+		public static HashSet<int> NPCIDs = [
 			NPCID.SkeletronHead,
 			NPCID.SkeletronHand,
 
@@ -22,8 +22,8 @@ namespace EpikV2.Items.Other {
 
 			NPCID.Creeper,
 			NPCID.BrainofCthulhu,
-		};
-		public static HashSet<SpawnConditionBestiaryInfoElement> Biomes = new() {
+		];
+		public static HashSet<SpawnConditionBestiaryInfoElement> Biomes = [
 			CommonTags.SpawnConditions.Biomes.TheDungeon,
 			CommonTags.SpawnConditions.Biomes.Graveyard,
 
@@ -42,7 +42,7 @@ namespace EpikV2.Items.Other {
 			CommonTags.SpawnConditions.Events.Halloween,
 			CommonTags.SpawnConditions.Events.Eclipse,
 			CommonTags.SpawnConditions.Invasions.PumpkinMoon,
-		};
+		];
 		public override void Unload() {
 			NPCIDs = null;
 			Biomes = null;

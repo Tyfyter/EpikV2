@@ -1172,6 +1172,11 @@ Items: {
 		DisplayName: Daybroken Wings
 		Tooltip: ""
 	}
+
+	Give_That_Back_Painting_Item: {
+		DisplayName: Give That Back!
+		Tooltip: "'M. G. Caballo'"
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck

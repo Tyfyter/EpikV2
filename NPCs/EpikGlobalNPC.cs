@@ -607,6 +607,10 @@ namespace EpikV2.NPCs
 				shop.InsertBefore(ItemID.WilsonBeardShort, ModContent.ItemType<Lunar_Hair_Dye>(), specialHairDyeCondition, Condition.TimeNight);
 				shop.InsertAfter(ModContent.ItemType<Lunar_Hair_Dye>(), ModContent.ItemType<Starry_Hair_Dye>(), Condition.TimeNight);
 				break;
+
+				case NPCID.Painter:
+				shop.Add<Give_That_Back_Painting_Item>(Condition.InAether);
+				break;
 			}
 		}
 		public override void SetupTravelShop(int[] shop, ref int nextSlot) {
