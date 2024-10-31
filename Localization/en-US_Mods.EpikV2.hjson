@@ -35,6 +35,7 @@ Effects: {
 	DamageReduction: Reduces damage taken by {0:P0}
 	Speed: "{0:P0} increased movement speed"
 	JumpSpeed: "{0:P0} increased jump speed"
+	LifeRegenShort: +{0} life/sec
 }
 
 DropConditions: {

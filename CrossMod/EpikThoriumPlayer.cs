@@ -14,6 +14,7 @@ using Terraria.Graphics;
 using Terraria.Graphics.Renderers;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Core;
 using ThoriumMod;
@@ -176,7 +177,7 @@ namespace EpikV2.CrossMod {
 		public override string Texture => "ThoriumMod/Empowerments/AttackSpeed";
 		public override BardInstrumentType InstrumentType => BardInstrumentType.String;
 		public override void GetCombatText(ThoriumPlayer thoriumPlayer, int level, ref string text, ref Color color) {
-			text = "+" + level * 2 + " life/sec";
+			text = Language.GetTextValue("Mods.EpikV2.Effects.LifeRegenShort", level * 2);
 			color = Colors.RarityAmber;
 		}
 		public override void Update(ThoriumPlayer thoriumPlayer, int level) {
