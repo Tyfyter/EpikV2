@@ -40,12 +40,6 @@ namespace EpikV2.NPCs {
 				A = 180
 			};
 		}
-		public override bool PreDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor) {
-			return base.PreDraw(spriteBatch, screenPos, drawColor);
-		}
-		public override void PostDraw(SpriteBatch spriteBatch, Vector2 screenPos, Color drawColor) {
-			base.PostDraw(spriteBatch, screenPos, drawColor);
-		}
 	}
 	public class Vile_Spirit_Summon : ModProjectile, IShadedProjectile {
 		public override string Texture => "Terraria/Images/Extra_80";
@@ -70,11 +64,8 @@ namespace EpikV2.NPCs {
 				}
 			}
 		}
-		public override Color? GetAlpha(Color lightColor) {
-			return base.GetAlpha(lightColor);
-		}
 		public override void OnKill(int timeLeft) {
-			if (Main.myPlayer == Projectile.owner) {
+			if (Main.netMode != NetmodeID.MultiplayerClient) {
 				Point point = Projectile.position.ToPoint();
 				NPC.NewNPC(Projectile.GetSource_FromThis(), point.X, point.Y, ModContent.NPCType<Vile_Spirit>());
 			}

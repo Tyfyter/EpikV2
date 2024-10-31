@@ -39,11 +39,11 @@ namespace EpikV2.CrossMod {
 		internal static FastFieldInfo<ThoriumPlayer, EmpowermentData> Empowerments;
 		public override void Load() {
 			ApplyEmpowerment = typeof(EmpowermentLoader)
-				.GetMethod("ApplyEmpowerment", BindingFlags.NonPublic | BindingFlags.Static, new Type[] {
+				.GetMethod("ApplyEmpowerment", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, [
 					typeof(ThoriumPlayer), typeof(ThoriumPlayer), typeof(byte), typeof(byte), typeof(short)
-				})
+				])
 				.CreateDelegate<ApplyEmpowerment_Delegate>();
-			Empowerments = new("Empowerments", BindingFlags.NonPublic);
+			Empowerments = new("Empowerments", BindingFlags.Public | BindingFlags.NonPublic);
 			On_Player.ApplyItemTime += Player_ApplyItemTime;
 			MonoModHooks.Add(
 				typeof(BardItem).GetMethod("ModifyEmpowermentPool", BindingFlags.Public | BindingFlags.Instance),

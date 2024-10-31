@@ -221,7 +221,7 @@ namespace EpikV2.Items {
 		}
 		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI) {
 			if (UseShaderOnSelf) EpikV2.shaderOroboros.Capture();
-			return false;
+			return true;
         }
 		public override void PostDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI) {
 			if (UseShaderOnSelf && EpikV2.shaderOroboros.Capturing) {

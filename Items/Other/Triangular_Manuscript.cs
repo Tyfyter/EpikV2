@@ -63,7 +63,12 @@ namespace EpikV2.Items.Other {
 		const int lifetime = 3600;
 		public int State {
 			get => (int)Projectile.ai[0];
-			set => Projectile.ai[0] = value;
+			set {
+				if (Projectile.ai[0] != value) {
+					Projectile.netUpdate = true;
+					Projectile.ai[0] = value;
+				}
+			}
 		}
 		public override void SetStaticDefaults() {
 			ID = Type;
@@ -322,11 +327,9 @@ namespace EpikV2.Items.Other {
 					Projectile.timeLeft = lifetime - max;
 				}
 			} else {
-				if (items is null) {
-					items = new();
-				}
+				items ??= [];
 				if (index < (orePositions?.Length ?? 0)) {
-					Item loot = new Item(orePositions[index].itemType);
+					Item loot = new(orePositions[index].itemType);
 					foreach (var pos in orePositions[index].positions) {
 						Vector2 chestPos = new(pos.X * 16, pos.Y * 16);
 						if (items.TryGetValue(loot.type, out SelectableItem item)) {

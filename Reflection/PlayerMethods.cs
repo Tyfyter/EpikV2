@@ -17,8 +17,8 @@ namespace EpikV2.Reflection {
 		private static ApplyNPCOnHitEffects_Del _ApplyNPCOnHitEffects;
 		private static UpdateItemDye_Del _UpdateItemDye;
 		public void Load(Mod mod) {
-			_ApplyNPCOnHitEffects = typeof(Player).GetMethod("ApplyNPCOnHitEffects", BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate<ApplyNPCOnHitEffects_Del>(new Player());
-			_UpdateItemDye = typeof(Player).GetMethod("UpdateItemDye", BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate<UpdateItemDye_Del>(new Player());
+			_ApplyNPCOnHitEffects = typeof(Player).GetMethod("ApplyNPCOnHitEffects", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate<ApplyNPCOnHitEffects_Del>(new Player());
+			_UpdateItemDye = typeof(Player).GetMethod("UpdateItemDye", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).CreateDelegate<UpdateItemDye_Del>(new Player());
 		}
 		public void Unload() {
 			_ApplyNPCOnHitEffects = null;

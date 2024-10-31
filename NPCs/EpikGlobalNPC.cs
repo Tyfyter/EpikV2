@@ -614,7 +614,7 @@ namespace EpikV2.NPCs
 			}
 		}
 		public override void SetupTravelShop(int[] shop, ref int nextSlot) {
-            Player player = new Player();
+            Player player = new();
             for (int j = 0; j < 255; j++) {
                 Player currentPlayer = Main.player[j];
                 if (currentPlayer.active && player.luck < currentPlayer.luck) {

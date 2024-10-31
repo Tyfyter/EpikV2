@@ -243,7 +243,7 @@ namespace EpikV2 {
 			IL_Main.CraftItem += IL_Main_CraftItem;
 			On_Item.CanApplyPrefix += (orig, self, prefix) => self.ModItem is Biome_Key || orig(self, prefix);
 			IL_Item.TryGetPrefixStatMultipliersForItem += IL_Item_TryGetPrefixStatMultipliersForItem;
-			MonoModHooks.Modify(typeof(AccessorySlotLoader).GetMethod("DrawSlot", BindingFlags.NonPublic | BindingFlags.Instance), IL_AccessorySlotLoader_DrawSlot);
+			MonoModHooks.Modify(typeof(AccessorySlotLoader).GetMethod("DrawSlot", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance), IL_AccessorySlotLoader_DrawSlot);
 			On_Player.FixLoadedData_EliminiateDuplicateAccessories += (_, _) => { };
 			IL_Main.UpdateTime += IL_Main_UpdateTime;
 			On_Projectile.EmitEnchantmentVisualsAt += On_Projectile_EmitEnchantmentVisualsAt;

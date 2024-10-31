@@ -23,7 +23,7 @@ namespace EpikV2.Layers {
 		public override Position GetDefaultPosition() => new BeforeParent(PlayerDrawLayers.Head);
 		delegate void DrawLayer(ref PlayerDrawSet drawInfo);
 		static DrawLayer drawPlayer_21_Head_TheFace;
-		static DrawLayer DrawPlayer_21_Head_TheFace => drawPlayer_21_Head_TheFace ?? (DrawLayer)(typeof(PlayerDrawLayers).GetMethod("DrawPlayer_21_Head_TheFace", BindingFlags.Static | BindingFlags.NonPublic).CreateDelegate(typeof(DrawLayer)));
+		static DrawLayer DrawPlayer_21_Head_TheFace => drawPlayer_21_Head_TheFace ?? (DrawLayer)(typeof(PlayerDrawLayers).GetMethod("DrawPlayer_21_Head_TheFace", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic).CreateDelegate(typeof(DrawLayer)));
 		internal static bool drawFace = false;
 		protected override void Draw(ref PlayerDrawSet drawInfo) {
 			drawFace = true;
