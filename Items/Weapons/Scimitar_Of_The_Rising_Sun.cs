@@ -6,6 +6,7 @@ using EpikV2.Modifiers;
 using EpikV2.NPCs;
 using EpikV2.Projectiles;
 using EpikV2.UI;
+using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using PegasusLib;
@@ -26,6 +27,7 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.UI;
 using Terraria.UI.Chat;
 using Terraria.Utilities;
 using Tyfyter.Utils;
@@ -49,7 +51,12 @@ namespace EpikV2.Items.Weapons {
 				return arts;
 			}
 		}
-		public override void Unload() => BaseCombatArts = null;
+		public override void Unload() {
+			BaseCombatArts = null;
+			hotbarScale = null;
+		}
+		public InterfaceScaleType InterfaceScaleType => InterfaceScaleType.None;
+		public bool ReplacesNormalHotbar => false;
 		int mode = 0;
 		public override void SetStaticDefaults() {
 			Sets.IsValidForAltManaPoweredPrefix[Type] = false;
@@ -170,9 +177,9 @@ namespace EpikV2.Items.Weapons {
 			Item art = new(combatArt.itemIcon);
 			int yoyoLogo = -1; int researchLine = -1; float oldKB = art.knockBack; int numLines = 1; string[] toolTipLine = new string[30]; string[] toolTipNames = new string[30];
 			Main.MouseText_DrawItemTooltip_GetLinesInfo(art, ref yoyoLogo, ref researchLine, oldKB, ref numLines, toolTipLine, new bool[30], new bool[30], toolTipNames, out _);
-			List<TooltipLine> combatArtTooltips = new();
+			List<TooltipLine> combatArtTooltips = [];
 			for (int i = 0; i < numLines; i++) {
-				TooltipLine tooltip = new TooltipLine(Mod, "CombatArt" + toolTipNames[i], toolTipLine[i]);
+				TooltipLine tooltip = new(Mod, "CombatArt" + toolTipNames[i], toolTipLine[i]);
 				switch (tooltip.Name) {
 					case "CombatArtItemName":
 					tooltip.Text = Language.GetTextValue("Mods.EpikV2.Items.Scimitar_Of_The_Rising_Sun.Combat_Art", tooltip.Text);
@@ -206,25 +213,29 @@ namespace EpikV2.Items.Weapons {
 			}
 			Main.LocalPlayer.GetModPlayer<EpikPlayer>().switchBackSlot = Main.LocalPlayer.selectedItem;
 		}
+		static float[] hotbarScale = [];
+		static ref float HotbarScale(int i) {
+			int oldLength = hotbarScale.Length;
+			if (oldLength <= i) {
+				Array.Resize(ref hotbarScale, i + 1);
+				for (int j = oldLength; j < hotbarScale.Length; j++) {
+					hotbarScale[j] = 0.75f;
+				}
+			}
+			return ref hotbarScale[i];
+		}
 		public void DrawSlots() {
 			Player player = Main.LocalPlayer;
 			Texture2D backTexture = TextureAssets.InventoryBack13.Value;
 			List<SotRS_Combat_Art> combatArts = CombatArts;
-			float DrawSlot(int i, Vector2 center) {
-				if (ItemSelected(i)) {
-					if (Main.hotbarScale[i] < 1f) {
-						Main.hotbarScale[i] += 0.05f;
-					}
-				} else if (Main.hotbarScale[i] > 0.75) {
-					Main.hotbarScale[i] -= 0.05f;
-				}
-				float hotbarScale = Main.hotbarScale[i];
+			bool DrawSlot(int i, Vector2 center) {
+				float hotbarScale = HotbarScale(i);
 				int a = (int)(75f + 150f * hotbarScale);
-				Color lightColor = new Color(255, 255, 255, a);
-				Item potentialItem = new Item(combatArts[i].itemIcon);
+				Color lightColor = new(255, 255, 255, a);
+				Item potentialItem = new(combatArts[i].itemIcon);
 
 				float oldInventoryScale = Main.inventoryScale;
-				Main.inventoryScale = hotbarScale;
+				Main.inventoryScale = Main.UIScale * hotbarScale;
 				string slotNumber = "";
 				switch (i + 1) {
 					case 1:
@@ -258,7 +269,8 @@ namespace EpikV2.Items.Weapons {
 					slotNumber = "\u3007";
 					break;
 				}
-				center -= backTexture.Size() * Main.inventoryScale * 0.5f;
+				Vector2 textureSize = backTexture.Size() * Main.inventoryScale;
+				center -= textureSize * 0.5f;
 				ModeSwitchHotbar.DrawColoredItemSlot(
 					Main.spriteBatch,
 					ref potentialItem,
@@ -269,59 +281,79 @@ namespace EpikV2.Items.Weapons {
 					Color.Black,
 					slotNumber
 				);
-
-				Main.inventoryScale = oldInventoryScale;
-				return hotbarScale;
-			}
-			if (PlayerInput.UsingGamepad) {
-				Vector2 center = player.MountedCenter - Main.screenPosition;
-				PolarVec2 offset = new(64, 0);
-				float spin = MathHelper.TwoPi / combatArts.Count;
-				for (int i = 0; i < combatArts.Count; i++) {
-					DrawSlot(i, center + (Vector2)offset);
-					offset.Theta += spin;
-				}
-				DynamicSpriteFont font = FontAssets.CombatText[0].Value;
-				bool shouldSwitch = PlayerInput.GamepadThumbstickRight.LengthSquared() > PlayerInput.CurrentProfile.RightThumbstickDeadzoneX * PlayerInput.CurrentProfile.RightThumbstickDeadzoneY;
-				float stickAngle = PlayerInput.GamepadThumbstickRight.ToRotation();
-				for (int i = 0; i < combatArts.Count; i++) {
-					Vector2 slotPos = center + (Vector2)offset;
-					string name = Lang.GetItemNameValue(combatArts[i].itemIcon);
-					Vector2 nameSize = font.MeasureString(name);
-					ChatManager.DrawColorCodedStringWithShadow(
-						Main.spriteBatch,
-						font,
-						name,
-						slotPos + new Vector2(0, backTexture.Height * Main.hotbarScale[i] * 0.5f),
-						Color.Wheat,
-						0,
-						nameSize * new Vector2(0.5f, 0),
-						new Vector2(Main.hotbarScale[i])
-					);
-					if (shouldSwitch && GeometryUtils.AngleDif(offset.Theta, stickAngle, out _) < spin * 0.5f) {
-						SelectItem(i);
-					}
-					offset.Theta += spin;
-				}
-			} else {
-				float posX = ((player.Center.X - Main.screenPosition.X) - (combatArts.Count / 2f) * (backTexture.Width + 4) * 0.65f) / Main.UIScale;
-				int posY = (int)((player.Bottom.Y - Main.screenPosition.Y + 24) / Main.UIScale);
-				for (int i = 0; i < combatArts.Count; i++) {
-
-					DrawSlot(i, new Vector2(posX, posY));
-					Vector2 textureSize = new Vector2(backTexture.Width * Main.hotbarScale[i], backTexture.Height * Main.hotbarScale[i]) * 0.5f;
-					if (!player.hbLocked && !PlayerInput.IgnoreMouseInterface
-					&& Main.mouseX >= posX - textureSize.X && Main.mouseX <= posX + textureSize.X
-					&& Main.mouseY >= posY - textureSize.Y && Main.mouseY <= posY + textureSize.Y
-					&& !player.channel) {
+				bool hovered = false;
+				if (!player.hbLocked && !PlayerInput.IgnoreMouseInterface && !player.channel) {
+					if (Main.mouseX >= center.X - textureSize.X && Main.mouseX <= center.X + textureSize.X && Main.mouseY >= center.Y - textureSize.Y && Main.mouseY <= center.Y + textureSize.Y) {
 						player.mouseInterface = true;
 						if (Main.mouseLeft && !player.hbLocked && !Main.blockMouse) {
 							SelectItem(i);
 						}
-						Main.hoverItemName = Lang.GetItemNameValue(combatArts[i].itemIcon);
+						hovered = true;
+						Main.HoverItem = ContentSamples.ItemsByType[combatArts[i].itemIcon];
+						Main.hoverItemName = Main.HoverItem.Name;
 					}
-					posX += (int)(backTexture.Width * Main.hotbarScale[i]) + 4;
 				}
+
+				Main.inventoryScale = oldInventoryScale;
+				return hovered;
+			}
+			Vector2 center = player.MountedCenter - Main.screenPosition;
+			PolarVec2 offset = new(48 * Main.UIScale + 16 * Main.GameViewMatrix.Zoom.X, -MathHelper.PiOver2);
+			float spin = MathHelper.TwoPi / combatArts.Count;
+			for (int i = 0; i < combatArts.Count; i++) {
+				if (!ItemSelected(i)) DrawSlot(i, center + (Vector2)offset);
+				offset.Theta += spin;
+			}
+			DynamicSpriteFont font = FontAssets.CombatText[0].Value;
+			bool shouldSwitch = PlayerInput.GamepadThumbstickRight.LengthSquared() > PlayerInput.CurrentProfile.RightThumbstickDeadzoneX * PlayerInput.CurrentProfile.RightThumbstickDeadzoneY;
+			float stickAngle = PlayerInput.GamepadThumbstickRight.ToRotation();
+			int selectedIndex = -1;
+			for (int i = 0; i < combatArts.Count; i++) {
+				if (ItemSelected(i)) {
+					selectedIndex = i;
+					offset.Theta += spin;
+					continue;
+				}
+				if (HotbarScale(i) > 0.75) {
+					HotbarScale(i) -= 0.05f;
+				}
+				Vector2 slotPos = center + (Vector2)offset;
+				string name = Lang.GetItemNameValue(combatArts[i].itemIcon);
+				Vector2 nameSize = font.MeasureString(name);
+				ChatManager.DrawColorCodedStringWithShadow(
+					Main.spriteBatch,
+					font,
+					name,
+					slotPos + new Vector2(0, backTexture.Height * HotbarScale(i) * 0.5f),
+					Color.Wheat,
+					0,
+					nameSize * new Vector2(0.5f, 0),
+					new Vector2(HotbarScale(i))
+				);
+				if (PlayerInput.UsingGamepad && shouldSwitch && GeometryUtils.AngleDif(offset.Theta, stickAngle, out _) < spin * 0.5f) {
+					SelectItem(i);
+				}
+				offset.Theta += spin;
+			}
+			if (selectedIndex != -1) {
+				if (HotbarScale(selectedIndex) < 1f) {
+					HotbarScale(selectedIndex) += 0.05f;
+				}
+				offset.Theta = spin * selectedIndex - MathHelper.PiOver2;
+				DrawSlot(selectedIndex, center + (Vector2)offset);
+				Vector2 slotPos = center + (Vector2)offset;
+				string name = Lang.GetItemNameValue(combatArts[selectedIndex].itemIcon);
+				Vector2 nameSize = font.MeasureString(name);
+				ChatManager.DrawColorCodedStringWithShadow(
+					Main.spriteBatch,
+					font,
+					name,
+					slotPos + new Vector2(0, backTexture.Height * HotbarScale(selectedIndex) * 0.5f),
+					Color.Wheat,
+					0,
+					nameSize * new Vector2(0.5f, 0),
+					new Vector2(HotbarScale(selectedIndex))
+				);
 			}
 		}
 		public override void AddRecipes() {

@@ -46,21 +46,26 @@ namespace EpikV2 {
 			if (EpikV2.modeSwitchHotbarActive) {
 				int hotbarIndex = layers.FindIndex(layer => layer.Name.Equals("Vanilla: Hotbar"));
 				if (hotbarIndex != -1) {
-
-					IMultiModeItem item = Main.LocalPlayer.HeldItem.ModItem as IMultiModeItem;
-					if (item?.CanSelectInHand == false) item = null;
-					if (item is null && Main.LocalPlayer.HeldItem.IsAir) {
-						item = Main.LocalPlayer.GetModPlayer<EpikPlayer>().airMultimodeItem;
+					if (!Main.LocalPlayer.ghost) {
+						IMultiModeItem item = Main.LocalPlayer.HeldItem.ModItem as IMultiModeItem;
+						if (item?.CanSelectInHand == false) item = null;
+						if (item is null && Main.LocalPlayer.HeldItem.IsAir) {
+							item = Main.LocalPlayer.GetModPlayer<EpikPlayer>().airMultimodeItem;
+						}
+						GameInterfaceLayer modeSwitchHotbar = new LegacyGameInterfaceLayer(
+							"EpikV2: ModeSwitchHotbar",
+							delegate {
+								item?.DrawSlots();
+								return true;
+							},
+							item?.InterfaceScaleType ?? InterfaceScaleType.UI
+						);
+						if (item.ReplacesNormalHotbar) {
+							layers[hotbarIndex] = modeSwitchHotbar;
+						} else {
+							layers.Insert(hotbarIndex + 1, modeSwitchHotbar);
+						}
 					}
-					GameInterfaceLayer modeSwitchHotbar = new LegacyGameInterfaceLayer(
-						"EpikV2: ModeSwitchHotbar",
-						delegate {
-							ModeSwitchHotbar.Draw();
-							return true;
-						},
-						item?.InterfaceScaleType ?? InterfaceScaleType.UI
-					);
-					layers[hotbarIndex] = modeSwitchHotbar;
 				}
 			}
 		}

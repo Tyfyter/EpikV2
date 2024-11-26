@@ -40,6 +40,7 @@ namespace EpikV2 {
 		bool ItemSelected(int slotIndex);
 		void SelectItem(int slotIndex);
 		InterfaceScaleType InterfaceScaleType => InterfaceScaleType.UI;
+		bool ReplacesNormalHotbar => true;
 		void DrawSlots() {
 			Player player = Main.LocalPlayer;
 			Texture2D backTexture = TextureAssets.InventoryBack4.Value;
