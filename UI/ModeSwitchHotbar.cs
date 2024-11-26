@@ -23,9 +23,7 @@ namespace EpikV2.UI {
 			if (item is null && Main.LocalPlayer.HeldItem.IsAir) {
 				item = Main.LocalPlayer.GetModPlayer<EpikPlayer>().airMultimodeItem;
 			}
-			if (item is not null) {
-				item.DrawSlots();
-			}
+			item?.DrawSlots();
 		}
 		public static void DrawColoredItemSlot(SpriteBatch spriteBatch, ref Item item, Vector2 position, Texture2D backTexture, Color slotColor, Color lightColor = default, Color textColor = default, string beforeText = null, string afterText = null) {
 			spriteBatch.Draw(backTexture, position, null, slotColor, 0f, default(Vector2), Main.inventoryScale, SpriteEffects.None, 0f);

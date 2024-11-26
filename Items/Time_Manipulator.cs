@@ -12,6 +12,7 @@ using Terraria.GameContent;
 using System.IO;
 using Tyfyter.Utils;
 using EpikV2.CrossMod;
+using PegasusLib;
 
 namespace EpikV2.Items {
 	public class Time_Manipulator : ModItem, IMultiModeItem {

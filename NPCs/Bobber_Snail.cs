@@ -26,11 +26,11 @@ namespace EpikV2.NPCs {
 		public override float SpawnChance(NPCSpawnInfo spawnInfo) {
 			for (int i = 0; i < 3; i++) {
 				if (Main.tile[spawnInfo.SpawnTileX, spawnInfo.SpawnTileY - i].WallType == WallID.LivingWoodUnsafe) {
-					return spawnInfo.Water ? 0.2f : 0.05f;
+					return spawnInfo.Water ? 0.1f : 0.05f;
 				}
 			}
 			if (spawnInfo.SpawnTileY > (Main.worldSurface + Main.rockLayer) / 2f && spawnInfo.SpawnTileY < Main.UnderworldLayer && !spawnInfo.Player.ZoneSnow && !spawnInfo.Player.ZoneCrimson && !spawnInfo.Player.ZoneCorrupt && !spawnInfo.Player.ZoneHallow) {
-				return spawnInfo.Water ? 0.15f : 0.1f;
+				return spawnInfo.Water ? 0.03f : 0.02f;
 			}
             return 0f;
         }

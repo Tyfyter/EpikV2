@@ -10,6 +10,7 @@ using static Microsoft.Xna.Framework.MathHelper;
 using Terraria.DataStructures;
 using Tyfyter.Utils;
 using EpikV2.NPCs;
+using PegasusLib;
 
 #pragma warning disable 672
 namespace EpikV2.Items {

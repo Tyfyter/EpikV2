@@ -8,6 +8,7 @@ using EpikV2.Projectiles;
 using EpikV2.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PegasusLib;
 using PegasusLib.Graphics;
 using ReLogic.Graphics;
 using Terraria;

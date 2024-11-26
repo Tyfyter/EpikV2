@@ -15,6 +15,7 @@ using static EpikV2.Resources;
 using Terraria.Utilities;
 using Terraria.Graphics.Shaders;
 using Tyfyter.Utils;
+using PegasusLib;
 
 namespace EpikV2.Items {
     public class Alchemera : ModItem {

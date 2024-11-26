@@ -17,6 +17,7 @@ using Terraria.Graphics;
 using System.Runtime.InteropServices;
 using Terraria.Graphics.Shaders;
 using Tyfyter.Utils;
+using PegasusLib;
 
 #pragma warning disable 672
 namespace EpikV2.Items {

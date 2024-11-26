@@ -6,6 +6,7 @@ using EpikV2.NPCs;
 using EpikV2.Projectiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PegasusLib;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;

@@ -149,7 +149,7 @@ namespace EpikV2 {
 			};
 			IL_Main.DrawWhip_RainbowWhip += Main_DrawWhip_RainbowWhip;
 			IL_Projectile.AI_165_Whip += Projectile_AI_165_Whip;
-			On_NPC.ScaleStats_UseStrengthMultiplier += NPC_ScaleStats_UseStrengthMultiplier;
+			IL_NPC.ScaleStats += IL_NPC_ScaleStats;
 			On_Player.UpdateBiomes += (orig, self) => {
 				orig(self);
 				ProcessModBiomes(self);
@@ -766,13 +766,23 @@ namespace EpikV2 {
 			}
 		}
 		internal static float timeManipDanger;
-		private void NPC_ScaleStats_UseStrengthMultiplier(On_NPC.orig_ScaleStats_UseStrengthMultiplier orig, NPC self, float strength) {
-			if (Main.netMode != NetmodeID.MultiplayerClient) {
-				const int maxStrength = 86400 * 2;
-				strength += (timeManipDanger / maxStrength) * (Main.masterMode ? 0.3f : (Main.expertMode ? 0.4f : 0.5f));
-			}
-			orig(self, strength);
-			self.strengthMultiplier = strength;
+		private void IL_NPC_ScaleStats(ILContext il) {
+			ILCursor c = new(il);
+			int strength = -1;
+			c.GotoNext(MoveType.Before,
+				il => il.MatchLdloc(out strength),
+				il => il.MatchCallOrCallvirt<NPC>(nameof(NPC.ScaleStats_UseStrengthMultiplier))
+			);
+			c.Index++;
+			c.EmitDelegate((float strength) => {
+				if (Main.netMode != NetmodeID.MultiplayerClient) {
+					const int maxStrength = 86400 * 2;
+					strength += (timeManipDanger / maxStrength) * (Main.masterMode ? 0.3f : (Main.expertMode ? 0.4f : 0.5f));
+				}
+				return strength;
+			});
+			c.EmitDup();
+			c.EmitStloc(strength);
 		}
 
 		private int PopupText_NewText_AdvancedPopupRequest_Vector2(On_PopupText.orig_NewText_AdvancedPopupRequest_Vector2 orig, AdvancedPopupRequest request, Vector2 position) {

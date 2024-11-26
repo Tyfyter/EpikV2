@@ -145,7 +145,7 @@ namespace EpikV2.CrossMod {
 			try {
 				EpikThoriumPlayer epikThoriumPlayer = drawPlayer.GetModPlayer<EpikThoriumPlayer>();
 				if (epikThoriumPlayer.apollosLaurelsGlowTime > 0) {
-					PlayerShaderSet shaderSet = new PlayerShaderSet(drawPlayer);
+					PlayerShaderSet shaderSet = new(drawPlayer);
 					new PlayerShaderSet(GameShaders.Armor.GetShaderIdFromItemId(ItemID.SolarDye)).Apply(drawPlayer);
 					int playerHairDye = drawPlayer.hairDye;
 					//drawPlayer.hairDye = amebicProtectionHairShaderID;

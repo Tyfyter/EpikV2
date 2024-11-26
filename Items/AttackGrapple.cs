@@ -8,6 +8,7 @@ using Terraria;
 using Terraria.ID;
 using Tyfyter.Utils;
 using Terraria.ModLoader;
+using PegasusLib;
 
 namespace EpikV2.Items {
     public class Attack_Grapple : ModItem {

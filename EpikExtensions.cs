@@ -28,6 +28,7 @@ using Terraria.ModLoader;
 using Terraria.Net;
 using Terraria.Utilities;
 using PegasusLib;
+using Terraria.UI;
 
 namespace EpikV2 {
 	public interface IScrollableItem {
@@ -38,6 +39,7 @@ namespace EpikV2 {
 		int GetSlotContents(int slotIndex);
 		bool ItemSelected(int slotIndex);
 		void SelectItem(int slotIndex);
+		InterfaceScaleType InterfaceScaleType => InterfaceScaleType.UI;
 		void DrawSlots() {
 			Player player = Main.LocalPlayer;
 			Texture2D backTexture = TextureAssets.InventoryBack4.Value;

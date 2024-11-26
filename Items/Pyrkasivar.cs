@@ -1,6 +1,7 @@
 using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PegasusLib;
 using System;
 using System.Collections.Generic;
 using System.IO;

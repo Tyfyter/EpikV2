@@ -9,6 +9,7 @@ using EpikV2.Reflection;
 using EpikV2.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PegasusLib;
 using ReLogic.Content;
 using Terraria;
 using Terraria.Audio;

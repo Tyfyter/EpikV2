@@ -15,6 +15,7 @@ using Tyfyter.Utils;
 using PegasusLib.ID;
 using static Terraria.ModLoader.ModContent;
 using PegasusLib.Graphics;
+using PegasusLib;
 
 namespace EpikV2.Items {
 	//inspired by a dream I had on the night of November 18th 2022
