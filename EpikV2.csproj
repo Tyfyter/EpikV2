@@ -25,7 +25,7 @@
       <HintPath>..\ModAssemblies\Origins.dll</HintPath>
     </Reference>
     <Reference Include="PegasusLib">
-      <HintPath>..\ModAssemblies\PegasusLib_v1.0.3.dll</HintPath>
+      <HintPath>..\ModAssemblies\PegasusLib_v1.0.4.4.dll</HintPath>
     </Reference>
     <Reference Include="ThoriumMod">
       <HintPath>..\ModAssemblies\ThoriumMod.dll</HintPath>

@@ -15,6 +15,10 @@ using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
 using PegasusLib;
+using ThoriumMod.Buffs;
+using Newtonsoft.Json.Linq;
+using Terraria.GameContent.UI;
+using Terraria.Localization;
 
 namespace EpikV2.CrossMod {
 	public class EpikIntegration : ILoadable {
@@ -111,6 +115,60 @@ namespace EpikV2.CrossMod {
 						new Vector3(8, 8, 16),
 						"BothBuffing"
 					);
+					string[] trunes = [
+						"þ",
+						"ə",
+						"h",
+						"o",
+						"l",
+						"ē",
+						"k",
+						"r",
+						"ɒ",
+						"s",
+						"i",
+						"z",
+						"m",
+						"or",
+						"a",
+						"n",
+						"ēr",
+						"aē",
+						"t",
+						"ε"
+					];
+					for (int i = 0; i < trunes.Length; i++) {
+						if (ModContent.RequestIfExists("EpikV2/Chars/T_SL_" + trunes[i], out Asset<Texture2D> asset, AssetRequestMode.ImmediateLoad)) {
+							Chars.Trune[trunes[i]] = (char)charLoader.Call(
+								"AddCharacter",
+								FontAssets.MouseText.Value,
+								Main.dedServ ? null : asset.Value,
+								new Rectangle(0, 0, 9, 17),
+								new Rectangle(0, 0, 0, 17),
+								new Vector3(0, 0, 0),
+								"T_SL_" + trunes[i]
+							);
+						}
+					}
+					Chars.Trune["done"] = (char)charLoader.Call(
+						"AddCharacter",
+						FontAssets.MouseText.Value,
+						Main.dedServ ? null : ModContent.Request<Texture2D>("EpikV2/Chars/T_SL_done", AssetRequestMode.ImmediateLoad).Value,
+						new Rectangle(0, 0, 9, 17),
+						new Rectangle(0, 0, 0, 17),
+						new Vector3(0, 0, 8),
+						"T_SL_done"
+					);
+					Chars.Trune["vowel_first"] = (char)charLoader.Call(
+						"AddCharacter",
+						FontAssets.MouseText.Value,
+						Main.dedServ ? null : ModContent.Request<Texture2D>("EpikV2/Chars/T_SL_vowel_first", AssetRequestMode.ImmediateLoad).Value,
+						new Rectangle(0, 0, 9, 19),
+						new Rectangle(0, 0, 9, 19),
+						new Vector3(0, 0, 0),
+						"T_SL_vowel_first"
+					);
+					Chars.SetupGameTips();
 				}
 				BountifulGoodieBags = ModLoader.TryGetMod("BountifulGoodieBags", out _);
 				if (Origins is not null) {
@@ -125,6 +183,39 @@ namespace EpikV2.CrossMod {
 			public char Receiving = '¤';
 			public char Giving = 'ѳ';
 			public char Both = '߷';
+			public Dictionary<string, char> Trune = [];
+			readonly FastFieldInfo<GameTipsDisplay, List<GameTipData>> allTips = new("allTips", BindingFlags.NonPublic);
+			internal void SetupGameTips() {
+				string text = ConvertTrunes("þ|ə  h|o l|ē  k r|ɒ s  i|z  m|or þ|a n  ə  m|ēr  aē|t ε|m");
+				allTips.GetValue(Main.gameTips).Add(new GameTipData(Language.GetOrRegister(text, () => text), EpikV2.instance));
+			}
+			public string ConvertTrunes(string text) {
+				string[] syls = text.Split(' ');
+				StringBuilder stringBuilder = new();
+				if (!Trune.TryGetValue("done", out char done)) return null;
+				if (!Trune.TryGetValue("vowel_first", out char vowelFirstChar)) return null;
+				foreach (string s in syls) {
+					if (string.IsNullOrWhiteSpace(s)) {
+						stringBuilder.Append(' ');
+						continue;
+					}
+					bool vowelFirst = false;
+					string[] chars = s.Split('|');
+					if (chars.Length > 1) switch (chars[0][0]) {
+						case 'ə' or 'o' or 'ē' or 'ɒ' or 'i' or 'ε' or 'a':
+						vowelFirst = true;
+						break;
+					}
+					for (int i = 0; i < chars.Length; i++) {
+						if (Trune.TryGetValue(chars[i], out char value)) {
+							stringBuilder.Append(value);
+						}
+					}
+					if (vowelFirst) stringBuilder.Append(vowelFirstChar);
+					stringBuilder.Append(done);
+				}
+				return stringBuilder.ToString();
+			}
 		}
 		public static List<ModBiome> ModEvilBiomes { get; private set; }
 		public static IDictionary<DamageClass, DamageClass> ExplosiveDamageClasses { get; private set; }
