@@ -18,7 +18,7 @@ using Terraria.GameContent;
 
 namespace EpikV2.Items {
 	public class Hydra_Staff : ModItem {
-		public static int ID { get; internal set; } = -1;
+		public static int ID { get; internal set; }
 		public override void SetStaticDefaults() {
 			ItemID.Sets.StaffMinionSlotsRequired[Type] = 1;
 			ID = Type;
@@ -55,7 +55,7 @@ namespace EpikV2.Items {
 	}
 	public class Hydra_Buff : ModBuff {
 		public override string Texture => "EpikV2/Buffs/Hydra_Buff";
-		public static int ID { get; internal set; } = -1;
+		public static int ID { get; internal set; }
 		public override void SetStaticDefaults() {
 			Main.buffNoSave[Type] = true;
 			Main.buffNoTimeDisplay[Type] = true;
@@ -72,7 +72,7 @@ namespace EpikV2.Items {
 		}
 	}
 	public class Hydra_Nebula : ModProjectile {
-		public static int ID { get; internal set; } = -1;
+		public static int ID { get; internal set; }
 		public static AutoCastingAsset<Texture2D> topJawTexture { get; private set; }
 		public static AutoCastingAsset<Texture2D> bottomJawTexture { get; private set; }
 		public static AutoCastingAsset<Texture2D> neckTexture { get; private set; }

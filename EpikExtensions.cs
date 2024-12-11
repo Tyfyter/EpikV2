@@ -1212,6 +1212,26 @@ namespace EpikV2 {
 			}
 			return false;
 		}
+		public static void DoCustomKnockback(this NPC npc, Vector2 velocity, bool fromNet = false) {
+			if (npc.velocity == velocity) return;
+			npc.velocity = velocity;
+			if (!fromNet && Main.netMode != NetmodeID.SinglePlayer) {
+				ModPacket packet = EpikV2.instance.GetPacket();
+				packet.Write(EpikV2.PacketType.custom_knockback);
+				packet.Write(npc.whoAmI);
+				packet.Write(velocity.X);
+				packet.Write(velocity.Y);
+				packet.Send();
+			}
+			//Origins.instance.Logger.Info("Custom Knockback:" + velocity);
+		}
+		public static void SyncCustomKnockback(this NPC npc, bool fromNet = false) {
+			DoCustomKnockback(npc, npc.velocity, fromNet);
+		}
+		public static Projectile GetRelatedProjectile(this Projectile self, int index) {
+			int projIndex = Projectile.GetByUUID(self.owner, self.ai[index]);
+			return Main.projectile.IndexInRange(projIndex) ? Main.projectile[projIndex] : null;
+		}
 	}
 	public static class ConditionExtensions {
 		public static Condition CommaAnd(this Condition a, Condition b) {

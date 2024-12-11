@@ -22,7 +22,7 @@ using PegasusLib;
 #pragma warning disable 672
 namespace EpikV2.Items {
     public class Moonlight_Staff : ModItem {
-        public static int ID { get; internal set; } = -1;
+        public static int ID { get; internal set; }
 
 		public override void SetStaticDefaults() {
             ItemID.Sets.StaffMinionSlotsRequired[Item.type] = 1;
@@ -54,7 +54,7 @@ namespace EpikV2.Items {
     }
     public class Moonlace_Buff : ModBuff {
 		public override string Texture => "EpikV2/Buffs/Moonlace_Buff";
-		public static int ID { get; internal set; } = -1;
+		public static int ID { get; internal set; }
         public override void SetStaticDefaults() {
             // DisplayName.SetDefault("Moonlight Thread");
             // Description.SetDefault("A curious strand of moonlight will fight for you");
@@ -73,7 +73,7 @@ namespace EpikV2.Items {
         }
     }
     public class Moonlace_Proj : ModProjectile {
-        public static int ID { get; internal set; } = -1;
+        public static int ID { get; internal set; }
 
         Vector2 idlePosition;
         Vector2 idleOffset;

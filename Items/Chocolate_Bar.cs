@@ -28,7 +28,7 @@ namespace EpikV2.Items {
     }
     public class True_Self_Debuff : ModBuff {
 		public override string Texture => "EpikV2/Buffs/True_Self_Debuff";
-		public static int ID { get; internal set; } = -1;
+		public static int ID { get; internal set; }
         public override void SetStaticDefaults() {
             // DisplayName.SetDefault("True Self");
             // Description.SetDefault("You're you");

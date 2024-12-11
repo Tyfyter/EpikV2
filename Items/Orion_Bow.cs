@@ -17,7 +17,7 @@ using PegasusLib;
 
 namespace EpikV2.Items {
     public class Orion_Bow : ModItem, ICustomDrawItem {
-        public static int ID = -1;
+        public static int ID = 0;
         public static AutoCastingAsset<Texture2D> goldTexture { get; private set; }
         public static AutoCastingAsset<Texture2D> skyTexture { get; private set; }
         //public static Texture2D starTexture { get; private set; }
@@ -202,7 +202,7 @@ namespace EpikV2.Items {
         }
     }
 	public class Orion_Arrow : ModProjectile {
-        public static int ID { get; private set; } = -1;
+        public static int ID { get; private set; }
         internal static int t = -1;
         public int type { get; private set; } = -1;
         public bool KillOnHit { get; private set; } = false;
@@ -336,7 +336,7 @@ namespace EpikV2.Items {
         }*/
 	}
     public class Orion_Star : ModProjectile {
-        public static int ID { get; private set; } = -1;
+        public static int ID { get; private set; }
         internal static int t = -1;
         public int type { get; private set; } = -1;
         public override string Texture => "Terraria/Images/Projectile_"+ProjectileID.FallingStar;

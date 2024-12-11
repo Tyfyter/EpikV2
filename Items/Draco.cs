@@ -18,7 +18,7 @@ using PegasusLib;
 #pragma warning disable 672
 namespace EpikV2.Items {
     public class Draco : ModItem {
-        public static int ID = -1;
+        public static int ID = 0;
 
         public const int maxCharge = 90;
         public int charge = 0;
@@ -69,10 +69,10 @@ namespace EpikV2.Items {
                     }
                 }
                 projectile.extraUpdates = charge / (maxCharge/3);
-                if(player.controlUseTile && epikPlayer.CheckFloatMana(Item, mana * 2, blockQuickMana: true)) {
+                if (player.controlUseTile && epikPlayer.CheckFloatMana(Item, mana * 2, blockQuickMana: true)) {
                     projectile.ai[0] = 1;
                     SoundEngine.PlaySound(SoundID.Item119, projectile.Center);
-                }else if(player.controlUseItem) {
+                } else if (player.controlUseItem) {
                     player.itemTime = 2;
                     player.itemAnimation = 2;
                     player.direction = Math.Sign(unit.X);
@@ -105,7 +105,7 @@ namespace EpikV2.Items {
         }
     }
     public class Draco_Blaze : ModProjectile {
-        public static int ID = -1;
+        public static int ID = 0;
         public bool Fired => Projectile.velocity.Length() > 0;
         public override string Texture => "Terraria/Images/Projectile_" + ProjectileID.NebulaBlaze2;
         protected override bool CloneNewInstances => true;

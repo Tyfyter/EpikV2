@@ -3,6 +3,7 @@ using EpikV2.Items.Armor;
 using EpikV2.Items.Debugging;
 using EpikV2.NPCs;
 using Microsoft.Xna.Framework;
+using Origins;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -49,6 +50,7 @@ namespace EpikV2 {
 
 					case PacketType.playerSync:
 					case PacketType.statLimiterSync:
+					case PacketType.custom_knockback:
 					altHandle = true;
 					break;
 
@@ -167,6 +169,7 @@ namespace EpikV2 {
 
 					case PacketType.playerSync:
 					case PacketType.statLimiterSync:
+					case PacketType.custom_knockback:
 					altHandle = true;
 					break;
 
@@ -238,6 +241,11 @@ namespace EpikV2 {
 						}
 						break;
 					}
+
+					case PacketType.custom_knockback: {
+						Main.npc[reader.ReadInt32()].DoCustomKnockback(new(reader.ReadSingle(), reader.ReadSingle()), Main.netMode == NetmodeID.MultiplayerClient);
+						break;
+					}
 				}
 			}
 		}
@@ -257,6 +265,7 @@ namespace EpikV2 {
 			public const byte requestOrePositionSync = 10;
 			public const byte useItem = 11;
 			public const byte statLimiterSync = 12;
+			public const byte custom_knockback = 13;
 		}
 		public static class UseItemType {
 			public const byte refractionEnsign = 0;

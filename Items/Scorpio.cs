@@ -15,7 +15,7 @@ using PegasusLib;
 #pragma warning disable 672
 namespace EpikV2.Items {
     public class Scorpio : ModItem {
-        public static int ID = -1;
+        public static int ID = 0;
         public static AutoCastingAsset<Texture2D> tailSpikeTexture { get; private set; }
         public static AutoCastingAsset<Texture2D> tailSegmentTexture { get; private set; }
         public static AutoCastingAsset<Texture2D> tailSegmentDimTexture { get; private set; }
@@ -70,7 +70,7 @@ namespace EpikV2.Items {
         }
     }
 	public class Scorpio_Tail : ModProjectile {
-        public static int ID = -1;
+        public static int ID = 0;
         public override string Texture => "EpikV2/Items/Scorpio_Tail_Spike";
         public override void SetStaticDefaults() {
             // DisplayName.SetDefault("Scorpio");
@@ -184,7 +184,7 @@ namespace EpikV2.Items {
         }
     }
     public class Scorpio_Claw : ModProjectile {
-        public static int ID = -1;
+        public static int ID = 0;
         public override void SetStaticDefaults() {
             // DisplayName.SetDefault("Scorpio");
             ID = Projectile.type;
@@ -238,7 +238,7 @@ namespace EpikV2.Items {
     }
     public class Scorpio_Debuff : ModBuff {
 		public override string Texture => "EpikV2/Buffs/Hydra_Buff";
-		public static int ID { get; internal set; } = -1;
+		public static int ID { get; internal set; }
         public override void SetStaticDefaults() {
             // DisplayName.SetDefault("Celestial Flames");
             ID = Type;

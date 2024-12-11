@@ -29,13 +29,13 @@ namespace EpikV2.Items {
 		}
 		public override void SetStaticDefaults() {
 			Item.ResearchUnlockCount = 1;
-			Phone_Types = new List<int> {
+			Phone_Types = [
 				Type,
 				ItemType<Perfect_Cellphone_World>(),
 				ItemType<Perfect_Cellphone_Ocean>(),
 				ItemType<Perfect_Cellphone_Hell>(),
 				ItemType<Perfect_Cellphone_Return>()
-			};
+			];
 		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.CellPhone);
@@ -156,14 +156,12 @@ namespace EpikV2.Items {
 		}
 		public override void AddRecipes() {
 			if (Type == ItemType<Perfect_Cellphone>()) {
-				Recipe recipe = CreateRecipe();
-				recipe.AddIngredient(ItemID.CellPhone);
-				recipe.AddIngredient(ItemID.MagicConch);
-				recipe.AddIngredient(ItemID.DemonConch);
-				recipe.AddIngredient(ItemID.WormholePotion, 15);
-				recipe.AddIngredient(ItemID.PotionOfReturn, 5);
-				recipe.AddTile(TileID.TinkerersWorkbench);
-				recipe.Register();
+				CreateRecipe()
+				.AddIngredient(ItemID.Shellphone)
+				.AddIngredient(ItemID.WormholePotion, 15)
+				.AddIngredient(ItemID.PotionOfReturn, 5)
+				.AddTile(TileID.TinkerersWorkbench)
+				.Register();
 			}
         }
 	}

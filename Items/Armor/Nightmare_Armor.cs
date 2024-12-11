@@ -574,6 +574,7 @@ namespace EpikV2.Items.Armor {
 			Player player = Main.player[Projectile.owner];
 			ArmorShaderData dustShader = GameShaders.Armor.GetSecondaryShader(player.cBody, player);
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			epikPlayer.showLeftHandMagic = 2;
 			if (Projectile.ai[0] < 0) {
 				epikPlayer.nightmareShield.Set(Projectile.whoAmI);
 				return;
@@ -754,6 +755,7 @@ namespace EpikV2.Items.Armor {
 				player.direction = Projectile.spriteDirection = Math.Sign(Projectile.velocity.X);
 			}
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			epikPlayer.showRightHandMagic = 2;
 			(Vector2 pos, float rot) old = (Projectile.position, Projectile.rotation);
 			Projectile.friendly = true;
 			switch (AIMode) {
@@ -1027,7 +1029,7 @@ namespace EpikV2.Items.Armor {
 					pos += vel;
 				}
 			}
-			player.GetModPlayer<EpikPlayer>().forceLeftHandMagic = 1;
+			player.GetModPlayer<EpikPlayer>().showLeftHandMagic = 1;
 		}
 		public override bool? CanHitNPC(NPC target) {
 			if (AIMode == 3) {
@@ -1134,12 +1136,12 @@ namespace EpikV2.Items.Armor {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
             if (player.ItemAnimationActive) {
 				if (!player.ItemAnimationJustStarted && player.CheckMana(Item)) {
-					if (epikPlayer.forceLeftHandMagic <= 0 && PlayerInput.Triggers.JustPressed.MouseRight) {
+					if (epikPlayer.showLeftHandMagic <= 0 && PlayerInput.Triggers.JustPressed.MouseRight) {
 						player.altFunctionUse = 2;
 						player.itemAnimation = player.itemAnimationMax;
 						player.itemTime = 0;
 					}
-					if (epikPlayer.forceRightHandMagic <= 0 && PlayerInput.Triggers.JustPressed.MouseLeft) {
+					if (epikPlayer.showRightHandMagic <= 0 && PlayerInput.Triggers.JustPressed.MouseLeft) {
 						player.altFunctionUse = 0;
 						player.itemAnimation = player.itemAnimationMax;
 						player.itemTime = 0;
@@ -1150,10 +1152,10 @@ namespace EpikV2.Items.Armor {
 		public override void UseStyle(Player player, Rectangle heldItemFrame) {
 			player.GetCompositeArms(out Player.CompositeArmData left, out Player.CompositeArmData right);
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
-			if (epikPlayer.forceLeftHandMagic > 0) {
+			if (epikPlayer.showLeftHandMagic > 0) {
 				player.SetCompositeArm(true, left.stretch, left.rotation, true);
 			}
-			if (epikPlayer.forceRightHandMagic > 0) {
+			if (epikPlayer.showRightHandMagic > 0) {
 				player.SetCompositeArm(false, right.stretch, right.rotation, true);
 			}
 		}
@@ -1197,11 +1199,11 @@ namespace EpikV2.Items.Armor {
 				SoundEngine.PlaySound(SoundID.Item25.WithPitchRange(0.6f, 0.7f), position);
 				SoundEngine.PlaySound(SoundID.Item28.WithPitchRange(0.5f, 0.6f), position);
 				player.SetCompositeArm(true, Player.CompositeArmStretchAmount.Full, velocity.ToRotation() - MathHelper.PiOver2, true);
-				player.GetModPlayer<EpikPlayer>().forceLeftHandMagic = player.itemAnimationMax;
+				player.GetModPlayer<EpikPlayer>().showLeftHandMagic = player.itemAnimationMax;
 			} else {
 				SoundEngine.PlaySound(SoundID.Item122.WithPitchRange(0.85f, 1f), position);
 				player.SetCompositeArm(false, Player.CompositeArmStretchAmount.Full, velocity.ToRotation() - MathHelper.PiOver2, true);
-				player.GetModPlayer<EpikPlayer>().forceRightHandMagic = player.itemAnimationMax;
+				player.GetModPlayer<EpikPlayer>().showRightHandMagic = player.itemAnimationMax;
 			}
 			return true;
 		}

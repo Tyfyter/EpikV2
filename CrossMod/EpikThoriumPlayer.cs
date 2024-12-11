@@ -21,7 +21,6 @@ using ThoriumMod;
 using ThoriumMod.Empowerments;
 using ThoriumMod.Items;
 using ThoriumMod.Items.BardItems;
-using Tyfyter.Utils;
 
 namespace EpikV2.CrossMod {
 	[ExtendsFromMod("ThoriumMod")]

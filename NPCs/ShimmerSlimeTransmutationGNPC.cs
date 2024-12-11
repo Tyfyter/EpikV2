@@ -1,4 +1,6 @@
 ﻿using AltLibrary.Common.AltBiomes;
+using ItemSourceHelper.Core;
+using ItemSourceHelper.Default;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System;
@@ -68,18 +70,18 @@ namespace EpikV2.NPCs {
 			}
 		}
 		public static void AddTransmutation(int ingredient, int result, Condition condition = null) {
-			transmutations ??= new();
-			transmutationConditions ??= new();
+			transmutations ??= [];
+			transmutationConditions ??= [];
 			transmutations.Add(ingredient, result);
 			Recipe recipe = Recipe.Create(result);
 			recipe.AddIngredient(ingredient);
-			recipe.AddCondition(Language.GetOrRegister("Mods.EpikV2.Conditions.ShimmerSlimeTransmutation"), () => false);
+			recipe.AddCondition(Language.GetOrRegister("Mods.EpikV2.ItemSourceType.ShimmerSlimeItemSourceType"), () => false);
 			if (condition is not null) {
 				transmutationConditions.Add(result, condition);
 				recipe.AddCondition(condition);
 			}
 			recipe.DisableDecraft();
-			recipe.Register();
+			if (!ModLoader.HasMod(nameof(ItemSourceHelper))) recipe.Register();
 		}
 		[JITWhenModsEnabled("AltLibrary")]
 		internal static void RegisterAltLibTransmutations() {
@@ -205,6 +207,24 @@ namespace EpikV2.NPCs {
 		public override void ClearWorld() {
 			slimePositions = [];
 			unloadedSlimePositions = [];
+		}
+	}
+	[ExtendsFromMod(nameof(ItemSourceHelper))]
+	public class ShimmerSlimeItemSourceType : ItemSourceType {
+		public override string Texture => "EpikV2/Textures/Shimmer_Slime";
+		public override IEnumerable<ItemSource> FillSourceList() {
+			foreach (KeyValuePair<int, int> item in ShimmerSlimeTransmutation.transmutations) {
+				yield return new ShimmerSlimeItemSource(this, item.Value, item.Key, ShimmerSlimeTransmutation.transmutationConditions.TryGetValue(item.Value, out Condition condition) ? condition : null);
+			}
+		}
+	}
+	[ExtendsFromMod(nameof(ItemSourceHelper))]
+	public class ShimmerSlimeItemSource(ItemSourceType sourceType, int resultType, int ingredientType, Condition condition) : ItemSource(sourceType, resultType) {
+		public override IEnumerable<Item> GetSourceItems() {
+			yield return ContentSamples.ItemsByType[ingredientType];
+		}
+		public override IEnumerable<Condition> GetConditions() {
+			if (condition is not null) yield return condition;
 		}
 	}
 }

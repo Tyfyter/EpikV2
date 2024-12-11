@@ -68,7 +68,7 @@ namespace EpikV2.Modifiers {
 		}
 		public void OnProjectileHitNPC(Projectile projectile, NPC target, NPC.HitInfo hitInfo) {
 			if (projectile.velocity != default) {
-				target.velocity -= Vector2.Normalize(projectile.velocity) * hitInfo.Knockback * target.knockBackResist;
+				target.DoCustomKnockback(projectile.velocity.SafeNormalize(Vector2.Zero) * hitInfo.Knockback * target.knockBackResist);
 			}
 		}
 		public override float RollChance(Item item) => item.shoot > ProjectileID.None ? 0.5f : 0;

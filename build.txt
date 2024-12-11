@@ -1,10 +1,9 @@
-author = Tyfyter (Tyfyter2002 on steam)
+author = Moonlight Glint
 
-version = 0.5
+version = 0.6
 
 homepage = https://tyfyter.github.io/?EpikV2
-displayName = EpikV2
+displayName = Moonlight's Miscellany
 buildIgnore = Unused\*
-includeSource = true
 modReferences = PegasusLib
-weakReferences = AltLibrary, Origins, HolidayLib
+weakReferences = AltLibrary, Origins, HolidayLib, ItemSourceHelper

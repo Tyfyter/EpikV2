@@ -11,7 +11,6 @@ using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.ID;
 using Terraria.ModLoader;
-using Tyfyter.Utils;
 using PegasusLib.ID;
 using static Terraria.ModLoader.ModContent;
 using PegasusLib.Graphics;

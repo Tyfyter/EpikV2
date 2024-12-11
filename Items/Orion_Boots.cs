@@ -11,7 +11,7 @@ using static Microsoft.Xna.Framework.MathHelper;
 
 namespace EpikV2.Items {
 	public class Orion_Boots : ModItem {
-        public static int ID = -1;
+        public static int ID = 0;
         public const float collisionMult = 0.5f;
 		public override void SetStaticDefaults() {
             ID = Item.type;
@@ -34,7 +34,7 @@ namespace EpikV2.Items {
         }
     }
 	public class Orion_Boot_Charge : ModItem {
-        public static int ID = -1;
+        public static int ID = 0;
 		public override void SetStaticDefaults() {
 		    // DisplayName.SetDefault("Uranium Capsule");
 		    // Tooltip.SetDefault("");

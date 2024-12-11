@@ -21,11 +21,11 @@ namespace EpikV2.Items {
             Item.shoot = ProjectileType<Spike_Hook_Spawn_Projectile>();
 		}
         public override void AddRecipes() {
-			Recipe recipe = Recipe.Create(Type);
-			recipe.AddIngredient(ItemID.Hook, 1);
-            recipe.AddIngredient(ItemID.RopeCoil, 1);
-            recipe.AddTile(TileID.WorkBenches);
-			recipe.Register();
+			/*Recipe.Create(Type)
+			.AddIngredient(ItemID.Hook, 1)
+            .AddIngredient(ItemID.RopeCoil, 1)
+            .AddTile(TileID.WorkBenches)
+			.Register();*/
 		}
 
         public override bool CanUseItem(Player player) {

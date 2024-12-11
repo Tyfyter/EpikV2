@@ -9,6 +9,7 @@ using Terraria.ModLoader;
 namespace EpikV2 {
 	public static class Sets {
 		public static bool[] IsArrow { get; private set; }
+		public static bool[] CanExistAboveWorld { get; private set; }
 		public static bool[] IsValidForAltManaPoweredPrefix { get; private set; }
 		public static bool[] BodyDrawsClothes { get; private set; }
 		public static bool[] LegsDrawsClothes { get; private set; }
@@ -17,6 +18,7 @@ namespace EpikV2 {
 			IsValidForAltManaPoweredPrefix = ItemID.Sets.Factory.CreateBoolSet(true, ItemID.Hammush, ItemID.Bladetongue);
 			BodyDrawsClothes = ArmorIDs.Body.Sets.Factory.CreateBoolSet();
 			LegsDrawsClothes = ArmorIDs.Legs.Sets.Factory.CreateBoolSet();
+			CanExistAboveWorld = ProjectileID.Sets.Factory.CreateBoolSet();
 		}
 		internal static void SetupPostContentSampleSets() {
 			foreach (var item in ContentSamples.ItemsByType.Values) {
@@ -31,6 +33,10 @@ namespace EpikV2 {
 		}
 		internal static void Unload() {
 			IsArrow = null;
+			CanExistAboveWorld = null;
+			IsValidForAltManaPoweredPrefix = null;
+			BodyDrawsClothes = null;
+			LegsDrawsClothes = null;
 		}
 	}
 }

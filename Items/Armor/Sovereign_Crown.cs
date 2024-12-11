@@ -76,7 +76,7 @@ namespace EpikV2.Items.Armor {
 	}
     public class Sovereign_Buff : ModBuff {
 		public override string Texture => "EpikV2/Buffs/Sovereign_Buff";
-		public static int ID { get; internal set; } = -1;
+		public static int ID { get; internal set; }
         public override void SetStaticDefaults() {
             // DisplayName.SetDefault("Sovereign Crown");
             // Description.SetDefault("You fight for the crown");
@@ -93,7 +93,7 @@ namespace EpikV2.Items.Armor {
     }
     public class Sovereign_Debuff : ModBuff {
 		public override string Texture => "EpikV2/Buffs/Sovereign_Debuff";
-		public static int ID { get; internal set; } = -1;
+		public static int ID { get; internal set; }
         public override void SetStaticDefaults() {
             // DisplayName.SetDefault("Sovereign Crown");
             // Description.SetDefault("You fight the crown");

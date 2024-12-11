@@ -21,6 +21,9 @@
     <Reference Include="AltLibrary">
       <HintPath>..\ModAssemblies\AltLibrary_v1.1.dll</HintPath>
     </Reference>
+    <Reference Include="ItemSourceHelper">
+      <HintPath>..\ModAssemblies\ItemSourceHelper_v1.0.3.dll</HintPath>
+    </Reference>
     <Reference Include="Origins">
       <HintPath>..\ModAssemblies\Origins.dll</HintPath>
     </Reference>

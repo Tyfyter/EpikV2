@@ -13,7 +13,7 @@ using Terraria.DataStructures;
 namespace EpikV2.Items {
     //a reference to 2ish games and a webcomic
     public class Straylight_Drifter : ModItem {
-        internal static int id = -1;
+        internal static int id = 0;
 		public override void SetStaticDefaults() {
             id = Type;
         }

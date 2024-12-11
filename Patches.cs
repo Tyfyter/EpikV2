@@ -26,6 +26,7 @@ using EpikV2.Items.Accessories;
 using Terraria.Chat;
 using Terraria.Localization;
 using PegasusLib;
+using Terraria.GameInput;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -338,6 +339,18 @@ namespace EpikV2 {
 					return flag;
 				});
 			};
+			IL_Projectile.Update += IL_Projectile_Update;
+		}
+
+		private void IL_Projectile_Update(ILContext il) {
+			ILCursor c = new(il);
+			if (c.TryGotoNext(MoveType.After, i => i.MatchLdsfld<Main>(nameof(Main.topWorld)))) {
+				c.EmitLdarg0();
+				c.EmitDelegate<Func<float, Projectile, float>>((topWorld, projectile) => {
+					if (Sets.CanExistAboveWorld[projectile.type]) return projectile.position.Y - 1;
+					return topWorld;
+				});
+			}
 		}
 
 		private void On_Player_UpdateItemDye(On_Player.orig_UpdateItemDye orig, Player self, bool isNotInVanitySlot, bool isSetToHidden, Item armorItem, Item dyeItem) {

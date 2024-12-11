@@ -104,7 +104,7 @@ namespace EpikV2.Tiles {
 	}
 	public class Telescope_View_P : ModProjectile {
 		public override string Texture => "Terraria/Images/Item_260";
-		public static int ID { get; internal set; } = -1;
+		public static int ID { get; internal set; }
 		public override void SetStaticDefaults() {
 			// DisplayName.SetDefault("Telescope_View_P");
 			ID = Projectile.type;

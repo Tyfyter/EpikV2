@@ -181,6 +181,11 @@ Buffs: {
 		DisplayName: Daybreaker Air Stagger Debuff
 		Description: Mods.EpikV2.Buffs.Daybreaker_Air_Stagger_Debuff.Description
 	}
+
+	Copperiest_Shortsword_Buff: {
+		DisplayName: The Copperiest Shortsword
+		Description: You can tell by all the extra copper
+	}
 }
 
 Empowerment.SolarRejuvenation: Solar Rejuvenation
@@ -1178,6 +1183,16 @@ Items: {
 		DisplayName: Give That Back!
 		Tooltip: "'M. G. Caballo'"
 	}
+
+	Daybreaker_Greatbow: {
+		DisplayName: Daybroken Greatbow
+		Tooltip: ""
+	}
+
+	Copperiest_Shortsword: {
+		DisplayName: The Copperiest Shortsword
+		Tooltip: Now with 20% more copper
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck
@@ -1282,6 +1297,11 @@ Projectiles: {
 	Daybreaker_Sword_P.DisplayName: Daybroken Executioner
 	Daybreaker_Floor_Fire.DisplayName: Daybreaker
 	Daybreaker_Pull_P.DisplayName: Daybreaker
+	Daybreaker_Bow_P.DisplayName: Daybreaker Bow P
+	Daybreaker_Arrow.DisplayName: Daybreaker Arrow
+	Daybreaker_Arrow_Floor_Fire.DisplayName: Daybreaker Arrow Floor Fire
+	Daybreaker_Arrow_Explosion.DisplayName: Daybreaker Arrow Explosion
+	Copperiest_Shortsword_P.DisplayName: Copperiest Shortsword
 }
 
 DamageClasses: {
@@ -1298,6 +1318,8 @@ DamageClasses: {
 	Spellsword.DisplayName: melee/magic damage
 	Magic_Melee_Speed.DisplayName: magic damage
 	Daybreaker.DisplayName: Daybreaker
+	Daybreaker_Bow_Damage.DisplayName: Daybreaker Bow Damage
+	Daybreaker_Sword_Damage.DisplayName: Daybreaker Sword Damage
 }
 
 Biomes: {
@@ -1545,3 +1567,4 @@ Empowerments: {
 }
 
 Bestiary.Bee_Jay: These lovely critters are both birds and bees.
+ItemSourceType.ShimmerSlimeItemSourceType.DisplayName: Shimmer Slime Transmutation

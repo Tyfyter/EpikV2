@@ -161,8 +161,8 @@ namespace EpikV2 {
 		public HeldProjectile nightmareShield;
 		public HeldProjectile nightmareSword;
 		public bool daybreakerSet = false;
-		public int forceRightHandMagic;
-		public int forceLeftHandMagic;
+		public int showRightHandMagic;
+		public int showLeftHandMagic;
 		public bool releaseUseItem;
 		public bool realUnicornHorn;
 		public int cUnicornHorn;
@@ -227,8 +227,8 @@ namespace EpikV2 {
 			}
 			nightmareShield.Update();
 			nightmareSword.Update();
-			if (forceRightHandMagic > 0) forceRightHandMagic--;
-			if (forceLeftHandMagic > 0) forceLeftHandMagic--;
+			if (showRightHandMagic > 0) showRightHandMagic--;
+			if (showLeftHandMagic > 0) showLeftHandMagic--;
 			realUnicornHorn = false;
 			cUnicornHorn = 0;
 			if (telescopeID >= 0) {

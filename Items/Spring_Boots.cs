@@ -10,7 +10,7 @@ using static Microsoft.Xna.Framework.MathHelper;
 
 namespace EpikV2.Items {
 	public class Spring_Boots : ModItem {
-        public static int ID = -1;
+        public static int ID = 0;
         public const float collisionMult = 0.5f;
 		public override void SetStaticDefaults() {
             ID = Type;
@@ -22,7 +22,7 @@ namespace EpikV2.Items {
 		}
     }
 	public class Lucky_Spring_Boots : Spring_Boots {
-        public static new int ID = -1;
+        public static new int ID = 0;
 		public override void SetStaticDefaults() {
             ID = Type;
         }

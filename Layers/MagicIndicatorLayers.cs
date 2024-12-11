@@ -17,7 +17,7 @@ namespace EpikV2.Layers {
 		public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) {
 			EpikPlayer epikPlayer = drawInfo.drawPlayer.GetModPlayer<EpikPlayer>();
 			if (epikPlayer.realUnicornHorn) return false;
-			return drawInfo.shadow == 0 && ((epikPlayer.nightmareShield.CheckActive(out Projectile shield) && shield.ai[0] != -1) || epikPlayer.forceLeftHandMagic > 0);
+			return drawInfo.shadow == 0 && epikPlayer.showLeftHandMagic > 0;
 		}
 		public override Position GetDefaultPosition() => new Multiple() {
 			{ new Between(PlayerDrawLayers.Skin, PlayerDrawLayers.Leggings), drawInfo => !drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) },
@@ -72,7 +72,7 @@ namespace EpikV2.Layers {
 		public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) {
 			EpikPlayer epikPlayer = drawInfo.drawPlayer.GetModPlayer<EpikPlayer>();
 			if (epikPlayer.realUnicornHorn) return false;
-			return drawInfo.shadow == 0 && (epikPlayer.nightmareSword.active || epikPlayer.forceRightHandMagic > 0);
+			return drawInfo.shadow == 0 && epikPlayer.showRightHandMagic > 0;
 		}
 		public override Position GetDefaultPosition() => new Multiple() {
 			{ new Between(PlayerDrawLayers.Skin, PlayerDrawLayers.Leggings), drawInfo => drawInfo.playerEffect.HasFlag(SpriteEffects.FlipHorizontally) },
@@ -128,7 +128,7 @@ namespace EpikV2.Layers {
 		public override bool GetDefaultVisibility(PlayerDrawSet drawInfo) {
 			EpikPlayer epikPlayer = drawInfo.drawPlayer.GetModPlayer<EpikPlayer>();
 			if (!epikPlayer.realUnicornHorn) return false;
-			return ((epikPlayer.nightmareShield.CheckActive(out Projectile shield) && shield.ai[0] != -1) || epikPlayer.forceLeftHandMagic > 0) || (epikPlayer.nightmareSword.active || epikPlayer.forceRightHandMagic > 0);
+			return epikPlayer.showLeftHandMagic > 0|| epikPlayer.showRightHandMagic > 0;
 		}
 		public override Position GetDefaultPosition() => new AfterParent(PlayerDrawLayers.FaceAcc);
 		protected override void Draw(ref PlayerDrawSet drawInfo) {
@@ -140,11 +140,11 @@ namespace EpikV2.Layers {
 			EpikPlayer epikPlayer = drawInfo.drawPlayer.GetModPlayer<EpikPlayer>();
 			if (epikPlayer.nightmareSword.active) {
 				intensity += 0.2f;
-				if (Main.projectile[epikPlayer.nightmareSword.index].ai[0] != 0 || epikPlayer.forceRightHandMagic > 0) intensity += 0.2f;
-			} else if (epikPlayer.forceRightHandMagic > 0) {
+				if (Main.projectile[epikPlayer.nightmareSword.index].ai[0] != 0 || epikPlayer.showRightHandMagic > 0) intensity += 0.2f;
+			} else if (epikPlayer.showRightHandMagic > 0) {
 				intensity += 0.2f;
 			}
-			if ((epikPlayer.nightmareShield.CheckActive(out Projectile shield) && shield.ai[0] != -1) || epikPlayer.forceLeftHandMagic > 0) intensity += intensity < 0.6f ? 0.4f : 0.2f;
+			if ((epikPlayer.nightmareShield.CheckActive(out Projectile shield) && shield.ai[0] != -1) || epikPlayer.showLeftHandMagic > 0) intensity += intensity < 0.6f ? 0.4f : 0.2f;
 			Color color = epikPlayer.MagicColor * intensity;
 			color.A /= 2;
 			vector *= drawInfo.drawPlayer.Directions;
