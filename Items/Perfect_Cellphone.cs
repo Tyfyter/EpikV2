@@ -157,7 +157,7 @@ namespace EpikV2.Items {
 		public override void AddRecipes() {
 			if (Type == ItemType<Perfect_Cellphone>()) {
 				CreateRecipe()
-				.AddIngredient(ItemID.Shellphone)
+				.AddRecipeGroup("EpikV2:Shellphone")
 				.AddIngredient(ItemID.WormholePotion, 15)
 				.AddIngredient(ItemID.PotionOfReturn, 5)
 				.AddTile(TileID.TinkerersWorkbench)

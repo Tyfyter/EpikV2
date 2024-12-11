@@ -69,6 +69,15 @@ namespace EpikV2 {
 				}
 			}
 		}
+		public override void AddRecipeGroups() {
+			RecipeGroup.RegisterGroup("EpikV2:Shellphone", new RecipeGroup(() => Lang.GetItemName(ItemID.ShellphoneDummy).Value, [
+				ItemID.Shellphone,
+				ItemID.ShellphoneDummy,
+				ItemID.ShellphoneHell,
+				ItemID.ShellphoneOcean,
+				ItemID.ShellphoneSpawn
+			]));
+		}
 		public override void AddRecipes() {
 			Condition rainCondition = new Condition(
 				Language.GetText("Mods.EpikV2.Conditions.InRain"),
