@@ -75,7 +75,7 @@ namespace EpikV2.NPCs {
 			transmutations.Add(ingredient, result);
 			Recipe recipe = Recipe.Create(result);
 			recipe.AddIngredient(ingredient);
-			recipe.AddCondition(Language.GetOrRegister("Mods.EpikV2.ItemSourceType.ShimmerSlimeItemSourceType"), () => false);
+			recipe.AddCondition(Language.GetOrRegister("Mods.EpikV2.ItemSourceType.ShimmerSlimeItemSourceType.DisplayName"), () => false);
 			if (condition is not null) {
 				transmutationConditions.Add(result, condition);
 				recipe.AddCondition(condition);
@@ -212,6 +212,7 @@ namespace EpikV2.NPCs {
 	[ExtendsFromMod(nameof(ItemSourceHelper))]
 	public class ShimmerSlimeItemSourceType : ItemSourceType {
 		public override string Texture => "EpikV2/Textures/Shimmer_Slime";
+		public override float FilterSortPriority => 3.1f;
 		public override IEnumerable<ItemSource> FillSourceList() {
 			foreach (KeyValuePair<int, int> item in ShimmerSlimeTransmutation.transmutations) {
 				yield return new ShimmerSlimeItemSource(this, item.Value, item.Key, ShimmerSlimeTransmutation.transmutationConditions.TryGetValue(item.Value, out Condition condition) ? condition : null);

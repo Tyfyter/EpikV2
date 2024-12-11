@@ -1568,3 +1568,8 @@ Empowerments: {
 
 Bestiary.Bee_Jay: These lovely critters are both birds and bees.
 ItemSourceType.ShimmerSlimeItemSourceType.DisplayName: Shimmer Slime Transmutation
+
+ItemSourceFilter: {
+	CursedRarity.DisplayName: Cursed
+	GoldRarity.DisplayName: Gold
+}

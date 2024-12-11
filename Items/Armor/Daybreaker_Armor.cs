@@ -1,19 +1,12 @@
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing.Drawing2D;
-using System.IO;
 using EpikV2.NPCs;
-using EpikV2.Projectiles;
 using EpikV2.Rarities;
 using EpikV2.Reflection;
 using EpikV2.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Origins.Projectiles;
 using PegasusLib;
-using ReLogic.Content;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
@@ -24,12 +17,6 @@ using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using Terraria.ModLoader.IO;
-using Terraria.Utilities;
-using Terraria.WorldBuilding;
-using ThoriumMod.Empowerments;
-using ThoriumMod.Items.NPCItems;
-using Tyfyter.Utils;
 
 namespace EpikV2.Items.Armor {
 	[AutoloadEquip(EquipType.Head)]
@@ -1016,6 +1003,10 @@ namespace EpikV2.Items.Armor {
 				target.velocity.Y -= hit.Knockback * target.knockBackResist * 2f;
 				break;
 
+				case 3:
+				target.AddBuff(BuffID.OnFire3, 300);
+				break;
+
 				case 4:
 				target.velocity.Y -= hit.Knockback * target.knockBackResist * 4f;
 				break;
@@ -1023,7 +1014,12 @@ namespace EpikV2.Items.Armor {
 				case 12:
 				target.velocity.X += hit.HitDirection * hit.Knockback * target.knockBackResist * 2f;
 				break;
+
+				case 14 or 145:
+				target.AddBuff(BuffID.OnFire3, 120);
+				break;
 			}
+			target.SyncCustomKnockback();
 		}
 		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) => false;
 		public override bool CanHitPvp(Player target) => Projectile.ai[0] != 0;
@@ -1187,6 +1183,7 @@ namespace EpikV2.Items.Armor {
 				target.velocity = Vector2.Lerp(target.velocity, new Vector2(0, -hit.Knockback), MathF.Pow(target.knockBackResist * sign, 0.5f) * sign * 2);
 			}
 			target.AddBuff(Daybreaker_Stagger_Debuff.ID, 5);
+			target.AddBuff(BuffID.OnFire3, 60);
 		}
 		public override void DrawBehind(int index, List<int> behindNPCsAndTiles, List<int> behindNPCs, List<int> behindProjectiles, List<int> overPlayers, List<int> overWiresUI) {
 			behindNPCsAndTiles.Add(index);
@@ -1466,6 +1463,7 @@ namespace EpikV2.Items.Armor {
 		}
 		public override void AI() {
 			Player player = Main.player[Projectile.owner];
+			bool fineYouCantReallyHaveTheBackHandDraw = player.direction == 1;
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			int oldDirection = Math.Sign(Math.Cos(Projectile.rotation));
 			float rotSpeed = player.direction == oldDirection ? 0.1f : MathHelper.TwoPi;
@@ -1480,7 +1478,11 @@ namespace EpikV2.Items.Armor {
 				} else {
 					armDrawAmount = Player.CompositeArmStretchAmount.ThreeQuarters;
 				}
-				epikPlayer.showRightHandMagic = 2;
+				if (fineYouCantReallyHaveTheBackHandDraw) {
+					epikPlayer.showRightHandMagic = 2;
+				} else {
+					epikPlayer.showLeftHandMagic = 2;
+				}
 				Vector2 diff = Main.MouseWorld - player.MountedCenter;
 				player.direction = Math.Sign(diff.X);
 				rotSpeed = player.direction == oldDirection ? 0.1f : MathHelper.TwoPi;
@@ -1490,7 +1492,7 @@ namespace EpikV2.Items.Armor {
 					float speed = arrowProjectile.velocity.Length();
 					GeometryUtils.AngularSmoothing(ref Projectile.rotation, GeometryUtils.AngleToTarget(diff, speed, 0.02f, rain) ?? MathHelper.PiOver2, rotSpeed);
 					arrowProjectile.velocity = GeometryUtils.Vec2FromPolar(speed, Projectile.rotation);
-					rightHandTarget = Projectile.position - arrowProjectile.velocity.SafeNormalize(default) * 16;
+					rightHandTarget = Projectile.position - arrowProjectile.velocity.SafeNormalize(default) * (16 + (player.itemAnimation / (float)player.itemAnimationMax - 1f) * 8);
 					if (player.ItemAnimationEndingOrEnded) {
 						arrowProjectile.ai[0] = -1;
 						Projectile.ai[0] = -1;
@@ -1535,20 +1537,25 @@ namespace EpikV2.Items.Armor {
 				Projectile.ai[0] = -1;
 				Projectile.ai[1] = 0;
 			}
-			epikPlayer.showLeftHandMagic = 2;
-			player.SetCompositeArm(true, Player.CompositeArmStretchAmount.Full, Projectile.rotation * player.gravDir - MathHelper.PiOver2, true);
+			if (fineYouCantReallyHaveTheBackHandDraw) {
+				epikPlayer.showLeftHandMagic = 2;
+			} else {
+				epikPlayer.showRightHandMagic = 2;
+			}
+			player.SetCompositeArm(fineYouCantReallyHaveTheBackHandDraw, Player.CompositeArmStretchAmount.Full, Projectile.rotation * player.gravDir - MathHelper.PiOver2, true);
 			if (rightHandTarget.HasValue) {
 				Vector2 shoulder = player.MountedCenter;
 				if (player.direction == -1) {
-					shoulder += new Vector2(6f, 2f);
+					//shoulder += new Vector2(6f, 2f);
+					shoulder += new Vector2(-4f, 2f);
 				} else {
 					shoulder += new Vector2(-4f, 2f);
 				}
-				player.SetCompositeArm(false, armDrawAmount, (rightHandTarget.Value - shoulder).ToRotation() - MathHelper.PiOver2, true);
+				player.SetCompositeArm(!fineYouCantReallyHaveTheBackHandDraw, armDrawAmount, (rightHandTarget.Value - shoulder).ToRotation() - MathHelper.PiOver2, true);
 			} else {
-				player.SetCompositeArm(false, armDrawAmount, Projectile.rotation * player.gravDir - MathHelper.PiOver2, true);
+				player.SetCompositeArm(!fineYouCantReallyHaveTheBackHandDraw, armDrawAmount, Projectile.rotation * player.gravDir - MathHelper.PiOver2, true);
 			}
-			Projectile.position = player.GetCompositeArmPosition(true).Value + GeometryUtils.Vec2FromPolar(16, Projectile.rotation);
+			Projectile.position = player.GetCompositeArmPosition(fineYouCantReallyHaveTheBackHandDraw).Value + GeometryUtils.Vec2FromPolar(12, Projectile.rotation) * new Vector2(1, 1.5f);
 			player.heldProj = Projectile.whoAmI;
 			if (player.dead || player.HeldItem.ModItem is not Daybreaker_Greatbow) {
 				Projectile.position = default;
@@ -1557,8 +1564,67 @@ namespace EpikV2.Items.Armor {
 			}
 			epikPlayer.nightmareSword.Set(Projectile.whoAmI);
 		}
+		private static VertexStrip _vertexStrip = new();
 		public override bool PreDraw(ref Color lightColor) {
+			EpikPlayer epikPlayer = Main.player[Projectile.owner].GetModPlayer<EpikPlayer>();
+			ColorStart = Color.Goldenrod;
+			ColorEnd = Color.OrangeRed;
+			if (epikPlayer.realUnicornHorn && epikPlayer.magicColor.HasValue) {
+				ColorStart = epikPlayer.magicColor.Value;
+				ColorEnd = epikPlayer.magicColor.Value;
+			}
+			Player owner = Main.player[Projectile.owner];
+			bool hasShader = owner.cBody != 0;
+			try {
+				if (hasShader) EpikV2.shaderOroboros.Capture();
+				Vector2 unit = GeometryUtils.Vec2FromPolar(1, Projectile.rotation);
+				Vector2 stringCenter = Projectile.position - unit * 20;
+				Vector2 end1 = stringCenter + unit.RotatedBy(-MathHelper.PiOver2) * 28;
+				Vector2 end2 = stringCenter + unit.RotatedBy(MathHelper.PiOver2) * 28;
+				stringCenter += unit * (owner.itemAnimation / (float)owner.itemAnimationMax - 1f) * 8;
+				MiscShaderData miscShaderData = GameShaders.Misc["MagicMissile"];
+				miscShaderData.UseSaturation(-1f);
+				miscShaderData.UseOpacity(4);
+				miscShaderData.Apply();
+				Vector2[] oldPos = [
+					end1,
+					stringCenter,
+					end2,
+				];
+				float[] oldRot = [
+					Projectile.rotation - MathHelper.PiOver2,
+					Projectile.rotation - MathHelper.PiOver2,
+					Projectile.rotation - MathHelper.PiOver2,
+				];
+				//spriteDirections = proj.oldSpriteDirection;
+				_vertexStrip.PrepareStrip(oldPos, oldRot, StripColors, _ => 16, -Main.screenPosition, Projectile.oldPos.Length, includeBacksides: false);
+				_vertexStrip.DrawTrail();
+				Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+				if (hasShader) EpikV2.shaderOroboros.Stack(GameShaders.Armor.GetSecondaryShader(owner.cBody, owner));
+			} finally {
+				if (hasShader) EpikV2.shaderOroboros.Release();
+			}
+			if (Projectile.GetRelatedProjectile(0) is Projectile arrowProjectile) {
+				if (!ProjectileID.Sets.HeldProjDoesNotUsePlayerGfxOffY[Projectile.type]) {
+					arrowProjectile.gfxOffY = Projectile.gfxOffY;
+				}
+				try {
+					Main.instance.DrawProjDirect(arrowProjectile);
+				} catch {
+					arrowProjectile.active = false;
+					Projectile.ai[0] = -1;
+				}
+			}
 			return false;
+		}
+		public Color ColorStart;
+		public Color ColorEnd;
+		private Color StripColors(float progressOnStrip) {
+			progressOnStrip = Math.Abs(progressOnStrip - 0.5f) * 2;
+			Color result = Color.Lerp(ColorStart, ColorEnd, progressOnStrip);
+			result.A /= 2;
+			//result *= spriteDirections[Math.Max((int)(progressOnStrip * spriteDirections.Length) - 1, 0)];
+			return result;
 		}
 		public int GetShaderID() => Main.player[Projectile.owner].cBody;
 	}
@@ -1736,6 +1802,9 @@ namespace EpikV2.Items.Armor {
 			}
 			if (Projectile.ai[1] < 0.6f) Projectile.ai[1] += 0.05f;
 		}
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
+			target.AddBuff(BuffID.OnFire3, 120);
+		}
 	}
 	public class Daybreaker_Arrow_Explosion : ModProjectile {
 		public override string Texture => "Origins/Items/Weapons/Demolitionist/Sonorous_Shredder_P";
@@ -1830,6 +1899,9 @@ namespace EpikV2.Items.Armor {
 				}
 				Projectile.ai[0] = 1;
 			}
+		}
+		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
+			target.AddBuff(BuffID.OnFire3, 300);
 		}
 	}
 }
