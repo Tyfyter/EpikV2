@@ -19,11 +19,11 @@ using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.UI;
-using Tyfyter.Utils;
 using PegasusLib.ID;
 using static Tyfyter.Utils.ChestLootCache.LootQueueAction;
 using static Tyfyter.Utils.ChestLootCache.LootQueueMode;
 using PegasusLib;
+using ChestLootCache = Tyfyter.Utils.ChestLootCache;
 
 namespace EpikV2 {
 	public class EpikWorld : ModSystem {
@@ -291,11 +291,11 @@ namespace EpikV2 {
 					return -1;
 				}).ToList();
 			} else {
-				Sacrifices = new List<int>() { };
+				Sacrifices = [];
 			}
 			try {
 			} catch (Exception) {
-				Sacrifices = new List<int>() { };
+				Sacrifices = [];
 			}
 			if (tag.TryGet("naturalChests", out List<Vector2> worldNaturalChests)) {
 				naturalChests = worldNaturalChests.Select(Utils.ToPoint).ToHashSet();

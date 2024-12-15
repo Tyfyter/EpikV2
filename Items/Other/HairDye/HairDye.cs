@@ -71,7 +71,7 @@ namespace EpikV2.Items.Other.HairDye {
 			Item.width = 20;
 			Item.height = 26;
 			Item.maxStack = Item.CommonMaxStack;
-			Item.value = Item.sellPrice(gold: 5);
+			Item.value = Item.buyPrice(gold: 5);
 			Item.rare = ItemRarityID.Green;
 			Item.UseSound = SoundID.Item3;
 			Item.useStyle = ItemUseStyleID.DrinkLiquid;
