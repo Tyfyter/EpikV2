@@ -1581,7 +1581,7 @@ namespace EpikV2.Items.Armor {
 				Vector2 stringCenter = Projectile.position - unit * 20;
 				Vector2 end1 = stringCenter + unit.RotatedBy(-MathHelper.PiOver2) * 28;
 				Vector2 end2 = stringCenter + unit.RotatedBy(MathHelper.PiOver2) * 28;
-				stringCenter += unit * (owner.itemAnimation / (float)owner.itemAnimationMax - 1f) * 8;
+				if (owner.ItemAnimationActive) stringCenter += unit * (owner.itemAnimation / (float)owner.itemAnimationMax - 1f) * 8;
 				MiscShaderData miscShaderData = GameShaders.Misc["MagicMissile"];
 				miscShaderData.UseSaturation(-1f);
 				miscShaderData.UseOpacity(4);
@@ -1605,7 +1605,7 @@ namespace EpikV2.Items.Armor {
 				if (hasShader) EpikV2.shaderOroboros.Release();
 			}
 			if (Projectile.GetRelatedProjectile(0) is Projectile arrowProjectile) {
-				if (!ProjectileID.Sets.HeldProjDoesNotUsePlayerGfxOffY[Projectile.type]) {
+				if (!ProjectileID.Sets.HeldProjDoesNotUsePlayerGfxOffY[Projectile.type] && !ProjectileID.Sets.HeldProjDoesNotUsePlayerGfxOffY[arrowProjectile.type]) {
 					arrowProjectile.gfxOffY = Projectile.gfxOffY;
 				}
 				try {
@@ -1681,37 +1681,52 @@ namespace EpikV2.Items.Armor {
 			if (Projectile.ai[2] == 0) {
 				Projectile.ai[2] = 1;
 				Projectile.netUpdate = true;
-				if (oldVelocity.Y > Projectile.velocity.Y && Main.myPlayer == Projectile.owner) {
-					const int spread = 3;
-					int projType = ModContent.ProjectileType<Daybreaker_Arrow_Floor_Fire>();
-					Projectile lastFire = null;
-					for (int i = 0; i < spread; i++) {
-						int currentFire = Projectile.NewProjectile(
-						Projectile.GetSource_FromAI(),
-							Projectile.Center + new Vector2(i * 24, -32),
+				if (Main.myPlayer == Projectile.owner) {
+					if (oldVelocity.Y > Projectile.velocity.Y) {
+						const int spread = 3;
+						int projType = ModContent.ProjectileType<Daybreaker_Arrow_Floor_Fire>();
+						Projectile lastFire = null;
+						for (int i = 0; i < spread; i++) {
+							int currentFire = Projectile.NewProjectile(
+							Projectile.GetSource_FromAI(),
+								Projectile.Center + new Vector2(i * 24, -32),
+								default,
+								projType,
+								Projectile.damage / 3,
+								Projectile.knockBack,
+								Projectile.owner,
+								i * 2
+							);
+							if (lastFire is not null) lastFire.ai[2] = currentFire;
+							if (currentFire >= 0) lastFire = Main.projectile[currentFire];
+						}
+						for (int i = 1; i < spread; i++) {
+							int currentFire = Projectile.NewProjectile(
+							Projectile.GetSource_FromAI(),
+								Projectile.Center + new Vector2(i * -24, -32),
+								default,
+								projType,
+								Projectile.damage / 3,
+								Projectile.knockBack,
+								Projectile.owner,
+								i * 2
+							);
+							if (lastFire is not null) lastFire.ai[2] = currentFire;
+							if (currentFire >= 0) lastFire = Main.projectile[currentFire];
+						}
+						Rectangle rect = new((int)Projectile.Center.X - (96 / 2), (int)Projectile.Center.Y - (96 / 2), 96, 96);
+						Player player = Main.player[Projectile.owner];
+						Daybreaker_Arrow_Explosion.DoExplosionVisual(rect, player.cBody != 0 ? GameShaders.Armor.GetSecondaryShader(player.cBody, player) : null);
+					} else {
+						Projectile.NewProjectile(
+							Projectile.GetSource_FromAI(),
+							Projectile.Center,
 							default,
-							projType,
+							ModContent.ProjectileType<Daybreaker_Arrow_Explosion>(),
 							Projectile.damage / 3,
 							Projectile.knockBack,
-							Projectile.owner,
-							i * 2
+							Projectile.owner
 						);
-						if (lastFire is not null) lastFire.ai[2] = currentFire;
-						if (currentFire >= 0) lastFire = Main.projectile[currentFire];
-					}
-					for (int i = 1; i < spread; i++) {
-						int currentFire = Projectile.NewProjectile(
-						Projectile.GetSource_FromAI(),
-							Projectile.Center + new Vector2(i * -24, -32),
-							default,
-							projType,
-							Projectile.damage / 3,
-							Projectile.knockBack,
-							Projectile.owner,
-							i * 2
-						);
-						if (lastFire is not null) lastFire.ai[2] = currentFire;
-						if (currentFire >= 0) lastFire = Main.projectile[currentFire];
 					}
 				}
 				Projectile.velocity = oldVelocity;
@@ -1723,7 +1738,7 @@ namespace EpikV2.Items.Armor {
 				Projectile.ai[2] = 1;
 				Projectile.netUpdate = true;
 				Projectile.NewProjectile(
-				Projectile.GetSource_FromAI(),
+					Projectile.GetSource_FromAI(),
 					Projectile.Center,
 					default,
 					ModContent.ProjectileType<Daybreaker_Arrow_Explosion>(),
@@ -1733,6 +1748,8 @@ namespace EpikV2.Items.Armor {
 				);
 			}
 		}
+		public override bool? CanHitNPC(NPC target) => Fired ? null : false;
+		public override bool CanHitPvp(Player target) => Fired;
 		private static VertexStrip _vertexStrip = new();
 		public override bool PreDraw(ref Color lightColor) {
 			if (Fired) {
@@ -1826,78 +1843,79 @@ namespace EpikV2.Items.Armor {
 		public override void AI() {
 			if (Projectile.ai[0] == 0) {
 				Player owner = Main.player[Projectile.owner];
-				ArmorShaderData shader = owner.cBody != 0 ? GameShaders.Armor.GetSecondaryShader(owner.cBody, owner) : null;
 				Rectangle hitbox = Projectile.Hitbox;
-				float baseWidth = hitbox.Width;
 				ProjectileLoader.ModifyDamageHitbox(Projectile, ref hitbox);
-				float dustMult = hitbox.Width / baseWidth;
-				int fireDustAmount = (int)(20 * dustMult);
-				int smokeDustAmount = (int)(30 * dustMult);
-				Vector2 topLeft = hitbox.TopLeft();
-				for (int i = 0; i < smokeDustAmount; i++) {
-					Dust dust = Dust.NewDustDirect(
-						topLeft,
-						hitbox.Width,
-						hitbox.Height,
-						DustID.Smoke,
-						0f,
-						0f,
-						100,
-						default,
-						1.5f
-					);
-					dust.velocity *= 1.4f;
-					dust.shader = shader;
-				}
-				for (int i = 0; i < fireDustAmount; i++) {
-					Dust dust = Dust.NewDustDirect(
-						topLeft,
-						hitbox.Width,
-						hitbox.Height,
-						DustID.Torch,
-						0f,
-						0f,
-						100,
-						default,
-						3.5f
-					);
-					dust.noGravity = true;
-					dust.velocity *= 7f;
-					dust.shader = shader;
-					dust = Dust.NewDustDirect(
-						topLeft,
-						hitbox.Width,
-						hitbox.Height,
-						DustID.Torch,
-						0f,
-						0f,
-						100,
-						default,
-						1.5f
-					);
-					dust.velocity *= 3f;
-					dust.shader = shader;
-				}
+				DoExplosionVisual(hitbox, owner.cBody != 0 ? GameShaders.Armor.GetSecondaryShader(owner.cBody, owner) : null);
 				for (int i = 0; i < 2; i++) {
 					float velocityMult = 0.4f * (i + 1);
-					Gore gore = Gore.NewGoreDirect(null, Projectile.Center, default, Main.rand.Next(61, 64));
+					Gore gore = Gore.NewGoreDirect(null, hitbox.Center(), default, Main.rand.Next(61, 64));
 					gore.velocity *= velocityMult;
 					gore.velocity.X += 1f;
 					gore.velocity.Y += 1f;
-					gore = Gore.NewGoreDirect(null, Projectile.Center, default, Main.rand.Next(61, 64));
+					gore = Gore.NewGoreDirect(null, hitbox.Center(), default, Main.rand.Next(61, 64));
 					gore.velocity *= velocityMult;
 					gore.velocity.X -= 1f;
 					gore.velocity.Y += 1f;
-					gore = Gore.NewGoreDirect(null, Projectile.Center, default, Main.rand.Next(61, 64));
+					gore = Gore.NewGoreDirect(null, hitbox.Center(), default, Main.rand.Next(61, 64));
 					gore.velocity *= velocityMult;
 					gore.velocity.X += 1f;
 					gore.velocity.Y -= 1f;
-					gore = Gore.NewGoreDirect(null, Projectile.Center, default, Main.rand.Next(61, 64));
+					gore = Gore.NewGoreDirect(null, hitbox.Center(), default, Main.rand.Next(61, 64));
 					gore.velocity *= velocityMult;
 					gore.velocity.X -= 1f;
 					gore.velocity.Y -= 1f;
 				}
 				Projectile.ai[0] = 1;
+			}
+		}
+		public static void DoExplosionVisual(Rectangle hitbox, ArmorShaderData shader) {
+			float dustMult = hitbox.Width / 96;
+			int fireDustAmount = (int)(10 * dustMult);
+			int smokeDustAmount = (int)(15 * dustMult);
+			Vector2 topLeft = hitbox.TopLeft();
+			for (int i = 0; i < smokeDustAmount; i++) {
+				Dust dust = Dust.NewDustDirect(
+					topLeft,
+					hitbox.Width,
+					hitbox.Height,
+					DustID.Smoke,
+					0f,
+					0f,
+					100,
+					default,
+					1.5f
+				);
+				dust.velocity *= 1.4f;
+				dust.shader = shader;
+			}
+			for (int i = 0; i < fireDustAmount; i++) {
+				Dust dust = Dust.NewDustDirect(
+					topLeft,
+					hitbox.Width,
+					hitbox.Height,
+					DustID.Torch,
+					0f,
+					0f,
+					100,
+					default,
+					3.5f
+				);
+				dust.noGravity = true;
+				dust.velocity *= 7f;
+				dust.shader = shader;
+				dust = Dust.NewDustDirect(
+					topLeft,
+					hitbox.Width,
+					hitbox.Height,
+					DustID.Torch,
+					0f,
+					0f,
+					100,
+					default,
+					1.5f
+				);
+				dust.velocity *= 3f;
+				dust.shader = shader;
 			}
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
