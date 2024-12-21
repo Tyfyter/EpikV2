@@ -1824,7 +1824,7 @@ namespace EpikV2.Items.Armor {
 		}
 	}
 	public class Daybreaker_Arrow_Explosion : ModProjectile {
-		public override string Texture => typeof(Daybreaker_Sword_P).GetDefaultTMLName();
+		public override string Texture => typeof(Daybreaker_Sword).GetDefaultTMLName();
 		public virtual int FireDustAmount => 20;
 		public virtual int SmokeDustAmount => 30;
 		public virtual int SmokeGoreAmount => 2;
