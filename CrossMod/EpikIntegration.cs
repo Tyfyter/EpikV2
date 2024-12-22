@@ -19,6 +19,10 @@ using ThoriumMod.Buffs;
 using Newtonsoft.Json.Linq;
 using Terraria.GameContent.UI;
 using Terraria.Localization;
+using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
+using Terraria.GameContent.UI.Chat;
+using Terraria.UI.Chat;
 
 namespace EpikV2.CrossMod {
 	public class EpikIntegration : ILoadable {
@@ -115,28 +119,35 @@ namespace EpikV2.CrossMod {
 						new Vector3(8, 8, 16),
 						"BothBuffing"
 					);
-					string[] trunes = [
-						"þ",
+					string[] truneVowels = [
 						"ə",
-						"h",
 						"o",
-						"l",
 						"ē",
-						"k",
-						"r",
 						"ɒ",
-						"s",
 						"i",
-						"z",
-						"m",
 						"or",
 						"a",
-						"n",
 						"ēr",
 						"aē",
-						"t",
 						"ε"
 					];
+					string[] truneConsonants = [
+						"þ",
+						"h",
+						"l",
+						"k",
+						"r",
+						"s",
+						"z",
+						"m",
+						"n",
+						"t"
+					];
+					string[] trunes = [
+						..truneVowels,
+						..truneConsonants
+					];
+					Chars.truneVowels = new(truneVowels);
 					for (int i = 0; i < trunes.Length; i++) {
 						if (ModContent.RequestIfExists("EpikV2/Chars/T_SL_" + trunes[i], out Asset<Texture2D> asset, AssetRequestMode.ImmediateLoad)) {
 							Chars.Trune[trunes[i]] = (char)charLoader.Call(
@@ -168,6 +179,15 @@ namespace EpikV2.CrossMod {
 						new Vector3(0, 0, 0),
 						"T_SL_vowel_first"
 					);
+					string vowel = $"(?:{string.Join("|", truneVowels.OrderByDescending(s => s.Length))})";
+					string consonant = $"(?:{string.Join("|", truneConsonants.OrderByDescending(s => s.Length))})";
+					Chars.truneRegex = new($"(?:(?<1>{vowel})(?<2>{consonant}))|(?:(?<1>{consonant})(?<2>{vowel}))|(?<1>{vowel})|(?<1>{consonant})", RegexOptions.Compiled);
+					ChatManager.Register<TruneHandler>([
+						"trunic"
+					]);
+					ChatManager.Register<TuneHandler>([
+						"tuneic"
+					]);
 					Chars.SetupGameTips();
 				}
 				BountifulGoodieBags = ModLoader.TryGetMod("BountifulGoodieBags", out _);
@@ -184,9 +204,13 @@ namespace EpikV2.CrossMod {
 			public char Giving = 'ѳ';
 			public char Both = '߷';
 			public Dictionary<string, char> Trune = [];
+			public Regex truneRegex = null;
+			public HashSet<string> truneVowels = null;
 			readonly FastFieldInfo<GameTipsDisplay, List<GameTipData>> allTips = new("allTips", BindingFlags.NonPublic);
 			internal void SetupGameTips() {
-				string text = ConvertTrunes("þ|ə  h|o l|ē  k r|ɒ s  i|z  m|or þ|a n  ə  m|ēr  aē|t ε|m");
+				string text = ConvertTrunes("þ|ə  h|o l|ē  k r|ɒ s  i|z  m|or  þ|a n  ə  m|ēr  aē|t ε|m");
+				string text2 = ConvertTrunes(truneRegex.Replace("þə holē krɒs iz mor þan ə mēr aētεm", "$1|$2 ").Replace("| ", " "));
+				_ = text == text2;
 				allTips.GetValue(Main.gameTips).Add(new GameTipData(Language.GetOrRegister(text, () => text), EpikV2.instance));
 			}
 			public string ConvertTrunes(string text) {
@@ -199,13 +223,8 @@ namespace EpikV2.CrossMod {
 						stringBuilder.Append(' ');
 						continue;
 					}
-					bool vowelFirst = false;
 					string[] chars = s.Split('|');
-					if (chars.Length > 1) switch (chars[0][0]) {
-						case 'ə' or 'o' or 'ē' or 'ɒ' or 'i' or 'ε' or 'a':
-						vowelFirst = true;
-						break;
-					}
+					bool vowelFirst = chars.Length > 1 && truneVowels.Contains(chars[0]);
 					for (int i = 0; i < chars.Length; i++) {
 						if (Trune.TryGetValue(chars[i], out char value)) {
 							stringBuilder.Append(value);

@@ -1,5 +1,7 @@
-﻿using Microsoft.Xna.Framework;
+﻿using EpikV2.CrossMod;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
+using ReLogic.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +15,9 @@ using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.UI.Chat;
 using static EpikV2.Secret_Legend_Reference.Direction;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace EpikV2 {
 	public class Secret_Legend_Reference : ILoadable {
@@ -202,6 +206,168 @@ namespace EpikV2 {
 					if (kvp.Value is int cooldown) cooldowns.Add(kvp.Key, cooldown);
 				}
 			}
+		}
+	}
+	public class TruneHandler : ITagHandler {
+		public class TruneSnippet : TextSnippet {
+			public TruneSnippet(string text) : base(text) {
+				if (EpikIntegration.Chars.truneRegex is null) {
+					text = text.Replace("  ", "\u0080").Replace(" ", "_").Replace("\u0080", " ");
+					Text = string.Join("", text.Where(c => c is ' ' or '_'));
+					return;
+				}
+				Text = EpikIntegration.Chars.ConvertTrunes(EpikIntegration.Chars.truneRegex.Replace(text, "$1|$2 ").Replace("| ", " ").Trim());
+			}
+		}
+		public TextSnippet Parse(string text, Color baseColor = default(Color), string options = null) {
+			return new TruneSnippet(text) {
+				Color = baseColor,
+			};
+		}
+	}
+	public class TuneHandler : ITagHandler {
+		private class TuneSnippet : TruneHandler.TruneSnippet {
+			static readonly float[] notes = [
+				Tone(0),
+				Tone(2),
+				Tone(5),
+				Tone(7),
+				Tone(9),
+				Tone(12),
+
+				Tone(14),
+				Tone(17),
+				Tone(19),
+				Tone(21),
+				Tone(24),
+			];
+			static float Tone(int note) {
+				float value = 0;
+				if (note > 12) {
+					value = MathF.Pow(2, (note - 12) / 12f) - 1;
+				} else if (note < 12) {
+					value = -(MathF.Pow(2, (12 - note) / 12f) - 1);
+				}
+				return value;
+			}
+			float[] sequence = [];
+			public TuneSnippet(string text) : base(text) {
+				if (EpikIntegration.Chars.truneRegex is null) {
+					text = text.Replace("  ", "\u0080").Replace(" ", "_").Replace("\u0080", " ");
+					Text = string.Join("", text.Where(c => c is ' ' or '_'));
+					return;
+				}
+				string trunes = EpikIntegration.Chars.truneRegex.Replace(text, "$1|$2 ").Replace("| ", " ").Trim();
+				Text = EpikIntegration.Chars.ConvertTrunes(trunes);
+				ConvertTunes(trunes);
+				CheckForHover = true;
+			}
+			static int[] GetTuneIndices(string text) {
+				switch (text) {
+					case "ə":
+					return [6, 9];
+					case "ē":
+					return [6, 7, 9];
+					case "ɒ":
+					return [7, 8, 10];
+					case "i":
+					return [7, 10];
+					case "or":
+					return [6, 7, 8];
+					case "a":
+					return [9, 10];
+					case "ēr":
+					return [8, 10];
+					case "aē":
+					return [6, 8, 10];
+					case "ε":
+					return [8, 9];
+					case "o":
+					return [6, 8, 9];
+
+					case "þ":
+					return [1, 3, 5];
+					case "h":
+					return [1, 3, 4];
+					case "l":
+					return [3, 4];
+					case "k":
+					return [2, 3];
+					case "r":
+					return [2, 5];
+					case "s":
+					return [1];
+					case "z":
+					return [2, 3, 4];
+					case "m":
+					return [3];
+					case "t":
+					return [2, 4];
+					case "n":
+					return [1, 4];
+					default:
+					return [-1];
+				}
+			}
+			void ConvertTunes(string text) {
+				const int restID = -1;
+				string[] syls = text.Split(' ');
+				List<int> tune = [];
+				foreach (string s in syls) {
+					if (string.IsNullOrWhiteSpace(s)) {
+						tune.Add(restID);
+						continue;
+					}
+					string[] chars = s.Split('|');
+					bool vowelFirst = chars.Length > 1 && EpikIntegration.Chars.truneVowels.Contains(chars[0]);
+					List<int> notes = [0];
+					for (int i = 0; i < chars.Length; i++) {
+						notes.AddRange(GetTuneIndices(chars[i]));
+					}
+					tune.AddRange(vowelFirst ? notes.OrderDescending() : notes.Order());
+				}
+				sequence = new float[tune.Count];
+				for (int i = 0; i < sequence.Length; i++) {
+					if (tune[i] == restID) {
+						sequence[i] = float.NegativeInfinity;
+					} else {
+						sequence[i] = notes[tune[i]];
+					}
+				}
+			}
+			SlotId soundSlot = SlotId.Invalid;
+			public override void OnClick() {
+				if (SoundEngine.TryGetActiveSound(soundSlot, out ActiveSound oldSound)) oldSound.Stop();
+				int index = -1;
+				const int note_duration = 5;
+				const int rest_duration = 12;
+				int timer = 0;
+				soundSlot = SoundEngine.PlaySound(new("EpikV2/Sounds/Tone") { IsLooped = true }, null, sound => {
+					if (--timer <= 0) {
+						index++;
+						if (index >= sequence.Length) return false;
+						if (float.IsNegativeInfinity(sequence[index])) {
+							sound.Volume = 0f;
+							sound.Pitch = 0;
+							timer = rest_duration;
+						} else {
+							sound.Volume = 0.20f;
+							sound.Pitch = sequence[index];
+							timer = note_duration;
+						}
+					}
+					return true;
+				});
+			}
+			public override void OnHover() {
+				base.OnHover();
+				Main.LocalPlayer.mouseInterface = true;
+			}
+		}
+		public TextSnippet Parse(string text, Color baseColor = default(Color), string options = null) {
+			return new TuneSnippet(text) {
+				Color = baseColor,
+			};
 		}
 	}
 }
