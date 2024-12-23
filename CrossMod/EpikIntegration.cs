@@ -129,7 +129,15 @@ namespace EpikV2.CrossMod {
 						"a",
 						"ēr",
 						"aē",
-						"ε"
+						"ε",
+						"ɑ",
+						"ar",
+						"ər",
+						"oi",
+						"ow",
+						"ʊ",
+						"εē",
+						"εr"
 					];
 					string[] truneConsonants = [
 						"þ",
@@ -141,7 +149,19 @@ namespace EpikV2.CrossMod {
 						"z",
 						"m",
 						"n",
-						"t"
+						"t",
+						"b",
+						"d",
+						"ð",
+						"dzh",
+						"f",
+						"g",
+						"j",
+						"ŋ",
+						"v",
+						"w",
+						"y",
+						"zh"
 					];
 					string[] trunes = [
 						..truneVowels,
@@ -150,7 +170,7 @@ namespace EpikV2.CrossMod {
 					Chars.truneVowels = new(truneVowels);
 					for (int i = 0; i < trunes.Length; i++) {
 						if (ModContent.RequestIfExists("EpikV2/Chars/T_SL_" + trunes[i], out Asset<Texture2D> asset, AssetRequestMode.ImmediateLoad)) {
-							Chars.Trune[trunes[i]] = (char)charLoader.Call(
+							Chars.Trune.Add(trunes[i], (char)charLoader.Call(
 								"AddCharacter",
 								FontAssets.MouseText.Value,
 								Main.dedServ ? null : asset.Value,
@@ -158,7 +178,7 @@ namespace EpikV2.CrossMod {
 								new Rectangle(0, 0, 0, 17),
 								new Vector3(0, 0, 0),
 								"T_SL_" + trunes[i]
-							);
+							));
 						}
 					}
 					Chars.Trune["done"] = (char)charLoader.Call(
@@ -181,7 +201,7 @@ namespace EpikV2.CrossMod {
 					);
 					string vowel = $"(?:{string.Join("|", truneVowels.OrderByDescending(s => s.Length))})";
 					string consonant = $"(?:{string.Join("|", truneConsonants.OrderByDescending(s => s.Length))})";
-					Chars.truneRegex = new($"(?:(?<1>{vowel})(?<2>{consonant}))|(?:(?<1>{consonant})(?<2>{vowel}))|(?<1>{vowel})|(?<1>{consonant})", RegexOptions.Compiled);
+					Chars.truneRegex = new($"(?:(?<1>{vowel}(?= |$))|(?<1>{consonant}(?= |$))|(?:(?<1>{vowel})(?<2>{consonant}))|(?:(?<1>{consonant})(?<2>{vowel})))", RegexOptions.Compiled);
 					ChatManager.Register<TruneHandler>([
 						"trunic"
 					]);

@@ -1,29 +1,34 @@
 ﻿using EpikV2.CrossMod;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using PegasusLib;
+using ReLogic.Graphics;
 using ReLogic.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
+using Terraria.GameContent;
+using Terraria.GameContent.UI.Chat;
 using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
 using Terraria.UI.Chat;
+using static EpikV2.Secret_Legend_Reference;
 using static EpikV2.Secret_Legend_Reference.Direction;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace EpikV2 {
 	public class Secret_Legend_Reference : ILoadable {
 		public List<Spell> Effects { get; } = [];
 		public Direction[] InputDirections { get; } = new Direction[100];
-		void CheckHolyCrossMatch() {
+		public void CheckHolyCrossMatch() {
 			for (int i = 0; i < Effects.Count; i++) {
 				if (Effects[i].CheckMatch(InputDirections)) {
 					Effects[i].Action(Main.gameMenu ? null : Main.LocalPlayer);
@@ -151,7 +156,29 @@ namespace EpikV2 {
 					SoundEngine.PlaySound(SoundID.Item25.WithPitchOffset(-1).WithVolumeScale(0.85f), player?.position, Bend(0.01f));
 				}
 			));*/
+			ChatManager.Register<HolyCrossSnippetHandler>([
+				"hk"
+			]);
+			On_ChatManager.ParseMessage += On_ChatManager_ParseMessage;
 		}
+		static readonly Regex Format = new("(?<!\\\\)\\[(?<tag>hk):(?<text>[wasd\u200C]+?)$", RegexOptions.Compiled);
+		private static List<TextSnippet> On_ChatManager_ParseMessage(On_ChatManager.orig_ParseMessage orig, string text, Color baseColor) {
+			List<TextSnippet> original = orig(text, baseColor);
+			if (original.Count > 0) {
+				Type type = original[^1].GetType();
+				if ((type == typeof(PlainTagHandler.PlainSnippet) || type == typeof(TextSnippet))) {
+					MatchCollection matches = Format.Matches(original[^1].Text);
+					if (matches.Count > 0) {
+						original[^1].Text = original[^1].Text[..matches[^1].Index];
+						original.Add(new HolyCrossSnippetHandler.HolyCrossSnippet(new(matches[^1].ValueSpan[4..])) {
+							Color = baseColor
+						});
+					}
+				}
+			}
+			return original;
+		}
+
 		public void Unload() {}
 		public class EntitySource(string name) : IEntitySource {
 			public string Context => "Holy Cross: " + name;
@@ -264,27 +291,53 @@ namespace EpikV2 {
 			}
 			static int[] GetTuneIndices(string text) {
 				switch (text) {
+					case "or":
+					return [6, 7, 8];
+					case "ēr":
+					return [8, 10];
+					case "ər":
+					return [7, 8, 9];
+					case "er":
+					return [8, 9, 10];
+					case "ar":
+					return [7, 9];
+					case "aē":
+					return [7, 8];
+					case "εē":
+					return [6, 8, 10];
+					case "ow":
+					return [6, 8];
+					case "oi":
+					return [6, 10];
+					case "ʊ":
+					return [6, 7];
 					case "ə":
 					return [6, 9];
 					case "ē":
 					return [6, 7, 9];
 					case "ɒ":
+					return [7, 9, 10];
+					case "ɑ":
 					return [7, 8, 10];
 					case "i":
 					return [7, 10];
-					case "or":
-					return [6, 7, 8];
 					case "a":
 					return [9, 10];
-					case "ēr":
-					return [8, 10];
-					case "aē":
-					return [6, 8, 10];
 					case "ε":
 					return [8, 9];
 					case "o":
 					return [6, 8, 9];
+					case "u":
+					return [6, 9, 10];
 
+					case "sh":
+					return [1, 5];
+					case "zh":
+					return [2, 4, 5];
+					case "dzh":
+					return [1, 2, 3];
+					case "tsh":
+					return [1, 2, 5];
 					case "þ":
 					return [1, 3, 5];
 					case "h":
@@ -305,6 +358,27 @@ namespace EpikV2 {
 					return [2, 4];
 					case "n":
 					return [1, 4];
+					case "ŋ":
+					return [1, 2];
+					case "d":
+					return [1, 3];
+					case "ð":
+					return [2];
+					case "w":
+					return [3, 5];
+					case "f":
+					return [4];
+					case "p":
+					return [4, 5];
+					case "b":
+					return [5];
+					case "j" or "y":
+					return [1, 2, 4];
+					case "v":
+					return [1, 4, 5];
+					case "g":
+					return [2, 3, 5];
+
 					default:
 					return [-1];
 				}
@@ -339,23 +413,38 @@ namespace EpikV2 {
 			public override void OnClick() {
 				if (SoundEngine.TryGetActiveSound(soundSlot, out ActiveSound oldSound)) oldSound.Stop();
 				int index = -1;
-				const int note_duration = 5;
-				const int rest_duration = 12;
+				const int note_duration = 4;
+				const int rest_duration = 4;
+				const float fade_duration = 4;
 				int timer = 0;
+				int fadeTime = 0;
+				float lastVolume = 0;
 				soundSlot = SoundEngine.PlaySound(new("EpikV2/Sounds/Tone") { IsLooped = true }, null, sound => {
+					fadeTime++;
 					if (--timer <= 0) {
 						index++;
-						if (index >= sequence.Length) return false;
+						if (index >= sequence.Length) {
+							float fade = fadeTime / 4f;
+							sound.Volume = MathHelper.Lerp(lastVolume, 0, Math.Clamp(fade / fade_duration, 0, 1));
+							return fade < fade_duration;
+						}
+						lastVolume = sound.Volume;
 						if (float.IsNegativeInfinity(sequence[index])) {
-							sound.Volume = 0f;
-							sound.Pitch = 0;
+							//sound.Volume = 0f;
+							//sound.Pitch = 0;
 							timer = rest_duration;
 						} else {
-							sound.Volume = 0.20f;
 							sound.Pitch = sequence[index];
 							timer = note_duration;
 						}
+						fadeTime = 0;
 					}
+					if (index < 0) index = 0;
+					float targetVolume = 0f;
+					if (!float.IsNegativeInfinity(sequence[index])) {
+						targetVolume = (1f - MathF.Pow(Math.Abs((timer / (float)note_duration) * 2 - 1), 2));
+					}
+					sound.Volume = MathHelper.Lerp(lastVolume, targetVolume, Math.Clamp(fadeTime / fade_duration, 0, 1));
 					return true;
 				});
 			}
@@ -366,6 +455,118 @@ namespace EpikV2 {
 		}
 		public TextSnippet Parse(string text, Color baseColor = default(Color), string options = null) {
 			return new TuneSnippet(text) {
+				Color = baseColor,
+			};
+		}
+	}
+	public class HolyCrossSnippetHandler : ITagHandler {
+		public class HolyCrossSnippet : WrappingTextSnippet {
+			public readonly List<Direction> sequence = [];
+			public readonly TextSnippet[] snippets = [];
+			public HolyCrossSnippet(string text) {
+				TextOriginal = text;
+				sequence = new(text.Length);
+				List<TextSnippet> _snippets = new(text.Length * 2);
+				ITagHandler handler = new GlyphTagHandler();
+				for (int i = 0; i < text.Length; i++) {
+					bool space = true;
+					switch (text[i]) {
+						case 's':
+						_snippets.Add(handler.Parse("15"));
+						sequence.Add(DOWN);
+						break;
+						case 'd':
+						_snippets.Add(handler.Parse("13"));
+						sequence.Add(RIGHT);
+						break;
+						case 'w':
+						_snippets.Add(handler.Parse("16"));
+						sequence.Add(UP);
+						break;
+						case 'a':
+						_snippets.Add(handler.Parse("14"));
+						sequence.Add(LEFT);
+						break;
+						case '\u200C':
+						space = false;
+						_snippets.Insert(Math.Max(_snippets.Count - 1, 0), new JournalEditingCursorSnippet());
+						break;
+						default:
+						_snippets.Add(new TextSnippet("!!!", Color.Red));
+						break;
+					}
+					if (space) _snippets.Add(new TextSnippet(" "));
+				}
+				snippets = _snippets.ToArray();
+				CheckForHover = true;
+			}
+			public override void OnClick() {
+				Secret_Legend_Reference slr = ModContent.GetInstance<Secret_Legend_Reference>();
+				for (int i = 0; i < slr.InputDirections.Length; i++) {
+					if (i < sequence.Count) {
+						slr.InputDirections[i] = sequence[i];
+					} else if (slr.InputDirections[i] != NONE) {
+						slr.InputDirections[i] = NONE;
+					} else {
+						break;
+					}
+				}
+				slr.CheckHolyCrossMatch();
+			}
+			public override void OnHover() {
+				base.OnHover();
+				Main.LocalPlayer.mouseInterface = true;
+			}
+			public override bool UniqueDraw(bool justCheckingString, out Vector2 size, SpriteBatch spriteBatch, Vector2 position = default, Color color = default, float scale = 1) {
+				base.UniqueDraw(justCheckingString, out size, spriteBatch, position, color, scale);
+				if (justCheckingString || spriteBatch is null) {
+					size = new(0, FontAssets.MouseText.Value.LineSpacing * scale);
+					for (int i = 0; i < snippets.Length; i++) {
+						if (snippets[i].UniqueDraw(true, out Vector2 _size, spriteBatch)) {
+							size.X += _size.X;
+						} else {
+							size.X += FontAssets.MouseText.Value.MeasureString(snippets[i].Text).X;
+						}
+					}
+					float maxWidth = MaxWidth - BasePosition.X;
+					if (size.X > maxWidth) {
+						size.Y *= (int)((size.X + maxWidth - 1) / MaxWidth);
+						size.X = maxWidth;
+					}
+					return true;
+				}
+				size = ChatManager.GetStringSize(FontAssets.MouseText.Value, snippets, new(scale), -1);
+
+				TextSnippet[] _snippets = new TextSnippet[snippets.Length + 1];
+				float padding = position.X - BasePosition.X;
+				_snippets[0] = new PaddingSnippet(padding);
+				snippets.CopyTo(_snippets, 1);
+				position.X = BasePosition.X;
+				ChatManager.DrawColorCodedString(spriteBatch, FontAssets.MouseText.Value, _snippets, position, color, 0, Vector2.Zero, new(scale), out _, MaxWidth);
+				//size.Y = FontAssets.MouseText.Value.LineSpacing * scale;
+				return true;
+			}
+			class JournalEditingCursorSnippet : TextSnippet {
+				public override bool UniqueDraw(bool justCheckingString, out Vector2 size, SpriteBatch spriteBatch, Vector2 position = default, Color color = default, float scale = 1) {
+					size = Vector2.Zero;
+					if (justCheckingString) return true;
+					Vector2 cursorSize = FontAssets.MouseText.Value.MeasureString("^");
+					spriteBatch.DrawString(
+						FontAssets.MouseText.Value,
+						"^",
+						position + cursorSize * new Vector2(0f, 0.5f),
+						color.MultiplyRGBA(new(0.25f, 0.25f, 0.25f, 0.85f)),
+						0,
+						cursorSize * Vector2.UnitX * 0f,
+						scale,
+						SpriteEffects.None,
+					0);
+					return true;
+				}
+			}
+		}
+		public TextSnippet Parse(string text, Color baseColor = default(Color), string options = null) {
+			return new HolyCrossSnippet(text) {
 				Color = baseColor,
 			};
 		}
