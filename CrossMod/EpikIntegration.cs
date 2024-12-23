@@ -90,6 +90,65 @@ namespace EpikV2.CrossMod {
 
 				CharLoader = ModLoader.TryGetMod("CharLoader", out Mod charLoader);
 				Chars = new();
+				string[] truneVowels = [
+					"ə",
+					"o",
+					"ē",
+					"ɒ",
+					"i",
+					"or",
+					"a",
+					"ēr",
+					"aē",
+					"ε",
+					"ɑ",
+					"ar",
+					"ər",
+					"oi",
+					"ow",
+					"ʊ",
+					"εē",
+					"εr",
+					"u"
+				];
+				string[] truneConsonants = [
+					"þ",
+					"h",
+					"l",
+					"k",
+					"r",
+					"s",
+					"z",
+					"m",
+					"n",
+					"t",
+					"b",
+					"d",
+					"ð",
+					"dzh",
+					"f",
+					"g",
+					"j",
+					"ŋ",
+					"v",
+					"w",
+					"y",
+					"zh"
+				];
+				string[] trunes = [
+					..truneVowels,
+					..truneConsonants
+				];
+				Chars.truneVowels = new(truneVowels);
+				string vowel = $"(?:{string.Join("|", truneVowels.OrderByDescending(s => s.Length))})";
+				string consonant = $"(?:{string.Join("|", truneConsonants.OrderByDescending(s => s.Length))})";
+				Chars.truneRegex = new($"(?:(?<1>{vowel}(?= |$|{vowel}))|(?<1>{consonant}(?= |$|{consonant}))|(?:(?<1>{vowel})(?<2>{consonant}))|(?:(?<1>{consonant})(?<2>{vowel})))", RegexOptions.Compiled);
+				ChatManager.Register<TruneHandler>([
+					"trunic"
+				]);
+				ChatManager.Register<TuneHandler>([
+					"tuneic"
+				]);
 				if (CharLoader) {
 					///DynamicSpriteFont font, Texture2D texture, Rectangle glyph, Rectangle padding, Vector3 kerning
 					Chars.Receiving = (char)charLoader.Call(
@@ -119,55 +178,6 @@ namespace EpikV2.CrossMod {
 						new Vector3(8, 8, 16),
 						"BothBuffing"
 					);
-					string[] truneVowels = [
-						"ə",
-						"o",
-						"ē",
-						"ɒ",
-						"i",
-						"or",
-						"a",
-						"ēr",
-						"aē",
-						"ε",
-						"ɑ",
-						"ar",
-						"ər",
-						"oi",
-						"ow",
-						"ʊ",
-						"εē",
-						"εr"
-					];
-					string[] truneConsonants = [
-						"þ",
-						"h",
-						"l",
-						"k",
-						"r",
-						"s",
-						"z",
-						"m",
-						"n",
-						"t",
-						"b",
-						"d",
-						"ð",
-						"dzh",
-						"f",
-						"g",
-						"j",
-						"ŋ",
-						"v",
-						"w",
-						"y",
-						"zh"
-					];
-					string[] trunes = [
-						..truneVowels,
-						..truneConsonants
-					];
-					Chars.truneVowels = new(truneVowels);
 					for (int i = 0; i < trunes.Length; i++) {
 						if (ModContent.RequestIfExists("EpikV2/Chars/T_SL_" + trunes[i], out Asset<Texture2D> asset, AssetRequestMode.ImmediateLoad)) {
 							Chars.Trune.Add(trunes[i], (char)charLoader.Call(
@@ -199,15 +209,6 @@ namespace EpikV2.CrossMod {
 						new Vector3(0, 0, 0),
 						"T_SL_vowel_first"
 					);
-					string vowel = $"(?:{string.Join("|", truneVowels.OrderByDescending(s => s.Length))})";
-					string consonant = $"(?:{string.Join("|", truneConsonants.OrderByDescending(s => s.Length))})";
-					Chars.truneRegex = new($"(?:(?<1>{vowel}(?= |$))|(?<1>{consonant}(?= |$))|(?:(?<1>{vowel})(?<2>{consonant}))|(?:(?<1>{consonant})(?<2>{vowel})))", RegexOptions.Compiled);
-					ChatManager.Register<TruneHandler>([
-						"trunic"
-					]);
-					ChatManager.Register<TuneHandler>([
-						"tuneic"
-					]);
 					Chars.SetupGameTips();
 				}
 				BountifulGoodieBags = ModLoader.TryGetMod("BountifulGoodieBags", out _);
@@ -228,12 +229,12 @@ namespace EpikV2.CrossMod {
 			public HashSet<string> truneVowels = null;
 			readonly FastFieldInfo<GameTipsDisplay, List<GameTipData>> allTips = new("allTips", BindingFlags.NonPublic);
 			internal void SetupGameTips() {
-				string text = ConvertTrunes("þ|ə  h|o l|ē  k r|ɒ s  i|z  m|or  þ|a n  ə  m|ēr  aē|t ε|m");
-				string text2 = ConvertTrunes(truneRegex.Replace("þə holē krɒs iz mor þan ə mēr aētεm", "$1|$2 ").Replace("| ", " "));
-				_ = text == text2;
+				string text = ConvertTrunes("þə holē krɒs iz mor þan ə mēr aētεm");
 				allTips.GetValue(Main.gameTips).Add(new GameTipData(Language.GetOrRegister(text, () => text), EpikV2.instance));
 			}
+			public string ReformatTrunes(string text) => truneRegex.Replace(text, "$1|$2 ").Replace("| ", " ").Trim();
 			public string ConvertTrunes(string text) {
+				text = ReformatTrunes(text);
 				string[] syls = text.Split(' ');
 				StringBuilder stringBuilder = new();
 				if (!Trune.TryGetValue("done", out char done)) return null;

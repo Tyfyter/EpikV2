@@ -1302,6 +1302,7 @@ Projectiles: {
 	Daybreaker_Arrow_Floor_Fire.DisplayName: Daybreaker Arrow Floor Fire
 	Daybreaker_Arrow_Explosion.DisplayName: Daybreaker Arrow Explosion
 	Copperiest_Shortsword_P.DisplayName: Copperiest Shortsword
+	Cross_Seek_Particle.DisplayName: Cross Seek Particle
 }
 
 DamageClasses: {

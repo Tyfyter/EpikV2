@@ -196,6 +196,7 @@ namespace EpikV2 {
 			DashHotkey = KeybindLoader.RegisterKeybind(this, "Use Dash", "Mouse4");
 			ApplyPatches();
 			EpikV2.AddBalanceRarityOverride(ItemID.PickaxeAxe, ItemRarityID.Pink);
+			PegasusLib.PegasusLib.Require(this, LibFeature.WrappingTextSnippet);
 
 			EpikExtensions.Load();
 		}

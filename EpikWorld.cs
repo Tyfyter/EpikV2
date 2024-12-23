@@ -24,12 +24,14 @@ using static Tyfyter.Utils.ChestLootCache.LootQueueAction;
 using static Tyfyter.Utils.ChestLootCache.LootQueueMode;
 using PegasusLib;
 using ChestLootCache = Tyfyter.Utils.ChestLootCache;
+using Terraria.WorldBuilding;
 
 namespace EpikV2 {
 	public class EpikWorld : ModSystem {
 		public const WorldVersion current_world_version = WorldVersion.RecordNaturalChests;
 		public const WorldCreationVersion current_world_creation_version = WorldCreationVersion.Unversioned;
 		WorldCreationVersion creationVersion;
+		public Vector2? shimmerPosition;
 		public static WorldCreationVersion WorldCreationVersion => ModContent.GetInstance<EpikWorld>().creationVersion;
 		//public static int GolemTime = 0;
 		private static List<int> sacrifices;
@@ -171,12 +173,15 @@ namespace EpikV2 {
 			writer.Write(timeManipSubMode);
 			writer.WriteList(Sacrifices);
 			writer.WriteList(naturalChests.ToList());
+			writer.Write(shimmerPosition.HasValue);
+			if (shimmerPosition.HasValue) writer.WriteVector2(shimmerPosition.Value);
 		}
 		public override void NetReceive(BinaryReader reader) {
 			timeManipMode = reader.ReadInt32();
 			timeManipSubMode = reader.ReadInt32();
 			Sacrifices = reader.ReadInt32List();
 			naturalChests = reader.ReadPoint32List().ToHashSet();
+			if (reader.ReadBoolean()) shimmerPosition = reader.ReadVector2();
 		}
 		public override void ModifyTimeRate(ref double timeRate, ref double tileUpdateRate, ref double eventUpdateRate) {
 			switch (timeManipMode) {
@@ -264,6 +269,7 @@ namespace EpikV2 {
 				}
 			}
 			creationVersion = current_world_creation_version;
+			shimmerPosition = new((float)GenVars.shimmerPosition.X, (float)GenVars.shimmerPosition.Y);
 		}
 		public override void SaveWorldData(TagCompound tag) {
 			tag.Add("sacrifices", Sacrifices.Select(v => {
@@ -277,6 +283,7 @@ namespace EpikV2 {
 			tag.Add("worldVersion", (int)current_world_version);
 			tag.Add("naturalChests", NaturalChests.Select(Utils.ToVector2).ToList());
 			tag.Add("creationVersion", (int)creationVersion);
+			if (shimmerPosition.HasValue) tag.Add(nameof(shimmerPosition), shimmerPosition.Value);
 		}
 		public override void LoadWorldData(TagCompound tag) {
 			tag.TryGet("worldVersion", out int lastVersion);
@@ -307,6 +314,8 @@ namespace EpikV2 {
 				}
 			}
 			creationVersion = (WorldCreationVersion)tag.SafeGet<int>("creationVersion");
+			if (tag.TryGet(nameof(shimmerPosition), out Vector2 _shimmerPosition)) shimmerPosition = _shimmerPosition;
+			else shimmerPosition = null;
 		}
 		public static bool IsDevName(string name) {
 			return name is "Jennifer" or "Asher";

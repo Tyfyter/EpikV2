@@ -33,7 +33,7 @@ namespace EpikV2 {
 		void ApplyPatches() {
 			On_Player.SlopingCollision += EpikPlayer.SlopingCollision;
 			//Main.OnPreDraw += Main_OnPostDraw;
-			IL_Main.DoDraw += Main_DoDraw;
+			UnstableHooking.IL_Main_DoDraw += Main_DoDraw;
 			On_ItemSlot.PickItemMovementAction += ItemSlot_PickItemMovementAction;
 			On_ItemSlot.isEquipLocked += ItemSlot_isEquipLocked;
 			On_PlayerDrawLayers.DrawPlayer_21_Head_TheFace += PlayerDrawLayers_DrawPlayer_21_Head_TheFace;
