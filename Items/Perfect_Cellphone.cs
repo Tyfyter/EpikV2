@@ -22,20 +22,15 @@ using Tyfyter.Utils;
 using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items {
-    public class Perfect_Cellphone : ModItem, IMultiModeItem {
-		public static List<int> Phone_Types { get; internal set; }
+    public class Perfect_Cellphone : ModItem, IMultiModeItem, IComparable<Perfect_Cellphone> {
+		public static List<Perfect_Cellphone> Phone_Types { get; internal set; } = [];
+		public virtual float Order => 0;
 		public override void Unload() {
 			Phone_Types = null;
 		}
 		public override void SetStaticDefaults() {
 			Item.ResearchUnlockCount = 1;
-			Phone_Types = [
-				Type,
-				ItemType<Perfect_Cellphone_World>(),
-				ItemType<Perfect_Cellphone_Ocean>(),
-				ItemType<Perfect_Cellphone_Hell>(),
-				ItemType<Perfect_Cellphone_Return>()
-			];
+			(Phone_Types ??= []).InsertOrdered(this);
 		}
 		public override void SetDefaults() {
             Item.CloneDefaults(ItemID.CellPhone);
@@ -103,13 +98,13 @@ namespace EpikV2.Items {
 		}
 		public int GetSlotContents(int slotIndex) {
 			if (slotIndex < Phone_Types.Count) {
-				return Phone_Types[slotIndex];
+				return Phone_Types[slotIndex].Type;
 			}
 			return 0;
 		}
 		public bool ItemSelected(int slotIndex) {
 			if (slotIndex < Phone_Types.Count) {
-				return Item.type == Phone_Types[slotIndex];
+				return Item.type == Phone_Types[slotIndex].Type;
 			}
 			return false;
 		}
@@ -164,8 +159,11 @@ namespace EpikV2.Items {
 				.Register();
 			}
         }
+
+		public int CompareTo(Perfect_Cellphone other) => Order.CompareTo(other.Order);
 	}
 	public class Perfect_Cellphone_World : Perfect_Cellphone {
+		public override float Order => 1;
 		protected override void Teleport(Player player) {
 			Vector2 newPos = new Point(Main.spawnTileX, Main.spawnTileY).ToWorldCoordinates(8f, 0f) - new Vector2(player.width / 2, player.height);
 			player.Teleport(newPos, 11);
@@ -179,6 +177,7 @@ namespace EpikV2.Items {
 		}
 	}
 	public class Perfect_Cellphone_Ocean : Perfect_Cellphone {
+		public override float Order => 2;
 		protected override void SpawnDust(int frame, Vector2 position, int width, int height, float speedX = 0, float speedY = 0, int alpha = 0, float scale = 1) {
 			Vector2 value = Vector2.UnitY.RotatedBy(frame * (MathHelper.Pi * 2f) / 30f) * new Vector2(15f, 0f);
 			Dust dust = Dust.NewDustPerfect(position + new Vector2(width / 2, height) + value, Dust.dustWater());
@@ -199,6 +198,7 @@ namespace EpikV2.Items {
 		}
 	}
 	public class Perfect_Cellphone_Hell : Perfect_Cellphone {
+		public override float Order => 3;
 		protected override void SpawnDust(int frame, Vector2 position, int width, int height, float speedX = 0, float speedY = 0, int alpha = 0, float scale = 1) {
 			Vector2 value = Vector2.UnitY.RotatedBy(frame * (MathHelper.Pi * 2f) / 30f) * new Vector2(15f, 0f);
 			Dust dust = Dust.NewDustPerfect(position + new Vector2(width / 2, height) + value, 35);
@@ -219,6 +219,7 @@ namespace EpikV2.Items {
 		}
 	}
 	public class Perfect_Cellphone_Return : Perfect_Cellphone {
+		public override float Order => 4;
 		protected override void SpawnDust(int frame, Vector2 position, int width, int height, float speedX = 0, float speedY = 0, int alpha = 0, float scale = 1) {
 			Dust dust = Dust.NewDustDirect(position, width, height, DustID.MagicMirror, 0, 0, alpha, Color.Purple, scale);
 			dust.fadeIn = 1;
