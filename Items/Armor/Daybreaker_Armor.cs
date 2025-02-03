@@ -34,7 +34,7 @@ namespace EpikV2.Items.Armor {
 			Item.value = 5000000;
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
-			Item.defense = 8;
+			Item.defense = 9;
 		}
 		public int GetSlotContents(int slotIndex) => Daybreaker_Weapons.SlotContents(slotIndex);
 		public bool ItemSelected(int slotIndex) => false;
@@ -128,7 +128,7 @@ namespace EpikV2.Items.Armor {
 			Item.value = 5000000;
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
-			Item.defense = 8;
+			Item.defense = 9;
 		}
 		public override void UpdateEquip(Player player) {
 			player.spikedBoots += 1;
@@ -152,12 +152,12 @@ namespace EpikV2.Items.Armor {
 			ArmorIDs.Wing.Sets.Stats[WingsID] = new(180, 8, 2, true, 10f, 10f);
 		}
 		public override void SetDefaults() {
+			Item.wingSlot = WingsID;
 			Item.width = 20;
 			Item.height = 16;
 			Item.value = 5000000;
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
-			Item.defense = 8;
 		}
 		public override bool WingUpdate(Player player, bool inUse) {
 			if (inUse) {
@@ -181,14 +181,16 @@ namespace EpikV2.Items.Armor {
 			return false;
 		}
 		public override void HorizontalWingSpeeds(Player player, ref float speed, ref float acceleration) {
+			float braking_factor = 0.97f;
 			if (player.controlJump && player.TryingToHoverDown) {
 				speed *= 1.35f;
 				acceleration *= 1.35f;
+				braking_factor = 0.93f;
 			} else if (player.controlDown) {
 				player.velocity.Y += player.gravity * player.gravDir * 0.75f;
 				player.maxFallSpeed *= 1.25f;
+				braking_factor = 0.83f;
 			}
-			const float braking_factor = 0.97f;
 			if (!player.controlRight && player.velocity.X > 0) player.velocity.X *= braking_factor;
 			if (!player.controlLeft && player.velocity.X < 0) player.velocity.X *= braking_factor;
 		}
@@ -199,7 +201,9 @@ namespace EpikV2.Items.Armor {
 			maxAscentMultiplier = 2.5f;
 			constantAscend = 0.125f;
 
+			const float braking_factor = 0.93f;
 			if (player.TryingToHoverDown) {
+				player.velocity.Y *= braking_factor;
 				player.wingTime += (player.controlLeft || player.controlRight) ? 0.5f : 1f;
 				ascentWhenFalling = player.gravity + player.velocity.Y * 0.05f * player.gravDir;
 				ascentWhenRising = -(player.gravity + player.velocity.Y * 0.05f * player.gravDir);
@@ -251,7 +255,7 @@ namespace EpikV2.Items.Armor {
 			Item.value = 5000000;
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
-			Item.defense = 8;
+			Item.defense = 9;
 		}
 		public override void UpdateEquip(Player player) {
 			player.spikedBoots += 1;
@@ -1511,26 +1515,28 @@ namespace EpikV2.Items.Armor {
 					}
 				} else {
 					if (!rain) GeometryUtils.AngularSmoothing(ref Projectile.rotation, diff.ToRotation(), rotSpeed);
-					Vector2 position = Projectile.position;
-					Vector2 velocity = GeometryUtils.Vec2FromPolar(player.HeldItem.shootSpeed, Projectile.rotation);
-					int _ = 0;
-					StatModifier damageMod = player.GetTotalDamage(player.HeldItem.DamageType);
-					CombinedHooks.ModifyWeaponDamage(player, player.HeldItem, ref damageMod);
-					StatModifier knockbackMod = player.GetTotalKnockback(player.HeldItem.DamageType);
-					CombinedHooks.ModifyWeaponKnockback(player, player.HeldItem, ref knockbackMod);
-					int damage = (int)damageMod.ApplyTo(player.HeldItem.damage);
-					float knockback = knockbackMod.ApplyTo(player.HeldItem.knockBack);
-					CombinedHooks.ModifyShootStats(player, player.HeldItem, ref position, ref velocity, ref _, ref damage, ref knockback);
-					Projectile.ai[0] = Projectile.NewProjectileDirect(
-						player.GetSource_ItemUse(player.HeldItem),
-						position,
-						velocity,
-						projType,
-						damage,
-						knockback,
-						ai0: Projectile.identity
-					).identity;
-					Projectile.netUpdate = true;
+					if (Main.myPlayer == Projectile.owner) {
+						Vector2 position = Projectile.position;
+						Vector2 velocity = GeometryUtils.Vec2FromPolar(player.HeldItem.shootSpeed, Projectile.rotation);
+						int _ = 0;
+						StatModifier damageMod = player.GetTotalDamage(player.HeldItem.DamageType);
+						CombinedHooks.ModifyWeaponDamage(player, player.HeldItem, ref damageMod);
+						StatModifier knockbackMod = player.GetTotalKnockback(player.HeldItem.DamageType);
+						CombinedHooks.ModifyWeaponKnockback(player, player.HeldItem, ref knockbackMod);
+						int damage = (int)damageMod.ApplyTo(player.HeldItem.damage);
+						float knockback = knockbackMod.ApplyTo(player.HeldItem.knockBack);
+						CombinedHooks.ModifyShootStats(player, player.HeldItem, ref position, ref velocity, ref _, ref damage, ref knockback);
+						Projectile.ai[0] = Projectile.NewProjectileDirect(
+							player.GetSource_ItemUse(player.HeldItem),
+							position,
+							velocity,
+							projType,
+							damage,
+							knockback,
+							ai0: Projectile.identity
+						).identity;
+						Projectile.netUpdate = true;
+					}
 				}
 			} else {
 				GeometryUtils.AngularSmoothing(ref Projectile.rotation, MathHelper.PiOver2 - player.direction, rotSpeed);

@@ -283,10 +283,7 @@ namespace EpikV2.Items {
 			List<(string key, string replacement)> replacements = [];
 			InputMode inputMode = InputMode.Keyboard;
 			switch (PlayerInput.CurrentInputMode) {
-				case InputMode.XBoxGamepad:
-				inputMode = InputMode.XBoxGamepad;
-				break;
-				case InputMode.XBoxGamepadUI:
+				case InputMode.XBoxGamepad or InputMode.XBoxGamepadUI:
 				inputMode = InputMode.XBoxGamepad;
 				break;
 			}

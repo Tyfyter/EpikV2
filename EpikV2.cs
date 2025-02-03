@@ -319,6 +319,15 @@ namespace EpikV2 {
 			if (EpikV2.rarityTiers.TryGetValue(item.OriginalRarity, out int rareEquivalent)) return rareEquivalent;
 			return item.OriginalRarity;
 		}
+		// for DevHelper
+		static string DevHelpBrokenReason {
+			get {
+#if DEBUG
+				return "Mod was last built in DEBUG configuration";
+#endif
+				return null;
+			}
+		}
 	}
 	public class EpikConfig : ModConfig {
 		public static EpikConfig Instance;
