@@ -15,7 +15,7 @@ namespace EpikV2.Items.Accessories {
 			yield return new AttackSpeedStat(0.07f, DamageClass.Magic);
 		}
 		public override void SetDefaults() {
-			Item.DefaultToAccessory(26, 30);
+			Item.DefaultToAccessory(16, 16);
 			Item.rare = ItemRarityID.LightRed;
 			Item.maxStack = 1;
 		}

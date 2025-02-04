@@ -1193,6 +1193,15 @@ Items: {
 		DisplayName: The Copperiest Shortsword
 		Tooltip: Now with 20% more copper
 	}
+
+	Mark_Of_Equality: {
+		DisplayName: Mark Of Equality
+		Tooltip:
+			'''
+			Converts some restored mana into restored health and vice versa
+			'It could look cooler, but that wouldn't be fair to all the accessories that don't'
+			'''
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck
@@ -1382,7 +1391,7 @@ Tiles: {
 }
 
 Keybinds: {
-	"Change Item Mode.DisplayName": Change  Item  Mode
+	"Change Item Mode.DisplayName": Change Item Mode
 	"Use Dash.DisplayName": Use  Dash
 }
 

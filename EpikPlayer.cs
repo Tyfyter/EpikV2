@@ -166,6 +166,8 @@ namespace EpikV2 {
 		public bool releaseUseItem;
 		public bool realUnicornHorn;
 		public int cUnicornHorn;
+		public bool equilibrium;
+		public bool equilibriumVisual;
 
 		public bool adjCampfire;
 		bool oldAdjCampfire;
@@ -231,6 +233,8 @@ namespace EpikV2 {
 			if (showLeftHandMagic > 0) showLeftHandMagic--;
 			realUnicornHorn = false;
 			cUnicornHorn = 0;
+			equilibrium = false;
+			equilibriumVisual = false;
 			if (telescopeID >= 0) {
 				Projectile telescopeProj = Main.projectile[telescopeID];
 				bool cancel = !telescopeProj.active || telescopeProj.type != Telescope_View_P.ID;
@@ -1336,6 +1340,21 @@ namespace EpikV2 {
 					drawInfo.Position.Y -= (float)Math.Pow(2, marionettePullTime - 10);
 					drawInfo.Position.Y += marionettePullTime;
 				}
+			}
+			if (equilibriumVisual) {
+				static Color Desaturate(Color value, float multiplier) {
+					float R = value.R / 255f;
+					float G = value.G / 255f;
+					float B = value.B / 255f;
+					float median = (Math.Min(Math.Min(R, G), B) + Math.Max(Math.Max(R, G), B)) / 2f;
+					return new(Lerp(median, R, multiplier), Lerp(median, G, multiplier), Lerp(median, B, multiplier));
+				}
+				const float saturationMult = 0.75f;
+				drawInfo.colorHair = Desaturate(drawInfo.colorHair, saturationMult);
+				drawInfo.colorHead = Desaturate(drawInfo.colorHead, saturationMult);
+				drawInfo.colorEyes = Desaturate(drawInfo.colorEyes, saturationMult);
+				drawInfo.colorEyeWhites = Desaturate(drawInfo.colorEyeWhites, saturationMult);
+				drawInfo.colorBodySkin = Desaturate(drawInfo.colorBodySkin, saturationMult);
 			}
 		}
 		public override void HideDrawLayers(PlayerDrawSet drawInfo) {
