@@ -998,7 +998,7 @@ namespace EpikV2.Items.Armor {
 				modifiers.CritDamage *= 1 + Projectile.CritChance / 100f;
 				modifiers.SetCrit();
 			}
-			target.AddBuff(BuffID.OnFire3, Main.rand.Next(300, 480));
+			if (target.type is NPCID.Vampire or NPCID.VampireBat) modifiers.FinalDamage *= 3;
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			//SoundEngine.PlaySound((hit.Crit ? SoundID.DD2_MonkStaffGroundImpact : SoundID.DD2_MonkStaffGroundMiss).WithPitchRange(-0.2f, 0.0f), target.Center);
@@ -1023,6 +1023,7 @@ namespace EpikV2.Items.Armor {
 				target.AddBuff(BuffID.OnFire3, 120);
 				break;
 			}
+			target.AddBuff(BuffID.OnFire3, Main.rand.Next(300, 480));
 			target.SyncCustomKnockback();
 		}
 		public override bool TileCollideStyle(ref int width, ref int height, ref bool fallThrough, ref Vector2 hitboxCenterFrac) => false;
@@ -1180,6 +1181,7 @@ namespace EpikV2.Items.Armor {
 				modifiers.SourceDamage /= 2f;
 				modifiers.DisableKnockback();
 			} else modifiers.HitDirectionOverride = 0;
+			if (target.type is NPCID.Vampire or NPCID.VampireBat) modifiers.FinalDamage *= 3;
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			if (Projectile.ai[1] <= 0.1f) {
@@ -1279,6 +1281,7 @@ namespace EpikV2.Items.Armor {
 		}
 		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
 			modifiers.HitDirectionOverride = 0;
+			if (target.type is NPCID.Vampire or NPCID.VampireBat) modifiers.FinalDamage *= 3;
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			Vector2 targetSpeed = default;
@@ -1739,6 +1742,9 @@ namespace EpikV2.Items.Armor {
 			}
 			return false;
 		}
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			if (target.type is NPCID.Vampire or NPCID.VampireBat) modifiers.FinalDamage *= 3;
+		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			if (Projectile.ai[2] == 0) {
 				Projectile.ai[2] = 1;
@@ -1824,6 +1830,9 @@ namespace EpikV2.Items.Armor {
 				base.AI();
 			}
 			if (Projectile.ai[1] < 0.6f) Projectile.ai[1] += 0.05f;
+		}
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			if (target.type is NPCID.Vampire or NPCID.VampireBat) modifiers.FinalDamage *= 3;
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			target.AddBuff(BuffID.OnFire3, 120);
@@ -1923,6 +1932,9 @@ namespace EpikV2.Items.Armor {
 				dust.velocity *= 3f;
 				dust.shader = shader;
 			}
+		}
+		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
+			if (target.type is NPCID.Vampire or NPCID.VampireBat) modifiers.FinalDamage *= 3;
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			target.AddBuff(BuffID.OnFire3, 300);
