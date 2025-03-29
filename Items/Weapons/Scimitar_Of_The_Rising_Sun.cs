@@ -363,7 +363,8 @@ namespace EpikV2.Items.Weapons {
 	public class Scimitar_Of_The_Rising_Sun_Slash : Slashy_Sword_Projectile {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
-		protected override int HitboxSteps => 2;
+		protected sealed override int HitboxSteps => BaseHitboxSteps * (1 + Main.player[Projectile.owner].HasBuff<Shocked_Debuff>().ToInt());
+		protected virtual int BaseHitboxSteps => 2;
 		protected virtual float Startup => 0.25f;
 		protected virtual float End => 0.25f;
 		protected virtual float SwingStartVelocity => 1f;
@@ -465,6 +466,7 @@ namespace EpikV2.Items.Weapons {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		protected Vector2 Origin => new Vector2(20, 32 - (12 * Projectile.direction));
 		protected int HitboxPrecision => 2;
+		public static Dictionary<int, Action<Projectile, Projectile, byte>> deflectActions = [];
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.PiercingStarlight);
 			Projectile.width = Projectile.height = 48;
@@ -556,7 +558,7 @@ namespace EpikV2.Items.Weapons {
 			deflectHitbox.Inflate(4, 4);
 			int scaleEffect = (int)(deflectHitbox.Width * (Projectile.scale - 1) * 0.5f);
 			deflectHitbox.Inflate(scaleEffect, scaleEffect);
-			for (int i = 0; i < Main.maxProjectiles; i++) {
+			/*for (int i = 0; i < Main.maxProjectiles; i++) {
 				if (i == Projectile.whoAmI) continue;
 				Projectile other = Main.projectile[i];
 				if (other.active && other.hostile && other.damage > 0) {
@@ -589,7 +591,7 @@ namespace EpikV2.Items.Weapons {
 						otherHitbox.Offset(other.velocity.ToPoint());
 					}
 				}
-			}
+			}*/
 			int blockDebuff = BuffType<Scimitar_Of_The_Rising_Sun_Block_Debuff>();
 			for (int i = 0; i < Main.maxNPCs; i++) {
 				NPC target = Main.npc[i];
@@ -598,6 +600,47 @@ namespace EpikV2.Items.Weapons {
 					if (otherHitbox.Intersects(deflectHitbox) && !target.HasBuff(blockDebuff)) {
 						target.AddBuff(blockDebuff, 5);
 						target.GetGlobalNPC<EpikGlobalNPC>().sotrsBlockKnockback = Projectile.knockBack;
+					}
+				}
+			}
+		}
+		public static void DoDeflection(Projectile projectile, ref byte deflectState) {
+			if (projectile.active && projectile.hostile && projectile.damage > 0 && deflectState == 0) {
+				int sotrsBlock = ProjectileType<Scimitar_Of_The_Rising_Sun_Block>();
+				Rectangle otherHitbox = projectile.Hitbox;
+				foreach (Projectile deflect in Main.ActiveProjectiles) {
+					if (deflect.whoAmI == projectile.whoAmI || deflect.type != sotrsBlock) continue;
+
+					Rectangle deflectHitbox = deflect.Hitbox;
+					deflectHitbox.Offset((deflect.velocity * 2).ToPoint());
+					deflectHitbox.Inflate(4, 4);
+					int scaleEffect = (int)(deflectHitbox.Width * (deflect.scale - 1) * 0.5f);
+					deflectHitbox.Inflate(scaleEffect, scaleEffect);
+
+					if (otherHitbox.Intersects(deflectHitbox)) {
+						Vector2 intersectCenter = Rectangle.Intersect(deflectHitbox, otherHitbox).Center();
+						if (deflect.timeLeft > deflect_threshold) {
+							ParticleOrchestrator.RequestParticleSpawn(clientOnly: false, ParticleOrchestraType.AshTreeShake, new ParticleOrchestraSettings {
+								PositionInWorld = intersectCenter,
+								UniqueInfoPiece = -15,
+								MovementVector = deflect.velocity.SafeNormalize(default)
+							}, deflect.owner);
+
+							deflectState = 2;
+							if (projectile.penetrate == 1) projectile.Kill();
+							SoundEngine.PlaySound(SoundID.Item37.WithVolume(0.95f).WithPitch(0.41f).WithPitchVarience(0), intersectCenter);
+							SoundEngine.PlaySound(SoundID.Item35.WithVolume(1f).WithPitch(1f), intersectCenter);
+							Main.player[deflect.owner].velocity += projectile.velocity * 0.25f;
+							deflect.penetrate = 2;
+						} else {
+							deflectState = 1;
+							SoundEngine.PlaySound(SoundID.Item37.WithVolume(0.95f).WithPitch(0.41f).WithPitchVarience(0), intersectCenter);
+							SoundEngine.PlaySound(SoundID.Item35.WithVolume(0.5f).WithPitch(-0.1667f), intersectCenter);
+							Main.player[deflect.owner].velocity += projectile.velocity * 0.25f;
+							//SoundEngine.PlaySound(SoundID.NPCHit4, intersectCenter);
+						}
+						if (deflectActions.TryGetValue(projectile.type, out Action<Projectile, Projectile, byte> action)) action(deflect, projectile, deflectState);
+						break;
 					}
 				}
 			}
@@ -676,7 +719,7 @@ namespace EpikV2.Items.Weapons {
 	public class Scimitar_Of_The_Rising_Sun_Nightjar_Slash : Scimitar_Of_The_Rising_Sun_Slash {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
-		protected override int HitboxSteps => 2;
+		protected override int BaseHitboxSteps => 2;
 		protected override float Startup => 1f;
 		protected override float End => 0.25f;
 		protected override float SwingStartVelocity => Projectile.localAI[2] < 1 ? 0.25f : 1;
@@ -715,7 +758,7 @@ namespace EpikV2.Items.Weapons {
 	public class Scimitar_Of_The_Rising_Sun_Reverse_Nightjar_Slash : Scimitar_Of_The_Rising_Sun_Slash {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
-		protected override int HitboxSteps => 2;
+		protected override int BaseHitboxSteps => 2;
 		protected override float Startup => 0.2f;
 		protected override float End => 1f;
 		protected override float SwingEndVelocity => 0.75f;
@@ -757,7 +800,7 @@ namespace EpikV2.Items.Weapons {
 		}
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
-		protected override int HitboxSteps => 2 + 1 * (int)Projectile.ai[0];
+		protected override int BaseHitboxSteps => 2 + 1 * (int)Projectile.ai[0];
 		protected override float Startup => 0.25f;
 		protected override float End => 1.5f;
 		protected override float SwingEndVelocity => 0.75f;
@@ -825,7 +868,7 @@ namespace EpikV2.Items.Weapons {
 		}
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
-		protected override int HitboxSteps => 3 + 2 * (int)Projectile.ai[0];
+		protected override int BaseHitboxSteps => 3 + 2 * (int)Projectile.ai[0];
 		protected override float Startup => 0f;
 		protected override float End => 1.5f;
 		protected override float SwingEndVelocity => 0.75f;
@@ -904,7 +947,7 @@ namespace EpikV2.Items.Weapons {
 		}
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
-		protected override int HitboxSteps => 3 + 2 * (int)Projectile.ai[0];
+		protected override int BaseHitboxSteps => 3 + 2 * (int)Projectile.ai[0];
 		protected override float Startup => 1.25f;
 		protected override float End => 1.25f;
 		protected override float SwingStartVelocity => 0.75f;
@@ -953,7 +996,7 @@ namespace EpikV2.Items.Weapons {
 		}
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
 		protected override Vector2 Origin => new Vector2(10, 32 + (22 * Projectile.ai[1]));
-		protected override int HitboxSteps => 3;
+		protected override int BaseHitboxSteps => 3;
 		protected override float Startup => 0f;
 		protected override float End => 1.25f;
 		protected override float SwingStartVelocity => 0.75f;
@@ -1127,6 +1170,60 @@ namespace EpikV2.Items.Weapons {
 		private float StripWidth(float progressOnStrip) {
 			return Length;
 		}
+	}
+	public class Shocked_Debuff : ModBuff {
+		public override void SetStaticDefaults() {
+			Main.debuff[Type] = true;
+			Main.buffNoTimeDisplay[Type] = true;
+			BuffID.Sets.TimeLeftDoesNotDecrease[Type] = true;
+		}
+		public override void Update(Player player, ref int buffIndex) {
+			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			if (epikPlayer.collide.y == 1 || player.HeldItem?.ModItem is not Scimitar_Of_The_Rising_Sun) {
+				player.buffType[buffIndex] = BuffType<Actually_Shocked_Debuff>();
+			}
+		}
+	}
+	public class Actually_Shocked_Debuff : ModBuff {
+		public override string Texture => typeof(Shocked_Debuff).GetDefaultTMLName();
+		public override void SetStaticDefaults() {
+			Main.debuff[Type] = true;
+		}
+		public override void Update(Player player, ref int buffIndex) {
+			player.frozen = true;
+			player.lifeRegen -= 120;
+		}
+	}
+	[ExtendsFromMod(nameof(Origins))]
+	public class SOTRSOriginsCompat : ILoadable {
+		public void Load(Mod mod) {
+			Scimitar_Of_The_Rising_Sun_Block.deflectActions.Add(
+				ProjectileType<Origins.NPCs.Felnum.Felnum_Guardian_P>(),
+				DeflectLightning
+			);
+			Scimitar_Of_The_Rising_Sun_Block.deflectActions.Add(
+				ProjectileType<Origins.NPCs.Felnum.Cloud_Elemental_P>(),
+				DeflectLightning
+			);
+		}
+		public static void DeflectLightning(Projectile deflector, Projectile projectile, byte deflectState) {
+			Main.player[deflector.owner].AddBuff(BuffType<Shocked_Debuff>(), projectile.damage / (deflectState == 2 ? 2 : 4));
+			if (projectile.velocity == Vector2.Zero) return;
+			for (int i = (int)((deflector.Center - projectile.Center).Length() / projectile.velocity.Length()); i > 0; i--) {
+				if (++projectile.ai[1] > ProjectileID.Sets.TrailCacheLength[projectile.type]) {
+					break;
+				} else {
+					projectile.position += projectile.velocity;
+					int index = (int)projectile.ai[1];
+					projectile.oldPos[^index] = projectile.Center;
+					projectile.oldRot[^index] = projectile.velocity.ToRotation();
+				}
+			}
+			projectile.velocity = Vector2.Zero;
+			projectile.ai[0] = 1;
+			projectile.extraUpdates = 0;
+		}
+		public void Unload() { }
 	}
 	//TODO: add localization & textures
 	public record SotRS_Combat_Art(int itemIcon, float damageMult, float useTimeMult, int projectileType, Vector2 startVelocityMult, Vector2 directionalVelocity = default, Vector2 absoluteVelocity = default, int manaCost = 0, float ai1 = 1, float knockbackMult = 0.85f, Vector2 perpendicularVelocity = default);

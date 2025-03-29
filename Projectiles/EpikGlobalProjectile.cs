@@ -16,6 +16,9 @@ using EpikV2.NPCs;
 using Terraria.ModLoader.IO;
 using System.IO;
 using PegasusLib;
+using Terraria.Audio;
+using Terraria.GameContent.Drawing;
+using EpikV2.Items.Weapons;
 
 namespace EpikV2.Projectiles {
     public class EpikGlobalProjectile : GlobalProjectile {
@@ -135,7 +138,8 @@ namespace EpikV2.Projectiles {
             if (prefix is IProjectileAIPrefix aiPrefix) {
                 aiPrefix.OnProjectileAI(projectile);
             }
-        }
+			Scimitar_Of_The_Rising_Sun_Block.DoDeflection(projectile, ref deflectState);
+		}
 		public override void PostAI(Projectile projectile) {
             EpikV2.KaleidoscopeColorType = 0;
         }

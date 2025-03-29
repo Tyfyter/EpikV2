@@ -186,6 +186,16 @@ Buffs: {
 		DisplayName: The Copperiest Shortsword
 		Description: You can tell by all the extra copper
 	}
+
+	Actually_Shocked_Debuff: {
+		DisplayName: Actually_ Shocked_ Debuff
+		Description: Mods.EpikV2.Buffs.Actually_Shocked_Debuff.Description
+	}
+
+	Shocked_Debuff: {
+		DisplayName: Shocked_ Debuff
+		Description: Mods.EpikV2.Buffs.Shocked_Debuff.Description
+	}
 }
 
 Empowerment.SolarRejuvenation: Solar Rejuvenation
