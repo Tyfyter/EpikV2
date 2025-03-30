@@ -634,7 +634,7 @@ namespace EpikV2 {
 		}
 		public override void ProcessTriggers(TriggersSet triggersSet) {
 			if (EpikV2.ModeSwitchHotkey.Current) {
-				IMultiModeItem multiModeItem = Player.HeldItem.ModItem as IMultiModeItem;
+				IMultiModeItem multiModeItem = (Main.mouseItem is Item { IsAir: false } ? Main.mouseItem : Player.HeldItem).ModItem as IMultiModeItem;
 				if (multiModeItem?.CanSelectInHand == false) multiModeItem = null;
 				if (multiModeItem is null && Main.LocalPlayer.HeldItem.IsAir) {
 					multiModeItem = Main.LocalPlayer.GetModPlayer<EpikPlayer>().airMultimodeItem;

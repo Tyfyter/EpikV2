@@ -1,36 +1,27 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using EpikV2.Modifiers;
 using EpikV2.NPCs;
 using EpikV2.Projectiles;
 using EpikV2.UI;
-using Microsoft.VisualBasic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using PegasusLib;
-using PegasusLib.Graphics;
 using ReLogic.Graphics;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
-using Terraria.Enums;
 using Terraria.GameContent;
 using Terraria.GameContent.Drawing;
-using Terraria.GameContent.Items;
-using Terraria.GameContent.UI.Chat;
 using Terraria.GameInput;
 using Terraria.Graphics;
 using Terraria.Graphics.Shaders;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
-using Terraria.ModLoader.IO;
 using Terraria.UI;
 using Terraria.UI.Chat;
-using Terraria.Utilities;
-using Tyfyter.Utils;
 using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items.Weapons {
@@ -38,7 +29,7 @@ namespace EpikV2.Items.Weapons {
 		public static List<SotRS_Combat_Art> BaseCombatArts { get; private set; } = new();
 		public List<SotRS_Combat_Art> CombatArts {
 			get {
-				var arts = BaseCombatArts.ToList();
+				List<SotRS_Combat_Art> arts = BaseCombatArts.ToList();
 				if (Item.prefix == PrefixType<Mortal_Prefix>()) arts.Insert(3, new(
 					ItemType<Mortal_Draw>(),
 					2.5f,
@@ -57,7 +48,7 @@ namespace EpikV2.Items.Weapons {
 		}
 		public InterfaceScaleType InterfaceScaleType => InterfaceScaleType.None;
 		public bool ReplacesNormalHotbar => false;
-		int mode = 0;
+		protected int mode = 0;
 		public override void SetStaticDefaults() {
 			Sets.IsValidForAltManaPoweredPrefix[Type] = false;
 			BaseCombatArts.Add(new(
