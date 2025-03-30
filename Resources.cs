@@ -76,6 +76,7 @@ namespace EpikV2 {
 				dimStarlightShader = new ArmorShaderData(mod.Assets.Request<Effect>("Effects/Armor"), "Starlight");
 				brightStarlightShader = new ArmorShaderData(mod.Assets.Request<Effect>("Effects/Armor"), "BrightStarlight");
 
+				GameShaders.Misc["EpikV2:Framed"] = new MiscShaderData(mod.Assets.Request<Effect>("Effects/Strip"), "Framed");
 				GameShaders.Misc["EpikV2:Identity"] = new MiscShaderData(mod.Assets.Request<Effect>("Effects/Misc"), "Identity");
 
 				GameShaders.Armor.BindShader(ItemType<Nightmare_Sword>(), new ArmorShaderData(mod.Assets.Request<Effect>("Effects/MagicWave"), "MagicWave"));

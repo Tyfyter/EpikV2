@@ -1437,6 +1437,11 @@ Configs: {
 			Label: Use Custom Magic Color
 			Tooltip: If this is not checked your eye color will be used
 		}
+
+		useTorchForScrollables: {
+			Label: Use Auto Select for scrollable items
+			Tooltip: ""
+		}
 	}
 
 	JitterTypes: {

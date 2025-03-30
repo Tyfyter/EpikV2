@@ -1131,9 +1131,15 @@ namespace EpikV2 {
 			}
 		}
 		public override void SetControls() {
-			if (Player.controlTorch) {
-				if (Player.HeldItem?.ModItem is IScrollableItem item) {
+			if (Player.HeldItem?.ModItem is IScrollableItem item) {
+				bool doScroll;
+				if (EpikClientConfig.Instance.useTorchForScrollables) {
+					doScroll = Player.controlTorch;
 					Player.controlTorch = false;
+				} else {
+					doScroll = EpikV2.ModeSwitchHotkey.Current;
+				}
+				if (doScroll) {
 					if (Math.Abs(PlayerInput.ScrollWheelDelta) >= 60) {
 						item.Scroll(PlayerInput.ScrollWheelDelta / -120);
 						PlayerInput.ScrollWheelDelta = 0;

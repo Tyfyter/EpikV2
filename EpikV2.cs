@@ -455,6 +455,9 @@ namespace EpikV2 {
 				}
 			}
 		}
+
+		[DefaultValue(false)]
+		public bool useTorchForScrollables = false;
 		[JsonIgnore]
 		[ShowDespiteJsonIgnore]
 		[DefaultValue(null)]

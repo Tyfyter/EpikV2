@@ -7,7 +7,9 @@ using EpikV2.Projectiles;
 using EpikV2.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Newtonsoft.Json.Linq;
 using PegasusLib;
+using ReLogic.Content;
 using ReLogic.Graphics;
 using Terraria;
 using Terraria.Audio;
@@ -25,7 +27,7 @@ using Terraria.UI.Chat;
 using static Terraria.ModLoader.ModContent;
 
 namespace EpikV2.Items.Weapons {
-	public class Scimitar_Of_The_Rising_Sun : ModItem, IMultiModeItem, IDisableTileInteractItem {
+	public class Scimitar_Of_The_Rising_Sun : ModItem, IMultiModeItem, IScrollableItem, IDisableTileInteractItem {
 		public static List<SotRS_Combat_Art> BaseCombatArts { get; private set; } = new();
 		public List<SotRS_Combat_Art> CombatArts {
 			get {
@@ -194,6 +196,10 @@ namespace EpikV2.Items.Weapons {
 			tooltips.InsertRange(tooltips.FindLastIndex(l => l.Name.StartsWith("Tooltip")) + 1, combatArtTooltips);
 		}
 		public override bool MeleePrefix() => true;
+		public void Scroll(int direction) {
+			int count = CombatArts.Count;
+			SelectItem((mode + count + direction) % count);
+		}
 		public int GetSlotContents(int slotIndex) => slotIndex < CombatArts.Count ? CombatArts[slotIndex].itemIcon : 0;
 		public bool ItemSelected(int slotIndex) {
 			return mode == slotIndex;
@@ -350,6 +356,39 @@ namespace EpikV2.Items.Weapons {
 		public override void AddRecipes() {
 			ShimmerSlimeTransmutation.AddTransmutation(ItemID.Katana, Type, Condition.DownedMechBossAny);
 		}
+		AutoLoadingAsset<Texture2D> mortalBladeTexture = "EpikV2/Items/Weapons/Mortal_Blade";
+		public override bool PreDrawInInventory(SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale) {
+			if (Item.prefix == PrefixType<Mortal_Prefix>()) {
+				spriteBatch.Draw(
+					mortalBladeTexture,
+					position,
+					null,
+					drawColor,
+					0f,
+					mortalBladeTexture.Value.Size() * 0.5f,
+					scale / 1.22f,
+					SpriteEffects.None,
+				0f);
+				return false;
+			}
+			return true;
+		}
+		public override bool PreDrawInWorld(SpriteBatch spriteBatch, Color lightColor, Color alphaColor, ref float rotation, ref float scale, int whoAmI) {
+			if (Item.prefix == PrefixType<Mortal_Prefix>()) {
+				spriteBatch.Draw(
+					mortalBladeTexture,
+					Item.position + Item.Size * new Vector2(0.5f, 0.75f) - Main.screenPosition,
+					null,
+					lightColor,
+					rotation,
+					mortalBladeTexture.Value.Size() * new Vector2(0.5f, 0.75f),
+					scale,
+					SpriteEffects.None,
+				0f);
+				return false;
+			}
+			return base.PreDrawInWorld(spriteBatch, lightColor, alphaColor, ref rotation, ref scale, whoAmI);
+		}
 	}
 	public class Scimitar_Of_The_Rising_Sun_Slash : Slashy_Sword_Projectile {
 		public override string Texture => "EpikV2/Items/Weapons/Scimitar_Of_The_Rising_Sun";
@@ -432,7 +471,9 @@ namespace EpikV2.Items.Weapons {
 			return false;
 		}
 		public override void OnKill(int timeLeft) {
-			Main.player[Projectile.owner].velocity *= TimeoutVelocity;
+			Player player = Main.player[Projectile.owner];
+			player.velocity *= TimeoutVelocity;
+			player.ClearBuff(BuffType<Shocked_Debuff>());
 		}
 		public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox) {
 			//Vector2 vel = Projectile.velocity.SafeNormalize(Vector2.Zero) * Projectile.width * 0.95f;
@@ -449,6 +490,74 @@ namespace EpikV2.Items.Weapons {
 			}
 			return value;
 		}
+		AutoLoadingAsset<Texture2D> mortalBladeTexture = "EpikV2/Items/Weapons/Mortal_Blade";
+
+		protected static VertexStrip _vertexStrip = new VertexStrip();
+		public override bool PreDraw(ref Color lightColor) {
+			Texture2D texture = TextureAssets.Projectile[Type].Value;
+			float scale = Projectile.scale;
+			Vector2 origin = Origin;
+			if (Main.player[Projectile.owner].HeldItem.prefix == PrefixType<Mortal_Prefix>()) {
+				texture = mortalBladeTexture;
+				scale /= 1.22f;
+				origin = new Vector2(10, 39 + (29 * Projectile.ai[1]));
+			}
+			Main.EntitySpriteDraw(
+				texture,
+				Projectile.Center - Main.screenPosition,
+				null,
+				lightColor,
+				Rotation,
+				origin,
+				scale,
+				Projectile.ai[1] > 0 ? SpriteEffects.None : SpriteEffects.FlipVertically,
+			0);
+			DrawLightning();
+			return false;
+		}
+		public void DrawLightning() {
+			if (!Main.player[Projectile.owner].HasBuff<Shocked_Debuff>()) return;
+			Vector2 mov = (Projectile.velocity.RotatedBy(Projectile.rotation) / 12f) * Projectile.width * (HitboxSteps + 1f);
+			if (mov == Vector2.Zero) return;
+			DrawLightningBetween(Projectile.Center, Projectile.Center + mov);
+		}
+		public static void DrawLightningBetween(Vector2 a, Vector2 b) {
+			MiscShaderData miscShaderData = GameShaders.Misc["EpikV2:Framed"];
+			float uTime = (float)Main.timeForVisualEffects / 44;
+			Vector2 mov = b - a;
+			const int length = 16;
+			float[] rot = new float[length];
+			Vector2[] pos = new Vector2[length];
+			float rotation = mov.ToRotation();
+			for (int i = 0; i < length; i++) {
+				rot[i] = rotation;
+				pos[i] = a + mov * (i / (float)length) + GeometryUtils.Vec2FromPolar(Main.rand.NextFloat(-6, 6), rot[i] + MathHelper.PiOver2);
+				Lighting.AddLight(pos[i], 1f, 0.75f, 0.1f);
+			}
+			//Dust.NewDustPerfect(pos[length - 1] + (new Vector2(unit.Y, -unit.X) * Main.rand.NextFloat(-4, 4)), DustID.BlueTorch, unit * 5).noGravity = true;
+			Asset<Texture2D> texture = TextureAssets.Extra[194];
+			miscShaderData.UseImage0(texture);
+			//miscShaderData.UseShaderSpecificData(new Vector4(Main.rand.NextFloat(1), 0, 1, 1));
+			miscShaderData.Shader.Parameters["uAlphaMatrix0"]?.SetValue(new Vector4(1, 1, 1, 0));
+			miscShaderData.Shader.Parameters["uSourceRect0"]?.SetValue(new Vector4(Main.rand.NextFloat(1), 0, 1, 1));
+			miscShaderData.Apply();
+			_vertexStrip.PrepareStrip(pos, rot, Colored(new Color(1f, 0.75f, 0.1f, 0.4f)), Widthed(12), -Main.screenPosition, length, includeBacksides: true);
+			_vertexStrip.DrawTrail();
+			for (int i = 0; i < length; i++) {
+				pos[i] = pos[i] + GeometryUtils.Vec2FromPolar(Main.rand.NextFloat(-6, 6), rot[i] + MathHelper.PiOver2);
+			}
+			_vertexStrip.PrepareStrip(pos, rot, Colored(new Color(1f, 0.85f, 0.3f, 0)), Widthed(9), -Main.screenPosition, length, includeBacksides: true);
+			_vertexStrip.DrawTrail();
+			Main.pixelShader.CurrentTechnique.Passes[0].Apply();
+		}
+		static VertexStrip.StripColorFunction Colored(Color color) => progress => {
+			if (progress is 0 or 1) return Color.Transparent;
+			return color;
+		};
+		static VertexStrip.StripHalfWidthFunction Widthed(float width) => progress => {
+			//if (progress is 0 or 1) return 0;
+			return width;
+		};
 	}
 	public class Scimitar_Of_The_Rising_Sun_Block : ModProjectile {
 		public const int min_duration = 20;
@@ -458,6 +567,16 @@ namespace EpikV2.Items.Weapons {
 		protected Vector2 Origin => new Vector2(20, 32 - (12 * Projectile.direction));
 		protected int HitboxPrecision => 2;
 		public static Dictionary<int, Action<Projectile, Projectile, byte>> deflectActions = [];
+		public override void SetStaticDefaults() {
+			deflectActions.Add(
+				ProjectileID.MartianTurretBolt,
+				DeflectLightning
+			);
+			deflectActions.Add(
+				ProjectileID.GigaZapperSpear,
+				DeflectLightning
+			);
+		}
 		public override void SetDefaults() {
 			Projectile.CloneDefaults(ProjectileID.PiercingStarlight);
 			Projectile.width = Projectile.height = 48;
@@ -661,21 +780,47 @@ namespace EpikV2.Items.Weapons {
 			SoundEngine.PlaySound(SoundID.Item37.WithVolume(0.95f).WithPitch(0.41f).WithPitchVarience(0), intersectCenter);
 			SoundEngine.PlaySound(SoundID.Item35.WithVolume(1f).WithPitch(1f), intersectCenter);
 		}
+		AutoLoadingAsset<Texture2D> mortalBladeTexture = "EpikV2/Items/Weapons/Mortal_Blade";
 		public override bool PreDraw(ref Color lightColor) {
+			Texture2D texture = TextureAssets.Projectile[Type].Value;
+			Vector2 origin = Origin;
+			Player player = Main.player[Projectile.owner];
+			if (player.HeldItem.prefix == PrefixType<Mortal_Prefix>()) {
+				texture = mortalBladeTexture;
+				origin = new Vector2(20, 39 - (19 * Projectile.direction));
+			}
+
 			float endFactor = Projectile.timeLeft / (float)deflect_threshold;
 			endFactor = Math.Min(endFactor * endFactor, 1);
+			float rotation = Projectile.rotation + Projectile.velocity.ToRotation() + (MathHelper.PiOver4 * Projectile.direction * (2 - endFactor));
 			Main.EntitySpriteDraw(
-				TextureAssets.Projectile[Type].Value,
+				texture,
 				Projectile.Center - Main.screenPosition,
 				null,
 				lightColor,
-				Projectile.rotation + Projectile.velocity.ToRotation() + (MathHelper.PiOver4 * Projectile.direction * (2 - endFactor)),
-				Origin,
+				rotation,
+				origin,
 				Projectile.scale,
 				Projectile.direction < 0 ? SpriteEffects.None : SpriteEffects.FlipVertically,
-				0
-			);
+			0);
+			if (player.HasBuff<Shocked_Debuff>()) {
+				Scimitar_Of_The_Rising_Sun_Slash.DrawLightningBetween(
+					Projectile.Center,
+					Projectile.Center + GeometryUtils.Vec2FromPolar(texture.Size().Length() - 24, rotation + MathHelper.PiOver4 * Projectile.direction)
+				);
+			}
 			return false;
+		}
+		public static void GetShocked(Player player, int damage) {
+			player.AddBuff(BuffType<Shocked_Debuff>(), damage);
+			if (player.velocity.Y > -6) player.velocity.Y = -6;
+			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
+			if (epikPlayer.collide.y == 1) epikPlayer.collide.y = 0;
+		}
+		public static void DeflectLightning(Projectile deflector, Projectile projectile, byte deflectState) {
+			GetShocked(Main.player[deflector.owner], projectile.damage / (deflectState == 2 ? 2 : 4));
+			if (deflectState != 2) return;
+			projectile.Kill();
 		}
 	}
 	public class Scimitar_Of_The_Rising_Sun_Block_Debuff : ModBuff {
@@ -1174,6 +1319,10 @@ namespace EpikV2.Items.Weapons {
 				player.buffType[buffIndex] = BuffType<Actually_Shocked_Debuff>();
 			}
 		}
+		public override bool ReApply(Player player, int time, int buffIndex) {
+			player.buffTime[buffIndex] += time;
+			return false;
+		}
 	}
 	public class Actually_Shocked_Debuff : ModBuff {
 		public override string Texture => typeof(Shocked_Debuff).GetDefaultTMLName();
@@ -1183,6 +1332,10 @@ namespace EpikV2.Items.Weapons {
 		public override void Update(Player player, ref int buffIndex) {
 			player.frozen = true;
 			player.lifeRegen -= 120;
+		}
+		public override bool ReApply(Player player, int time, int buffIndex) {
+			player.buffTime[buffIndex] += time;
+			return false;
 		}
 	}
 	[ExtendsFromMod(nameof(Origins))]
@@ -1198,7 +1351,7 @@ namespace EpikV2.Items.Weapons {
 			);
 		}
 		public static void DeflectLightning(Projectile deflector, Projectile projectile, byte deflectState) {
-			Main.player[deflector.owner].AddBuff(BuffType<Shocked_Debuff>(), projectile.damage / (deflectState == 2 ? 2 : 4));
+			Scimitar_Of_The_Rising_Sun_Block.GetShocked(Main.player[deflector.owner], projectile.damage / (deflectState == 2 ? 2 : 4));
 			if (projectile.velocity == Vector2.Zero) return;
 			for (int i = (int)((deflector.Center - projectile.Center).Length() / projectile.velocity.Length()); i > 0; i--) {
 				if (++projectile.ai[1] > ProjectileID.Sets.TrailCacheLength[projectile.type]) {
