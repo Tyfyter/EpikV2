@@ -118,10 +118,10 @@ namespace EpikV2.NPCs {
 			if (source is EntitySource_SpawnNPC) {
 				if ((validSources?.Length ?? 0) <= 0) validSources = GetSourcesForPosition((int)(npc.position.X / 16), (int)(npc.position.Y / 16));
 				if (validSources.Length > 0) {
-					var (pos, itemID) = Main.rand.Next(validSources);
+					(Point pos, int itemID) = Main.rand.Next(validSources);
 					npc.ai[1] = Item.NewItem(source, npc.Center, itemID) + 1;
 					Mod.Logger.Info($"Shimmer slime spawned holding {itemID}");
-					var slimePositions = ModContent.GetInstance<ShimmerSlimeSystem>().SlimePositions;
+					List<(Point pos, int itemID)> slimePositions = ModContent.GetInstance<ShimmerSlimeSystem>().SlimePositions;
 					for (int i = 0; i < slimePositions.Count; i++) {
 						if (slimePositions[i].pos == pos && slimePositions[i].itemID == itemID) {
 							slimePositions.RemoveAt(i);
@@ -175,7 +175,7 @@ namespace EpikV2.NPCs {
 			slimePositions = [];
 			unloadedSlimePositions = [];
 			if (tag.TryGet("positions", out List<TagCompound> positions)) {
-				foreach (var position in positions) {
+				foreach (TagCompound position in positions) {
 					try {
 						string name = position.Get<string>("itemID");
 						if (ItemID.Search.TryGetId(name, out int id)) {
