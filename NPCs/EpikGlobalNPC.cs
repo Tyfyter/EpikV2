@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EpikV2.Buffs;
+using EpikV2.Hair.Stripes;
 using EpikV2.Items;
 using EpikV2.Items.Accessories;
 using EpikV2.Items.Armor;
@@ -563,13 +564,14 @@ namespace EpikV2.NPCs
 				break;
 
 				case NPCID.Stylist:
+				shop.InsertAfter(ItemID.WilsonBeardShort, ModContent.ItemType<Vertical_Hair_Stripe>(), new Condition(LocalizedText.Empty, () => Vertical_Hair_Stripe.Textures[Main.LocalPlayer.hair] is not null));
 				shop.InsertAfter(ItemID.LifeHairDye, ModContent.ItemType<High_Life_Hair_Dye>());
 				shop.InsertAfter(ItemID.LifeHairDye, ModContent.ItemType<Low_Life_Hair_Dye>());
 				shop.InsertAfter(ItemID.ManaHairDye, ModContent.ItemType<High_Mana_Hair_Dye>());
 				shop.InsertAfter(ItemID.ManaHairDye, ModContent.ItemType<Low_Mana_Hair_Dye>());
 				shop.InsertBefore(ItemID.WilsonBeardShort, ModContent.ItemType<Bloodstained_Hair_Dye>(), Condition.BloodMoon);
 				shop.InsertBefore(ItemID.WilsonBeardShort, ModContent.ItemType<Bloodstained_Hair_Dye>(), Condition.DownedGoblinArmy, Condition.NotBloodMoon);
-				Condition specialHairDyeCondition = new Condition(
+				Condition specialHairDyeCondition = new(
 					Language.GetOrRegister("Mods.EpikV2.Conditions.NpcIsNearby").WithFormatArgs(CombineWithOr(
 						Language.GetText("NPCName.PartyGirl"),
 						Language.GetText("NPCName.Princess"),

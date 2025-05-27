@@ -168,6 +168,8 @@ namespace EpikV2 {
 		public int cUnicornHorn;
 		public bool equilibrium;
 		public bool equilibriumVisual;
+		public bool hairStripeVertical;
+		public int cHairStripeVertical;
 
 		public bool adjCampfire;
 		bool oldAdjCampfire;
@@ -235,6 +237,8 @@ namespace EpikV2 {
 			cUnicornHorn = 0;
 			equilibrium = false;
 			equilibriumVisual = false;
+			hairStripeVertical = false;
+			cHairStripeVertical = -1;
 			if (telescopeID >= 0) {
 				Projectile telescopeProj = Main.projectile[telescopeID];
 				bool cancel = !telescopeProj.active || telescopeProj.type != Telescope_View_P.ID;
@@ -675,16 +679,16 @@ namespace EpikV2 {
 			oldStatLife = Player.statLife;
 			if (ChargedGem()) Player.aggro += 600;
 			/*if(majesticWings&&(player.wingFrameCounter!=0||player.wingFrame!=0)) {
-			    player.wingFrameCounter++;
-                if(player.wingFrame==2)player.velocity.Y-=4;
-			    if (player.wingFrameCounter > 5){
-				    player.wingFrame++;
-				    player.wingFrameCounter = 0;
-				    if (player.wingFrame >= 3){
-					    player.wingFrame = 0;
-				    }
-			    }
-            }*/
+				player.wingFrameCounter++;
+				if(player.wingFrame==2)player.velocity.Y-=4;
+				if (player.wingFrameCounter > 5){
+					player.wingFrame++;
+					player.wingFrameCounter = 0;
+					if (player.wingFrame >= 3){
+						player.wingFrame = 0;
+					}
+				}
+			}*/
 			if (orionDash > 0) {
 				orionDash--;
 				if (orionDash == 0) {
@@ -1378,12 +1382,12 @@ namespace EpikV2 {
 				}
 			}
 			/*
-            if(marionetteDeathTime>0) {
-                PlayerLayer layer = MarionetteStringLayer(marionetteDeathTime);
-                layers.Add(layer);
-                layer.visible = true;
-            }
-             */
+			if(marionetteDeathTime>0) {
+				PlayerLayer layer = MarionetteStringLayer(marionetteDeathTime);
+				layers.Add(layer);
+				layer.visible = true;
+			}
+			 */
 			renderedOldVelocity = Player.velocity;
 		}
 		#endregion
@@ -1406,7 +1410,7 @@ namespace EpikV2 {
 			tag.TryGet("triedTriangleManuscript", out triedTriangleManuscript);
 			tag.TryGet("oldWolfBlood", out oldWolfHeart);
 			tag.TryGet("nameColorOverride", out nameColorOverride);
-			if(tag.TryGet("magicColor", out uint magicColorPacked)) magicColor = new Color() {
+			if (tag.TryGet("magicColor", out uint magicColorPacked)) magicColor = new Color() {
 				PackedValue = magicColorPacked
 			};
 		}

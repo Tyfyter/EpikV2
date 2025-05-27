@@ -1212,6 +1212,11 @@ Items: {
 			'It could look cooler, but that wouldn't be fair to all the accessories that don't'
 			'''
 	}
+
+	Vertical_Hair_Stripe: {
+		DisplayName: Vertical Hair Stripe
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck

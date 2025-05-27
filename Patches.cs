@@ -27,6 +27,7 @@ using Terraria.Chat;
 using Terraria.Localization;
 using PegasusLib;
 using Terraria.GameInput;
+using EpikV2.Hair.Stripes;
 
 namespace EpikV2 {
 	public partial class EpikV2 : Mod {
@@ -170,17 +171,6 @@ namespace EpikV2 {
 			};
 			IL_NewMultiplayerClosePlayersOverlay.PlayerOffScreenCache.ctor += PlayerOffScreenCache_ctor;
 			IL_NewMultiplayerClosePlayersOverlay.PlayerOffScreenCache.DrawPlayerDistance += PlayerOffScreenCache_DrawPlayerDistance;
-			MonoModHooks.Add(
-				typeof(ModContent).GetMethod("ResizeArrays", BindingFlags.NonPublic | BindingFlags.Static),
-				(Action<bool> orig, bool unloading) => {
-					orig(unloading);
-					if (unloading) {
-						Sets.Unload();
-					} else {
-						Sets.ResizeArrays();
-					}
-				}
-			);
 			IL_Player.Update += (ILContext il) => {
 				ILCursor c = new ILCursor(il);
 				if (c.TryGotoNext(MoveType.AfterLabel,
@@ -358,6 +348,8 @@ namespace EpikV2 {
 			if (armorItem.IsAir || (isNotInVanitySlot && isSetToHidden)) return;
 			if (armorItem.type == ModContent.ItemType<Real_Unicorn_Horn>()) {
 				self.GetModPlayer<EpikPlayer>().cUnicornHorn = dyeItem.dye;
+			} else if (armorItem.type == ModContent.ItemType<Vertical_Hair_Stripe>()) {
+				self.GetModPlayer<EpikPlayer>().cHairStripeVertical = dyeItem.dye;
 			}
 		}
 

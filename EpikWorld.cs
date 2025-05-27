@@ -25,6 +25,7 @@ using static Tyfyter.Utils.ChestLootCache.LootQueueMode;
 using PegasusLib;
 using ChestLootCache = Tyfyter.Utils.ChestLootCache;
 using Terraria.WorldBuilding;
+using EpikV2.Hair.Stripes;
 
 namespace EpikV2 {
 	public class EpikWorld : ModSystem {
@@ -95,6 +96,7 @@ namespace EpikV2 {
 			.AddCondition(Condition.NearWater.Or(rainCondition))
 			.AddTile(TileID.SkyMill)
 			.Register();
+			Vertical_Hair_Stripe.FixColorfulDyesCheck();
 		}
 		public override void PostAddRecipes() {
 			EpikV2.HellforgeRecipes = new HashSet<Recipe>(Main.recipe.Where(

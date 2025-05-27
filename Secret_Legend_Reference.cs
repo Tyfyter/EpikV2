@@ -295,6 +295,7 @@ namespace EpikV2 {
 				Tone(24),
 			];
 			static float Tone(int note) {
+				return note / 12f - 1;
 				float value = 0;
 				if (note > 12) {
 					value = MathF.Pow(2, (note - 12) / 12f) - 1;
@@ -558,10 +559,12 @@ namespace EpikV2 {
 							size.X += FontAssets.MouseText.Value.MeasureString(snippets[i].Text).X;
 						}
 					}
-					float maxWidth = MaxWidth - BasePosition.X;
-					if (size.X > maxWidth) {
-						size.Y *= (int)((size.X + maxWidth - 1) / MaxWidth);
-						size.X = maxWidth;
+					if (MaxWidth > -1 && float.IsFinite(MaxWidth)) {
+						float maxWidth = MaxWidth - BasePosition.X;
+						if (size.X > maxWidth) {
+							size.Y *= (int)((size.X + maxWidth - 1) / MaxWidth);
+							size.X = maxWidth;
+						}
 					}
 					return true;
 				}

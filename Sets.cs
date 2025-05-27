@@ -3,25 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Terraria;
 using Terraria.ID;
 using Terraria.ModLoader;
 
 namespace EpikV2 {
+	[ReinitializeDuringResizeArrays]
 	public static class Sets {
-		public static bool[] IsArrow { get; private set; }
-		public static bool[] CanExistAboveWorld { get; private set; }
-		public static bool[] IsValidForAltManaPoweredPrefix { get; private set; }
-		public static bool[] BodyDrawsClothes { get; private set; }
-		public static bool[] LegsDrawsClothes { get; private set; }
-		internal static void ResizeArrays() {
-			IsArrow = ProjectileID.Sets.Factory.CreateBoolSet();
-			IsValidForAltManaPoweredPrefix = ItemID.Sets.Factory.CreateBoolSet(true, ItemID.Hammush, ItemID.Bladetongue);
-			BodyDrawsClothes = ArmorIDs.Body.Sets.Factory.CreateBoolSet();
-			LegsDrawsClothes = ArmorIDs.Legs.Sets.Factory.CreateBoolSet();
-			CanExistAboveWorld = ProjectileID.Sets.Factory.CreateBoolSet();
-		}
+		public static bool[] IsArrow { get;} = ProjectileID.Sets.Factory.CreateBoolSet();
+		public static bool[] CanExistAboveWorld { get; } = ProjectileID.Sets.Factory.CreateBoolSet(false);
+		public static bool[] IsValidForAltManaPoweredPrefix { get; } = ItemID.Sets.Factory.CreateBoolSet(true, ItemID.Hammush, ItemID.Bladetongue);
+		public static bool[] BodyDrawsClothes { get; } = ArmorIDs.Body.Sets.Factory.CreateBoolSet(false);
+		public static bool[] LegsDrawsClothes { get;} = ArmorIDs.Legs.Sets.Factory.CreateBoolSet(false);
 		internal static void SetupPostContentSampleSets() {
-			foreach (var item in ContentSamples.ItemsByType.Values) {
+			foreach (Item item in ContentSamples.ItemsByType.Values) {
 				if (item.useAmmo == AmmoID.Arrow || item.ammo == AmmoID.Arrow) {
 					IsArrow[item.shoot] = true;
 				}
@@ -30,13 +25,6 @@ namespace EpikV2 {
 			IsArrow[ProjectileID.Phantasm] = false;
 			IsArrow[ProjectileID.PhantasmArrow] = true;
 			IsArrow[ProjectileID.MoonlordArrowTrail] = true;
-		}
-		internal static void Unload() {
-			IsArrow = null;
-			CanExistAboveWorld = null;
-			IsValidForAltManaPoweredPrefix = null;
-			BodyDrawsClothes = null;
-			LegsDrawsClothes = null;
 		}
 	}
 }
