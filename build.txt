@@ -7,3 +7,4 @@ displayName = Moonlight's Miscellany
 buildIgnore = Unused\*
 modReferences = PegasusLib
 weakReferences = AltLibrary, Origins, HolidayLib, ItemSourceHelper
+sortAfter = ThoriumMod

@@ -1217,6 +1217,15 @@ Items: {
 		DisplayName: Vertical Hair Stripe
 		Tooltip: ""
 	}
+
+	Rain_Sensor_Item: {
+		DisplayName: Rain Sensor
+		Tooltip: 
+			'''
+			Activates whenever it's raining hard enough, deactivates otherwise
+			Use a hammer to control the threshold
+			'''
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck
