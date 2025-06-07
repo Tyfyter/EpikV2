@@ -96,6 +96,7 @@ namespace EpikV2.Tiles {
 	public class Rain_Sensor_Item : ModItem {
 		public override void SetDefaults() {
 			Item.DefaultToPlaceableTile(ModContent.TileType<Rain_Sensor>());
+			Item.mech = true;
 		}
 	}
 }

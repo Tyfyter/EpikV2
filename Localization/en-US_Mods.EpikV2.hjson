@@ -1220,11 +1220,16 @@ Items: {
 
 	Rain_Sensor_Item: {
 		DisplayName: Rain Sensor
-		Tooltip: 
+		Tooltip:
 			'''
 			Activates whenever it's raining hard enough, deactivates otherwise
 			Use a hammer to control the threshold
 			'''
+	}
+
+	Autopounder: {
+		DisplayName: Autopounder
+		Tooltip: ""
 	}
 }
 
