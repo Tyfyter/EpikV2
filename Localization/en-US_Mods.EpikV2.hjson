@@ -1356,20 +1356,20 @@ DamageClasses: {
 	Ranged_Melee_Speed.DisplayName: ranged damage
 	Spellsword.DisplayName: melee/magic damage
 	Magic_Melee_Speed.DisplayName: magic damage
-	Daybreaker.DisplayName: Daybreaker
-	Daybreaker_Bow_Damage.DisplayName: Daybreaker Bow Damage
-	Daybreaker_Sword_Damage.DisplayName: Daybreaker Sword Damage
+	Daybreaker.DisplayName: daybroken
+	Daybreaker_Bow_Damage.DisplayName: daybroken damage
+	Daybreaker_Sword_Damage.DisplayName: daybroken damage
 }
 
 Biomes: {
 	LSDBiome: {
 		DisplayName: LSD Biome
-		TownNPCDialogueName: the L S D Biome
+		TownNPCDialogueName: lmao ur so high
 	}
 
 	PartyPseudoBiome: {
-		DisplayName: Party Pseudo Biome
-		TownNPCDialogueName: the Party Pseudo Biome
+		DisplayName: Party
+		TownNPCDialogueName: parties
 	}
 }
 

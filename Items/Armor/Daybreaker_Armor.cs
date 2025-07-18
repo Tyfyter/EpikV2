@@ -160,6 +160,9 @@ namespace EpikV2.Items.Armor {
 			Item.maxStack = 1;
 		}
 		public override bool WingUpdate(Player player, bool inUse) {
+			if (player.GetModPlayer<EpikPlayer>().cOverrideDaybreakerWing is int dyeOverride) {
+				player.cWings = dyeOverride;
+			}
 			if (inUse) {
 				int framesMax = 5;
 				if (player.TryingToHoverDown && !player.controlLeft && !player.controlRight) framesMax = 6;
@@ -232,11 +235,41 @@ namespace EpikV2.Items.Armor {
 				new Vector2(texture.Width / 2, frameHeight / 2),
 				1f,
 				drawInfo.playerEffect) {
-				shader = drawInfo.cBody
+				shader = drawInfo.drawPlayer.GetModPlayer<EpikPlayer>().cOverrideDaybreakerWingGuard ?? drawInfo.cBody
 			};
 			drawInfo.DrawDataCache.Add(item);
 		}
 	}
+	/*public class Daybreaker_Wings_Dye_Slot : ModAccessorySlot {
+		public override bool DrawFunctionalSlot => false;
+		public override bool DrawVanitySlot => false;
+		public override Vector2? CustomLocation => new(
+			Main.screenWidth - 64 - 28 - 142 - (Main.netMode == NetmodeID.MultiplayerClient ? 38 : 0),
+			(174 + (!Main.mapFullscreen && Main.mapStyle == 1 ? 204 : 0)) + ((Player.armor[11].IsAir ? 1 : 1.5f) * 56) * 0.85f
+		);
+		public override bool IsEnabled() => Player.armor[1].ModItem is Daybreaker_Wingguards;
+		public override void ApplyEquipEffects() {
+			Player.GetModPlayer<EpikPlayer>().cOverrideDaybreakerWing = (DyeItem?.IsAir ?? true) ? null : DyeItem.dye;
+		}
+		public override void OnMouseHover(AccessorySlotType context) {
+			base.OnMouseHover(context);
+		}
+	}
+	public class Daybreaker_Wings_Dye_Slot_2 : ModAccessorySlot {
+		public override bool DrawFunctionalSlot => false;
+		public override bool DrawVanitySlot => false;
+		public override Vector2? CustomLocation => new(
+			Main.screenWidth - 64 - 28 - 142 - (Main.netMode == NetmodeID.MultiplayerClient ? 38 : 0),
+			(174 + (!Main.mapFullscreen && Main.mapStyle == 1 ? 204 : 0)) + (0.5f * 56) * 0.85f
+		);
+		public override bool IsEnabled() => Player.armor[1].ModItem is Daybreaker_Wingguards && !Player.armor[11].IsAir;
+		public override void ApplyEquipEffects() {
+			Player.GetModPlayer<EpikPlayer>().cOverrideDaybreakerWingGuard = (DyeItem?.IsAir ?? true) ? null : DyeItem.dye;
+		}
+		public override void OnMouseHover(AccessorySlotType context) {
+			base.OnMouseHover(context);
+		}
+	}*/
 	[AutoloadEquip(EquipType.Legs)]
 	public class Daybreaker_Hoofguards : ModItem, IDeclarativeEquipStats {
 		public IEnumerable<EquipStat> GetStats() {

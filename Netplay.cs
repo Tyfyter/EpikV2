@@ -2,6 +2,7 @@
 using EpikV2.Items.Armor;
 using EpikV2.Items.Debugging;
 using EpikV2.NPCs;
+using EpikV2.Tiles;
 using Microsoft.Xna.Framework;
 using Origins;
 using System;
@@ -51,6 +52,7 @@ namespace EpikV2 {
 					case PacketType.playerSync:
 					case PacketType.statLimiterSync:
 					case PacketType.custom_knockback:
+					case PacketType.sync_autopounder:
 					altHandle = true;
 					break;
 
@@ -170,6 +172,7 @@ namespace EpikV2 {
 					case PacketType.playerSync:
 					case PacketType.statLimiterSync:
 					case PacketType.custom_knockback:
+					case PacketType.sync_autopounder:
 					altHandle = true;
 					break;
 
@@ -246,6 +249,17 @@ namespace EpikV2 {
 						Main.npc[reader.ReadInt32()].DoCustomKnockback(new(reader.ReadSingle(), reader.ReadSingle()), Main.netMode == NetmodeID.MultiplayerClient);
 						break;
 					}
+
+					case PacketType.sync_autopounder: {
+						ushort i = reader.ReadUInt16();
+						ushort j = reader.ReadUInt16();
+						Main.tile[i, j].Get<Autopounder_Data>().data = reader.ReadByte();
+
+						if (Main.netMode == NetmodeID.Server) {
+							AutopounderSystem.SendAutopounderData(i, j, whoAmI);
+						}
+						break;
+					}
 				}
 			}
 		}
@@ -266,6 +280,7 @@ namespace EpikV2 {
 			public const byte useItem = 11;
 			public const byte statLimiterSync = 12;
 			public const byte custom_knockback = 13;
+			public const byte sync_autopounder = 14;
 		}
 		public static class UseItemType {
 			public const byte refractionEnsign = 0;

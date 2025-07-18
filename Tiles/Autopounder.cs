@@ -25,8 +25,10 @@ using Terraria.Audio;
 namespace EpikV2.Tiles {
 	public class Autopounder : ModItem {
 		static Asset<Texture2D> overlayTexture;
+		static Asset<Texture2D> underlayTexture;
 		public override void SetStaticDefaults() {
-			overlayTexture = TextureAssets.Item[Type];
+			overlayTexture = ModContent.Request<Texture2D>(Texture + "_Front");
+			underlayTexture = ModContent.Request<Texture2D>(Texture + "_Back");
 		}
 		public override void Load() {
 			IL_Main.DrawWires += IL_Main_DrawWires;
@@ -63,17 +65,41 @@ namespace EpikV2.Tiles {
 				i => i.MatchCall<Tile>("actuator"),
 				i => i.MatchBrfalse(out after)
 			);
-			/*c.EmitLdloc(x);
+			c.EmitLdloc(x);
 			c.EmitLdloc(y);
-			c.EmitDelegate((int x, int y) => {
-
-			});*/
+			c.EmitDelegate((int i, int j) => {
+				Tile tile = Main.tile[i, j];
+				if (!tile.HasActuator && tile.Get<Autopounder_Data>().HasAutopounder) {
+					Color color = Lighting.GetColor(i, j);
+					switch (Main.LocalPlayer.InfoAccMechShowWires ? Main.LocalPlayer.builderAccStatus[9] : 1) {
+						case 0:
+						color = Color.White;
+						break;
+						case 2:
+						color *= 0.5f;
+						break;
+						case 3:
+						color = Color.Transparent;
+						break;
+					}
+					Main.spriteBatch.Draw(
+						underlayTexture.Value,
+						new Vector2(i * 16 - (int)Main.screenPosition.X, j * 16 - (int)Main.screenPosition.Y),
+						null,
+						color * (WiresUI.Settings.HideWires ? 0.5f : 1f),
+						0f,
+						default(Vector2),
+						1f,
+						SpriteEffects.None,
+					0f);
+				}
+			});
 			c.GotoLabel(after);
 			c.EmitLdloc(x);
 			c.EmitLdloc(y);
 			c.EmitDelegate((int i, int j) => {
 				if (Main.tile[i, j].Get<Autopounder_Data>().HasAutopounder) {
-					Color color = Lighting.GetColor(j, i);
+					Color color = Lighting.GetColor(i, j);
 					switch (Main.LocalPlayer.InfoAccMechShowWires ? Main.LocalPlayer.builderAccStatus[9] : 1) {
 						case 0:
 						color = Color.White;
@@ -100,7 +126,7 @@ namespace EpikV2.Tiles {
 		}
 	}
 	public struct Autopounder_Data : ITileData {
-		byte data;
+		internal byte data;
 		public bool HasAutopounder {
 			readonly get => GetBit(data, 0);
 			set => SetBit(value, ref data, 0);
@@ -131,11 +157,19 @@ namespace EpikV2.Tiles {
 		}
 	}
 	public class AutopounderSystem : ModSystem {
+		public static void SendAutopounderData(int i, int j, int ignoreClient = -1) {
+			ModPacket packet = EpikV2.instance.GetPacket();
+			packet.Write(EpikV2.PacketType.sync_autopounder);
+			packet.Write((ushort)i);
+			packet.Write((ushort)j);
+			packet.Write(Main.tile[i, j].Get<Autopounder_Data>().data);
+			packet.Send(ignoreClient: ignoreClient);
+		}
 		public override void SaveWorldData(TagCompound tag) {
 			using MemoryStream data = new(Main.maxTilesX);
 			// 'fastest' compression level is likely good enough
-			using (DeflateStream ds = new(data, CompressionLevel.NoCompression, leaveOpen: true))
-			using (BinaryWriter writer = new(ds, Encoding.UTF8)) {
+			//using (DeflateStream ds = new(data, CompressionLevel.NoCompression, leaveOpen: true))
+			using (BinaryWriter writer = new(data, Encoding.UTF8)) {
 				writer.Write((byte)0); // version just in case 
 									   // if MyTileData is updated, update this 'version' number 
 									   // and add handling logic in LoadWorldData for backwards compat
@@ -152,7 +186,7 @@ namespace EpikV2.Tiles {
 		}
 		public override void LoadWorldData(TagCompound tag) {
 			if (tag.TryGet("Autopounders", out byte[] data)) {
-				using (BinaryReader reader = new(new DeflateStream(new MemoryStream(data), CompressionMode.Decompress), Encoding.UTF8)) {
+				using (BinaryReader reader = new(new MemoryStream(data)/*new DeflateStream(new MemoryStream(data), CompressionMode.Decompress)*/, Encoding.UTF8)) {
 					byte version = reader.ReadByte();
 					if (version == 0) {
 						int width = reader.ReadUInt16();
@@ -163,12 +197,8 @@ namespace EpikV2.Tiles {
 							throw new NotImplementedException("World size was changed");
 						} else {
 							Span<byte> worldData = MemoryMarshal.Cast<Autopounder_Data, byte>(Main.tile.GetData<Autopounder_Data>().AsSpan());
-							int count = 0;
-							for (int i = 0; i < worldData.Length; i++) {
-								if (worldData[i] != 0) count++;
-							}
 							int length = reader.Read(worldData);
-							count = 0;
+							int count = 0;
 							for (int i = 0; i < worldData.Length; i++) {
 								if (worldData[i] != 0) count++;
 							}

@@ -25,6 +25,8 @@ namespace EpikV2.Tiles {
 			TileObjectData.newTile.LavaDeath = false;
 			TileObjectData.newTile.HookPostPlaceMyPlayer = ModContent.GetInstance<Rain_Sensor_TE>().Generic_HookPostPlaceMyPlayer;
 			TileObjectData.addTile(Type);
+
+			RegisterItemDrop(ModContent.ItemType<Rain_Sensor_Item>());
 		}
 		public override bool Slope(int i, int j) {
 			ref short frame = ref Main.tile[i, j].TileFrameY;
@@ -97,6 +99,13 @@ namespace EpikV2.Tiles {
 		public override void SetDefaults() {
 			Item.DefaultToPlaceableTile(ModContent.TileType<Rain_Sensor>());
 			Item.mech = true;
+		}
+		public override void AddRecipes() {
+			CreateRecipe()
+			.AddIngredient(ItemID.EmptyBucket)
+			.AddIngredient(ItemID.Wire)
+			.AddTile(TileID.Anvils)
+			.Register();
 		}
 	}
 }

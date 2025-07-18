@@ -13,6 +13,7 @@ using EpikV2.Projectiles;
 using EpikV2.Tiles;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PegasusLib;
 using Terraria;
 using Terraria.Audio;
 using Terraria.DataStructures;
@@ -612,6 +613,10 @@ namespace EpikV2.NPCs
 
 				case NPCID.Painter:
 				shop.Add<Give_That_Back_Painting_Item>(Condition.InAether);
+				break;
+
+				case NPCID.Mechanic:
+				shop.InsertAfter<Autopounder>(ItemID.Actuator);
 				break;
 			}
 		}

@@ -212,7 +212,7 @@ namespace EpikV2.Items {
 		public virtual bool IsInvariable => false;
 		public override void SetStaticDefaults() {
 			Item.ResearchUnlockCount = 3;
-			if (IsInvariable && ModLoader.TryGetMod(nameof(Origins), out Mod origins)) {
+			if (IsInvariable && !Main.dedServ && ModLoader.TryGetMod(nameof(Origins), out Mod origins)) {
 				FastFieldInfo<ShaderData, string> _passName = "_passName";
 				ArmorShaderData shader = GameShaders.Armor.GetShaderFromItemId(Type);
 				origins.Call("AddBasicColorDyeShaderPass", shader.Shader, _passName.GetValue(shader));

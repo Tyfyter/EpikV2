@@ -40,7 +40,7 @@ namespace EpikV2.Items {
         }
         public override void UseItemFrame(Player player) {
             player.handon = Item.handOnSlot;
-            player.bodyFrame.Y = player.altFunctionUse == 2 ? 112 : 224 ;
+            player.bodyFrame.Y = player.altFunctionUse == 2 ? 112 : 224;
         }
         public override void AddRecipes() {
             Recipe recipe = Recipe.Create(Type);
