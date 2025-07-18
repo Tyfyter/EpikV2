@@ -188,13 +188,13 @@ Buffs: {
 	}
 
 	Actually_Shocked_Debuff: {
-		DisplayName: Actually_ Shocked_ Debuff
-		Description: Mods.EpikV2.Buffs.Actually_Shocked_Debuff.Description
+		DisplayName: Actually Shocked
+		Description: Eeyouch
 	}
 
 	Shocked_Debuff: {
-		DisplayName: Shocked_ Debuff
-		Description: Mods.EpikV2.Buffs.Shocked_Debuff.Description
+		DisplayName: Shocked
+		Description: It's fine, you can fix this
 	}
 }
 

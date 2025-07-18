@@ -1326,12 +1326,21 @@ namespace EpikV2.Items.Weapons {
 	}
 	public class Actually_Shocked_Debuff : ModBuff {
 		public override string Texture => typeof(Shocked_Debuff).GetDefaultTMLName();
+		public override void Load() {
+			On_PlayerDrawLayers.DrawPlayer_33_FrozenOrWebbedDebuff += (On_PlayerDrawLayers.orig_DrawPlayer_33_FrozenOrWebbedDebuff orig, ref PlayerDrawSet drawinfo) => {
+				if (!drawinfo.drawPlayer.GetModPlayer<EpikPlayer>().hideFrozen) {
+					orig(ref drawinfo);
+				}
+			};
+		}
 		public override void SetStaticDefaults() {
 			Main.debuff[Type] = true;
 		}
 		public override void Update(Player player, ref int buffIndex) {
 			player.frozen = true;
 			player.lifeRegen -= 120;
+			player.GetModPlayer<EpikPlayer>().hideFrozen = true;
+			Dust.NewDustDirect(player.position, player.width, player.height, DustID.FireworksRGB, newColor: new Color(1f, 0.85f, 0.3f, 0), Scale: 0.85f).velocity *= new Vector2(1, 2);
 		}
 		public override bool ReApply(Player player, int time, int buffIndex) {
 			player.buffTime[buffIndex] += time;

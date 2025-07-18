@@ -1,6 +1,6 @@
 author = Moonlight Glint
 
-version = 0.6.1
+version = 0.6.1.1
 
 homepage = https://tyfyter.github.io/?EpikV2
 displayName = Moonlight's Miscellany
