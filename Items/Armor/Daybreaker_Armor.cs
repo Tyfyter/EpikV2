@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using EpikV2.NPCs;
 using EpikV2.Rarities;
 using EpikV2.Reflection;
@@ -240,36 +241,18 @@ namespace EpikV2.Items.Armor {
 			drawInfo.DrawDataCache.Add(item);
 		}
 	}
-	/*public class Daybreaker_Wings_Dye_Slot : ModAccessorySlot {
-		public override bool DrawFunctionalSlot => false;
-		public override bool DrawVanitySlot => false;
-		public override Vector2? CustomLocation => new(
-			Main.screenWidth - 64 - 28 - 142 - (Main.netMode == NetmodeID.MultiplayerClient ? 38 : 0),
-			(174 + (!Main.mapFullscreen && Main.mapStyle == 1 ? 204 : 0)) + ((Player.armor[11].IsAir ? 1 : 1.5f) * 56) * 0.85f
-		);
-		public override bool IsEnabled() => Player.armor[1].ModItem is Daybreaker_Wingguards;
-		public override void ApplyEquipEffects() {
-			Player.GetModPlayer<EpikPlayer>().cOverrideDaybreakerWing = (DyeItem?.IsAir ?? true) ? null : DyeItem.dye;
-		}
-		public override void OnMouseHover(AccessorySlotType context) {
-			base.OnMouseHover(context);
+	public class Daybreaker_Wings_Dye_Slot : ExtraDyeSlot {
+		public override bool UseForSlot(Item equipped, Item vanity, bool equipHidden) => equipped.ModItem is Daybreaker_Wingguards;
+		public override void ApplyDye(Player player, [NotNull] Item dye) {
+			player.GetModPlayer<EpikPlayer>().cOverrideDaybreakerWing = dye.dye;
 		}
 	}
-	public class Daybreaker_Wings_Dye_Slot_2 : ModAccessorySlot {
-		public override bool DrawFunctionalSlot => false;
-		public override bool DrawVanitySlot => false;
-		public override Vector2? CustomLocation => new(
-			Main.screenWidth - 64 - 28 - 142 - (Main.netMode == NetmodeID.MultiplayerClient ? 38 : 0),
-			(174 + (!Main.mapFullscreen && Main.mapStyle == 1 ? 204 : 0)) + (0.5f * 56) * 0.85f
-		);
-		public override bool IsEnabled() => Player.armor[1].ModItem is Daybreaker_Wingguards && !Player.armor[11].IsAir;
-		public override void ApplyEquipEffects() {
-			Player.GetModPlayer<EpikPlayer>().cOverrideDaybreakerWingGuard = (DyeItem?.IsAir ?? true) ? null : DyeItem.dye;
+	public class Daybreaker_Wings_Dye_Slot_2 : ExtraDyeSlot {
+		public override bool UseForSlot(Item equipped, Item vanity, bool equipHidden) => equipped.ModItem is Daybreaker_Wingguards && !(vanity?.IsAir ?? true);
+		public override void ApplyDye(Player player, [NotNull] Item dye) {
+			player.GetModPlayer<EpikPlayer>().cOverrideDaybreakerWingGuard = dye.dye;
 		}
-		public override void OnMouseHover(AccessorySlotType context) {
-			base.OnMouseHover(context);
-		}
-	}*/
+	}
 	[AutoloadEquip(EquipType.Legs)]
 	public class Daybreaker_Hoofguards : ModItem, IDeclarativeEquipStats {
 		public IEnumerable<EquipStat> GetStats() {

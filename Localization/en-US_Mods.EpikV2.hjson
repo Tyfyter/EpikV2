@@ -1617,3 +1617,8 @@ ItemSourceFilter: {
 	CursedRarity.DisplayName: Cursed
 	GoldRarity.DisplayName: Gold
 }
+
+ExtraDyeSlots: {
+	Daybreaker_Wings_Dye_Slot.DisplayText: "{$LegacyInterface.57} (Wings)"
+	Daybreaker_Wings_Dye_Slot_2.DisplayText: "{$LegacyInterface.57} (Wingguards)"
+}
