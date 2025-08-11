@@ -196,6 +196,11 @@ Buffs: {
 		DisplayName: Shocked
 		Description: It's fine, you can fix this
 	}
+
+	Stardust_Whip_Buff: {
+		DisplayName: Stardust Whip Buff
+		Description: Mods.EpikV2.Buffs.Stardust_Whip_Buff.Description
+	}
 }
 
 Empowerment.SolarRejuvenation: Solar Rejuvenation
@@ -1231,6 +1236,11 @@ Items: {
 		DisplayName: Autopounder
 		Tooltip: ""
 	}
+
+	Stardust_Whip: {
+		DisplayName: Stardust Whip
+		Tooltip: ""
+	}
 }
 
 InfoDisplays.Luck_Info_Icon.DisplayName: Luck
@@ -1341,6 +1351,8 @@ Projectiles: {
 	Daybreaker_Arrow_Explosion.DisplayName: Daybreaker Arrow Explosion
 	Copperiest_Shortsword_P.DisplayName: Copperiest Shortsword
 	Cross_Seek_Particle.DisplayName: Cross Seek Particle
+	Stardust_Whip_P.DisplayName: Stardust Whip P
+	Stardust_Whip_Flow_Invader.DisplayName: Stardust Whip Flow Invader
 }
 
 DamageClasses: {
