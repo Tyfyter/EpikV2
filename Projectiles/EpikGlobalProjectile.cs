@@ -174,7 +174,9 @@ namespace EpikV2.Projectiles {
                 Vector2 velNorm = projectile.velocity.SafeNormalize(default);
                 float dot = 1 - Math.Abs(Vector2.Dot(target.velocity.SafeNormalize(default), velNorm));
                 target.velocity = (target.velocity * dot) + velNorm * projectile.knockBack * 0.5f;
-            }
+				if (target.whoAmI == Main.myPlayer)
+					NetMessage.SendData(MessageID.PlayerControls, -1, -1, null, target.whoAmI);
+			}
         }
         public override void OnHitNPC(Projectile projectile, NPC target, NPC.HitInfo hit, int damageDone) {
             if (prefix is IProjectileHitPrefix hitPrefix) {
