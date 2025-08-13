@@ -174,7 +174,7 @@ namespace EpikV2 {
 			writer.Write(timeManipMode);
 			writer.Write(timeManipSubMode);
 			writer.WriteList(Sacrifices);
-			writer.WriteList(naturalChests.ToList());
+			writer.WriteList(NaturalChests.ToList());
 			writer.Write(shimmerPosition.HasValue);
 			if (shimmerPosition.HasValue) writer.WriteVector2(shimmerPosition.Value);
 		}
