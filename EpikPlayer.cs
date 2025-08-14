@@ -173,6 +173,7 @@ namespace EpikV2 {
 		public int? cOverrideDaybreakerWing;
 		public int? cOverrideDaybreakerWingGuard;
 		public bool hideFrozen;
+		public bool strongShimmerCloak;
 
 		public bool adjCampfire;
 		bool oldAdjCampfire;
@@ -245,6 +246,7 @@ namespace EpikV2 {
 			cOverrideDaybreakerWing = null;
 			cOverrideDaybreakerWingGuard = null;
 			hideFrozen = false;
+			strongShimmerCloak = false;
 			if (telescopeID >= 0) {
 				Projectile telescopeProj = Main.projectile[telescopeID];
 				bool cancel = !telescopeProj.active || telescopeProj.type != Telescope_View_P.ID;

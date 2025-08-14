@@ -1,35 +1,45 @@
-﻿using System;
+﻿using EpikV2.CrossMod;
+using EpikV2.Modifiers;
+using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
-using Terraria.ModLoader;
-using Microsoft.Xna.Framework;
-using Terraria.ID;
-using Terraria.ModLoader.IO;
-using System.Diagnostics;
 using Terraria.DataStructures;
-using Terraria.GameContent.ItemDropRules;
-using EpikV2.Modifiers;
-using System.IO;
-using Terraria.GameInput;
-using Terraria.Localization;
 using Terraria.GameContent;
-using EpikV2.CrossMod;
-using System.Reflection;
+using Terraria.GameContent.ItemDropRules;
+using Terraria.GameInput;
+using Terraria.ID;
+using Terraria.Localization;
+using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
 
 namespace EpikV2.Items {
-    public partial class EpikGlobalItem : GlobalItem {
+	public partial class EpikGlobalItem : GlobalItem {
 		public override bool InstancePerEntity => true;
 		protected override bool CloneNewInstances => true;
 		bool? nOwO = null;
 		bool strengthened = false;
 		HashSet<Type> loggedContexts = [];
+		public override void Load() {
+			On_Player.TryLandingOnDetonator += (orig, self) => {
+				if (self.shimmering && self.GetModPlayer<EpikPlayer>().strongShimmerCloak) {
+					Collision.up = false;
+					Collision.down = false;
+				} else {
+					orig(self);
+				}
+			};
+		}
 		public override void OnCreated(Item item, ItemCreationContext context) {
 			if (context is RecipeItemCreationContext or BuyItemCreationContext or JourneyDuplicationItemCreationContext) {
 				InitCatgirlMeme(item);
-			} else if(context is not InitializationItemCreationContext && item.type == ItemID.CatEars && (loggedContexts ??= []).Add(context.GetType())) {
+			} else if (context is not InitializationItemCreationContext && item.type == ItemID.CatEars && (loggedContexts ??= []).Add(context.GetType())) {
 				EpikV2.instance.Logger.Info("cat ears created in unknown context: " + context);
 			}
 		}
@@ -74,9 +84,9 @@ namespace EpikV2.Items {
 		}
 		public override void UpdateEquip(Item item, Player player) {
 			if (nOwO ?? false) {
-                player.GetDamage(DamageClass.Magic) *= 1.5f;
-                player.ghostHeal = true;
-                player.ghostHurt = true;
+				player.GetDamage(DamageClass.Magic) *= 1.5f;
+				player.ghostHeal = true;
+				player.ghostHurt = true;
 				if (player.nebulaCD > 0) {
 					player.nebulaCD--;
 					if (player.nebulaCD > 0) {
@@ -102,6 +112,7 @@ namespace EpikV2.Items {
 				case ItemID.ShimmerCloak:
 				if (!EpikConfig.Instance.itemUpgradesConfig.ShimmerCloak) break;
 				if (strengthened) {
+					player.GetModPlayer<EpikPlayer>().strongShimmerCloak = true;
 					if (player.controlDown && player.releaseDown && (player.doubleTapCardinalTimer[0] < 15)) {
 						player.AddBuff(BuffID.Shimmer, 60);
 					}
@@ -126,8 +137,8 @@ namespace EpikV2.Items {
 			RefreshCatgirlMeme(item);
 		}
 		public override void SaveData(Item item, TagCompound tag) {
-			if(nOwO is not null) tag.Add("nOwO", nOwO.Value);
-			if(strengthened) tag.Add("strengthened", true);
+			if (nOwO is not null) tag.Add("nOwO", nOwO.Value);
+			if (strengthened) tag.Add("strengthened", true);
 		}
 		public override void ModifyTooltips(Item item, List<TooltipLine> tooltips) {
 			if (nOwO ?? false) {
@@ -215,15 +226,15 @@ namespace EpikV2.Items {
 			return true;
 		}
 		public override void PickAmmo(Item weapon, Item ammo, Player player, ref int type, ref float speed, ref StatModifier damage, ref float knockback) {
-            if(weapon.type == Orion_Bow.ID) {
+			if (weapon.type == Orion_Bow.ID) {
 				/*
 				if(!Main.loaded[type]) {
-                    Projectile.NewProjectile(Vector2.Zero, Vector2.Zero, type, 0, 0);
-                }
-                 */
+					Projectile.NewProjectile(Vector2.Zero, Vector2.Zero, type, 0, 0);
+				}
+				 */
 				damage.Base += ammo.damage * 1.5f;//(damage.Base - Main.player[weapon.playerIndexTheItemIsReservedFor].GetWeaponDamage(weapon))*5;
-            }
-        }
+			}
+		}
 		public override bool ConsumeItem(Item item, Player player) {
 			if (item.type == ItemID.GoldenKey && item.prefix != 0) {
 				return false;
@@ -234,9 +245,9 @@ namespace EpikV2.Items {
 			return true;
 		}
 		/*public override void OpenVanillaBag(string context, Player player, int arg) {
-            if(context=="goodieBag"&&Main.rand.NextBool(10)) {
-                player.QuickSpawnItem(player.GetSource_OpenItem(arg, context), ModContent.ItemType<Chocolate_Bar>());
-            }
+			if(context=="goodieBag"&&Main.rand.NextBool(10)) {
+				player.QuickSpawnItem(player.GetSource_OpenItem(arg, context), ModContent.ItemType<Chocolate_Bar>());
+			}
 		}*/
 		public override void ModifyItemLoot(Item item, ItemLoot itemLoot) {
 			switch (item.type) {
