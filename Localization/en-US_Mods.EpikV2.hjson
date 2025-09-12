@@ -1144,6 +1144,7 @@ Items: {
 		SetBonus:
 			'''
 			<switch> with an empty hand to summon a weapon
+			All attacks [bufftip/dncoat enemies in oil:Oiled]
 			Gives you wings
 			'''
 	}
@@ -1240,6 +1241,11 @@ Items: {
 	Stardust_Whip: {
 		DisplayName: Stardust Whip
 		Tooltip: ""
+	}
+
+	Equipment_Frame: {
+		DisplayName: Equipment Frame
+		Tooltip: Won't help you hold a baloon
 	}
 }
 
@@ -1633,4 +1639,19 @@ ItemSourceFilter: {
 ExtraDyeSlots: {
 	Daybreaker_Wings_Dye_Slot.DisplayText: "{$LegacyInterface.57} (Wings)"
 	Daybreaker_Wings_Dye_Slot_2.DisplayText: "{$LegacyInterface.57} (Wingguards)"
+}
+
+ItemSlot: {
+	Social: Social {0}
+	SlotByVisualSlot_Hand: Hands
+	SlotByVisualSlot_Back: Back
+	SlotByVisualSlot_Tail: Tail
+	SlotByVisualSlot_Shoes: Shoes
+	SlotByVisualSlot_Waist: Waist
+	SlotByVisualSlot_Belt: Belt
+	SlotByVisualSlot_Wings: Wings
+	SlotByVisualSlot_Shield: Shield
+	SlotByVisualSlot_Neck: Neck
+	SlotByVisualSlot_Face: Face
+	SlotByVisualSlot_Flower: Flower
 }

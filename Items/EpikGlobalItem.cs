@@ -292,6 +292,7 @@ namespace EpikV2.Items {
 		}
 		public static List<(string key, string replacement)> GetTooltipPlaceholderReplacements(TooltipPlaceholder tooltipPlaceholders = TooltipPlaceholder.All) {
 			List<(string key, string replacement)> replacements = [];
+			if (Main.dedServ) return replacements;
 			InputMode inputMode = InputMode.Keyboard;
 			switch (PlayerInput.CurrentInputMode) {
 				case InputMode.XBoxGamepad or InputMode.XBoxGamepadUI:

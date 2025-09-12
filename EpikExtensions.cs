@@ -1232,6 +1232,10 @@ namespace EpikV2 {
 			int projIndex = Projectile.GetByUUID(self.owner, self.ai[index]);
 			return Main.projectile.IndexInRange(projIndex) ? Main.projectile[projIndex] : null;
 		}
+		public static T GetIfInRange<T>(this T[] array, int index, T fallback = default) {
+			if (!array.IndexInRange(index)) return fallback;
+			return array[index];
+		}
 	}
 	public static class ConditionExtensions {
 		public static Condition CommaAnd(this Condition a, Condition b) {

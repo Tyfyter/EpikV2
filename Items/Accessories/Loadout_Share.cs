@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Terraria;
@@ -14,10 +15,16 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
+using static ItemSourceHelper.IndicatorTypesConfigElement;
 
 namespace EpikV2.Items.Accessories {
 	public class Loadout_Share : ModItem {
 		public override void SetStaticDefaults() {
+			static bool Hook(Func<Player, Item[], Item, int, bool> orig, Player player, Item[] itemCollection, Item item, int slot) {
+				if (item?.ModItem is Loadout_Share) return false;
+				return orig(player, itemCollection, item, slot);
+			}
+			MonoModHooks.Add(typeof(ItemSlot).GetMethod("AccCheck_ForPlayer", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static), Hook);
 			On_ItemSlot.AccCheck_ForLocalPlayer += (orig, itemCollection, item, slot) => {
 				if (item?.ModItem is Loadout_Share) return false;
 				return orig(itemCollection, item, slot);

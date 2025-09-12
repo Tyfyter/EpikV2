@@ -1493,6 +1493,11 @@ namespace EpikV2.Items.Armor {
 			Player.CompositeArmStretchAmount armDrawAmount = Player.CompositeArmStretchAmount.Full;
 			Vector2? rightHandTarget = null;
 			if (player.ItemAnimationActive) {
+				bool rain = player.altFunctionUse == 2;
+				if (rain && Projectile.ai[1] <= 0 && player.itemAnimationMax < 23) {
+					player.itemAnimationMax = 23;
+					player.itemAnimation = 23;
+				}
 				float progress = 1 - player.itemAnimation / (float)player.itemAnimationMax;
 				if (progress > 0.666f) {
 					armDrawAmount = Player.CompositeArmStretchAmount.None;
@@ -1510,7 +1515,6 @@ namespace EpikV2.Items.Armor {
 				player.direction = Math.Sign(diff.X);
 				rotSpeed = player.direction == oldDirection ? 0.1f : MathHelper.TwoPi;
 				int projType = ModContent.ProjectileType<Daybreaker_Arrow>();
-				bool rain = player.altFunctionUse == 2;
 				if (Projectile.GetRelatedProjectile(0) is Projectile arrowProjectile && arrowProjectile.type == projType) {
 					float speed = arrowProjectile.velocity.Length();
 					GeometryUtils.AngularSmoothing(ref Projectile.rotation, GeometryUtils.AngleToTarget(diff, speed, 0.02f, rain) ?? MathHelper.PiOver2, rotSpeed);
