@@ -15,7 +15,6 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI;
-using static ItemSourceHelper.IndicatorTypesConfigElement;
 
 namespace EpikV2.Items.Accessories {
 	public class Loadout_Share : ModItem {

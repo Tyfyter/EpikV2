@@ -2,8 +2,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Origins.Items.Weapons.Summoner;
 using Origins;
+using Origins.Items.Weapons.Summoner;
 using PegasusLib;
 using ReLogic.Graphics;
 using ReLogic.Utilities;
@@ -18,10 +18,12 @@ using Terraria.Audio;
 using Terraria.DataStructures;
 using Terraria.GameContent;
 using Terraria.GameContent.UI.Chat;
+using Terraria.GameContent.UI.Elements;
 using Terraria.GameInput;
 using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.ModLoader.IO;
+using Terraria.UI;
 using Terraria.UI.Chat;
 using Terraria.WorldBuilding;
 using static EpikV2.Secret_Legend_Reference;
@@ -261,22 +263,38 @@ namespace EpikV2 {
 			}
 		}
 	}
-	public class TruneHandler : ITagHandler {
+	public class TruneHandler : AdvancedTextSnippetHandler<TruneHandler.TruneOptions> {
 		public class TruneSnippet : TextSnippet {
-			public TruneSnippet(string text) : base(text) {
+			public TruneSnippet(string text, TruneOptions options) : base(text) {
 				if (EpikIntegration.Chars.Trune is null) {
 					text = text.Replace("  ", "\u0080").Replace(" ", "_").Replace("\u0080", " ");
 					Text = string.Join("", text.Where(c => c is ' ' or '_'));
 					return;
 				}
-				Text = EpikIntegration.Chars.ConvertTrunes(text);
+				Text = EpikIntegration.Chars.ConvertTrunes(text, options.Guide);
 			}
 		}
-		public TextSnippet Parse(string text, Color baseColor = default(Color), string options = null) {
-			return new TruneSnippet(text) {
+		public override IEnumerable<string> Names => ["trunic"];
+		public override IEnumerable<(string, UIElement)> GetSuggestions(string typed) {
+			if (typed.Contains(':')) GetCharSuggestions(typed);
+			if (typed.Contains('/')) return base.GetSuggestions(typed); 
+			return GetCharSuggestions(typed);
+		}
+		public static IEnumerable<(string, UIElement)> GetCharSuggestions(string typed) {
+			if (!typed.Contains('/') && !typed.Contains(':')) typed = ":" + typed;
+			foreach (string item in EpikIntegration.Chars.Trune.Keys) {
+				yield return (typed + item, new UIText($"[trunic/g:{item}]"));
+			}
+		}
+		public override IEnumerable<SnippetOption> GetOptions() {
+			yield return SnippetOption.CreateFlagOption("g", () => options.Guide = true);
+		}
+		public override TextSnippet Parse(string text, Color baseColor, TruneOptions options) {
+			return new TruneSnippet(text, options) {
 				Color = baseColor,
 			};
 		}
+		public record struct TruneOptions(bool Guide);
 	}
 	public class TuneHandler : ITagHandler {
 		public class TuneSnippet : TruneHandler.TruneSnippet {
@@ -343,7 +361,7 @@ namespace EpikV2 {
 				});
 			}
 			readonly float[] sequence = [];
-			public TuneSnippet(string text) : base(text) {
+			public TuneSnippet(string text) : base(text, default) {
 				if (EpikIntegration.Chars.Trune is null) {
 					text = text.Replace("  ", "\u0080").Replace(" ", "_").Replace("\u0080", " ");
 					Text = string.Join("", text.Where(c => c is ' ' or '_'));

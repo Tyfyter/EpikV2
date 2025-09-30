@@ -133,7 +133,8 @@ namespace EpikV2.CrossMod {
 					"v",
 					"w",
 					"y",
-					"zh"
+					"zh",
+					"sh"
 				];
 				string[] trunes = [
 					..truneVowels,
@@ -142,10 +143,7 @@ namespace EpikV2.CrossMod {
 				Chars.truneVowels = new(truneVowels);
 				string vowel = $"(?:{string.Join("|", truneVowels.OrderByDescending(s => s.Length))})";
 				string consonant = $"(?:{string.Join("|", truneConsonants.OrderByDescending(s => s.Length))})";
-				Chars.truneRegex = new($"(?:(?<1>{vowel}(?= |$|{vowel}))|(?<1>{consonant}(?= |$|{consonant}))|(?:(?<1>{vowel})(?<2>{consonant}))|(?:(?<1>{consonant})(?<2>{vowel})))", RegexOptions.Compiled);
-				ChatManager.Register<TruneHandler>([
-					"trunic"
-				]);
+				Chars.truneRegex = new($"(?:(?:(?<1>{vowel})(?<2>{consonant}))|(?:(?<1>{consonant})(?<2>{vowel}))|(?<1>{vowel}(?= |$|{vowel}))|(?<1>{consonant}(?= |$|{consonant})))", RegexOptions.Compiled);
 				ChatManager.Register<TuneHandler>([
 					"tuneic"
 				]);
@@ -209,6 +207,15 @@ namespace EpikV2.CrossMod {
 						new Vector3(0, 0, 0),
 						"T_SL_vowel_first"
 					);
+					Chars.Trune["guide"] = (char)charLoader.Call(
+						"AddCharacter",
+						FontAssets.MouseText.Value,
+						Main.dedServ ? null : ModContent.Request<Texture2D>("EpikV2/Chars/T_SL_guide", AssetRequestMode.ImmediateLoad).Value,
+						new Rectangle(0, 0, 9, 19),
+						new Rectangle(0, 0, 9, 19),
+						new Vector3(0, 0, 0),
+						"T_SL_guide"
+					);
 					Chars.SetupGameTips();
 				}
 				BountifulGoodieBags = ModLoader.TryGetMod("BountifulGoodieBags", out _);
@@ -233,11 +240,12 @@ namespace EpikV2.CrossMod {
 				allTips.GetValue(Main.gameTips).Add(new GameTipData(Language.GetOrRegister(text, () => text), EpikV2.instance));
 			}
 			public string ReformatTrunes(string text) => truneRegex.Replace(text, "$1|$2 ").Replace("| ", " ").Trim();
-			public string ConvertTrunes(string text) {
+			public string ConvertTrunes(string text, bool guide = false) {
 				text = ReformatTrunes(text);
 				string[] syls = text.Split(' ');
 				StringBuilder stringBuilder = new();
 				if (!Trune.TryGetValue("done", out char done)) return null;
+				if (!Trune.TryGetValue("guide", out char _guide) && guide) return null;
 				if (!Trune.TryGetValue("vowel_first", out char vowelFirstChar)) return null;
 				foreach (string s in syls) {
 					if (string.IsNullOrWhiteSpace(s)) {
@@ -252,6 +260,7 @@ namespace EpikV2.CrossMod {
 						}
 					}
 					if (vowelFirst) stringBuilder.Append(vowelFirstChar);
+					if (guide) stringBuilder.Append(_guide);
 					stringBuilder.Append(done);
 				}
 				return stringBuilder.ToString();

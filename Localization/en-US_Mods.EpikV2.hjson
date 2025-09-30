@@ -832,19 +832,19 @@ Items: {
 
 	Shoestopper: {
 		DisplayName: Shoestoppers
-		Tooltip: 
-		'''
-		Allows flight, super fast running, and extra mobility on ice or sand
-		Increases movement speed and acceleration
-		Provides the ability to walk on water, honey & lava
-		Grants immunity to fire blocks and 7 seconds of immunity to lava
-		Reduces damage from touching lava
-		Grants the ability to swim
-		Allows the ability to climb walls
-		Increases jump speed and allows auto-jump
-		Increases fall resistance
-		{$ItemName.FlowerBoots}
-		'''
+		Tooltip:
+			'''
+			Allows flight, super fast running, and extra mobility on ice or sand
+			Increases movement speed and acceleration
+			Provides the ability to walk on water, honey & lava
+			Grants immunity to fire blocks and 7 seconds of immunity to lava
+			Reduces damage from touching lava
+			Grants the ability to swim
+			Allows the ability to climb walls
+			Increases jump speed and allows auto-jump
+			Increases fall resistance
+			{$ItemName.FlowerBoots}
+			'''
 	}
 
 	Solweaver: {
@@ -1672,3 +1672,5 @@ ItemSlot: {
 	SlotByVisualSlot_Face: Face
 	SlotByVisualSlot_Flower: Flower
 }
+
+AdvancedTextSnippet.TruneHandler.Option_g: Guide
