@@ -217,11 +217,11 @@ namespace EpikV2.Projectiles {
             EpikV2.KaleidoscopeColorType = 0;
         }
 		public override void SendExtraAI(Projectile projectile, BitWriter bitWriter, BinaryWriter binaryWriter) {
-            binaryWriter.Write(prefix?.Type ?? 0);
-            binaryWriter.Write(partyCannonEffect); 
+            binaryWriter.Write((int)(prefix?.Type ?? 0));
+            binaryWriter.Write((byte)partyCannonEffect); 
             binaryWriter.Write((byte)deflectState);
 
-			bitWriter.WriteBit(GetDaybreakState());
+			bitWriter.WriteBit((bool)GetDaybreakState());
 		}
 		public override void ReceiveExtraAI(Projectile projectile, BitReader bitReader, BinaryReader binaryReader) {
             prefix = PrefixLoader.GetPrefix(binaryReader.ReadInt32());

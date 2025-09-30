@@ -109,19 +109,6 @@ namespace EpikV2.Items {
 			Item item = new(random);
 			if (item.rare != ItemRarityID.Quest && item.rare != ItemRarityID.Expert && item.rare != ItemRarityID.Master && !ShouldSkipRarityCheck(player, random)) {
 				int realRare = EpikV2.GetBalanceRarity(item);
-				/*if (realRare >= ItemRarityID.Count) {
-					int offset = 0;
-					while (realRare >= ItemRarityID.Count) {
-						realRare = RarityLoader.GetRarity(realRare).GetPrefixedRarity(-1, 0.95f);
-						if (realRare == item.rare) {
-							realRare = 0;
-							offset = 0;
-							break;
-						}
-						offset++;
-					}
-					realRare += offset;
-				}*/
 				if (EpikConfig.Instance.BalancedAncientPresents && realRare > targetRare && random != ItemID.Drax) {
 					if (!EpikConfig.Instance.TooGoodAncientPresents) Main.NewText($"whoa, look at this cool [i:{random}] you missed out on 'cause of the \"remotely balanced ancient presents\" setting, it had a rarity of [c/{(realRare >= ItemRarityID.Count ? RarityLoader.GetRarity(realRare).RarityColor.Hex3() : Terraria.GameContent.UI.ItemRarity.GetColor(realRare).Hex3())}:{realRare}] out of [c/{Terraria.GameContent.UI.ItemRarity.GetColor((int)targetRare).Hex3()}:{targetRare}]");
 					goto retry;

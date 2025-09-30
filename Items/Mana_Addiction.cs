@@ -17,8 +17,7 @@ namespace EpikV2.Items {
 			EpikV2.AddBalanceRarityOverride(Type, ItemRarityID.Pink);
 		}
 		public override void SetDefaults() {
-			Item.width = 34;
-			Item.height = 32;
+			Item.DefaultToAccessory(34, 32);
 		}
 		public override void UpdateEquip(Player player) {
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();

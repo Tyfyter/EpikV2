@@ -1,34 +1,29 @@
-﻿using Microsoft.Xna.Framework;
-using System;
-using Terraria;
-using Terraria.Audio;
-using Terraria.GameContent;
-using Terraria.ID;
-using Terraria.DataStructures;
-using Terraria.ModLoader;
+﻿using EpikV2.CrossMod;
 using EpikV2.Items;
-using System.Runtime.CompilerServices;
-using static EpikV2.EpikExtensions;
-using static Microsoft.Xna.Framework.MathHelper;
-using Terraria.Graphics.Shaders;
-using Terraria.GameContent.NetModules;
-using Terraria.Localization;
-using Terraria.GameInput;
-using Microsoft.Xna.Framework.Graphics;
-using System.Collections.Generic;
-using EpikV2.NPCs;
-using static EpikV2.Resources;
-using EpikV2.Tiles;
-using Terraria.Graphics.Effects;
-using Terraria.ModLoader.IO;
-using System.IO;
-using EpikV2.Layers;
 using EpikV2.Items.Accessories;
 using EpikV2.Items.Armor;
-using EpikV2.CrossMod;
 using EpikV2.Items.Other;
-using System.Linq;
+using EpikV2.Layers;
+using EpikV2.NPCs;
+using EpikV2.Tiles;
+using Microsoft.Xna.Framework;
+using Origins;
 using PegasusLib.ID;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using Terraria;
+using Terraria.Audio;
+using Terraria.DataStructures;
+using Terraria.GameInput;
+using Terraria.Graphics.Shaders;
+using Terraria.ID;
+using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
+using static EpikV2.EpikExtensions;
+using static EpikV2.Resources;
+using static Microsoft.Xna.Framework.MathHelper;
 
 namespace EpikV2 {
 	public partial class EpikPlayer : ModPlayer {
@@ -176,6 +171,12 @@ namespace EpikV2 {
 		public bool strongShimmerCloak;
 		public bool equipmentFrame;
 		public bool equipmentFrameVisual;
+		public bool ateGravityGlobe = false;
+		public bool GravityGlobeEnabled {
+			get => Player.BuilderToggleState<Gravity_Globe_Toggle>() == 0;
+			set => Player.BuilderToggleState<Gravity_Globe_Toggle>() = (!value).ToInt();
+		}
+		public bool GravityGlobeActive => ateGravityGlobe && GravityGlobeEnabled;
 
 		public bool adjCampfire;
 		bool oldAdjCampfire;
@@ -734,6 +735,7 @@ namespace EpikV2 {
 					activeBuffs.Add(Player.buffType[i]);
 				}
 			}
+			if (GravityGlobeActive) Player.gravControl2 = true;
 			/*if (shimmerCloak && Player.shimmering) {
 				Player.frozen = false;
 			}*/
@@ -1414,6 +1416,7 @@ namespace EpikV2 {
 			tag["triedTriangleManuscript"] = triedTriangleManuscript;
 			tag["oldWolfBlood"] = oldWolfHeart;
 			tag["nameColorOverride"] = nameColorOverride;
+			tag["ateGravityGlobe"] = ateGravityGlobe;
 			if (magicColor.HasValue) tag["magicColor"] = magicColor.Value.PackedValue;
 		}
 		public override void LoadData(TagCompound tag) {
@@ -1422,6 +1425,7 @@ namespace EpikV2 {
 			tag.TryGet("triedTriangleManuscript", out triedTriangleManuscript);
 			tag.TryGet("oldWolfBlood", out oldWolfHeart);
 			tag.TryGet("nameColorOverride", out nameColorOverride);
+			tag.TryGet("ateGravityGlobe", out ateGravityGlobe);
 			if (tag.TryGet("magicColor", out uint magicColorPacked)) magicColor = new Color() {
 				PackedValue = magicColorPacked
 			};

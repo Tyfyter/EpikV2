@@ -16,14 +16,16 @@ namespace EpikV2.Items {
 			Item.shoeSlot = shoeSlot;
 		}
 		public override void AddRecipes() {
-			Recipe recipe = CreateRecipe();
-			recipe.AddIngredient(ItemID.TerrasparkBoots);
-			recipe.AddIngredient(ItemID.Magiluminescence);
-			recipe.AddIngredient(ItemID.FlowerBoots);
-			recipe.AddIngredient(ItemID.SandBoots);
-			recipe.AddIngredient(ItemID.FrogGear);
-			recipe.AddTile(TileID.TinkerersWorkbench);
-			recipe.Register();
+			CreateRecipe()
+			.AddIngredient(ItemID.TerrasparkBoots)
+			.AddIngredient(ItemID.Magiluminescence)
+			.AddIngredient(ItemID.FlowerBoots)
+			.AddIngredient(ItemID.SandBoots)
+			.AddIngredient(ItemID.FrogGear)
+			.AddIngredient(ItemID.FrogGear)
+			.AddIngredient(ItemID.SoulofFlight, 12)
+			.AddTile(TileID.TinkerersWorkbench)
+			.Register();
 		}
 		public override void UpdateAccessory(Player player, bool hideVisual) {
 			player.waterWalk = true;
@@ -42,7 +44,7 @@ namespace EpikV2.Items {
 			if (player.accRunSpeed < 6.75f) player.accRunSpeed = 6.75f;
 			player.rocketBoots = 4;
 			player.vanityRocketBoots = 4;
-			player.moveSpeed += 0.08f;
+			//player.moveSpeed += 0.08f;
 
 			if (!hideVisual) {
 				DelegateMethods.v3_1 = new Vector3(0.5f, 0.8f, 0.9f);
@@ -58,7 +60,7 @@ namespace EpikV2.Items {
 		public override void UpdateVanity(Player player) {
 			player.DoBootsEffect(DoBootsEffect_PlaceParticlesOnTile(player));
 		}
-		public Utils.TileActionAttempt DoBootsEffect_PlaceParticlesOnTile(Player player) => (int X, int Y) => {
+		public static Utils.TileActionAttempt DoBootsEffect_PlaceParticlesOnTile(Player player) => (int X, int Y) => {
 			Tile tile = Main.tile[X, Y + 1];
 			if (tile == null || !tile.HasTile || tile.LiquidAmount > 0 || !WorldGen.SolidTileAllowBottomSlope(X, Y + 1)) {
 				return false;

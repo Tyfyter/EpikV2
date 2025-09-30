@@ -50,7 +50,6 @@ namespace EpikV2 {
 					break;
 
 					case PacketType.playerSync:
-					case PacketType.statLimiterSync:
 					case PacketType.custom_knockback:
 					case PacketType.sync_autopounder:
 					altHandle = true;
@@ -170,7 +169,6 @@ namespace EpikV2 {
 					break;
 
 					case PacketType.playerSync:
-					case PacketType.statLimiterSync:
 					case PacketType.custom_knockback:
 					case PacketType.sync_autopounder:
 					altHandle = true;
@@ -229,18 +227,6 @@ namespace EpikV2 {
 						if (Main.netMode == NetmodeID.Server) {
 							// Forward the changes to the other clients
 							epikPlayer.SyncPlayer(-1, whoAmI, false);
-						}
-						break;
-					}
-
-					case PacketType.statLimiterSync: {
-						byte playerindex = reader.ReadByte();
-						StatLimiterPlayer statLimiterPlayer = Main.player[playerindex].GetModPlayer<StatLimiterPlayer>();
-						statLimiterPlayer.ReceivePlayerSync(reader);
-
-						if (Main.netMode == NetmodeID.Server) {
-							// Forward the changes to the other clients
-							statLimiterPlayer.SyncPlayer(-1, whoAmI, false);
 						}
 						break;
 					}
