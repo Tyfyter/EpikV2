@@ -573,7 +573,7 @@ namespace EpikV2.Items.Armor {
 			}
 			proj.damage = (int)damage.ApplyTo(item.damage);
 			proj.CritChance = (int)crit;
-			proj.knockBack = (int)knockback.ApplyTo(item.knockBack);
+			proj.knockBack = knockback.ApplyTo(item.knockBack);
 			proj.ArmorPenetration = (int)armorPenetration;
 			useTime = (int)useTime;
 
@@ -1191,6 +1191,7 @@ namespace EpikV2.Items.Armor {
 			} else {
 				if (Projectile.ai[1] < 0.6f) Projectile.ai[1] += 0.05f;
 			}
+			Projectile.noEnchantmentVisuals = Projectile.hide;
 		}
 		public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers) {
 			if (Projectile.ai[1] > 0.1f) {
