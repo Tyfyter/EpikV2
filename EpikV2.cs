@@ -1,3 +1,11 @@
+global using Microsoft.Xna.Framework;
+global using static EpikV2.GlobalUtils;
+global using ALRecipeGroups = AltLibrary.Common.Systems.RecipeGroups;
+global using Color = Microsoft.Xna.Framework.Color;
+global using Rectangle = Microsoft.Xna.Framework.Rectangle;
+global using Vector2 = Microsoft.Xna.Framework.Vector2;
+global using Vector3 = Microsoft.Xna.Framework.Vector3;
+global using Vector4 = Microsoft.Xna.Framework.Vector4;
 using Terraria.GameContent;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;

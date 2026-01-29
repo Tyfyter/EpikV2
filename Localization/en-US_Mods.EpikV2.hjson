@@ -843,7 +843,7 @@ Items: {
 			Allows the ability to climb walls
 			Increases jump speed and allows auto-jump
 			Increases fall resistance
-			{$ItemName.FlowerBoots}
+			{$ItemTooltip.FlowerBoots}
 			'''
 	}
 
@@ -1502,18 +1502,42 @@ Configs: {
 		Tooltip: {
 			$parentVal: ""
 			Label: Tooltip
+			Tooltip: ""
 		}
 
-		None.Label: None
-		LSD.Label: LSD
-		All.Label: All
+		None: {
+			Label: None
+			Tooltip: ""
+		}
+
+		LSD: {
+			Label: LSD
+			Tooltip: ""
+		}
+
+		All: {
+			Label: All
+			Tooltip: ""
+		}
 	}
 
 	AltNameColorTypes: {
 		Tooltip: ""
-		None.Label: None
-		Starlight.Label: Starlight
-		All.Label: All
+
+		None: {
+			Label: None
+			Tooltip: ""
+		}
+
+		Starlight: {
+			Label: Starlight
+			Tooltip: ""
+		}
+
+		All: {
+			Label: All
+			Tooltip: ""
+		}
 	}
 
 	EpikConfig: {

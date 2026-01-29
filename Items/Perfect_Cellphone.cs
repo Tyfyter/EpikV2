@@ -26,7 +26,7 @@ namespace EpikV2.Items {
 			Item.UseSound = SoundID.Item129.WithPitchRange(-1, -1);
 		}
 		public override void UpdateInventory(Player player) {
-			player.accWatch = 3;
+			player.accWatch = 5;
 			player.accWeatherRadio = true;
 			player.accCalendar = true;
 			player.accFishFinder = true;
@@ -36,8 +36,8 @@ namespace EpikV2.Items {
 			player.accJarOfSouls = true;
 			player.accDreamCatcher = true;
 			player.accStopwatch = true;
-			player.accCompass = 1;
-			player.accDepthMeter = 1;
+			player.accCompass = 2;
+			player.accDepthMeter = 2;
 			EpikPlayer epikPlayer = player.GetModPlayer<EpikPlayer>();
 			epikPlayer.showLuck = true;
 			epikPlayer.perfectCellphone = true;

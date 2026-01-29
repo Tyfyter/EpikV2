@@ -539,7 +539,7 @@ namespace EpikV2 {
 					i => i.MatchBrtrue(out _)
 				);
 				c.Prev.Operand = newIf;
-				MonoModHooks.DumpIL(instance, il);
+				//MonoModHooks.DumpIL(instance, il);
 			} catch (Exception e) {
 				throw new ILPatchFailureException(instance, il, e);
 			}

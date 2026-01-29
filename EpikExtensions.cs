@@ -3,11 +3,13 @@ using EpikV2.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using MonoMod.Cil;
+using PegasusLib;
 using ReLogic.Content;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -26,9 +28,8 @@ using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.Net;
-using Terraria.Utilities;
-using PegasusLib;
 using Terraria.UI;
+using Terraria.Utilities;
 
 namespace EpikV2 {
 	public interface IScrollableItem {
@@ -1267,6 +1268,21 @@ namespace EpikV2 {
 				Language.GetOrRegister("Mods.EpikV2.Conditions.Not").WithFormatArgs(value.Description),
 				() => !value.Predicate()
 			);
+		}
+	}
+	public static class GlobalUtils {
+		public static Color FromHexRGB(uint hex) => FromHexRGBA((hex << 8) | 0x000000ffu);
+		public static Color FromHexRGBA(uint hex) => new() {
+			PackedValue = ((hex & 0xff000000u) >> 24) | ((hex & 0x00ff0000u) >> 8) | ((hex & 0x0000ff00u) << 8) | ((hex & 0x000000ffu) << 24),
+		};
+		public static void Min<T>(ref T current, T @new) where T : IComparisonOperators<T, T, bool> {
+			if (current > @new) current = @new;
+		}
+		public static void Max<T>(ref T current, T @new) where T : IComparisonOperators<T, T, bool> {
+			if (current < @new) current = @new;
+		}
+		public static void MinMax<T>(ref T min, ref T max) where T : IComparisonOperators<T, T, bool> {
+			if (min > max) Utils.Swap(ref min, ref max);
 		}
 	}
 }

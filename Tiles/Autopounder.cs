@@ -20,6 +20,7 @@ using Microsoft.Xna.Framework;
 using Terraria.GameContent.UI;
 using Terraria.Map;
 using Terraria.Audio;
+using PegasusLib.Networking;
 
 
 namespace EpikV2.Tiles {
@@ -30,8 +31,29 @@ namespace EpikV2.Tiles {
 			overlayTexture = ModContent.Request<Texture2D>(Texture + "_Front");
 			underlayTexture = ModContent.Request<Texture2D>(Texture + "_Back");
 		}
+		[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1861:Avoid constant arrays as arguments", Justification = "Not called repeatedly")]
 		public override void Load() {
 			IL_Main.DrawWires += IL_Main_DrawWires;
+			if (ModLoader.TryGetMod("Origins", out Mod origins)) {
+				try {
+					origins.Call("AddWireMode",
+						Mod,
+						(int i, int j) => Main.tile[i, j].Get<Autopounder_Data>().HasAutopounder,
+						(int i, int j, bool value) => { Main.tile[i, j].Get<Autopounder_Data>().HasAutopounder = value;  },
+						Texture + "_UI",
+						new Color(0, 170, 240),
+						null,
+						new string[] { "Origins/Actuator_Wire_Mode" },
+						new string[] { "Origins/Red_Wire_Mode" },
+						this,
+						true
+					);
+				} catch (Exception) {
+#if DEBUG
+					throw;
+#endif
+				}
+			}
 		}
 		public override void SetDefaults() {
 			Item.CloneDefaults(ItemID.Actuator);
@@ -41,6 +63,7 @@ namespace EpikV2.Tiles {
 			if (!tile.Get<Autopounder_Data>().HasAutopounder) {
 				SoundEngine.PlaySound(SoundID.Dig, new(i * 16, j * 16));
 				tile.Get<Autopounder_Data>().HasAutopounder = true;
+				AutopounderSystem.SendAutopounderData(i, j, Main.myPlayer);
 				return true;
 			}
 
@@ -152,12 +175,15 @@ namespace EpikV2.Tiles {
 			ref Autopounder_Data autoPounderData = ref tile.Get<Autopounder_Data>();
 			if (autoPounderData.HasAutopounder) {
 				(tile.BlockType, autoPounderData.AlternateType) = (autoPounderData.AlternateType, tile.BlockType);
+				//Wiring.SkipWire
 				NetMessage.SendTileSquare(-1, i, j);
+				AutopounderSystem.SendAutopounderData(i, j, Main.myPlayer);
 			}
 		}
 	}
 	public class AutopounderSystem : ModSystem {
 		public static void SendAutopounderData(int i, int j, int ignoreClient = -1) {
+			if (NetmodeActive.SinglePlayer) return;
 			ModPacket packet = EpikV2.instance.GetPacket();
 			packet.Write(EpikV2.PacketType.sync_autopounder);
 			packet.Write((ushort)i);

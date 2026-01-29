@@ -126,6 +126,7 @@ namespace EpikV2.Tiles {
 				Projectile.Kill();
 			}
 			bool[] transparentTiles = Main.tileBlockLight.Select(b => !b).ToArray();
+			// TODO: fix
 			if(Collision.AdvancedTileCollision(transparentTiles, Projectile.position - Projectile.velocity, Projectile.velocity, Projectile.width, Projectile.height, true, true) != Projectile.velocity) {
 				OnTileCollide(Projectile.velocity);
 			}

@@ -96,9 +96,10 @@ namespace EpikV2.Items.Weapons {
 		}
 		public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone) {
 			target.AddBuff(Stardust_Whip_Buff.ID, 240);
+			int count = 0;
 			foreach (Projectile proj in Main.ActiveProjectiles) {
 				if (proj.owner == Projectile.owner && proj.type == Stardust_Whip_Flow_Invader.ID) {
-					return;
+					if ((proj.ai[1] == 0 && proj.ai[0] == target.whoAmI) || ++count >= 3) return;
 				}
 			}
 			this.SpawnProjectile(
@@ -106,8 +107,8 @@ namespace EpikV2.Items.Weapons {
 				target.Center,
 				Vector2.Zero,
 				Stardust_Whip_Flow_Invader.ID,
-				0,
-				0,
+				hit.SourceDamage,
+				6,
 				target.whoAmI,
 				ai2: float.NaN
 			);
@@ -180,13 +181,23 @@ namespace EpikV2.Items.Weapons {
 		public override void SetStaticDefaults() {
 			ID = Type;
 		}
+		public override void SetDefaults() {
+			Projectile.width = 16;
+			Projectile.height = 16;
+		}
 		public override void AI() {
 			if (!Main.npc.IndexInRange((int)Projectile.ai[0])) return;
 			NPC target = Main.npc[(int)Projectile.ai[0]];
 			float friction = 0.97f;
 			float speed = 1f;
 			Vector2 direction = (target.Center - Projectile.Center).SafeNormalize(default);
+			Projectile.friendly = true;
 			switch ((int)Projectile.ai[1]) {
+				case 0:
+				Projectile.friendly = false;
+				if (!target.active) Projectile.Kill();
+				break;
+
 				case 1:
 				friction = 0.91f;
 				speed = 3f;

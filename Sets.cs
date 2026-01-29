@@ -15,6 +15,8 @@ namespace EpikV2 {
 		public static bool[] IsValidForAltManaPoweredPrefix { get; } = ItemID.Sets.Factory.CreateBoolSet(true, ItemID.Hammush, ItemID.Bladetongue);
 		public static bool[] BodyDrawsClothes { get; } = ArmorIDs.Body.Sets.Factory.CreateBoolSet(false);
 		public static bool[] LegsDrawsClothes { get;} = ArmorIDs.Legs.Sets.Factory.CreateBoolSet(false);
+		public static bool[] SpecialPrefix { get; } = PrefixID.Sets.Factory.CreateNamedSet("Origins", nameof(SpecialPrefix))
+		.RegisterBoolSet(false);
 		internal static void SetupPostContentSampleSets() {
 			foreach (Item item in ContentSamples.ItemsByType.Values) {
 				if (item.useAmmo == AmmoID.Arrow || item.ammo == AmmoID.Arrow) {

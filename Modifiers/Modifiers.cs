@@ -63,6 +63,9 @@ namespace EpikV2.Modifiers {
 	}
 	public class Beckoning_Prefix : ModPrefix, IProjectileHitPrefix {
 		public override PrefixCategory Category => PrefixCategory.AnyWeapon;
+		public override void SetStaticDefaults() {
+			Sets.SpecialPrefix[Type] = true;
+		}
 		public void ModifyProjectileHitNPC(Projectile projectile, NPC target, ref NPC.HitModifiers modifiers) {
 			modifiers.HitDirectionOverride = 0;
 		}
@@ -75,6 +78,9 @@ namespace EpikV2.Modifiers {
 	}
 	public class Poisoned_Prefix : ModPrefix, IProjectileHitPrefix, IMeleeHitPrefix {
 		public override PrefixCategory Category => PrefixCategory.AnyWeapon;
+		public override void SetStaticDefaults() {
+			Sets.SpecialPrefix[Type] = true;
+		}
 		public void OnProjectileHitNPC(Projectile projectile, NPC target, NPC.HitInfo hitInfo) {
 			target.AddBuff(BuffID.Poisoned, hitInfo.Crit ? 480 : 300);
 		}
@@ -89,6 +95,9 @@ namespace EpikV2.Modifiers {
 	public class Mana_Powered_Prefix : ModPrefix, IManaPrefix, IModifyDamagePrefix, IModifyTooltipsPrefix {
 		public override PrefixCategory Category => PrefixCategory.AnyWeapon;
 		bool consumed = false;
+		public override void SetStaticDefaults() {
+			Sets.SpecialPrefix[Type] = true;
+		}
 		public void OnConsumeMana(Item item, Player player, int manaConsumed) {
 			consumed = true;
 		}
@@ -145,6 +154,9 @@ namespace EpikV2.Modifiers {
 	}
 	public class Mana_Powered_Prefix_2 : ModPrefix, IModifyTooltipsPrefix, IShootPrefix {
 		public const float damage_boost = 0.4f;
+		public override void SetStaticDefaults() {
+			Sets.SpecialPrefix[Type] = true;
+		}
 		public override bool CanRoll(Item item) => Mana_Powered_Prefix_2.BeamMelee(item);
 		public static bool BeamMelee(Item item) {
 			return item.useStyle == ItemUseStyleID.Swing
