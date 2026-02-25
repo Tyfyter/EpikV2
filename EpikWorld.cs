@@ -63,7 +63,7 @@ namespace EpikV2 {
 							},
 							item?.InterfaceScaleType ?? InterfaceScaleType.UI
 						);
-						if (item.ReplacesNormalHotbar) {
+						if (item?.ReplacesNormalHotbar ?? true) {
 							layers[hotbarIndex] = modeSwitchHotbar;
 						} else {
 							layers.Insert(hotbarIndex + 1, modeSwitchHotbar);

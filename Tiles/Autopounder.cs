@@ -21,6 +21,8 @@ using Terraria.GameContent.UI;
 using Terraria.Map;
 using Terraria.Audio;
 using PegasusLib.Networking;
+using PegasusLib.Content;
+using PegasusLib;
 
 
 namespace EpikV2.Tiles {
@@ -147,6 +149,19 @@ namespace EpikV2.Tiles {
 				}
 			});
 		}
+	}
+	public class Autopounder_Wire_Mode : WireMode {
+		public override string Texture => typeof(Autopounder).GetDefaultTMLName() + "_UI";
+		public override Color MiniWireMenuColor => new Color(0, 170, 240);
+		public override bool IsExtra => true;
+		public override int ItemType => ModContent.ItemType<Autopounder>();
+		public override void SetupSets() {
+			Sets.NormalWires[Type] = true;
+		}
+		public override bool GetWire(int x, int y) => Main.tile[x, y].Get<Autopounder_Data>().HasAutopounder;
+		public override bool SetWire(int x, int y, bool value) => Main.tile[x, y].Get<Autopounder_Data>().HasAutopounder = value;
+		public override IEnumerable<WireMode> SortAfter() => [ModContent.GetInstance<Actuator_Wire_Mode>()];
+		public override IEnumerable<WireMode> SortBefore() => [ModContent.GetInstance<Red_Wire_Mode>()];
 	}
 	public struct Autopounder_Data : ITileData {
 		internal byte data;

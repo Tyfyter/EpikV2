@@ -106,7 +106,6 @@ namespace EpikV2.Tiles {
 		public override string Texture => "Terraria/Images/Item_260";
 		public static int ID { get; internal set; }
 		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Telescope_View_P");
 			ID = Projectile.type;
 		}
 		public override void SetDefaults() {
@@ -139,11 +138,16 @@ namespace EpikV2.Tiles {
 		}
 	}
 	public class Telescope_Item : ModItem {
-		public override void SetStaticDefaults() {
-			// DisplayName.SetDefault("Telescope");
-		}
 		public override void SetDefaults() {
-			Item.CloneDefaults(ItemID.StoneBlock);
+			Item.useStyle = 1;
+			Item.useTurn = true;
+			Item.useAnimation = 15;
+			Item.useTime = 10;
+			Item.autoReuse = true;
+			Item.maxStack = Item.CommonMaxStack;
+			Item.consumable = true;
+			Item.width = 12;
+			Item.height = 12;
 			Item.placeStyle = 0;
 			Item.createTile = ModContent.TileType<Telescope>();
 		}

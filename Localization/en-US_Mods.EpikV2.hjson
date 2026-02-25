@@ -1376,6 +1376,7 @@ Projectiles: {
 	Cross_Seek_Particle.DisplayName: Cross Seek Particle
 	Stardust_Whip_P.DisplayName: Stardust Whip P
 	Stardust_Whip_Flow_Invader.DisplayName: Stardust Whip Flow Invader
+	ModWireChannel.DisplayName: Mod Wire Channel
 }
 
 DamageClasses: {

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using EpikV2.Reflection;
+using Microsoft.Xna.Framework;
 using System;
 using Terraria;
 using Terraria.Localization;
@@ -60,10 +61,15 @@ namespace EpikV2.Items.Accessories {
 			return epikPlayer.equipmentFrame || epikPlayer.equipmentFrameVisual;
 		}
 		public override void ApplyEquipEffects() {
-			if (Player.TryGetModPlayer(out EpikPlayer epikPlayer) && epikPlayer.equipmentFrame) {
+			bool hasRealSlots = Player.TryGetModPlayer(out EpikPlayer epikPlayer) && epikPlayer.equipmentFrame;
+			if (hasRealSlots) {
 				base.ApplyEquipEffects();
 			} else {
 				Player.ApplyEquipVanity(VanityItem);
+			}
+			if (DyeItem?.dye > 0) {
+				if (hasRealSlots) PlayerMethods.UpdateItemDye(Player, true, HideVisuals, FunctionalItem, DyeItem);
+				PlayerMethods.UpdateItemDye(Player, false, false, FunctionalItem, DyeItem);
 			}
 		}
 		public override bool ModifyDefaultSwapSlot(Item item, int accSlotToSwapTo) => CanAcceptItem(item, AccessorySlotType.FunctionalSlot);
