@@ -1395,6 +1395,7 @@ DamageClasses: {
 	Daybreaker.DisplayName: daybroken
 	Daybreaker_Bow_Damage.DisplayName: daybroken damage
 	Daybreaker_Sword_Damage.DisplayName: daybroken damage
+	Daybreaker_Inherit_Damage.DisplayName: melee and magic damage
 }
 
 Biomes: {

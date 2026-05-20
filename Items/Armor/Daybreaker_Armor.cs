@@ -23,8 +23,8 @@ namespace EpikV2.Items.Armor {
 	[AutoloadEquip(EquipType.Head)]
 	public class Daybreaker_Helmet : ModItem, IDeclarativeEquipStats, IMultiModeItem {
 		public IEnumerable<EquipStat> GetStats() {
-			yield return new AdditiveDamageStat(0.18f, DamageClass.Magic, DamageClass.Melee);
-			yield return new CritStat(18, DamageClass.Magic, DamageClass.Melee);
+			yield return new AdditiveDamageStat(0.18f, Damage_Classes.DaybreakerInherit);
+			yield return new CritStat(18, Damage_Classes.DaybreakerInherit);
 		}
 		public override void SetStaticDefaults() {
 			ItemID.Sets.ShimmerTransformToItem[Type] = ModContent.ItemType<Nightmare_Helmet>();
@@ -116,7 +116,7 @@ namespace EpikV2.Items.Armor {
 	[AutoloadEquip(EquipType.Body)]
 	public class Daybreaker_Wingguards : ModItem, IDeclarativeEquipStats {
 		public IEnumerable<EquipStat> GetStats() {
-			yield return new AttackSpeedStat(0.10f, DamageClass.Magic, DamageClass.Melee);
+			yield return new AttackSpeedStat(0.10f, Damage_Classes.DaybreakerInherit);
 			yield return new ManaCostStat(0.10f);
 		}
 		public override void SetStaticDefaults() {
@@ -412,26 +412,6 @@ namespace EpikV2.Items.Armor {
 			Item.rare = CursedRarity.ID;
 			Item.maxStack = 1;
 			Item.value = 0;
-		}
-		public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
-			damage = damage.CombineWith(GetHigherStat(player.GetDamage(DamageClass.Melee), player.GetDamage(DamageClass.Magic), Item.damage));
-		}
-		public override void ModifyWeaponCrit(Player player, ref float crit) {
-			float melee = player.GetCritChance(DamageClass.Melee);
-			float magic = player.GetCritChance(DamageClass.Magic);
-			crit += Math.Max(melee, magic) + Math.Min(melee, magic) * 0.5f;
-		}
-		public override float UseSpeedMultiplier(Player player) {
-			float melee = player.GetAttackSpeed(DamageClass.Melee);
-			float magic = player.GetAttackSpeed(DamageClass.Magic);
-			return Math.Max(melee, magic) * ((Math.Min(melee, magic) + 1) * 0.5f);
-		}
-		public override void ModifyWeaponKnockback(Player player, ref StatModifier knockback) {
-			knockback = knockback.CombineWith(GetHigherStat(player.GetKnockback(DamageClass.Melee), player.GetKnockback(DamageClass.Magic), Item.knockBack));
-		}
-		static StatModifier GetHigherStat(StatModifier a, StatModifier b, float baseValue) {
-			if (a.ApplyTo(baseValue) > b.ApplyTo(baseValue)) return a.CombineWith(b.Scale(0.5f));
-			else return b.CombineWith(a.Scale(0.5f));
 		}
 		public override void HoldStyle(Player player, Rectangle heldItemFrame) {
 			UseStyle(player, heldItemFrame);
@@ -1375,26 +1355,6 @@ namespace EpikV2.Items.Armor {
 			Item.value = 0;
 		}
 		public override bool AltFunctionUse(Player player) => true;
-		public override void ModifyWeaponDamage(Player player, ref StatModifier damage) {
-			damage = damage.CombineWith(GetHigherStat(player.GetDamage(DamageClass.Ranged), player.GetDamage(DamageClass.Magic), Item.damage));
-		}
-		public override void ModifyWeaponCrit(Player player, ref float crit) {
-			float ranged = player.GetCritChance(DamageClass.Ranged);
-			float magic = player.GetCritChance(DamageClass.Magic);
-			crit += Math.Max(ranged, magic) + Math.Min(ranged, magic) * 0.5f;
-		}
-		public override float UseSpeedMultiplier(Player player) {
-			float ranged = player.GetAttackSpeed(DamageClass.Ranged);
-			float magic = player.GetAttackSpeed(DamageClass.Magic);
-			return Math.Max(ranged, magic) * ((Math.Min(ranged, magic) + 1) * 0.5f) * (player.altFunctionUse == 2 ? 0.666f : 1);
-		}
-		public override void ModifyWeaponKnockback(Player player, ref StatModifier knockback) {
-			knockback = knockback.CombineWith(GetHigherStat(player.GetKnockback(DamageClass.Ranged), player.GetKnockback(DamageClass.Magic), Item.knockBack));
-		}
-		static StatModifier GetHigherStat(StatModifier a, StatModifier b, float baseValue) {
-			if (a.ApplyTo(baseValue) > b.ApplyTo(baseValue)) return a.CombineWith(b.Scale(0.5f));
-			else return b.CombineWith(a.Scale(0.5f));
-		}
 		public override void ModifyManaCost(Player player, ref float reduce, ref float mult) {
 			if (player.altFunctionUse == 2) mult *= 1.5f;
 		}

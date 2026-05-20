@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PegasusLib.Content;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,7 @@ namespace EpikV2 {
 		public static DamageClass Magic_Melee_Speed => magic_Melee_Speed ??= ModContent.GetInstance<Magic_Melee_Speed>();
 		public static DamageClass DaybreakerSword => daybreakerSword ??= ModContent.GetInstance<Daybreaker_Sword_Damage>();
 		public static DamageClass DaybreakerBow => daybreakerBow ??= ModContent.GetInstance<Daybreaker_Bow_Damage>();
+		public static DamageClass DaybreakerInherit => field ??= ModContent.GetInstance<Daybreaker_Inherit_Damage>();
 		public void Unload() {
 			ranged_Melee_Speed = null;
 			ranged_Magic = null;
@@ -110,8 +112,8 @@ namespace EpikV2 {
 	}
 	public class Daybreaker_Sword_Damage : DamageClass {
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
-			if (damageClass == Melee || damageClass == Magic) return new(armorPenInheritance: 1);
-			return damageClass == Generic ? StatInheritanceData.Full : StatInheritanceData.None;
+			if (damageClass == Melee || damageClass == Magic || damageClass == Generic) return StatInheritanceData.Full;
+			return StatInheritanceData.None;
 		}
 		public override bool GetEffectInheritance(DamageClass damageClass) {
 			return damageClass == Melee || damageClass == Magic;
@@ -119,11 +121,28 @@ namespace EpikV2 {
 	}
 	public class Daybreaker_Bow_Damage : DamageClass {
 		public override StatInheritanceData GetModifierInheritance(DamageClass damageClass) {
-			if (damageClass == Ranged || damageClass == Magic) return new(armorPenInheritance: 1);
-			return damageClass == Generic ? StatInheritanceData.Full : StatInheritanceData.None;
+			if (damageClass == Ranged || damageClass == Magic || damageClass == Generic) return StatInheritanceData.Full;
+			return StatInheritanceData.None;
 		}
 		public override bool GetEffectInheritance(DamageClass damageClass) {
 			return damageClass == Ranged || damageClass == Magic;
+		}
+	}
+	public class Daybreaker_Inherit_Damage : DamageClass, IInheritedDamageClass {
+		public void ModifyInheritence(DamageClass damageClass, ref StatInheritanceData inheritance) {
+			if (damageClass == Melee || damageClass == Magic) {
+				inheritance = StatInheritanceData.Full;
+				return;
+			}
+			Max(ref inheritance, damageClass.GetModifierInheritance(Melee));
+			Max(ref inheritance, damageClass.GetModifierInheritance(Magic));
+		}
+		static void Max(ref StatInheritanceData a, StatInheritanceData b) {
+			Max<float>(ref a.damageInheritance, b.damageInheritance);
+			Max<float>(ref a.critChanceInheritance, b.critChanceInheritance);
+			Max<float>(ref a.attackSpeedInheritance, b.attackSpeedInheritance);
+			Max<float>(ref a.armorPenInheritance, b.armorPenInheritance);
+			Max<float>(ref a.knockbackInheritance, b.knockbackInheritance);
 		}
 	}
 }
