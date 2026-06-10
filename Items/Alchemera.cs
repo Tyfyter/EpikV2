@@ -577,7 +577,7 @@ namespace EpikV2.Items {
             Projectile.CloneDefaults(ProjectileID.ShadowFlame);
             Projectile.DamageType = DamageClass.Magic;
             Projectile.tileCollide = false;
-            Projectile.aiStyle = ProjectileID.ShadowFlame;
+			Projectile.aiStyle = -1;// ProjectileID.ShadowFlame;
             Projectile.penetrate = -1;
             Projectile.extraUpdates = 1;
         }
