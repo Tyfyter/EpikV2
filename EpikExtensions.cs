@@ -1237,6 +1237,9 @@ namespace EpikV2 {
 			if (!array.IndexInRange(index)) return fallback;
 			return array[index];
 		}
+		public static ref int BuilderToggleState<TToggle>(this Player player) where TToggle : BuilderToggle {
+			return ref player.builderAccStatus[ModContent.GetInstance<TToggle>().Type];
+		}
 	}
 	public static class ConditionExtensions {
 		public static Condition CommaAnd(this Condition a, Condition b) {
